@@ -2,63 +2,91 @@ import { useMemo, useState } from 'react'
 import { generateGame } from '../game/generate'
 import type { Character } from '../game/types'
 
-type View = 'briefing' | 'players' | 'host' | 'truth'
+type Mode = 'choose' | 'host' | 'player'
+type HostPage = 'run' | 'truth'
 
-const tabs: { id: View; label: string }[] = [
-  { id: 'briefing', label: 'Briefing' }, { id: 'players', label: 'Dossiers' },
-  { id: 'host', label: 'Run the night' }, { id: 'truth', label: 'The truth' },
-]
-
-function Dossier({ character }: { character: Character }) {
-  const [revealed, setRevealed] = useState(false)
-  return <article className="dossier">
-    <header><span className="stamp">CONFIDENTIAL</span><p>{character.title}</p><h3>{character.name}</h3></header>
-    <div className="dossier-grid">
-      <div><h4>Public face</h4><p>{character.publicFace}</p><h4>Costume</h4><p>{character.costume}</p></div>
-      <div className="secret"><h4>Your real secret</h4><p>{revealed ? character.privateSecret : '••••••••••••••••••••'}</p><button onClick={() => setRevealed(value => !value)}>{revealed ? 'Conceal' : 'Reveal privately'}</button></div>
+function PlayerProfile({ character, onExit }: { character: Character; onExit?: () => void }) {
+  return <>
+    <div className="mode-bar player-mode">
+      <div><span>PLAYER PROFILE</span><b>You are viewing only {character.name}’s information</b></div>
+      <div className="mode-actions">
+        <button onClick={() => window.print()}>Download / print PDF</button>
+        {onExit && <button className="quiet" onClick={onExit}>Exit profile</button>}
+      </div>
     </div>
-    <h4>What you remember</h4>
-    <ol className="memories">{character.memories.map(memory => <li key={memory.id}><span>{memory.kind}</span>{memory.text}</li>)}</ol>
-    <h4>Live instructions</h4>
-    {character.actions.map(action => <div className="action" key={action.id}><b>{action.cue}</b><p>{action.text}</p></div>)}
-  </article>
+    <article className="profile">
+      <header>
+        <div><span className="label">YOUR CHARACTER</span><p>{character.title}</p><h1>{character.name}</h1></div>
+        <span className="stamp">PRIVATE</span>
+      </header>
+
+      <section className="start-here">
+        <span className="number">1</span><div><h2>Who you are</h2><p>{character.publicFace}</p><p><b>Your secret:</b> {character.privateSecret}</p><p><b>Wear:</b> {character.costume}</p></div>
+      </section>
+
+      <section>
+        <div className="profile-heading"><span className="number">2</span><div><h2>What you know</h2><p>These are your memories. Share, hide or lie about them as you wish.</p></div></div>
+        <div className="plain-list">{character.memories.map(memory => <div key={memory.id}>{memory.text}</div>)}</div>
+      </section>
+
+      <section>
+        <div className="profile-heading"><span className="number red">3</span><div><h2>What you must do</h2><p>Do these naturally when the cue happens. Do not explain why.</p></div></div>
+        <div className="task-list">{character.actions.map(action => <article key={action.id}><b>WHEN: {action.cue}</b><p>{action.text}</p></article>)}</div>
+      </section>
+    </article>
+  </>
 }
 
 export function App() {
   const params = new URLSearchParams(location.search)
   const [seed, setSeed] = useState(params.get('seed') || 'grambois-bleu')
-  const [view, setView] = useState<View>('briefing')
+  const [mode, setMode] = useState<Mode>('choose')
+  const [hostPage, setHostPage] = useState<HostPage>('run')
   const [selected, setSelected] = useState('jacques')
   const [completed, setCompleted] = useState<string[]>([])
   const game = useMemo(() => generateGame(seed), [seed])
   const player = game.characters.find(item => item.id === selected) || game.characters[0]
-  const coverage = Math.round((game.characters.flatMap(c => c.memories).filter(m => m.kind === 'chain').length / game.characters.flatMap(c => c.memories).length) * 100)
+  const actions = game.characters.flatMap(character => character.actions.map(action => ({ ...action, owner: character.name })))
 
-  function shareSeed() {
-    const url = new URL(location.href); url.searchParams.set('seed', seed); navigator.clipboard.writeText(url.toString())
+  function copyGameLink() {
+    const url = new URL(location.href)
+    url.searchParams.set('seed', seed)
+    navigator.clipboard.writeText(url.toString())
   }
 
+  if (mode === 'choose') return <main className="chooser">
+    <span className="kicker">LE CARNET BLEU</span>
+    <h1>Who is using this screen?</h1>
+    <p>Choose carefully. Host mode contains the solution.</p>
+    <div className="mode-cards">
+      <button onClick={() => setMode('host')}><span>HOST ONLY</span><b>Enter god mode</b><small>Run the night, see every action and reveal the truth.</small></button>
+      <button onClick={() => setMode('player')}><span>ONE PLAYER</span><b>Open a profile</b><small>See exactly what one character needs to know and do.</small></button>
+    </div>
+    <div className="case-seed"><label>Game seed</label><input value={seed} onChange={event => setSeed(event.target.value)} /><button onClick={copyGameLink}>Copy game link</button></div>
+  </main>
+
+  if (mode === 'player') return <main className="page player-page">
+    <div className="profile-picker"><label>Choose your character</label><select value={selected} onChange={event => setSelected(event.target.value)}>{game.characters.map(character => <option value={character.id} key={character.id}>{character.name}</option>)}</select></div>
+    <PlayerProfile character={player} onExit={() => setMode('choose')} />
+  </main>
+
   return <>
-    <header className="masthead">
-      <div className="eyebrow">BUREAU DES AFFAIRES ABSURDES · CASE 06</div>
-      <div className="brand"><div className="mark">LCB</div><div><h1>{game.title}</h1><p>{game.subtitle}</p></div></div>
-      <div className="seed-box"><label htmlFor="seed">Case seed</label><div><input id="seed" value={seed} onChange={event => setSeed(event.target.value)} /><button onClick={shareSeed}>Copy link</button></div></div>
+    <header className="mode-bar host-mode">
+      <div><span>GOD MODE · HOST EYES ONLY</span><b>You can see every secret and the full solution</b></div>
+      <div className="mode-actions"><button className="quiet" onClick={() => setMode('player')}>Preview player profiles</button><button className="quiet" onClick={() => setMode('choose')}>Exit god mode</button></div>
     </header>
-    <nav>{tabs.map(tab => <button className={view === tab.id ? 'active' : ''} onClick={() => setView(tab.id)} key={tab.id}>{tab.label}</button>)}</nav>
-    <main>
-      {view === 'briefing' && <section className="briefing">
-        <div className="hero"><div><span className="kicker">A live dinner-party machine</span><h2>The murder happens<br/><em>because you are playing.</em></h2><p>Players arrive as ludicrous spies and aristocrats. Their memories describe the past. Their secret actions create the present. Only the chronology connects them.</p><button className="primary" onClick={() => setView('players')}>Open the dossiers →</button></div><div className="blue-book"><span>TRÈS SECRET</span><strong>LE<br/>CARNET<br/>BLEU</strong><small>IDENTITÉS · DETTES · TRAHISONS</small></div></div>
-        <div className="metrics"><div><strong>{game.characters.length}</strong><span>players + host</span></div><div><strong>{game.timeline.length}</strong><span>truth beats</span></div><div><strong>{coverage}%</strong><span>memories relevant</span></div><div><strong>60</strong><span>seconds of darkness</span></div></div>
-        <div className="principles"><article><b>01</b><h3>Past</h3><p>Each dossier contains five memories. Some solve the case; others expose debts, affairs and exceptionally stupid grudges.</p></article><article><b>02</b><h3>Present</h3><p>Secret instructions cause real events at the table: a switched jacket, an open terrace, a stolen napkin, a blackout.</p></article><article><b>03</b><h3>Reconstruction</h3><p>No clue names the culprit. The group must recover most of one objective timeline before contradictions collapse into sense.</p></article></div>
-      </section>}
-      {view === 'players' && <section><div className="section-head"><div><span className="kicker">Private material</span><h2>Player dossiers</h2></div><select value={selected} onChange={event => setSelected(event.target.value)}>{game.characters.map(c => <option value={c.id} key={c.id}>{c.name}</option>)}</select></div><Dossier character={player}/><p className="print-note">Print or send one dossier per player. Never let players browse this screen together.</p></section>}
-      {view === 'host' && <section><div className="section-head"><div><span className="kicker">Host eyes only</span><h2>Run the night</h2></div><span className="progress">{completed.length}/{game.characters.flatMap(c => c.actions).length} actions fired</span></div>
-        <div className="act"><span>ACT I · YOU ARE THE CONCIERGE</span><h3>Let the nonsense become evidence.</h3><p>Stay in character. Privately cue each player at the right natural moment. Do not explain why. The essential actions are marked in blue.</p></div>
-        <div className="run-list">{game.characters.flatMap(character => character.actions.map(action => ({...action, owner: character.name}))).map(action => <label className={action.essential ? 'essential' : ''} key={action.id}><input type="checkbox" checked={completed.includes(action.id)} onChange={() => setCompleted(list => list.includes(action.id) ? list.filter(id => id !== action.id) : [...list, action.id])}/><div><b>{action.cue}</b><h4>{action.owner}</h4><p>{action.text}</p><small>{action.consequence}</small></div></label>)}</div>
-        <div className="blackout"><span>THE TURN</span><h3>Lights out. Sixty seconds.</h3><p>Take your place in the study. When the lights return, the Concierge is dead. Step out of character and become game master.</p></div>
-      </section>}
-      {view === 'truth' && <section><div className="section-head"><div><span className="kicker danger">Spoilers · host only</span><h2>The canonical timeline</h2></div><div className="culprit">CULPRIT<br/><b>{game.culprit}</b></div></div><p className="solution">{game.solution}</p><div className="timeline">{game.timeline.map(item => <article key={item.beat}><span>{String(item.beat).padStart(2,'0')}</span><div><h3>{item.title}</h3><p>{item.truth}</p><small>Evidence: {item.evidence.join(' · ')}</small></div></article>)}</div></section>}
+    <nav className="host-nav"><button className={hostPage === 'run' ? 'active' : ''} onClick={() => setHostPage('run')}>1. Run the game</button><button className={hostPage === 'truth' ? 'active' : ''} onClick={() => setHostPage('truth')}>2. Reveal the solution</button></nav>
+    <main className="page host-page">
+      {hostPage === 'run' ? <>
+        <div className="page-title"><div><span className="kicker">YOUR JOB</span><h1>Make these actions happen.</h1><p>Stay as the Concierge. Cue each player. Tick it off. Then trigger the blackout.</p></div><b>{completed.length}/{actions.length} done</b></div>
+        <div className="host-steps"><article><b>1</b><span>Give each guest only their own PDF profile.</span></article><article><b>2</b><span>During dinner, cue the actions below in order.</span></article><article><b>3</b><span>After the blackout, become game master.</span></article></div>
+        <div className="run-list">{actions.map(action => <label className={action.essential ? 'essential' : ''} key={action.id}><input type="checkbox" checked={completed.includes(action.id)} onChange={() => setCompleted(list => list.includes(action.id) ? list.filter(id => id !== action.id) : [...list, action.id])}/><div><small>{action.cue}</small><h3>{action.owner}</h3><p>{action.text}</p><em>What it causes: {action.consequence}</em></div></label>)}</div>
+        <button className="blackout" onClick={() => setHostPage('truth')}><span>FINAL HOST ACTION</span><b>Kill the lights for 60 seconds</b><small>When they return, the Concierge is dead. Open the solution →</small></button>
+      </> : <>
+        <div className="page-title"><div><span className="kicker danger">SPOILERS</span><h1>What actually happened.</h1></div><b className="culprit">CULPRIT: {game.culprit}</b></div>
+        <p className="solution">{game.solution}</p>
+        <div className="timeline">{game.timeline.map(item => <article key={item.beat}><span>{item.beat}</span><div><h3>{item.title}</h3><p>{item.truth}</p><small>Proof: {item.evidence.join(' · ')}</small></div></article>)}</div>
+      </>}
     </main>
-    <footer>Deterministic by design · same seed, same case · v0.1</footer>
   </>
 }
