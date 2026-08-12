@@ -2,7 +2,21 @@ import { useMemo, useState } from 'react'
 import { generateGame } from '../game/generate'
 import type { Character } from '../game/types'
 
-type Mode = 'choose' | 'host' | 'player'
+type Mode = 'choose' | 'rules' | 'host' | 'player'
+
+function Rules({ onExit }: { onExit: () => void }) {
+  return <main className="rules-page">
+    <button className="rules-back" onClick={onExit}>← Back</button>
+    <header><span className="kicker">HOW TO PLAY</span><h1>A murder mystery that happens around your dinner table.</h1><p>One person hosts. Everyone else plays a character. The host is murdered halfway through the evening; the players then work out what happened.</p></header>
+    <section className="rules-summary"><article><b>PLAYERS</b><strong>6</strong></article><article><b>TIME</b><strong>2–3 hours</strong></article><article><b>YOU NEED</b><strong>Dinner, costumes, printed dossiers</strong></article></section>
+    <section className="rules-block"><span>BEFORE THE NIGHT</span><h2>1. The host prepares the game</h2><ol><li>Open <b>God mode</b>. Only the host may see it.</li><li>Give each guest one private character dossier.</li><li>Players read their own dossier and arrive in costume. They must not show it to anyone else.</li></ol></section>
+    <section className="rules-block"><span>ACT ONE · DINNER</span><h2>2. Play your character</h2><p>Talk, eat and behave as the person in your dossier. Your memories are things your character knows. Your actions are instructions you must carry out when their cue occurs.</p><div className="rule-pair"><article><h3>You may</h3><ul><li>Share a memory</li><li>Keep a memory secret</li><li>Lie about your motives or secrets</li><li>Question anyone</li></ul></article><article><h3>You may not</h3><ul><li>Invent new evidence</li><li>Change a written memory</li><li>Skip a required action</li><li>Show anyone your dossier</li></ul></article></div><p className="rules-note"><b>Important:</b> the strange actions are part of the crime. Do them naturally. Do not announce that the game told you to do them.</p></section>
+    <section className="rules-block"><span>THE TURN</span><h2>3. The lights go out</h2><p>The host triggers a sixty-second blackout. When the lights return, the Concierge is dead. The host stops playing the Concierge and becomes the game master.</p></section>
+    <section className="rules-block"><span>ACT TWO · INVESTIGATION</span><h2>4. Reconstruct what happened</h2><p>There are no new clue cards. The evidence is already in the room: what people remember, what they did during dinner and what they are trying to hide.</p><ol><li>Question each other.</li><li>Put events in chronological order.</li><li>Resolve contradictions.</li><li>Agree on the culprit, motive and sequence of events.</li></ol><p className="rules-note">No single player has the full answer. You will need most of the group’s relevant memories to solve it.</p></section>
+    <section className="rules-block final-rule"><span>ENDING THE GAME</span><h2>5. Make one accusation</h2><p>The group tells the game master:</p><ul><li><b>Who</b> caused the death?</li><li><b>Why</b> did they confront the Concierge?</li><li><b>How</b> did the dinner-table actions make it possible?</li></ul><p>The game master then opens the sealed solution and reads the true timeline aloud. You win if the accusation names the culprit and explains the essential chain of events.</p></section>
+    <button className="rules-start" onClick={onExit}>Understood — choose a role →</button>
+  </main>
+}
 
 function PlayerProfile({ character, onExit }: { character: Character; onExit?: () => void }) {
   return <>
@@ -58,12 +72,15 @@ export function App() {
     <span className="kicker">LE CARNET BLEU</span>
     <h1>Who is using this screen?</h1>
     <p>Choose carefully. Host mode contains the solution.</p>
+    <button className="rules-link" onClick={() => setMode('rules')}>Never played? Read the rules →</button>
     <div className="mode-cards">
       <button onClick={() => setMode('host')}><span>HOST ONLY</span><b>Enter god mode</b><small>Run the night, see every action and reveal the truth.</small></button>
       <button onClick={() => setMode('player')}><span>ONE PLAYER</span><b>Open a profile</b><small>See exactly what one character needs to know and do.</small></button>
     </div>
     <div className="case-seed"><label>Game seed</label><input value={seed} onChange={event => setSeed(event.target.value)} /><button onClick={copyGameLink}>Copy game link</button></div>
   </main>
+
+  if (mode === 'rules') return <Rules onExit={() => setMode('choose')} />
 
   if (mode === 'player') return <main className="page player-page">
     <div className="profile-picker"><label>Choose your character</label><select value={selected} onChange={event => setSelected(event.target.value)}>{game.characters.map(character => <option value={character.id} key={character.id}>{character.name}</option>)}</select></div>
