@@ -3,7 +3,6 @@ import { generateGame } from '../game/generate'
 import type { Character } from '../game/types'
 
 type Mode = 'choose' | 'host' | 'player'
-type HostPage = 'run' | 'truth'
 
 function PlayerProfile({ character, onExit }: { character: Character; onExit?: () => void }) {
   return <>
@@ -41,7 +40,8 @@ export function App() {
   const params = new URLSearchParams(location.search)
   const [seed, setSeed] = useState(params.get('seed') || 'grambois-bleu')
   const [mode, setMode] = useState<Mode>('choose')
-  const [hostPage, setHostPage] = useState<HostPage>('run')
+  const [previewing, setPreviewing] = useState(false)
+  const [truthOpen, setTruthOpen] = useState(false)
   const [selected, setSelected] = useState('jacques')
   const [completed, setCompleted] = useState<string[]>([])
   const game = useMemo(() => generateGame(seed), [seed])
@@ -70,23 +70,26 @@ export function App() {
     <PlayerProfile character={player} onExit={() => setMode('choose')} />
   </main>
 
+  if (previewing) return <main className="page player-page host-preview">
+    <div className="preview-parent"><button onClick={() => setPreviewing(false)}>← Back to god mode</button><span>HOST PREVIEW · this is what {player.name} receives</span></div>
+    <div className="profile-picker"><label>Preview another dossier</label><select value={selected} onChange={event => setSelected(event.target.value)}>{game.characters.map(character => <option value={character.id} key={character.id}>{character.name}</option>)}</select></div>
+    <PlayerProfile character={player} onExit={() => setPreviewing(false)} />
+  </main>
+
   return <>
     <header className="mode-bar host-mode">
       <div><span>GOD MODE · HOST EYES ONLY</span><b>You can see every secret and the full solution</b></div>
-      <div className="mode-actions"><button className="quiet" onClick={() => setMode('player')}>Preview player profiles</button><button className="quiet" onClick={() => setMode('choose')}>Exit god mode</button></div>
+      <div className="mode-actions"><button className="quiet" onClick={() => setMode('choose')}>Exit god mode</button></div>
     </header>
-    <nav className="host-nav"><button className={hostPage === 'run' ? 'active' : ''} onClick={() => setHostPage('run')}>1. Run the game</button><button className={hostPage === 'truth' ? 'active' : ''} onClick={() => setHostPage('truth')}>2. Reveal the solution</button></nav>
     <main className="page host-page">
-      {hostPage === 'run' ? <>
-        <div className="page-title"><div><span className="kicker">YOUR JOB</span><h1>Make these actions happen.</h1><p>Stay as the Concierge. Cue each player. Tick it off. Then trigger the blackout.</p></div><b>{completed.length}/{actions.length} done</b></div>
-        <div className="host-steps"><article><b>1</b><span>Give each guest only their own PDF profile.</span></article><article><b>2</b><span>During dinner, cue the actions below in order.</span></article><article><b>3</b><span>After the blackout, become game master.</span></article></div>
+      <div className="host-intro"><span className="kicker">YOUR CONTROL ROOM</span><h1>Run the night from top to bottom.</h1><p>Prepare the guests, run the actions, then reveal the truth.</p></div>
+      <section className="host-phase"><div className="phase-marker"><b>1</b><span>BEFORE GUESTS ARRIVE</span></div><div className="phase-content"><h2>Send each guest their dossier</h2><p>Open a card to preview and export that player’s private PDF. You always return here.</p><div className="dossier-grid">{game.characters.map(character => <button key={character.id} onClick={() => { setSelected(character.id); setPreviewing(true) }}><span>PRIVATE DOSSIER</span><b>{character.name}</b><small>{character.title}</small><em>Open dossier →</em></button>)}</div></div></section>
+      <section className="host-phase"><div className="phase-marker"><b>2</b><span>DURING DINNER</span></div><div className="phase-content">
+        <div className="page-title"><div><h2>Make these actions happen</h2><p>Stay as the Concierge. Cue each player and tick it off.</p></div><b>{completed.length}/{actions.length} done</b></div>
         <div className="run-list">{actions.map(action => <label className={action.essential ? 'essential' : ''} key={action.id}><input type="checkbox" checked={completed.includes(action.id)} onChange={() => setCompleted(list => list.includes(action.id) ? list.filter(id => id !== action.id) : [...list, action.id])}/><div><small>{action.cue}</small><h3>{action.owner}</h3><p>{action.text}</p><em>What it causes: {action.consequence}</em></div></label>)}</div>
-        <button className="blackout" onClick={() => setHostPage('truth')}><span>FINAL HOST ACTION</span><b>Kill the lights for 60 seconds</b><small>When they return, the Concierge is dead. Open the solution →</small></button>
-      </> : <>
-        <div className="page-title"><div><span className="kicker danger">SPOILERS</span><h1>What actually happened.</h1></div><b className="culprit">CULPRIT: {game.culprit}</b></div>
-        <p className="solution">{game.solution}</p>
-        <div className="timeline">{game.timeline.map(item => <article key={item.beat}><span>{item.beat}</span><div><h3>{item.title}</h3><p>{item.truth}</p><small>Proof: {item.evidence.join(' · ')}</small></div></article>)}</div>
-      </>}
+        <div className="blackout"><span>FINAL HOST ACTION</span><b>Kill the lights for 60 seconds</b><small>When they return, the Concierge is dead. Become game master.</small></div>
+      </div></section>
+      <section className="host-phase"><div className="phase-marker"><b>3</b><span>AFTER THE MURDER</span></div><div className="phase-content"><h2>Let them investigate. Reveal when ready.</h2><p>The solution stays sealed until you deliberately open it.</p>{!truthOpen ? <button className="truth-seal" onClick={() => setTruthOpen(true)}><span>HOST EYES ONLY</span><b>Reveal the solution</b><small>Show the culprit and canonical timeline →</small></button> : <div className="truth"><div className="page-title"><div><span className="kicker danger">SPOILERS</span><h2>What actually happened</h2></div><b className="culprit">CULPRIT: {game.culprit}</b></div><p className="solution">{game.solution}</p><div className="timeline">{game.timeline.map(item => <article key={item.beat}><span>{item.beat}</span><div><h3>{item.title}</h3><p>{item.truth}</p><small>Proof: {item.evidence.join(' · ')}</small></div></article>)}</div></div>}</div></section>
     </main>
   </>
 }
