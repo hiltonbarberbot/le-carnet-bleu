@@ -1,17 +1,21 @@
 # Le Carnet Bleu
 
-A seed-driven engine for live dinner-party murder mysteries where **memories describe the past, actions create the present, and the solution requires both**.
+A six-person live dinner-party murder mystery: one host performs Le Maître Concierge and becomes Game Master after the murder; five guests play the suspects.
 
-The included first case is a ridiculous French espionage story played completely straight. The host begins in character as Le Maître Concierge. The guests perform secret live actions; then a blackout turns those absurd actions into the first half of the crime scene.
+The game is built around one rule: **memories describe what a character knows, actions create what happens tonight, and the canonical timeline connects both**.
 
 ## Included
 
-- Six private player dossiers with identities, secrets, memories and live instructions
-- One deterministic canonical timeline with evidence coverage
-- Host run-sheet and live action checklist
-- Seeded, reproducible case ordering and shareable seed URLs
-- Print-friendly dossiers
-- Unit tests for determinism and timeline coverage
+- Five private player dossiers with identities, secrets, evidence and live instructions
+- One explicit host/Concierge role
+- A validated canonical timeline with two evidence routes per beat
+- An ordered, dependency-aware dinner and blackout run plan
+- Fail-closed roster and venue preparation
+- A gated lifecycle from lobby through dinner, murder, investigation, reveal and completion
+- Investigation evidence tracking and one locked group accusation
+- Print-friendly dossiers and browser-local session recovery
+
+AI fallback is represented as a roster policy but intentionally fails closed: this repository has no AI controller runtime yet. A conversational AI also cannot own a physical action without an explicit host proxy or transformed beat.
 
 ## Develop
 
@@ -27,8 +31,9 @@ npm test
 npm run build
 ```
 
-## Data model
+## Structure
 
-The scenario lives in `src/game/scenario.ts`. The engine treats the canonical timeline as the source of truth, then distributes its evidence into character memories and actions. Every essential beat is tested for coverage.
-
-This is an initial playable release. Planned next: a case editor, configurable cast size, private player links, and generation from reusable scenario templates.
+- `src/game/scenario.ts` contains authored characters, evidence, actions, timeline and run plan.
+- `src/game/story/compile.ts` rejects broken evidence, dependencies and unplanned essential actions.
+- `src/game/session/lifecycle.ts` owns setup gates, roster lock and legal game transitions.
+- `src/ui/App.tsx` projects God mode and player dossiers from that domain state.

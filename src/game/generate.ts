@@ -1,5 +1,6 @@
-import { cast, timeline } from './scenario'
-import type { Character, Game } from './types'
+import { cast, publicEvidence, runPlan, timeline } from './scenario'
+import { compileStory } from './story/compile'
+import type { Character, Story } from './types'
 
 export function hashSeed(value: string) {
   let hash = 2166136261
@@ -28,17 +29,26 @@ function shuffle<T>(items: T[], seed: string): T[] {
   return result
 }
 
-export function generateGame(seed: string): Game {
+export function generateGame(seed: string): Story {
   const cleanSeed = seed.trim() || 'grambois-bleu'
   const characters: Character[] = shuffle(cast, `${cleanSeed}:cast`).map(character => ({
     ...character,
     memories: shuffle(character.memories, `${cleanSeed}:${character.id}:memories`),
   }))
-  return {
+
+  return compileStory({
+    id: 'le-carnet-bleu',
     seed: cleanSeed,
     title: 'Le Carnet Bleu',
     subtitle: 'A ridiculous French espionage murder mystery, played completely straight.',
-    victim: 'Le Maître Concierge', culprit: 'Jacques Fromage', characters, timeline,
-    solution: 'Jacques accidentally killed the Concierge during a blackout after a jacket switch made him believe the Carnet Bleu had been planted on him. Madame Très-Bien then contaminated the scene while searching for the book.',
-  }
+    totalPeople: 6,
+    hostRole: 'Le Maître Concierge, then Game Master',
+    victim: 'Le Maître Concierge',
+    culprit: 'Jacques Fromage',
+    characters,
+    publicEvidence,
+    timeline,
+    runPlan,
+    solution: 'Jacques accidentally killed the Concierge during a blackout after a jacket switch made him believe Le Carnet Bleu had been planted on him. Madame Très-Bien then contaminated the scene while searching for the book.',
+  })
 }
