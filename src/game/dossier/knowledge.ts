@@ -9,16 +9,15 @@ export function getMemoriesBeforeAction(story: Story, character: Character, acti
   const actionBeat = story.runPlan.find(beat => beat.actionIds.includes(actionId))
   if (!actionBeat) return getKnownMemories(character)
 
+  const beatsById = new Map(story.runPlan.map(beat => [beat.id, beat]))
   const completed = new Set<string>()
-  function collectDependencies(beatId: string) {
-    const beat = story.runPlan.find(item => item.id === beatId)
-    if (!beat) return
-    for (const dependency of beat.dependsOn) {
-      if (completed.has(dependency)) continue
-      completed.add(dependency)
-      collectDependencies(dependency)
-    }
+  const pending = [...actionBeat.dependsOn]
+  while (pending.length) {
+    const beatId = pending.pop()!
+    if (completed.has(beatId)) continue
+    completed.add(beatId)
+    const beat = beatsById.get(beatId)
+    if (beat) pending.push(...beat.dependsOn)
   }
-  collectDependencies(actionBeat.id)
   return getKnownMemories(character, [...completed])
 }

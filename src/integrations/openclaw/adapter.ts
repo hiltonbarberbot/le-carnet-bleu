@@ -1,4 +1,4 @@
-import { discoverGames, resolveGame } from '../../game/runtime/registry'
+import { discoverGames, findMatchingGames } from '../../game/runtime/registry'
 import type { GameCommand, GameParticipant, PortableGameRuntime } from '../../game/runtime/contract'
 import type { GameState, RuntimeCapabilities } from '../../game/types'
 
@@ -63,7 +63,7 @@ function conversationKey(request: Pick<ChatRequest, 'channel' | 'conversationId'
 }
 
 function participantAddress(channel: string, participant: ChatParticipant) {
-  return participant.privateAddress?.trim() || `${channel}:${participant.id}`
+  return participant.privateAddress?.trim() || `${channel}:${participant.id.trim()}`
 }
 
 function uniqueParticipants(channel: string, participants: ChatParticipant[]): GameParticipant[] {
@@ -89,10 +89,6 @@ function capabilityErrors(runtime: PortableGameRuntime, capabilities: OpenClawCa
     ...(capabilities.aiControllers ? ['ai_controllers'] : []),
   ])
   return runtime.manifest.requiredHostCapabilities.filter(capability => !available.has(capability))
-}
-
-function phaseOf(state: unknown) {
-  return typeof state === 'object' && state !== null && 'phase' in state ? String(state.phase) : 'unknown'
 }
 
 export function createMemoryChatSessionStore(): ChatSessionStore {
@@ -138,14 +134,15 @@ export function createOpenClawGameAdapter(options: OpenClawAdapterOptions) {
 
       if (persisted) {
         const runtime = runtimeForPersisted(persisted)
-        const state = runtime.restoreState(persisted.serializedState) as GameState
+        const state = runtime.restoreState(persisted.serializedState)
         if (!request.command) {
+          const phase = state.phase
           return {
             ok: true,
             gameId: runtime.manifest.id,
             sessionId: state.phase === 'idle' ? undefined : state.id,
             state,
-            messages: [`${runtime.manifest.name} is ${phaseOf(state)}. Send one of: ${runtime.manifest.commands.filter(command => command.allowedPhases.includes(phaseOf(state))).map(command => command.name).join(', ') || 'no commands'}.`],
+            messages: [`${runtime.manifest.name} is ${phase}. Send one of: ${runtime.manifest.commands.filter(command => command.allowedPhases.includes(phase)).map(command => command.name).join(', ') || 'no commands'}.`],
           }
         }
         const result = runtime.handleInput(state, request.command, {
@@ -153,12 +150,12 @@ export function createOpenClawGameAdapter(options: OpenClawAdapterOptions) {
           now: options.now?.(),
           createId: options.createId,
         })
-        persist(key, runtime.manifest.id, runtime, result.state as GameState)
+        persist(key, runtime.manifest.id, runtime, result.state)
         return {
           ok: true,
           gameId: runtime.manifest.id,
           sessionId: result.state.phase === 'idle' ? undefined : result.state.id,
-          state: result.state as GameState,
+          state: result.state,
           messages: result.events.map(event => event.message),
         }
       }
@@ -172,12 +169,9 @@ export function createOpenClawGameAdapter(options: OpenClawAdapterOptions) {
       if (!selector) {
         return { ok: false, messages: [`No game is selected for ${key}. Choose one of:\n${listGames() || 'none installed'}`] }
       }
-      const runtime = resolveGame(options.runtimes, selector)
+      const variants = findMatchingGames(options.runtimes, selector)
+      const runtime = variants.length === 1 ? variants[0] : null
       if (!runtime) {
-        const wanted = selector.trim().toLowerCase()
-        const variants = options.runtimes.filter(candidate => candidate.manifest.id.toLowerCase() === wanted
-          || candidate.manifest.name.toLowerCase() === wanted
-          || candidate.manifest.aliases.some(alias => alias.toLowerCase() === wanted))
         return variants.length > 1
           ? { ok: false, messages: [`More than one authored definition matches “${selector}”. Select its definition id:\n${variants.map(candidate => `- ${candidate.authoredGame.definitionId} · ${candidate.authoredGame.setting.venueName}`).join('\n')}`] }
           : { ok: false, messages: [`Game “${selector}” is not installed. Available games:\n${listGames() || 'none'}`] }
@@ -199,12 +193,12 @@ export function createOpenClawGameAdapter(options: OpenClawAdapterOptions) {
         now: options.now?.(),
         createId: options.createId,
       })
-      persist(key, runtime.manifest.id, runtime, result.state as GameState)
+      persist(key, runtime.manifest.id, runtime, result.state)
       return {
         ok: true,
         gameId: runtime.manifest.id,
         sessionId: result.state.phase === 'idle' ? undefined : result.state.id,
-        state: result.state as GameState,
+        state: result.state,
         messages: [
           ...result.events.map(event => event.message),
           `Human participants retained separately: ${participants.map(participant => participant.displayName).join(', ')}.`,

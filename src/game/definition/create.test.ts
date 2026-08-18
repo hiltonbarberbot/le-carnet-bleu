@@ -32,6 +32,11 @@ function galleryStory(): Story {
     privateIdentity: `You secretly witnessed part ${index + 1} of the forgery scandal.`,
     privateObjective: 'Learn who substituted the donated painting without exposing your own involvement.',
     privateSecret: index === 0 ? 'You replaced the original painting and caused the curator’s death.' : `You concealed part ${index + 1} of the forgery scandal.`,
+    goals: [1, 2, 3].map(goal => ({ id: `gallery-goal-${index + 1}-${goal}`, title: `Goal ${goal}`, text: `Complete gallery objective ${goal}.`, phase: 'any', points: 1 })),
+    abilities: [1, 2].map(ability => ({ id: `gallery-ability-${index + 1}-${ability}`, title: `Ability ${ability}`, text: `Use gallery ability ${ability} once.`, uses: 1 as const })),
+    item: { title: `Gallery item ${index + 1}`, text: 'A playable object connected to the disputed donation.' },
+    relationships: [1, 2].map(offset => ({ roleId: `guest-${((index + offset) % names.length) + 1}`, kind: offset === 1 ? 'approach' as const : 'watch' as const, text: 'A useful connection in the gallery circle.' })),
+    dilemma: 'Choose between protecting your reputation and telling the truth about the donation.',
     memories: [{
       id: `gallery-evidence-${index + 1}`,
       kind: 'evidence',
@@ -62,6 +67,12 @@ function galleryStory(): Story {
     culprit: names[0],
     characters,
     publicEvidence: [],
+    evening: [
+      { id: 'gallery-arrival', title: 'Arrival', description: 'Meet the gallery circle.', durationMinutes: 15, phase: 'welcome' },
+      { id: 'gallery-reveal', title: 'Unveiling', description: 'Read the catalogue and investigate.', durationMinutes: 30, phase: 'unveiling' },
+      { id: 'gallery-investigation', title: 'Investigation', description: 'Compare evidence and make private accusations.', durationMinutes: 35, phase: 'investigation' },
+      { id: 'gallery-solution', title: 'Solution', description: 'Reveal the substitution and its consequences.', durationMinutes: 15, phase: 'reveal' },
+    ],
     timeline: [
       { beat: 1, title: 'The substituted work', truth: 'The donated painting was replaced before the opening.', evidence: ['gallery-evidence-1', 'gallery-evidence-2'] },
       { beat: 2, title: 'The fatal exposure', truth: 'The culprit silenced the curator when the catalogue proved the substitution.', evidence: ['gallery-evidence-3', 'gallery-evidence-4'] },
@@ -94,8 +105,8 @@ function galleryDefinition() {
     },
     story: galleryStory(),
     acts: [
-      { id: 'welcome', title: 'The welcome', operatorGoal: 'Establish the relationships around the donation.', completionLabel: 'Begin the unveiling →' },
-      { id: 'unveiling', title: 'The unveiling', operatorGoal: 'Expose the catalogue discrepancy and stage the discovery.', completionLabel: 'Begin the investigation →' },
+      { id: 'welcome', title: 'The welcome', operatorGoal: 'Establish the relationships around the donation.', playerGoal: 'Meet the circle and share one fact.', durationMinutes: 15, completionLabel: 'Begin the unveiling →' },
+      { id: 'unveiling', title: 'The unveiling', operatorGoal: 'Expose the catalogue discrepancy and stage the discovery.', playerGoal: 'Compare the catalogue with what you know.', durationMinutes: 30, completionLabel: 'Begin the investigation →' },
     ],
     setupRequirements: [
       { id: 'public-floor', label: 'Keep all play on the public gallery floor.', settingField: 'safetyConstraints', settingValue: 'No player leaves the public gallery floor' },
@@ -146,7 +157,7 @@ describe('setting-specific game definitions', () => {
     expect(active.playPhase).toBe('investigation')
     active = toggleEvidence(active, 'gallery-evidence-1')
     active = toggleEvidence(active, 'gallery-evidence-3')
-    active = updateAccusation(active, { culprit: names[0], motive: 'Conceal the substitution.', chain: 'Donation, catalogue, exposure.' })
+    for (const character of definition.story.characters) active = updateAccusation(active, character.id, { culprit: names[0], motive: 'Conceal the substitution.', chain: 'Donation, catalogue, exposure.' })
     active = revealToTable(definition, active)
     const completed = completeGame(active)
     const restored = restoreGameSession(serializeGameState(definition, completed))

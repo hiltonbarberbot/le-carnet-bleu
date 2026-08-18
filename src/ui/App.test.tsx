@@ -13,7 +13,7 @@ import {
   updateEnrolment,
 } from '../game/session/lifecycle'
 import type { GameState, PreparedGameState } from '../game/types'
-import { getHostScreen, HostWorkspace } from './App'
+import { getHostScreen, HostWorkspace, StartScreen } from './App'
 
 const definition = createDemoGame('ui')
 const story = definition.story
@@ -51,7 +51,7 @@ function deliverAll(state: PreparedGameState) {
   return next
 }
 
-describe('God mode lifecycle projection', () => {
+describe('host lifecycle projection', () => {
   it('renders first load as idle with create but no reset action', () => {
     const html = render(createIdleState(definition))
     expect(html).toContain('IDLE · AUTHORED FOR')
@@ -61,14 +61,14 @@ describe('God mode lifecycle projection', () => {
 
   it('renders partial enrolment as blocked', () => {
     const html = render(createGame(definition, new Date('2026-08-18T10:00:00Z'), 'partial'))
-    expect(html).toContain('ENROLLING')
-    expect(html).toContain('PREPARATION FAILED')
+    expect(html).toContain('SETUP')
+    expect(html).toContain('things left before roles are ready')
     expect(html).toContain('disabled')
   })
 
   it('renders prepared-but-unsent and failed delivery distinctly', () => {
     let prepared = prepareGame(definition, enrolling(), noAi)
-    expect(render(prepared)).toContain('not requested')
+    expect(render(prepared)).toContain('waiting')
     const roleId = story.characters[0].id
     prepared = requestDelivery(prepared, roleId)
     prepared = beginDelivery(prepared, roleId)
@@ -81,8 +81,8 @@ describe('God mode lifecycle projection', () => {
 
   it('renders active play and reset-to-idle as separate states', () => {
     const active = startGame(definition, deliverAll(prepareGame(definition, enrolling(), noAi)))
-    expect(getHostScreen(active)).toBe('active:dinner')
-    expect(render(active)).toContain('Dinner and the reckoning')
+    expect(getHostScreen(active)).toBe('active:schemes')
+    expect(render(active)).toContain('Arrival and first schemes')
     const idle = resetGame(definition, active, true)
     expect(getHostScreen(idle)).toBe('idle')
     expect(render(idle)).toContain('IDLE · AUTHORED FOR')
@@ -101,5 +101,34 @@ describe('God mode lifecycle projection', () => {
     const html = render(active, { aiControllers: true })
     expect(html).toContain('Generate AI line')
     expect(html).toContain('AI performance required')
+  })
+})
+
+describe('start screen', () => {
+  const renderStart = (state: GameState) => renderToStaticMarkup(<StartScreen
+    definition={definition}
+    game={state}
+    importError=""
+    onCreate={() => undefined}
+    onRules={() => undefined}
+    onStory={() => undefined}
+    onDossier={() => undefined}
+    onImport={() => undefined}
+    onExport={() => undefined}
+  />)
+
+  it('makes creating a game the unmistakable primary action', () => {
+    const html = renderStart(createIdleState(definition))
+    expect(html).toContain('Create game')
+    expect(html).toContain('START HERE')
+    expect(html).toContain('Describe your setting and let AI draft the mystery')
+    expect(html).not.toContain('God mode')
+    expect(html.indexOf('Create game')).toBeLessThan(html.indexOf('Advanced'))
+  })
+
+  it('offers to continue when a game already exists', () => {
+    const html = renderStart(createGame(definition, new Date('2026-08-18T10:00:00Z'), 'existing'))
+    expect(html).toContain('Continue game')
+    expect(html).toContain('Return to the enrolling game')
   })
 })

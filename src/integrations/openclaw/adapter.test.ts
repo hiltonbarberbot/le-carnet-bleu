@@ -49,7 +49,7 @@ describe('generic OpenClaw game adapter', () => {
       advanced = adapter.handle({ channel: 'whatsapp', conversationId: 'game-group', text: 'delivered', sender, command: { name: 'record_delivery', payload: { roleId, ok: true, receipt: `whatsapp:${roleId}` } } })
     }
     advanced = adapter.handle({ channel: 'whatsapp', conversationId: 'game-group', text: 'start', sender, command: { name: 'start' } })
-    expect(advanced).toMatchObject({ ok: true, state: { phase: 'active', playPhase: 'dinner' } })
+    expect(advanced).toMatchObject({ ok: true, state: { phase: 'active', playPhase: 'schemes' } })
   })
 
   it('lists games in an unbound context and requires explicit selection before starting', () => {
@@ -62,6 +62,25 @@ describe('generic OpenClaw game adapter', () => {
     expect(unselected.messages.join(' ')).toContain('No game is selected')
     const selected = adapter.handle({ channel: 'whatsapp', conversationId: 'other', text: 'start the game', game: 'carnet bleu', sender, mentions })
     expect(selected).toMatchObject({ ok: true, gameId: 'le-carnet-bleu' })
+  })
+
+  it('normalizes participant identity before deriving a private address', () => {
+    const adapter = createOpenClawGameAdapter({
+      runtimes: [demoRuntime('normalized-participants')],
+      store: createMemoryChatSessionStore(),
+      capabilities,
+      bindings: [{ channel: 'whatsapp', conversationId: 'trimmed', gameId: 'le-carnet-bleu' }],
+    })
+    const response = adapter.handle({
+      channel: 'whatsapp',
+      conversationId: 'trimmed',
+      text: 'start the game',
+      sender,
+      mentions: [{ id: ' alice ', displayName: ' Alice ' }, { id: 'bob', displayName: 'Bob' }],
+    })
+    expect(response.state?.phase).toBe('enrolling')
+    if (response.state?.phase !== 'enrolling') throw new Error('Expected enrolling')
+    expect(response.state.setup.seats[0]).toMatchObject({ participantId: 'alice', privateAddress: 'whatsapp:alice' })
   })
 
   it('returns precise installation and compatibility errors', () => {

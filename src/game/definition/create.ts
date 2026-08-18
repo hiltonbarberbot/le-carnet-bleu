@@ -35,9 +35,10 @@ export function validateGameDefinition(input: GameDefinitionInput): string[] {
     if (!act.id.trim()) errors.push('act id is required')
     if (actIds.has(act.id)) errors.push(`duplicate act id ${act.id}`)
     actIds.add(act.id)
-    if (!act.title.trim() || !act.operatorGoal.trim() || !act.completionLabel.trim()) {
-      errors.push(`act ${act.id || '(missing id)'} requires title, operatorGoal and completionLabel`)
+    if (!act.title.trim() || !act.operatorGoal.trim() || !act.playerGoal.trim() || !act.completionLabel.trim()) {
+      errors.push(`act ${act.id || '(missing id)'} requires title, operatorGoal, playerGoal and completionLabel`)
     }
+    if (!Number.isFinite(act.durationMinutes) || act.durationMinutes < 1) errors.push(`act ${act.id || '(missing id)'} needs a positive duration`)
   }
   if (!input.acts.length) errors.push('definition requires at least one authored act')
 

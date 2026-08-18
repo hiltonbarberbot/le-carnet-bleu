@@ -117,7 +117,7 @@ export function createLeCarnetBleuRuntime(authoredGame: AuthoredGame): PortableG
           return changed(toggleEvidence(expectPhase(state, 'active'), payloadString(command, 'evidenceId')), 'Evidence tracking updated.')
         case 'accuse': {
           const active = expectPhase(state, 'active')
-          return changed(updateAccusation(active, {
+          return changed(updateAccusation(active, payloadString(command, 'roleId'), {
             culprit: payloadString(command, 'culprit'),
             motive: payloadString(command, 'motive'),
             chain: payloadString(command, 'chain'),

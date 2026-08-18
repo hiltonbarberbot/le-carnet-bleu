@@ -51,7 +51,7 @@
     { "name": "confirm_beat", "description": "Confirm an authored live beat.", "allowedPhases": ["active"], "payload": { "beatId": "string" } },
     { "name": "advance_act", "description": "Advance to the next authored act or begin investigation after completing the current act.", "allowedPhases": ["active"], "payload": {} },
     { "name": "toggle_evidence", "description": "Mark evidence as surfaced or withdrawn.", "allowedPhases": ["active"], "payload": { "evidenceId": "string" } },
-    { "name": "accuse", "description": "Record the table accusation.", "allowedPhases": ["active"], "payload": { "culprit": "string", "motive": "string", "chain": "string" } },
+    { "name": "accuse", "description": "Record one player's private accusation.", "allowedPhases": ["active"], "payload": { "roleId": "string", "culprit": "string", "motive": "string", "chain": "string" } },
     { "name": "reveal", "description": "Lock the accusation and enter the canonical reveal.", "allowedPhases": ["active"], "payload": {} },
     { "name": "complete", "description": "Complete the revealed game.", "allowedPhases": ["active"], "payload": {} }
   ]

@@ -74,7 +74,11 @@ function restoreStateObject(definition: GameDefinition, value: unknown): GameSta
   if (!allowedPlayPhases.has(String(value.playPhase))) throw new Error(`Stored game state has unknown play phase ${String(value.playPhase)}.`)
   requireArray(value, 'completedBeatIds')
   requireArray(value, 'revealedEvidenceIds')
-  requireRecord(value, 'accusation')
+  requireRecord(value, 'accusations')
+  const accusations = value.accusations as Record<string, unknown>
+  for (const character of definition.story.characters) {
+    if (!isRecord(accusations[character.id])) throw new Error(`Stored accusations are missing ${character.id}.`)
+  }
   requireRecord(value, 'aiPerformances')
   if (typeof value.paused !== 'boolean') throw new Error('Stored game state has invalid paused flag.')
   if (phase === 'completed') requireString(value, 'completedAt')

@@ -207,7 +207,7 @@ export function startGame(definition: GameDefinition, state: PreparedGameState, 
     paused: false,
     completedBeatIds: [],
     revealedEvidenceIds: [],
-    accusation: { culprit: '', motive: '', chain: '' },
+    accusations: Object.fromEntries(definition.story.characters.map(character => [character.id, { culprit: '', motive: '', chain: '' }])),
     aiPerformances: {},
     startedAt: now.toISOString(),
   }
@@ -291,20 +291,21 @@ export function toggleEvidence(state: ActiveGameState, evidenceId: string): Acti
   return { ...state, revealedEvidenceIds: exists ? state.revealedEvidenceIds.filter(id => id !== evidenceId) : [...state.revealedEvidenceIds, evidenceId] }
 }
 
-export function updateAccusation(state: ActiveGameState, accusation: Accusation): ActiveGameState {
+export function updateAccusation(state: ActiveGameState, roleId: string, accusation: Accusation): ActiveGameState {
   assertActive(state)
   if (state.playPhase !== 'investigation') throw new Error('The accusation can be edited only during investigation.')
-  return { ...state, accusation }
+  if (!state.roster[roleId]) throw new Error(`No player exists for role ${roleId}.`)
+  return { ...state, accusations: { ...state.accusations, [roleId]: accusation } }
 }
 
 export function getRevealBlockers(definition: GameDefinition, state: ActiveGameState): string[] {
   const { story } = definition
   const blockers: string[] = []
-  if (!state.accusation.culprit.trim()) blockers.push('The group has not named a culprit.')
-  if (!state.accusation.motive.trim()) blockers.push('The group has not stated a motive.')
-  if (!state.accusation.chain.trim()) blockers.push('The group has not explained the action chain.')
-  for (const beat of story.timeline) {
-    if (!beat.evidence.some(id => state.revealedEvidenceIds.includes(id))) blockers.push(`No evidence from beat ${beat.beat}, “${beat.title}”, has entered the investigation.`)
+  for (const character of story.characters) {
+    const ballot = state.accusations[character.id]
+    if (!ballot?.culprit.trim()) blockers.push(`${character.name} has not named a culprit.`)
+    if (!ballot?.motive.trim()) blockers.push(`${character.name} has not given a motive.`)
+    if (!ballot?.chain.trim()) blockers.push(`${character.name} has not named their strongest clue.`)
   }
   return blockers
 }

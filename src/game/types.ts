@@ -22,6 +22,32 @@ export type Action = {
   requires: string[]
 }
 
+export type CharacterGoal = {
+  id: string
+  title: string
+  text: string
+  phase: RunPhase | 'any'
+  points: number
+}
+
+export type CharacterAbility = {
+  id: string
+  title: string
+  text: string
+  uses: 1 | 2
+}
+
+export type CharacterItem = {
+  title: string
+  text: string
+}
+
+export type CharacterRelationship = {
+  roleId: string
+  kind: 'approach' | 'watch'
+  text: string
+}
+
 export type Character = {
   id: string
   name: string
@@ -33,6 +59,11 @@ export type Character = {
   privateIdentity: string
   privateObjective: string
   privateSecret: string
+  goals: CharacterGoal[]
+  abilities: CharacterAbility[]
+  item: CharacterItem
+  relationships: CharacterRelationship[]
+  dilemma: string
   memories: Memory[]
   actions: Action[]
 }
@@ -61,6 +92,14 @@ export type RunBeat = {
   essential: boolean
 }
 
+export type EveningStage = {
+  id: string
+  title: string
+  description: string
+  durationMinutes: number
+  phase: PlayPhase
+}
+
 export type Story = {
   id: string
   seed: string
@@ -73,6 +112,7 @@ export type Story = {
   culprit: string
   characters: Character[]
   publicEvidence: PublicEvidence[]
+  evening: EveningStage[]
   timeline: TimelineBeat[]
   runPlan: RunBeat[]
   solution: string
@@ -134,6 +174,8 @@ export type Accusation = {
   chain: string
 }
 
+export type AccusationBallots = Record<string, Accusation>
+
 export type AiPerformanceRecord = {
   roleId: string
   actionId: string
@@ -182,7 +224,7 @@ export type ActiveGameState = StateIdentity & {
   paused: boolean
   completedBeatIds: string[]
   revealedEvidenceIds: string[]
-  accusation: Accusation
+  accusations: AccusationBallots
   aiPerformances: Record<string, AiPerformanceRecord>
 }
 

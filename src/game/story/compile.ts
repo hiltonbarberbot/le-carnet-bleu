@@ -12,6 +12,15 @@ export function validateStory(story: Story): string[] {
     errors.push(`story requires ${story.characters.length} guests plus one host, but totalPeople is ${story.totalPeople}`)
   }
 
+  const eveningIds = new Set<string>()
+  for (const stage of story.evening ?? []) {
+    if (!stage.id.trim() || !stage.title.trim() || !stage.description.trim()) errors.push('evening stages require id, title and description')
+    if (eveningIds.has(stage.id)) errors.push(`duplicate evening stage ${stage.id}`)
+    if (!Number.isFinite(stage.durationMinutes) || stage.durationMinutes < 1) errors.push(`evening stage ${stage.id} needs a positive duration`)
+    eveningIds.add(stage.id)
+  }
+  if ((story.evening ?? []).length < 4) errors.push('story needs a simple evening timeline with at least four stages')
+
   for (const character of story.characters) {
     if (characterIds.has(character.id)) errors.push(`duplicate character id ${character.id}`)
     characterIds.add(character.id)
@@ -20,6 +29,31 @@ export function validateStory(story: Story): string[] {
     if (!character.invitationPromise?.trim()) errors.push(`character ${character.id} has no private invitation promise`)
     if (!character.privateIdentity?.trim()) errors.push(`character ${character.id} has no private identity`)
     if (!character.privateObjective?.trim()) errors.push(`character ${character.id} has no private objective`)
+    if (character.goals?.length !== 3) errors.push(`character ${character.id} needs exactly three simple goals`)
+    if (character.abilities?.length !== 2) errors.push(`character ${character.id} needs exactly two abilities`)
+    if (!character.item?.title?.trim() || !character.item?.text?.trim()) errors.push(`character ${character.id} needs one playable item`)
+    if (character.relationships?.length !== 2) errors.push(`character ${character.id} needs exactly two starting relationships`)
+    if (!character.dilemma?.trim()) errors.push(`character ${character.id} needs one dilemma`)
+
+    const goalIds = new Set<string>()
+    for (const goal of character.goals ?? []) {
+      if (!goal.id.trim() || !goal.title.trim() || !goal.text.trim()) errors.push(`character ${character.id} has an incomplete goal`)
+      if (goalIds.has(goal.id)) errors.push(`character ${character.id} has duplicate goal ${goal.id}`)
+      if (goal.points < 1) errors.push(`character ${character.id} goal ${goal.id} must be worth at least one point`)
+      goalIds.add(goal.id)
+    }
+
+    const abilityIds = new Set<string>()
+    for (const ability of character.abilities ?? []) {
+      if (!ability.id.trim() || !ability.title.trim() || !ability.text.trim()) errors.push(`character ${character.id} has an incomplete ability`)
+      if (abilityIds.has(ability.id)) errors.push(`character ${character.id} has duplicate ability ${ability.id}`)
+      abilityIds.add(ability.id)
+    }
+
+    for (const relationship of character.relationships ?? []) {
+      if (!relationship.roleId.trim() || !relationship.text.trim()) errors.push(`character ${character.id} has an incomplete relationship`)
+      if (relationship.roleId === character.id) errors.push(`character ${character.id} cannot have a relationship with themselves`)
+    }
 
     for (const memory of character.memories) {
       if (evidenceIds.has(memory.id)) errors.push(`duplicate evidence id ${memory.id}`)

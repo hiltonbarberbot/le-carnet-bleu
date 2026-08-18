@@ -5,6 +5,8 @@ export type ActDefinition = {
   id: string
   title: string
   operatorGoal: string
+  playerGoal: string
+  durationMinutes: number
   completionLabel: string
 }
 
