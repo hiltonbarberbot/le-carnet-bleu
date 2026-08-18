@@ -4,6 +4,7 @@ import { createDemoGame } from '../game/demo'
 import { createStorylineDefinition } from '../game/definition/create'
 import type { StorylineDefinition, StorylineDefinitionInput } from '../game/definition/contract'
 import { getKnownSecrets } from '../game/dossier/knowledge'
+import { createGramboisCatalog } from '../game/story/grambois/catalog'
 import {
   abortGame,
   advanceAct,
@@ -119,15 +120,76 @@ function Rules({ definition, onExit }: { definition: StorylineDefinition; onExit
 
 export function PlayerProfile({ character, completedBeatIds = [], onExit }: { character: Character; completedBeatIds?: readonly string[]; onExit?: () => void }) {
   const secrets = getKnownSecrets(character, completedBeatIds)
+  const fileNumber = String(1200 + [...character.id].reduce((total, letter) => total + letter.charCodeAt(0), 0)).padStart(4, '0')
+  const surname = character.name.trim().split(/\s+/).at(-1) ?? character.name
+  const initial = character.name.trim().charAt(0)
   return <>
-    <div className="mode-bar player-mode"><div><span>PLAYER PROFILE</span><b>You are viewing only {character.name}’s information</b></div><div className="mode-actions"><button onClick={() => window.print()}>Print / save PDF</button>{onExit && <button className="quiet" onClick={onExit}>Exit profile</button>}</div></div>
-    <article className="profile">
-      <header><div><span className="label">YOUR CHARACTER</span><p>{character.title}</p><h1>{character.name}</h1></div><span className="stamp">PRIVATE</span></header>
-      <section className="start-here"><span className="number">1</span><div><h2>Your role in thirty seconds</h2><p><b>Tell everyone:</b> {character.invitationPretext}</p><p><b>Armand promised you:</b> {character.invitationPromise}</p><p><b>Your private truth:</b> {character.privateIdentity}</p><p><b>Your secret:</b> {character.privateSecret}</p><p><b>Play them as:</b> {character.publicFace}</p></div></section>
-      <section><div className="profile-heading"><span className="number">2</span><div><h2>Your three objectives</h2><p>Attempt them in any order. Tick them at the end; each is worth the shown points.</p></div></div><div className="goal-list">{character.objectives.map(objective => <label key={objective.id}><input type="checkbox" /><span><b>{objective.title} · {objective.points} {objective.points === 1 ? 'point' : 'points'}</b><small>{objective.text}</small></span></label>)}</div></section>
-      <section><div className="profile-heading"><span className="number">3</span><div><h2>How to play them</h2><p>Use these traits as prompts, then begin with the people named below.</p></div></div><div className="trait-list">{character.traits.map(trait => <span key={trait}>{trait}</span>)}</div><div className="relationship-grid">{character.relationships.map(relationship => <article key={relationship.roleId}><b>{relationship.roleId.toUpperCase()}</b><p>{relationship.text}</p></article>)}</div></section>
-      <section><div className="profile-heading"><span className="number">4</span><div><h2>Your secrets and evidence</h2><p>These are true from your point of view. New observations appear after the staged incident.</p></div></div><div className="plain-list">{secrets.map(secret => <div key={secret.id}>{secret.text}</div>)}</div></section>
-      <section><div className="profile-heading"><span className="number red">5</span><div><h2>Only when the host cues you</h2><p>Do not memorize this. Follow the cue exactly; all physical conflict is mimed without contact.</p></div></div><div className="task-list">{character.actions.map(action => <article key={action.id}><b>WHEN: {action.cue}</b><p>{action.text}</p></article>)}</div></section>
+    <div className="mode-bar player-mode"><div><span>PLAYER DOSSIER · ADDRESSEE ONLY</span><b>You are viewing only {character.name}’s classified information</b></div><div className="mode-actions"><button onClick={() => window.print()}>Print / save PDF</button>{onExit && <button className="quiet" onClick={onExit}>Exit dossier</button>}</div></div>
+    <article className="profile classified-dossier">
+      <span className="dossier-punch dossier-punch-left" aria-hidden="true" />
+      <span className="dossier-punch dossier-punch-right" aria-hidden="true" />
+      <span className="dossier-fold dossier-fold-a" aria-hidden="true" />
+      <span className="dossier-fold dossier-fold-b" aria-hidden="true" />
+
+      <header className="dossier-masthead">
+        <div className="dossier-registration">CM-IN-{fileNumber}<br />Filed 2352/14<br />SCM</div>
+        <div className="dossier-plate">
+          <div className="dossier-classification">SECRET</div>
+          <div className="dossier-department">ADDRESSEE ONLY<br />CLASSIFIED MESSAGE CENTER</div>
+          <h1 className="dossier-kind">PERSONAL DOSSIER</h1>
+        </div>
+        <div className="dossier-registration dossier-registration-right">CSWD<br />Nov 14<br />12:34 P</div>
+      </header>
+
+      <div className="dossier-wire">
+        <p className="dossier-tight">From: BUREAU DES DOSSIERS CLASSÉS, PARIS VI</p>
+        <p>To: {character.name.toUpperCase()} -- HAND DELIVERY, DO NOT READ IN COMPANY</p>
+
+        <section className="dossier-section">
+          <h2>SECTION I -- DESCRIPTION</h2>
+          <p>You are <b>{character.name.toUpperCase()}</b>, {character.title}. {character.publicFace} Your recommended dress is {character.costume}.</p>
+          <p className="dossier-hang">You were invited under this respectable pretext: {character.invitationPretext} The host privately promised you: {character.invitationPromise}</p>
+          <p className="dossier-hang"><b>DISPOSITION:</b> {character.traits.join('; ')}.</p>
+        </section>
+
+        <section className="dossier-section">
+          <h2>SECTION II -- SECRETS AND LIES</h2>
+          <div className="dossier-section-note">SELF is true of you. FIELD is true of another -- spend it well.</div>
+          <ol className="dossier-items">
+            <li><span className="dossier-number">01</span><span><b className="dossier-flag">SELF.</b> {character.privateIdentity}</span></li>
+            <li><span className="dossier-number">02</span><span><b className="dossier-flag">SELF.</b> {character.privateSecret}</span></li>
+            {secrets.map((secret, index) => <li key={secret.id}><span className="dossier-number">{String(index + 3).padStart(2, '0')}</span><span><b className="dossier-flag">{secret.aboutRoleIds?.length ? 'FIELD.' : 'SELF.'}</b> {secret.text}</span></li>)}
+          </ol>
+        </section>
+
+        <section className="dossier-section">
+          <h2>SECTION III -- RELATIONSHIPS</h2>
+          <ol className="dossier-items dossier-ledger">
+            {character.relationships.map((relationship, index) => <li key={relationship.roleId}><span className="dossier-number">{String(index + 1).padStart(2, '0')}</span><span><b className="dossier-who">{relationship.roleId.replaceAll('-', ' ').toUpperCase()}</b> -- {relationship.text}</span></li>)}
+          </ol>
+        </section>
+
+        <section className="dossier-section dossier-objectives">
+          <h2>SECTION IV -- OBJECTIVES</h2>
+          <div className="dossier-section-note">Your three objectives may be attempted in any order. Mark each completed instruction.</div>
+          <ol className="dossier-items">
+            {character.objectives.map((objective, index) => <li key={objective.id}><span className="dossier-number">{String(index + 1).padStart(2, '0')}</span><label><input type="checkbox" /><span><b>{objective.title.toUpperCase()}.</b> {objective.text} <b>{objective.points} {objective.points === 1 ? 'POINT' : 'POINTS'}.</b></span></label></li>)}
+          </ol>
+        </section>
+
+        {character.actions.map(action => <p className="dossier-cue" key={action.id}><b>YOUR CUE:</b> {action.cue} -- {action.text} <strong>NEVER MENTION THIS INSTRUCTION.</strong></p>)}
+      </div>
+
+      <footer className="dossier-band">
+        <div className="dossier-declassified"><div>DECLASSIFIED</div><small>E. O. 11652, Sec. 3(E) and 5(D) or (E)<br />Bureau letter, Nov 3, 1972</small><p>By DBS &nbsp; Date <u /> <b>NOV 14 1972</b></p></div>
+        <div className="dossier-journal"><small>SÛR. JOURNAL NO</small>J-{fileNumber.slice(-3)}</div>
+        <div className="dossier-date-stamp">NOV 14 1947</div>
+        <div className="dossier-pencil dossier-pencil-copy">{character.objectives.length + secrets.length}</div>
+        <div className="dossier-pencil dossier-pencil-name">{surname}, {initial}.</div>
+        <div className="dossier-secret">SECRET</div>
+        <div className="dossier-copy-number">COPY No.</div>
+        <div className="dossier-forbidden">KEEP THIS PAGE HIDDEN -- DESTROY AFTER PLAY</div>
+      </footer>
     </article>
   </>
 }
@@ -318,7 +380,8 @@ export function HostWorkspace({ definition, state, setState, capabilities, gatew
 
 export function App() {
   const demoStoryline = useMemo(() => createDemoGame('browser-demo'), [])
-  const initial = useMemo(() => readGameLibrary(localStorage, demoStoryline), [demoStoryline])
+  const defaultStorylines = useMemo(() => [demoStoryline, ...createGramboisCatalog()], [demoStoryline])
+  const initial = useMemo(() => readGameLibrary(localStorage, defaultStorylines), [defaultStorylines])
   const [storylines, setStorylines] = useState<StorylineDefinition[]>(initial.storylines)
   const [games, setGames] = useState<GameSessionEntry[]>(initial.games)
   const [selectedStorylineFingerprint, setSelectedStorylineFingerprint] = useState(initial.storylines[0].fingerprint)
@@ -344,7 +407,7 @@ export function App() {
 
   function discardInvalidState() {
     clearGameLibrary(localStorage)
-    setStorylines([demoStoryline])
+    setStorylines(defaultStorylines)
     setGames([])
     setSelectedStorylineFingerprint(demoStoryline.fingerprint)
     setActiveGameId(undefined)
