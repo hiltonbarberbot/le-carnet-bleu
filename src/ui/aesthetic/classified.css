@@ -1,0 +1,874 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Caveat:wght@600&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+:root {
+  color: #f2d8d9;
+  background: #302c29;
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+  font-synthesis: none;
+  --paper: #e49ba4;
+  --paper-warm: #eaa8ad;
+  --paper-cool: #db8f97;
+  --paper-pale: #efb6bb;
+  --ink: #4b2a63;
+  --ink-soft: #5f3c75;
+  --ink-red: #a5140f;
+  --ink-red-dark: #8c1a0b;
+  --ink-black: #1b1410;
+  --desk: #651f25;
+  --desk-deep: #2d0d11;
+  --desk-line: rgba(232, 172, 178, .24);
+  --success: #315f4d;
+  --warning: #7b4b16;
+  --shadow-paper: 0 1px 0 rgba(255, 255, 255, .28) inset,
+    0 0 38px rgba(120, 60, 64, .2) inset,
+    0 24px 46px -20px rgba(0, 0, 0, .7),
+    0 2px 0 rgba(0, 0, 0, .24);
+  --paper-image:
+    radial-gradient(48% 34% at 18% 12%, rgba(255, 226, 228, .42), transparent 70%),
+    radial-gradient(42% 30% at 84% 30%, rgba(255, 214, 218, .3), transparent 72%),
+    radial-gradient(60% 40% at 26% 78%, rgba(186, 120, 128, .3), transparent 74%),
+    radial-gradient(38% 26% at 72% 92%, rgba(196, 128, 136, .26), transparent 70%),
+    linear-gradient(168deg, var(--paper-warm) 0%, var(--paper) 46%, var(--paper-cool) 100%);
+}
+
+html {
+  background: var(--paper);
+}
+
+body {
+  min-width: 320px;
+  background-color: var(--paper);
+  background-image: var(--paper-image);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-kerning: none;
+}
+
+body::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.22'/></svg>");
+  content: '';
+  opacity: .2;
+  pointer-events: none;
+}
+
+::selection {
+  background: rgba(165, 20, 15, .28);
+}
+
+button,
+input,
+select,
+textarea {
+  border-radius: 0;
+  font-family: inherit;
+}
+
+button {
+  letter-spacing: .015em;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+label:has(input:focus-visible) {
+  outline: 3px solid rgba(239, 182, 187, .88);
+  outline-offset: 3px;
+}
+
+button:active {
+  transform: scale(.98);
+}
+
+h1,
+h2,
+h3,
+h4,
+.storyline-card > h3,
+.author-head h1,
+.author-prompt-copy h2,
+.author-step-copy h2,
+.draft-card h1 {
+  color: inherit;
+  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: .015em;
+  text-wrap: balance;
+}
+
+.kicker,
+.label,
+.mode-bar span,
+.page-title > b,
+.phase-marker span,
+.field > span,
+.setup-heading > span,
+.run-sheet header small,
+.run-sheet header > b,
+.gateway-status,
+.storyline-card > header span,
+.storyline-games > b,
+.story-facts span,
+.story-synopsis > span,
+.story-section-heading > span,
+.story-motive dt,
+.story-secret > b,
+.story-contributions > b,
+.story-acts > section > header > span,
+.story-decks header > span,
+.story-decks li > span,
+.author-step-copy > span,
+.author-prompt-copy > span,
+.author-field > span,
+.author-ai-status {
+  color: var(--ink-red);
+  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif !important;
+  font-weight: 700;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+/* Website pages */
+.chooser,
+.page,
+.rules-page,
+.author-studio {
+  color: var(--ink);
+}
+
+.chooser-summary,
+.page-title p,
+.host-intro p,
+.phase-content > p,
+.setup-hero p,
+.setup-heading p,
+.session-head p,
+.rules-page header p,
+.rules-block p,
+.rules-block li,
+.author-head p,
+.author-prompt-copy p,
+.author-step-copy p {
+  color: var(--ink-soft);
+}
+
+.library-head,
+.author-head,
+.rules-page > header,
+.host-intro,
+.setup-hero {
+  position: relative;
+}
+
+.library-head::after,
+.author-head::after,
+.rules-page > header::after,
+.host-intro::after,
+.setup-hero::after {
+  display: block;
+  width: min(360px, 70%);
+  height: 9px;
+  margin-top: 22px;
+  background: var(--ink-black);
+  content: '';
+  opacity: .78;
+  transform: rotate(-.5deg);
+}
+
+.library-head h1,
+.author-head h1,
+.rules-page h1,
+.host-intro h1,
+.setup-hero h1,
+.session-head h1,
+.page-title h1,
+.page-title h2 {
+  color: var(--ink-red);
+  text-shadow: .5px .5px 0 rgba(140, 26, 11, .35);
+}
+
+.library-title,
+.author-progress,
+.author-footer,
+.rules-page > header,
+.rules-summary,
+.rules-block,
+.host-phase,
+.setup-section,
+.phase-panel {
+  border-color: var(--desk-line);
+}
+
+/* The reusable onionskin document material. */
+.storyline-card,
+.profile,
+.story-reader,
+.draft-card,
+.evening-timeline,
+.seat-card,
+.run-sheet > article,
+.social-panel,
+.canonical-truth,
+.truth,
+.fatal-screen,
+.hard-errors,
+.awards,
+.theory,
+.score-room > article {
+  position: relative;
+  background-color: var(--paper);
+  background-image: var(--paper-image);
+  box-shadow: var(--shadow-paper);
+  color: var(--ink);
+  isolation: isolate;
+}
+
+.storyline-card::after,
+.profile::after,
+.draft-card::after,
+.story-reader::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='240' height='240' filter='url(%23g)' opacity='.42'/></svg>");
+  background-size: 240px 240px;
+  content: '';
+  mix-blend-mode: multiply;
+  opacity: .19;
+  pointer-events: none;
+}
+
+.storyline-card:nth-child(odd) {
+  transform: rotate(-.12deg);
+}
+
+.storyline-card:nth-child(even) {
+  transform: rotate(.1deg);
+}
+
+.storyline-card,
+.seat-card,
+.run-sheet > article,
+.social-panel,
+.canonical-truth,
+.truth,
+.awards,
+.theory,
+.score-room > article {
+  border-color: rgba(75, 42, 99, .38);
+}
+
+.storyline-card > p,
+.storyline-card > header small,
+.storyline-facts span,
+.storyline-tools,
+.storyline-tools > small,
+.seat-card > header small,
+.run-sheet small,
+.operator-copy,
+.social-panel small,
+.canonical-truth p,
+.truth-grid p,
+.truth-grid small,
+.theory small,
+.score-room small {
+  color: var(--ink-soft);
+}
+
+.storyline-card > header,
+.storyline-games,
+.storyline-tools,
+.truth-grid,
+.canonical-truth > header {
+  border-color: rgba(75, 42, 99, .3);
+}
+
+.storyline-card > header span,
+.storyline-games > b,
+.storyline-tools > small,
+.run-sheet header small,
+.run-sheet header > b,
+.theory > span,
+.canonical-truth > header span,
+.canonical-truth > h3,
+.truth-grid article > span {
+  color: var(--ink-red);
+}
+
+/* Controls feel stamped and typed, not glossy. */
+.create-storyline,
+.storyline-game-action,
+.primary-action,
+.rules-start,
+.author-shape,
+.author-next,
+.story-reader-finish,
+.vote-list button:first-child {
+  border: 1px solid rgba(98, 16, 11, .52);
+  background: var(--ink-red);
+  box-shadow: 1px 2px 0 var(--ink-red-dark);
+  color: #f7d9d8;
+  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  text-transform: uppercase;
+}
+
+.create-storyline > span,
+.create-storyline > small {
+  color: #f7d9d8;
+}
+
+.create-storyline > b {
+  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.import-storyline span,
+.storyline-tools button,
+.mode-actions button,
+.session-actions button,
+.run-sheet button,
+.trade-form button,
+.clue-options button,
+.pacing-tools button,
+.vote-list button,
+.author-secondary,
+.draft-actions button {
+  border: 1px solid rgba(239, 182, 187, .45);
+  background: rgba(49, 40, 36, .76);
+  color: #f2d8d9;
+}
+
+.storyline-games > button,
+.dossier-grid button,
+.roster-strip button,
+.clue-buyers > details,
+.vote-list article,
+.setup-left,
+.host-only,
+.beat-action,
+.ai-performance blockquote,
+.private-clue,
+.failed-hearing,
+.host-note,
+.library-notice {
+  border-color: rgba(75, 42, 99, .38);
+  background: rgba(255, 224, 226, .22);
+  color: var(--ink);
+}
+
+.storyline-games > button,
+.dossier-grid button,
+.roster-strip button {
+  background-color: var(--paper-pale);
+  background-image: var(--paper-image);
+  box-shadow: 0 12px 24px -18px #000;
+}
+
+.storyline-games > button small,
+.storyline-games > button i,
+.dossier-grid small,
+.dossier-grid em,
+.roster-strip small,
+.clue-buyers summary small,
+.clue-options button small,
+.setup-left li,
+.host-note span,
+.social-steps p {
+  color: var(--ink-soft);
+}
+
+.storyline-games > button strong,
+.dossier-grid b,
+.roster-strip span,
+.roster-strip b,
+.clue-buyers summary strong {
+  color: var(--ink);
+}
+
+.host-nav {
+  border-color: var(--desk-line);
+  background: rgba(34, 30, 28, .66);
+  backdrop-filter: blur(18px) saturate(115%);
+}
+
+.host-nav button {
+  color: #c3aaab;
+}
+
+.host-nav button.active {
+  border-color: var(--paper);
+  color: #ffecee;
+}
+
+.mode-bar,
+.story-reader-bar {
+  background: rgba(116, 25, 24, .88);
+  border-color: rgba(255, 226, 228, .26);
+  color: #ffe8e8;
+  backdrop-filter: blur(18px) saturate(125%);
+  box-shadow: 0 8px 30px rgba(20, 12, 10, .22);
+}
+
+.mode-bar span,
+.story-reader-bar span {
+  color: #ffd5d6;
+}
+
+.player-mode {
+  background: rgba(75, 42, 99, .9);
+}
+
+.story-reader-bar span {
+  color: #ffe8e8;
+}
+
+.story-reader-bar button {
+  color: #ffe8e8;
+}
+
+.phase-marker b,
+.setup-heading > span,
+.social-steps article > b,
+.number,
+.story-beat > span {
+  border-radius: 50%;
+  background: var(--ink-red);
+  color: #f7d9d8;
+  box-shadow: 1px 1px 0 var(--ink-red-dark);
+}
+
+.number.red {
+  background: var(--ink-black);
+}
+
+/* Forms are pale typewriter fields with violet ribbon text. */
+.field input,
+.field textarea,
+.field select,
+.author-field input,
+.author-field textarea,
+.trade-form select,
+.trade-form input,
+.accusation-form input,
+.case-seed input,
+.profile-picker select {
+  border: 1px solid rgba(75, 42, 99, .46);
+  background: rgba(255, 225, 227, .24);
+  color: var(--ink);
+  caret-color: var(--ink-red);
+}
+
+.field input::placeholder,
+.field textarea::placeholder,
+.author-field input::placeholder,
+.author-field textarea::placeholder,
+.trade-form input::placeholder,
+.accusation-form input::placeholder {
+  color: rgba(75, 42, 99, .58);
+}
+
+.author-prompt textarea {
+  border: 1px solid rgba(75, 42, 99, .55);
+  background-color: var(--paper);
+  background-image: var(--paper-image);
+  box-shadow: var(--shadow-paper);
+  color: var(--ink);
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+  font-weight: 700;
+  text-shadow: 0 0 .55px rgba(75, 42, 99, .45);
+  caret-color: var(--ink-red);
+}
+
+.author-prompt textarea::placeholder {
+  color: rgba(75, 42, 99, .56);
+}
+
+.author-prompt textarea:focus {
+  border-color: var(--ink-red);
+  box-shadow: var(--shadow-paper), 0 0 0 3px rgba(234, 168, 173, .25);
+}
+
+.author-progress span,
+.author-prompt-meta,
+.author-back,
+.rules-back,
+.profile-picker label {
+  color: var(--ink-soft);
+}
+
+.author-seed-card > .kicker {
+  color: var(--ink-red);
+  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.author-seed-card > p {
+  color: var(--ink-soft);
+}
+
+.author-ai-note {
+  color: var(--ink-soft);
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+}
+
+.author-ai-note.unavailable {
+  color: #ffaaa5;
+}
+
+.author-progress b {
+  border-color: rgba(239, 182, 187, .4);
+}
+
+.author-progress .active b,
+.author-progress .done b {
+  border-color: var(--paper);
+  background: var(--ink-red);
+}
+
+.author-ai-status,
+.gateway-status {
+  border-color: rgba(239, 182, 187, .42);
+  color: #d9bfc1;
+}
+
+.author-ai-status.available,
+.gateway-status.available,
+.theory.correct {
+  border-color: #76917e;
+  background: rgba(49, 95, 77, .2);
+  color: #b9d4c2;
+}
+
+.author-errors,
+.hard-errors,
+.fatal-screen {
+  border-color: var(--ink-red);
+}
+
+/* Paper documents */
+.profile,
+.story-reader,
+.draft-card {
+  color: var(--ink);
+}
+
+.profile > header,
+.story-reader-hero,
+.story-section,
+.story-motive,
+.story-motive div,
+.story-contributions p,
+.story-run,
+.story-run > article,
+.story-decks ol,
+.story-decks li,
+.story-evening,
+.story-evening li,
+.story-facts,
+.story-facts div {
+  border-color: rgba(75, 42, 99, .36);
+}
+
+.profile .label,
+.profile-heading p,
+.goal-list small,
+.relationship-grid p,
+.story-deck,
+.story-section-heading p,
+.story-cast > article > p,
+.story-secret p,
+.story-contributions p,
+.story-acts > section > header p,
+.story-evening p,
+.story-decks header small,
+.story-decks li p,
+.story-evidence small {
+  color: var(--ink-soft);
+}
+
+.stamp {
+  border-color: var(--ink-red);
+  color: var(--ink-red);
+  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  box-shadow: 0 0 0 2px rgba(165, 20, 15, .08) inset;
+  transform: rotate(2.4deg);
+}
+
+.start-here,
+.goal-list label,
+.relationship-grid article,
+.story-cast > article,
+.story-decks > article,
+.story-evidence > div,
+.story-action,
+.story-synopsis {
+  border-color: rgba(75, 42, 99, .32);
+  background: rgba(255, 223, 225, .24);
+}
+
+.trait-list span {
+  border: 1px solid rgba(75, 42, 99, .45);
+  background: transparent;
+  color: var(--ink);
+}
+
+.task-list article,
+.story-secret,
+.dilemma {
+  border-color: var(--ink-red);
+  background: rgba(165, 20, 15, .08);
+}
+
+.story-reader-hero h1,
+.profile h1,
+.story-section-heading h2,
+.story-cast h3,
+.story-evening h3,
+.story-run-title h4,
+.story-beat h3,
+.story-decks h3,
+.story-synopsis p {
+  color: var(--ink);
+}
+
+.story-deck,
+.story-synopsis p,
+.draft-card > p,
+.ai-performance blockquote {
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace !important;
+  font-weight: 700;
+}
+
+.story-facts span,
+.story-synopsis > span,
+.story-section-heading > span,
+.story-motive dt,
+.story-secret > b,
+.story-contributions > b,
+.story-acts > section > header > span,
+.story-run-number,
+.story-run-title span,
+.story-trigger,
+.story-action > b,
+.story-evidence span,
+.story-evening li > span,
+.story-evening li > b,
+.story-decks header > span,
+.story-decks li > span {
+  color: var(--ink-red);
+}
+
+.story-timeline::before {
+  background: rgba(75, 42, 99, .38);
+}
+
+/* Host and social cards use lighter carbon-copy stock. */
+.seat-card,
+.run-sheet > article,
+.social-panel,
+.canonical-truth,
+.truth,
+.awards,
+.theory,
+.score-room > article,
+.evening-timeline {
+  --paper: #d7b6a9;
+  --paper-warm: #e2c3b5;
+  --paper-cool: #cba697;
+}
+
+.run-sheet > article.done,
+.theory.correct {
+  --paper: #b3c4ab;
+  --paper-warm: #c4d3bc;
+  --paper-cool: #a1b399;
+  opacity: .9;
+}
+
+.run-sheet > article.essential {
+  border-left-color: var(--ink-red);
+}
+
+.seat-card > header b,
+.dossier-grid b,
+.roster-strip span {
+  color: var(--ink);
+  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+}
+
+.seat-card > header button {
+  color: var(--ink-red);
+  font-weight: 700;
+}
+
+.seat-card .check-row {
+  color: var(--ink-soft);
+}
+
+.social-steps article,
+.venue-list label,
+.evidence-list label,
+.accusation,
+.vote-list article {
+  border-color: rgba(75, 42, 99, .38);
+  background: rgba(255, 225, 227, .2);
+  color: var(--ink);
+}
+
+.social-steps p,
+.venue-list small,
+.evidence-list small,
+.accusation p,
+.vote-list small {
+  color: var(--ink-soft);
+}
+
+.private-clue {
+  background: #e3cfa4;
+  color: #47303f;
+}
+
+.blackout,
+.truth-seal,
+.hearing-now {
+  border-color: var(--ink-red);
+  background: var(--ink-black);
+  color: #f6dfe0;
+}
+
+.blackout span,
+.truth-seal span,
+.hearing-panel .social-heading > strong {
+  color: #ed7772;
+}
+
+.danger-button {
+  border-color: #a9514d;
+  background: #3b211f;
+  color: #ffc0bc;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .create-storyline:hover,
+  .storyline-game-action:hover,
+  .primary-action:hover,
+  .rules-start:hover,
+  .author-shape:hover,
+  .author-next:hover,
+  .story-reader-finish:hover {
+    background: #b51d17;
+    filter: none;
+  }
+
+  .storyline-card:hover {
+    border-color: rgba(255, 213, 215, .8);
+    box-shadow: var(--shadow-paper), 0 0 0 2px rgba(165, 20, 15, .16);
+  }
+
+  .storyline-games > button:hover,
+  .storyline-tools button:hover,
+  .import-storyline:hover span,
+  .dossier-grid button:hover {
+    border-color: var(--paper);
+  }
+}
+
+@media (max-width: 700px) {
+  .library-head > *,
+  .library-title > *,
+  .storyline-card,
+  .storyline-card > header > * {
+    min-width: 0;
+  }
+
+  .library-head h1 {
+    max-width: 100%;
+    font-size: clamp(40px, 12vw, 46px);
+    overflow-wrap: anywhere;
+  }
+
+  .storyline-card > header small {
+    overflow-wrap: anywhere;
+  }
+
+  .profile,
+  .storyline-card,
+  .draft-card {
+    box-shadow: 0 16px 35px -20px rgba(0, 0, 0, .7);
+  }
+
+  .library-head::after,
+  .author-head::after,
+  .rules-page > header::after,
+  .host-intro::after,
+  .setup-hero::after {
+    width: 54%;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .mode-bar,
+  .story-reader-bar,
+  .host-nav {
+    background: #3a2827;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .storyline-card,
+  .profile,
+  .story-reader,
+  .draft-card,
+  .seat-card,
+  .run-sheet > article,
+  .social-panel,
+  .canonical-truth {
+    background-image: none;
+    border: 2px solid currentColor;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+
+  .storyline-card:nth-child(n) {
+    transform: none;
+  }
+}
+
+@media print {
+  :root {
+    color: var(--ink);
+    background: white;
+  }
+
+  body {
+    background: white;
+  }
+
+  body::before,
+  .storyline-card::after,
+  .profile::after,
+  .draft-card::after,
+  .story-reader::after {
+    display: none;
+  }
+
+  .profile,
+  .story-reader {
+    background: var(--paper);
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
