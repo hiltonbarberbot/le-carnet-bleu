@@ -1,0 +1,40 @@
+{
+  "venueName": "House in Grambois",
+  "location": "Grambois, France",
+  "era": "1960s",
+  "playableSpaces": [
+    "Terrace",
+    "Dining room",
+    "Kitchen",
+    "Poolside parlor",
+    "Salon",
+    "Entrance hall",
+    "Staircase to the bedrooms",
+    "Master bedroom",
+    "Basement",
+    "Basement room marked private",
+    "Swimming pool area",
+    "Cottage"
+  ],
+  "routes": [
+    "All named spaces are accessible through the house's ordinary connected layout",
+    "The staircase connects the entrance level with the bedrooms",
+    "The basement and its room marked private are accessible by the ordinary basement route",
+    "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+    "The cottage is accessible from the house and is farther from the kitchen than the dining room is"
+  ],
+  "usableFeatures": [],
+  "availableProps": [],
+  "tone": "Glamorous 1960s French Riviera spy mystery",
+  "safetyConstraints": [
+    "No physical contact",
+    "All physical beats are reversible and host-cued",
+    "No running or entering the swimming pool during play"
+  ],
+  "accessibilityNeeds": [
+    "All named spaces are accessible to the group and no additional mobility needs were supplied"
+  ],
+  "contentBoundaries": [
+    "No additional content boundaries were supplied"
+  ]
+}

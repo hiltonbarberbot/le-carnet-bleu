@@ -39,7 +39,7 @@ function uniqueStorylines(storylines: StorylineDefinition[]) {
   return [...new Map(storylines.map(storyline => [storyline.fingerprint, storyline])).values()]
 }
 
-export function readGameLibrary(storage: LibraryStorage, demo: StorylineDefinition): GameLibrary {
+export function readGameLibrary(storage: LibraryStorage, defaults: StorylineDefinition[]): GameLibrary {
   try {
     let warning = ''
     const storedStorylines = storage.getItem(STORYLINES_KEY)
@@ -69,14 +69,14 @@ export function readGameLibrary(storage: LibraryStorage, demo: StorylineDefiniti
     }
 
     return {
-      storylines: uniqueStorylines([demo, ...storylines, ...games.map(game => game.storyline)]),
+      storylines: uniqueStorylines([...defaults, ...storylines, ...games.map(game => game.storyline)]),
       games,
       error: '',
       warning,
     }
   } catch (error) {
     return {
-      storylines: [demo],
+      storylines: uniqueStorylines(defaults),
       games: [],
       error: error instanceof Error ? error.message : String(error),
       warning: '',

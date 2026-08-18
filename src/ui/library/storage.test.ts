@@ -14,6 +14,15 @@ function memoryStorage(initial: Record<string, string> = {}) {
 }
 
 describe('storyline and game library storage', () => {
+  it('includes every bundled storyline before local saves', () => {
+    const first = createDemoGame('bundled-first')
+    const second = createDemoGame('bundled-second')
+
+    const restored = readGameLibrary(memoryStorage(), [first, second])
+
+    expect(restored.storylines.map(storyline => storyline.fingerprint)).toEqual([first.fingerprint, second.fingerprint])
+  })
+
   it('keeps several games linked to one reusable storyline', () => {
     const storage = memoryStorage()
     const storyline = createDemoGame('library')
@@ -24,7 +33,7 @@ describe('storyline and game library storage', () => {
       bindGameToStoryline(storyline, first),
       bindGameToStoryline(storyline, second),
     ])
-    const restored = readGameLibrary(storage, storyline)
+    const restored = readGameLibrary(storage, [storyline])
 
     expect(restored.storylines).toHaveLength(1)
     expect(restored.games.map(game => game.state.id)).toEqual(['blue-hour', 'second-sitting'])
@@ -44,7 +53,7 @@ describe('storyline and game library storage', () => {
     const game = createGame(storyline, new Date('2026-08-18T18:00:00Z'), 'legacy-game')
     const storage = memoryStorage({ [LEGACY_GAME_KEY]: serializeGameState(storyline, game) })
 
-    const restored = readGameLibrary(storage, createDemoGame('browser-demo'))
+    const restored = readGameLibrary(storage, [createDemoGame('browser-demo')])
 
     expect(restored.storylines.some(item => item.fingerprint === storyline.fingerprint)).toBe(true)
     expect(restored.games[0].state.id).toBe('legacy-game')
@@ -57,7 +66,7 @@ describe('storyline and game library storage', () => {
   it('keeps an incompatible legacy save without blocking the storyline library', () => {
     const storage = memoryStorage({ [LEGACY_GAME_KEY]: '{"obsolete":true}' })
 
-    const restored = readGameLibrary(storage, createDemoGame('browser-demo'))
+    const restored = readGameLibrary(storage, [createDemoGame('browser-demo')])
 
     expect(restored.error).toBe('')
     expect(restored.warning).toContain('left untouched')

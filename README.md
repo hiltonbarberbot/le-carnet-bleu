@@ -2,7 +2,7 @@
 
 A setting-aware, six-person live dinner-party murder mystery system: one host performs the victim and becomes Game Master after the staged murder; five guest seats play the suspects.
 
-The repository includes one Maison Bleue demo story, but it is not universal canon. A real run begins by learning the actual venue, usable spaces, safe routes, props, tone, accessibility needs, and content boundaries. The fictional gathering and invitations are generated with the story. Only then should a human or agent draft the mystery.
+The repository includes one Maison Bleue demo story and seven validated 1960s Grambois spy mysteries, but none is universal canon. A real run begins by learning the actual venue, usable spaces, safe routes, props, tone, accessibility needs, and content boundaries. The fictional gathering and invitations are generated with the story. Only then should a human or agent draft the mystery.
 
 ## Setting-first authoring
 
@@ -123,6 +123,7 @@ Coverage includes story and social-graph compilation, setting-backed clue and ph
 - `src/game/definition/` — reusable storyline contracts, setting-backed setup requirements, validation, and fingerprints
 - `src/game/scenario.ts` — Maison Bleue demo characters, evidence, actions, timeline, and run plan
 - `src/game/story/` — agent authoring handoff and story graph validation
+- `story/runs/` — validated setting, storyline, host guide, and dossier artifacts for authored runs
 - `src/game/session/` — lifecycle transitions and exact persisted-state validation
 - `src/game/runtime/` — host-agnostic contract, registry, and functional runtime implementation
 - `src/product/` — product naming derived from the portable manifest

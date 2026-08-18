@@ -1,0 +1,608 @@
+{
+  "schemaVersion": 2,
+  "id": "glass-embassy",
+  "title": "The Glass Embassy",
+  "setting": {
+    "venueName": "House in Grambois",
+    "location": "Grambois, France",
+    "era": "1960s",
+    "playableSpaces": [
+      "Terrace",
+      "Dining room",
+      "Kitchen",
+      "Poolside parlor",
+      "Salon",
+      "Entrance hall",
+      "Staircase to the bedrooms",
+      "Master bedroom",
+      "Basement",
+      "Basement room marked private",
+      "Swimming pool area",
+      "Cottage"
+    ],
+    "routes": [
+      "All named spaces are accessible through the house's ordinary connected layout",
+      "The staircase connects the entrance level with the bedrooms",
+      "The basement and its room marked private are accessible by the ordinary basement route",
+      "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+      "The cottage is accessible from the house and is farther from the kitchen than the dining room is"
+    ],
+    "usableFeatures": [],
+    "availableProps": [],
+    "tone": "Glamorous 1960s French Riviera spy mystery",
+    "safetyConstraints": [
+      "No physical contact",
+      "All physical beats are reversible and host-cued",
+      "No running or entering the swimming pool during play"
+    ],
+    "accessibilityNeeds": [
+      "All named spaces are accessible to the group and no additional mobility needs were supplied"
+    ],
+    "contentBoundaries": [
+      "No additional content boundaries were supplied"
+    ]
+  },
+  "story": {
+    "id": "glass-embassy",
+    "seed": "glass-embassy",
+    "title": "The Glass Embassy",
+    "subtitle": "A perfume launch masks an auction for the identity of a vanished double agent.",
+    "premise": "Madame Sabine Vautrin's private unveiling of a Riviera perfume called Ambassade de Verre brings five accomplished strangers to a house in Grambois. Each accepted a different private promise from Sabine Vautrin; one came to make sure that promise could never be kept.",
+    "totalPeople": 6,
+    "hostRole": "Sabine Vautrin, perfumer and intelligence broker; then Game Master",
+    "victim": "Sabine Vautrin",
+    "culprit": "Étienne Marot",
+    "characters": [
+      {
+        "id": "glass-embassy-guest-1",
+        "name": "Colette Renaud",
+        "title": "Perfume journalist",
+        "costume": "1960s Riviera evening wear suited to perfume journalist",
+        "publicFace": "Incisive, amused, and always two questions ahead",
+        "invitationPretext": "You were invited to Madame Sabine Vautrin's private unveiling of a Riviera perfume called Ambassade de Verre in your public capacity as perfume journalist.",
+        "invitationPromise": "Sabine promised you the true story behind her most famous formula.",
+        "privateIdentity": "You once traded an embassy rumour for access and have spent years burying the source.",
+        "privateObjective": "Publish the truth without exposing the source you betrayed.",
+        "privateSecret": "You stole a page of Sabine’s formula notes because it contains your old source mark.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "glass-embassy-guest-1-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Sabine promised you the true story behind her most famous formula.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "glass-embassy-guest-1-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Étienne Marot is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "glass-embassy-guest-1-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "glass-embassy-guest-2",
+            "text": "Étienne Marot can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "glass-embassy-guest-5",
+            "text": "Lucien Arbaud once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "glass-embassy-guest-1-evidence",
+            "text": "Before the unveiling, you heard Lucien tell Étienne that Sabine had promised to name SABLE before midnight.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "glass-embassy-guest-2"
+            ],
+            "beat": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "glass-embassy-guest-1-opening",
+            "text": "State that Sabine invited the press for a perfume story, then ask why diplomats were included.",
+            "cue": "When the host calls on Colette Renaud during the opening",
+            "consequence": "Places one authored fact into the room before the body is discovered.",
+            "essential": true,
+            "beat": 1,
+            "phase": "opening",
+            "physical": false,
+            "requires": []
+          }
+        ]
+      },
+      {
+        "id": "glass-embassy-guest-2",
+        "name": "Étienne Marot",
+        "title": "Trade attaché",
+        "costume": "1960s Riviera evening wear suited to trade attaché",
+        "publicFace": "Polished, dry, and professionally forgettable",
+        "invitationPretext": "You were invited to Madame Sabine Vautrin's private unveiling of a Riviera perfume called Ambassade de Verre in your public capacity as trade attaché.",
+        "invitationPromise": "Sabine promised to destroy the only record connecting you to an old operation.",
+        "privateIdentity": "You are the retired field controller known as SABLE.",
+        "privateObjective": "Redirect the formula investigation toward industrial espionage.",
+        "privateSecret": "You killed Sabine after recognizing your call sign in the formula.",
+        "traits": [
+          "Controlled under pressure",
+          "Charm used as misdirection"
+        ],
+        "objectives": [
+          {
+            "id": "glass-embassy-guest-2-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Sabine promised to destroy the only record connecting you to an old operation.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "glass-embassy-guest-2-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Nadia Petrov is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "glass-embassy-guest-2-reckoning",
+            "title": "Escape the reckoning",
+            "text": "Keep the final conviction away from you without inventing evidence.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "glass-embassy-guest-3",
+            "text": "Nadia Petrov can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "glass-embassy-guest-1",
+            "text": "Colette Renaud once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "glass-embassy-guest-2-evidence",
+            "text": "You saw Nadia pocket Sabine’s appointment card and know it listed five contradictory private promises.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "glass-embassy-guest-3"
+            ],
+            "beat": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "glass-embassy-guest-2-opening",
+            "text": "Correct Colette: announce that you came only to discuss export licences, not diplomacy.",
+            "cue": "When the host calls on Étienne Marot during the opening",
+            "consequence": "Places one authored fact into the room before the body is discovered.",
+            "essential": true,
+            "beat": 1,
+            "phase": "opening",
+            "physical": false,
+            "requires": []
+          }
+        ]
+      },
+      {
+        "id": "glass-embassy-guest-3",
+        "name": "Nadia Petrov",
+        "title": "Ballet patron",
+        "costume": "1960s Riviera evening wear suited to ballet patron",
+        "publicFace": "Regal, economical, and impossible to hurry",
+        "invitationPretext": "You were invited to Madame Sabine Vautrin's private unveiling of a Riviera perfume called Ambassade de Verre in your public capacity as ballet patron.",
+        "invitationPromise": "Sabine promised safe passage for your missing brother.",
+        "privateIdentity": "You finance defections through cultural tours.",
+        "privateObjective": "Learn whether your brother is alive before the network collapses.",
+        "privateSecret": "You removed Sabine’s appointment card because your brother’s alias appeared on it.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "glass-embassy-guest-3-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Sabine promised safe passage for your missing brother.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "glass-embassy-guest-3-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Marc Delon is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "glass-embassy-guest-3-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "glass-embassy-guest-4",
+            "text": "Marc Delon can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "glass-embassy-guest-2",
+            "text": "Étienne Marot once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "glass-embassy-guest-3-evidence",
+            "text": "You noticed Marc return from the kitchen just before Sabine raised the fatal toast, although he claims he never left the salon.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "glass-embassy-guest-4"
+            ],
+            "beat": 2
+          }
+        ],
+        "actions": [
+          {
+            "id": "glass-embassy-guest-3-opening",
+            "text": "Reveal that Sabine privately promised a reunion, but refuse to name with whom.",
+            "cue": "When the host calls on Nadia Petrov during the opening",
+            "consequence": "Places one authored fact into the room before the body is discovered.",
+            "essential": true,
+            "beat": 2,
+            "phase": "opening",
+            "physical": false,
+            "requires": []
+          }
+        ]
+      },
+      {
+        "id": "glass-embassy-guest-4",
+        "name": "Marc Delon",
+        "title": "Formula chemist",
+        "costume": "1960s Riviera evening wear suited to formula chemist",
+        "publicFace": "Exact, wounded, and contemptuous of glamour",
+        "invitationPretext": "You were invited to Madame Sabine Vautrin's private unveiling of a Riviera perfume called Ambassade de Verre in your public capacity as formula chemist.",
+        "invitationPromise": "Sabine promised to restore your authorship credit on Ambassade de Verre.",
+        "privateIdentity": "You discovered the formula carries a readable intelligence acrostic.",
+        "privateObjective": "Recover credit for your work without being accused of creating the code.",
+        "privateSecret": "You diluted a sample to embarrass Sabine, giving you a reason to conceal your kitchen visit.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "glass-embassy-guest-4-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Sabine promised to restore your authorship credit on Ambassade de Verre.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "glass-embassy-guest-4-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Lucien Arbaud is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "glass-embassy-guest-4-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "glass-embassy-guest-5",
+            "text": "Lucien Arbaud can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "glass-embassy-guest-3",
+            "text": "Nadia Petrov once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "glass-embassy-guest-4-evidence",
+            "text": "In the poolside parlor, you heard Lucien accuse Sabine of preparing to expose Étienne by his old call sign.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "glass-embassy-guest-5"
+            ],
+            "beat": 2
+          }
+        ],
+        "actions": [
+          {
+            "id": "glass-embassy-guest-4-opening",
+            "text": "Announce that the celebrated formula is incomplete and only Sabine knows the missing line.",
+            "cue": "When the host calls on Marc Delon during the opening",
+            "consequence": "Places one authored fact into the room before the body is discovered.",
+            "essential": true,
+            "beat": 2,
+            "phase": "opening",
+            "physical": false,
+            "requires": []
+          }
+        ]
+      },
+      {
+        "id": "glass-embassy-guest-5",
+        "name": "Lucien Arbaud",
+        "title": "Retired naval courier",
+        "costume": "1960s Riviera evening wear suited to retired naval courier",
+        "publicFace": "Genial, weathered, and selectively deaf",
+        "invitationPretext": "You were invited to Madame Sabine Vautrin's private unveiling of a Riviera perfume called Ambassade de Verre in your public capacity as retired naval courier.",
+        "invitationPromise": "Sabine promised to clear your name in the loss of a diplomatic pouch.",
+        "privateIdentity": "You carried the original SABLE file and recognized its cipher in the perfume notes.",
+        "privateObjective": "Prove the pouch was deliberately sacrificed by someone at the gathering.",
+        "privateSecret": "You warned Étienne that Sabine knew SABLE’s identity, hoping to force a confession.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "glass-embassy-guest-5-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Sabine promised to clear your name in the loss of a diplomatic pouch.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "glass-embassy-guest-5-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Colette Renaud is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "glass-embassy-guest-5-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "glass-embassy-guest-1",
+            "text": "Colette Renaud can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "glass-embassy-guest-4",
+            "text": "Marc Delon once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "glass-embassy-guest-5-evidence",
+            "text": "You saw Colette conceal a formula page whose margin proves Sabine added the SABLE acrostic only after meeting Étienne.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "glass-embassy-guest-1"
+            ],
+            "beat": 2
+          }
+        ],
+        "actions": [
+          {
+            "id": "glass-embassy-guest-5-opening",
+            "text": "Offer a toast to old secrets and say that one of Sabine’s formulas is really a confession.",
+            "cue": "When the host calls on Lucien Arbaud during the opening",
+            "consequence": "Places one authored fact into the room before the body is discovered.",
+            "essential": true,
+            "beat": 2,
+            "phase": "opening",
+            "physical": false,
+            "requires": []
+          }
+        ]
+      }
+    ],
+    "publicEvidence": [],
+    "evening": [
+      {
+        "id": "glass-embassy-briefing",
+        "title": "Private briefing",
+        "description": "Read the dossiers, establish the fictional gathering, and give each suspect ten tokens.",
+        "durationMinutes": 5,
+        "phase": "opening"
+      },
+      {
+        "id": "glass-embassy-incident",
+        "title": "The fatal interruption",
+        "description": "Follow the five short opening cues until the host is discovered and becomes Game Master.",
+        "durationMinutes": 10,
+        "phase": "opening"
+      },
+      {
+        "id": "glass-embassy-investigation",
+        "title": "Open investigation",
+        "description": "Bargain, trade, buy clues, pursue objectives, and call a public accusation when ready.",
+        "durationMinutes": 105,
+        "phase": "investigation"
+      },
+      {
+        "id": "glass-embassy-reveal",
+        "title": "Reveal and scoring",
+        "description": "Reveal the operation, score objectives and tokens, and award the evening.",
+        "durationMinutes": 15,
+        "phase": "reveal"
+      }
+    ],
+    "timeline": [
+      {
+        "beat": 1,
+        "title": "The formula with two meanings",
+        "truth": "Sabine encoded the name of double agent SABLE in the perfume formula and promised five different people control of it.",
+        "evidence": [
+          "glass-embassy-guest-1-evidence",
+          "glass-embassy-guest-2-evidence"
+        ]
+      },
+      {
+        "beat": 2,
+        "title": "A toast that silenced the broker",
+        "truth": "Étienne Marot recognized that SABLE was his own handler identity and poisoned Sabine before she could name him.",
+        "evidence": [
+          "glass-embassy-guest-3-evidence",
+          "glass-embassy-guest-4-evidence",
+          "glass-embassy-guest-5-evidence"
+        ]
+      }
+    ],
+    "runPlan": [
+      {
+        "id": "glass-embassy-opening-1",
+        "phase": "opening",
+        "title": "Receive Colette Renaud",
+        "trigger": "When every player is seated",
+        "operator": "Invite Colette Renaud to deliver only the prepared opening fact.",
+        "actionIds": [
+          "glass-embassy-guest-1-opening"
+        ],
+        "dependsOn": [],
+        "essential": true
+      },
+      {
+        "id": "glass-embassy-opening-2",
+        "phase": "opening",
+        "title": "Receive Étienne Marot",
+        "trigger": "After Colette Renaud completes their cue",
+        "operator": "Invite Étienne Marot to deliver only the prepared opening fact.",
+        "actionIds": [
+          "glass-embassy-guest-2-opening"
+        ],
+        "dependsOn": [
+          "glass-embassy-opening-1"
+        ],
+        "essential": true
+      },
+      {
+        "id": "glass-embassy-opening-3",
+        "phase": "opening",
+        "title": "Receive Nadia Petrov",
+        "trigger": "After Étienne Marot completes their cue",
+        "operator": "Invite Nadia Petrov to deliver only the prepared opening fact.",
+        "actionIds": [
+          "glass-embassy-guest-3-opening"
+        ],
+        "dependsOn": [
+          "glass-embassy-opening-2"
+        ],
+        "essential": true
+      },
+      {
+        "id": "glass-embassy-opening-4",
+        "phase": "opening",
+        "title": "Receive Marc Delon",
+        "trigger": "After Nadia Petrov completes their cue",
+        "operator": "Invite Marc Delon to deliver only the prepared opening fact.",
+        "actionIds": [
+          "glass-embassy-guest-4-opening"
+        ],
+        "dependsOn": [
+          "glass-embassy-opening-3"
+        ],
+        "essential": true
+      },
+      {
+        "id": "glass-embassy-opening-5",
+        "phase": "opening",
+        "title": "Discover the host",
+        "trigger": "After Marc Delon completes their cue",
+        "operator": "Cue Lucien Arbaud, stage Sabine Vautrin's off-page collapse without contact, announce the discovery, and become Game Master.",
+        "actionIds": [
+          "glass-embassy-guest-5-opening"
+        ],
+        "dependsOn": [
+          "glass-embassy-opening-4"
+        ],
+        "essential": true
+      }
+    ],
+    "solution": "Étienne was SABLE. He altered Sabine’s drink during the perfume toast, then encouraged everyone to treat the coded formula as a commercial dispute. Sabine’s separate promises explain every suspect’s secrecy; the overlapping memories prove Étienne alone understood the code before her death."
+  },
+  "clueDecks": [
+    {
+      "id": "glass-embassy-salon-file",
+      "label": "Salon intelligence file",
+      "settingField": "playableSpaces",
+      "settingValue": "Salon",
+      "clues": [
+        {
+          "id": "glass-embassy-clue-1",
+          "text": "Sabine scheduled a private conversation with each guest under a different commercial pretext.",
+          "beat": 1
+        },
+        {
+          "id": "glass-embassy-clue-2",
+          "text": "The initials in the disputed formula spell SABLE when read as intelligence call signs.",
+          "beat": 2
+        },
+        {
+          "id": "glass-embassy-clue-3",
+          "text": "Étienne used the word “handler” before anyone publicly said the formula concerned espionage.",
+          "beat": 2
+        }
+      ]
+    },
+    {
+      "id": "glass-embassy-cottage-file",
+      "label": "Cottage intelligence file",
+      "settingField": "playableSpaces",
+      "settingValue": "Cottage",
+      "clues": [
+        {
+          "id": "glass-embassy-clue-4",
+          "text": "A cottage appointment places Étienne close enough to learn Sabine planned to reveal SABLE that night.",
+          "beat": 1
+        },
+        {
+          "id": "glass-embassy-clue-5",
+          "text": "The fatal dose acted during the toast, not earlier in the evening.",
+          "beat": 2
+        }
+      ]
+    }
+  ],
+  "acts": [
+    {
+      "id": "opening",
+      "title": "The fatal interruption",
+      "operatorGoal": "Establish Madame Sabine Vautrin's private unveiling of a Riviera perfume called Ambassade de Verre, stage the single no-contact death, then become Game Master.",
+      "playerGoal": "Deliver only your short prepared cue and wait for the body to be discovered before bargaining begins.",
+      "durationMinutes": 15,
+      "completionLabel": "Open the investigation →"
+    }
+  ],
+  "setupRequirements": [
+    {
+      "id": "glass-embassy-no-contact",
+      "label": "Confirm that the entire opening is spoken and staged without contact.",
+      "settingField": "safetyConstraints",
+      "settingValue": "No physical contact"
+    }
+  ],
+  "fingerprint": "1df6d78480b8dbe7add182f61a000239"
+}

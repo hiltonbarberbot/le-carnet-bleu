@@ -1,0 +1,608 @@
+{
+  "schemaVersion": 2,
+  "id": "cottage-at-midnight",
+  "title": "The Cottage at Midnight",
+  "setting": {
+    "venueName": "House in Grambois",
+    "location": "Grambois, France",
+    "era": "1960s",
+    "playableSpaces": [
+      "Terrace",
+      "Dining room",
+      "Kitchen",
+      "Poolside parlor",
+      "Salon",
+      "Entrance hall",
+      "Staircase to the bedrooms",
+      "Master bedroom",
+      "Basement",
+      "Basement room marked private",
+      "Swimming pool area",
+      "Cottage"
+    ],
+    "routes": [
+      "All named spaces are accessible through the house's ordinary connected layout",
+      "The staircase connects the entrance level with the bedrooms",
+      "The basement and its room marked private are accessible by the ordinary basement route",
+      "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+      "The cottage is accessible from the house and is farther from the kitchen than the dining room is"
+    ],
+    "usableFeatures": [],
+    "availableProps": [],
+    "tone": "Glamorous 1960s French Riviera spy mystery",
+    "safetyConstraints": [
+      "No physical contact",
+      "All physical beats are reversible and host-cued",
+      "No running or entering the swimming pool during play"
+    ],
+    "accessibilityNeeds": [
+      "All named spaces are accessible to the group and no additional mobility needs were supplied"
+    ],
+    "contentBoundaries": [
+      "No additional content boundaries were supplied"
+    ]
+  },
+  "story": {
+    "id": "cottage-at-midnight",
+    "seed": "cottage-at-midnight",
+    "title": "The Cottage at Midnight",
+    "subtitle": "A private art restitution meeting conceals a map of postwar intelligence debts.",
+    "premise": "collector Margot Bellier's confidential restitution meeting for a painting called Midnight Cottage brings five accomplished strangers to a house in Grambois. Each accepted a different private promise from Margot Bellier; one came to make sure that promise could never be kept.",
+    "totalPeople": 6,
+    "hostRole": "Margot Bellier, collector and former courier; then Game Master",
+    "victim": "Margot Bellier",
+    "culprit": "Olivier Kern",
+    "characters": [
+      {
+        "id": "cottage-at-midnight-guest-1",
+        "name": "Élise Baumann",
+        "title": "Restitution lawyer",
+        "costume": "1960s Riviera evening wear suited to restitution lawyer",
+        "publicFace": "Formal, humane, and merciless with dates",
+        "invitationPretext": "You were invited to collector Margot Bellier's confidential restitution meeting for a painting called Midnight Cottage in your public capacity as restitution lawyer.",
+        "invitationPromise": "Margot promised the unbroken provenance needed for your client’s claim.",
+        "privateIdentity": "Your client is your own family, concealed to preserve professional credibility.",
+        "privateObjective": "Secure lawful restitution without revealing your personal stake too early.",
+        "privateSecret": "You removed a weak affidavit that would damage the claim if exposed.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "cottage-at-midnight-guest-1-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Margot promised the unbroken provenance needed for your client’s claim.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "cottage-at-midnight-guest-1-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Olivier Kern is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "cottage-at-midnight-guest-1-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "cottage-at-midnight-guest-2",
+            "text": "Olivier Kern can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "cottage-at-midnight-guest-5",
+            "text": "Clara Weiss once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "cottage-at-midnight-guest-1-evidence",
+            "text": "You heard historian Olivier insist to Rémy that the cottage detail must never be photographed.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "cottage-at-midnight-guest-2"
+            ],
+            "beat": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "cottage-at-midnight-guest-1-opening",
+            "text": "State the formal claim and announce that everyone present appears somewhere in the provenance.",
+            "cue": "When the host calls on Élise Baumann during the opening",
+            "consequence": "Places one authored fact into the room before the body is discovered.",
+            "essential": true,
+            "beat": 1,
+            "phase": "opening",
+            "physical": false,
+            "requires": []
+          }
+        ]
+      },
+      {
+        "id": "cottage-at-midnight-guest-2",
+        "name": "Olivier Kern",
+        "title": "Family historian",
+        "costume": "1960s Riviera evening wear suited to family historian",
+        "publicFace": "Gracious, bookish, and defensive about inherited honour",
+        "invitationPretext": "You were invited to collector Margot Bellier's confidential restitution meeting for a painting called Midnight Cottage in your public capacity as family historian.",
+        "invitationPromise": "Margot promised to omit your father’s name from the restitution record.",
+        "privateIdentity": "You know your father betrayed the safe-house chain and bought the painting to hide it.",
+        "privateObjective": "Preserve the family name by turning the meeting into an ownership dispute.",
+        "privateSecret": "You killed Margot because she refused to suppress the decoded provenance.",
+        "traits": [
+          "Controlled under pressure",
+          "Charm used as misdirection"
+        ],
+        "objectives": [
+          {
+            "id": "cottage-at-midnight-guest-2-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Margot promised to omit your father’s name from the restitution record.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "cottage-at-midnight-guest-2-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Rémy Azoulay is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "cottage-at-midnight-guest-2-reckoning",
+            "title": "Escape the reckoning",
+            "text": "Keep the final conviction away from you without inventing evidence.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "cottage-at-midnight-guest-3",
+            "text": "Rémy Azoulay can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "cottage-at-midnight-guest-1",
+            "text": "Élise Baumann once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "cottage-at-midnight-guest-2-evidence",
+            "text": "You saw Rémy compare the painted cottage with a wartime route ledger and feared he had solved the code.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "cottage-at-midnight-guest-3"
+            ],
+            "beat": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "cottage-at-midnight-guest-2-opening",
+            "text": "Welcome restitution in principle but challenge the claim’s dates and demand discretion.",
+            "cue": "When the host calls on Olivier Kern during the opening",
+            "consequence": "Places one authored fact into the room before the body is discovered.",
+            "essential": true,
+            "beat": 1,
+            "phase": "opening",
+            "physical": false,
+            "requires": []
+          }
+        ]
+      },
+      {
+        "id": "cottage-at-midnight-guest-3",
+        "name": "Rémy Azoulay",
+        "title": "Architectural photographer",
+        "costume": "1960s Riviera evening wear suited to architectural photographer",
+        "publicFace": "Curious, irreverent, and obsessive about angles",
+        "invitationPretext": "You were invited to collector Margot Bellier's confidential restitution meeting for a painting called Midnight Cottage in your public capacity as architectural photographer.",
+        "invitationPromise": "Margot promised access to photograph every altered location in the painting.",
+        "privateIdentity": "Your grandfather maintained one of the safe houses and left you its route ledger.",
+        "privateObjective": "Prove the cottage belonged to the network without surrendering your family ledger.",
+        "privateSecret": "You entered the cottage earlier and photographed a matching wall mark.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "cottage-at-midnight-guest-3-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Margot promised access to photograph every altered location in the painting.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "cottage-at-midnight-guest-3-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Sister Agnès Vallet is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "cottage-at-midnight-guest-3-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "cottage-at-midnight-guest-4",
+            "text": "Sister Agnès Vallet can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "cottage-at-midnight-guest-2",
+            "text": "Olivier Kern once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "cottage-at-midnight-guest-3-evidence",
+            "text": "You saw Sister Agnès recognize Olivier’s family code in the painted window count.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "cottage-at-midnight-guest-4"
+            ],
+            "beat": 2
+          }
+        ],
+        "actions": [
+          {
+            "id": "cottage-at-midnight-guest-3-opening",
+            "text": "Describe how the real cottage matches the painting and say the mismatch is deliberate.",
+            "cue": "When the host calls on Rémy Azoulay during the opening",
+            "consequence": "Places one authored fact into the room before the body is discovered.",
+            "essential": true,
+            "beat": 2,
+            "phase": "opening",
+            "physical": false,
+            "requires": []
+          }
+        ]
+      },
+      {
+        "id": "cottage-at-midnight-guest-4",
+        "name": "Sister Agnès Vallet",
+        "title": "Retired relief worker",
+        "costume": "1960s Riviera evening wear suited to retired relief worker",
+        "publicFace": "Serene, witty, and unwilling to romanticize war",
+        "invitationPretext": "You were invited to collector Margot Bellier's confidential restitution meeting for a painting called Midnight Cottage in your public capacity as retired relief worker.",
+        "invitationPromise": "Margot promised the name of the child your network carried to safety.",
+        "privateIdentity": "You encoded safe-house numbers in relief inventories.",
+        "privateObjective": "Identify the rescued child while protecting surviving families.",
+        "privateSecret": "You changed one code after the betrayal and let an innocent courier take blame.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "cottage-at-midnight-guest-4-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Margot promised the name of the child your network carried to safety.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "cottage-at-midnight-guest-4-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Clara Weiss is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "cottage-at-midnight-guest-4-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "cottage-at-midnight-guest-5",
+            "text": "Clara Weiss can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "cottage-at-midnight-guest-3",
+            "text": "Rémy Azoulay once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "cottage-at-midnight-guest-4-evidence",
+            "text": "You heard dealer Clara admit that Olivier’s father owned the painting before the date in the public provenance.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "cottage-at-midnight-guest-5"
+            ],
+            "beat": 2
+          }
+        ],
+        "actions": [
+          {
+            "id": "cottage-at-midnight-guest-4-opening",
+            "text": "Decode one harmless painted detail and warn that the rest names real acts of betrayal.",
+            "cue": "When the host calls on Sister Agnès Vallet during the opening",
+            "consequence": "Places one authored fact into the room before the body is discovered.",
+            "essential": true,
+            "beat": 2,
+            "phase": "opening",
+            "physical": false,
+            "requires": []
+          }
+        ]
+      },
+      {
+        "id": "cottage-at-midnight-guest-5",
+        "name": "Clara Weiss",
+        "title": "Art dealer",
+        "costume": "1960s Riviera evening wear suited to art dealer",
+        "publicFace": "Fluent, fashionable, and allergic to moral certainty",
+        "invitationPretext": "You were invited to collector Margot Bellier's confidential restitution meeting for a painting called Midnight Cottage in your public capacity as art dealer.",
+        "invitationPromise": "Margot promised to clear you of knowingly selling looted work.",
+        "privateIdentity": "You discovered the false provenance and quietly brought the painting to Margot.",
+        "privateObjective": "Save your gallery by proving you initiated restitution.",
+        "privateSecret": "You altered a sales date to buy time for the private meeting.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "cottage-at-midnight-guest-5-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Margot promised to clear you of knowingly selling looted work.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "cottage-at-midnight-guest-5-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Élise Baumann is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "cottage-at-midnight-guest-5-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "cottage-at-midnight-guest-1",
+            "text": "Élise Baumann can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "cottage-at-midnight-guest-4",
+            "text": "Sister Agnès Vallet once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "cottage-at-midnight-guest-5-evidence",
+            "text": "You saw Élise’s discarded affidavit and know it still places Olivier’s family at the first betrayed safe house.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "cottage-at-midnight-guest-1"
+            ],
+            "beat": 2
+          }
+        ],
+        "actions": [
+          {
+            "id": "cottage-at-midnight-guest-5-opening",
+            "text": "Admit that the public provenance is false and announce that Margot intended a return, not a sale.",
+            "cue": "When the host calls on Clara Weiss during the opening",
+            "consequence": "Places one authored fact into the room before the body is discovered.",
+            "essential": true,
+            "beat": 2,
+            "phase": "opening",
+            "physical": false,
+            "requires": []
+          }
+        ]
+      }
+    ],
+    "publicEvidence": [],
+    "evening": [
+      {
+        "id": "cottage-at-midnight-briefing",
+        "title": "Private briefing",
+        "description": "Read the dossiers, establish the fictional gathering, and give each suspect ten tokens.",
+        "durationMinutes": 5,
+        "phase": "opening"
+      },
+      {
+        "id": "cottage-at-midnight-incident",
+        "title": "The fatal interruption",
+        "description": "Follow the five short opening cues until the host is discovered and becomes Game Master.",
+        "durationMinutes": 10,
+        "phase": "opening"
+      },
+      {
+        "id": "cottage-at-midnight-investigation",
+        "title": "Open investigation",
+        "description": "Bargain, trade, buy clues, pursue objectives, and call a public accusation when ready.",
+        "durationMinutes": 105,
+        "phase": "investigation"
+      },
+      {
+        "id": "cottage-at-midnight-reveal",
+        "title": "Reveal and scoring",
+        "description": "Reveal the operation, score objectives and tokens, and award the evening.",
+        "durationMinutes": 15,
+        "phase": "reveal"
+      }
+    ],
+    "timeline": [
+      {
+        "beat": 1,
+        "title": "A landscape of safe houses",
+        "truth": "The painting records a chain of wartime safe houses in its altered details, including the real cottage in Grambois.",
+        "evidence": [
+          "cottage-at-midnight-guest-1-evidence",
+          "cottage-at-midnight-guest-2-evidence"
+        ]
+      },
+      {
+        "beat": 2,
+        "title": "Restitution denied",
+        "truth": "Olivier Kern killed Margot because returning the work would expose his family’s betrayal of the network.",
+        "evidence": [
+          "cottage-at-midnight-guest-3-evidence",
+          "cottage-at-midnight-guest-4-evidence",
+          "cottage-at-midnight-guest-5-evidence"
+        ]
+      }
+    ],
+    "runPlan": [
+      {
+        "id": "cottage-at-midnight-opening-1",
+        "phase": "opening",
+        "title": "Receive Élise Baumann",
+        "trigger": "When every player is seated",
+        "operator": "Invite Élise Baumann to deliver only the prepared opening fact.",
+        "actionIds": [
+          "cottage-at-midnight-guest-1-opening"
+        ],
+        "dependsOn": [],
+        "essential": true
+      },
+      {
+        "id": "cottage-at-midnight-opening-2",
+        "phase": "opening",
+        "title": "Receive Olivier Kern",
+        "trigger": "After Élise Baumann completes their cue",
+        "operator": "Invite Olivier Kern to deliver only the prepared opening fact.",
+        "actionIds": [
+          "cottage-at-midnight-guest-2-opening"
+        ],
+        "dependsOn": [
+          "cottage-at-midnight-opening-1"
+        ],
+        "essential": true
+      },
+      {
+        "id": "cottage-at-midnight-opening-3",
+        "phase": "opening",
+        "title": "Receive Rémy Azoulay",
+        "trigger": "After Olivier Kern completes their cue",
+        "operator": "Invite Rémy Azoulay to deliver only the prepared opening fact.",
+        "actionIds": [
+          "cottage-at-midnight-guest-3-opening"
+        ],
+        "dependsOn": [
+          "cottage-at-midnight-opening-2"
+        ],
+        "essential": true
+      },
+      {
+        "id": "cottage-at-midnight-opening-4",
+        "phase": "opening",
+        "title": "Receive Sister Agnès Vallet",
+        "trigger": "After Rémy Azoulay completes their cue",
+        "operator": "Invite Sister Agnès Vallet to deliver only the prepared opening fact.",
+        "actionIds": [
+          "cottage-at-midnight-guest-4-opening"
+        ],
+        "dependsOn": [
+          "cottage-at-midnight-opening-3"
+        ],
+        "essential": true
+      },
+      {
+        "id": "cottage-at-midnight-opening-5",
+        "phase": "opening",
+        "title": "Discover the host",
+        "trigger": "After Sister Agnès Vallet completes their cue",
+        "operator": "Cue Clara Weiss, stage Margot Bellier's off-page collapse without contact, announce the discovery, and become Game Master.",
+        "actionIds": [
+          "cottage-at-midnight-guest-5-opening"
+        ],
+        "dependsOn": [
+          "cottage-at-midnight-opening-4"
+        ],
+        "essential": true
+      }
+    ],
+    "solution": "Olivier’s father sold the safe-house chain to the occupiers and later acquired the painting to suppress the record. Margot planned to return it with a decoded provenance. Olivier killed her and cast the dispute as competing ownership claims. The guests’ memories independently connect his family archive to the hidden map."
+  },
+  "clueDecks": [
+    {
+      "id": "cottage-at-midnight-salon-file",
+      "label": "Salon intelligence file",
+      "settingField": "playableSpaces",
+      "settingValue": "Salon",
+      "clues": [
+        {
+          "id": "cottage-at-midnight-clue-1",
+          "text": "The painted windows correspond to safe-house numbers, not artistic perspective.",
+          "beat": 1
+        },
+        {
+          "id": "cottage-at-midnight-clue-2",
+          "text": "Olivier’s family inventory describes the work before its alleged purchase date.",
+          "beat": 2
+        },
+        {
+          "id": "cottage-at-midnight-clue-3",
+          "text": "Margot invited claimants, witnesses, and a decoder rather than ordinary buyers.",
+          "beat": 2
+        }
+      ]
+    },
+    {
+      "id": "cottage-at-midnight-cottage-file",
+      "label": "Cottage intelligence file",
+      "settingField": "playableSpaces",
+      "settingValue": "Cottage",
+      "clues": [
+        {
+          "id": "cottage-at-midnight-clue-4",
+          "text": "The real cottage matches a detail painted over after the war.",
+          "beat": 1
+        },
+        {
+          "id": "cottage-at-midnight-clue-5",
+          "text": "Olivier knew which safe house was betrayed before the code was explained.",
+          "beat": 2
+        }
+      ]
+    }
+  ],
+  "acts": [
+    {
+      "id": "opening",
+      "title": "The fatal interruption",
+      "operatorGoal": "Establish collector Margot Bellier's confidential restitution meeting for a painting called Midnight Cottage, stage the single no-contact death, then become Game Master.",
+      "playerGoal": "Deliver only your short prepared cue and wait for the body to be discovered before bargaining begins.",
+      "durationMinutes": 15,
+      "completionLabel": "Open the investigation →"
+    }
+  ],
+  "setupRequirements": [
+    {
+      "id": "cottage-at-midnight-no-contact",
+      "label": "Confirm that the entire opening is spoken and staged without contact.",
+      "settingField": "safetyConstraints",
+      "settingValue": "No physical contact"
+    }
+  ],
+  "fingerprint": "9810f116aa01f899cebf3e4c1bd63b47"
+}
