@@ -46,20 +46,37 @@ describe('AI setting function errors', () => {
     expect(payload.setting).toEqual(demoSetting)
   })
 
-  it('labels rejected generated settings without leaking validation details', async () => {
+  it('feeds rejected output back to the model until it returns a valid setting', async () => {
     process.env.AI_GATEWAY_API_KEY = 'test-key'
-    vi.mocked(generateText).mockResolvedValue({ text: 'not valid JSON' } as never)
+    vi.mocked(generateText)
+      .mockResolvedValueOnce({ text: 'not valid JSON' } as never)
+      .mockResolvedValueOnce({ text: JSON.stringify(demoSetting) } as never)
 
     const response = await POST(request())
     const payload = await response.json()
 
-    expect(response.status).toBe(502)
-    expect(payload).toEqual(expect.objectContaining({
-      code: 'invalid_output',
-      retryable: true,
-      reference: expect.stringMatching(/^[A-F0-9]{8}$/),
-    }))
-    expect(payload.error).not.toContain('Setting brief is incomplete')
+    expect(response.status).toBe(200)
+    expect(payload.setting).toEqual(demoSetting)
     expect(generateText).toHaveBeenCalledTimes(2)
+    expect(vi.mocked(generateText).mock.calls[1]?.[0].prompt).toContain('The prior draft was rejected')
+    expect(vi.mocked(generateText).mock.calls[1]?.[0].prompt).toContain('not valid JSON')
+  })
+
+  it('returns a validated conservative setting when every model draft is malformed', async () => {
+    process.env.AI_GATEWAY_API_KEY = 'test-key'
+    vi.mocked(generateText).mockResolvedValue({ text: 'still not JSON' } as never)
+
+    const response = await POST(request())
+    const payload = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(payload.setting).toEqual(expect.objectContaining({
+      venueName: "Host's venue",
+      playableSpaces: expect.arrayContaining([
+        'Main host-approved gathering area',
+        'Clue station within the same gathering area',
+      ]),
+    }))
+    expect(generateText).toHaveBeenCalledTimes(4)
   })
 })

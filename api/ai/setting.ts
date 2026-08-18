@@ -1,11 +1,12 @@
-import { generateText } from 'ai'
+import { generateText, NoObjectGeneratedError, Output } from 'ai'
 import { createSettingBrief } from '../../src/game/setting/brief.js'
 import type { SettingBriefInput } from '../../src/game/setting/contract.js'
 import { productNaming } from '../../src/product/naming.js'
 import { classifyAiProviderError, createProblemReference, problemResponse } from './problem.js'
 
 const model = process.env.AI_GATEWAY_MODEL || 'anthropic/claude-sonnet-4.6'
-export const maxDuration = 60
+const maxSettingGenerations = 4
+export const maxDuration = 300
 
 function isConfigured() {
   return Boolean(process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || process.env.VERCEL)
@@ -39,6 +40,16 @@ function parseJsonObject(value: string) {
   const text = value.trim()
   const fenced = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i)
   return JSON.parse(fenced?.[1] ?? text) as unknown
+}
+
+function rejectedDraftFrom(error: unknown) {
+  if (NoObjectGeneratedError.isInstance(error)) return cleanText(error.text)
+  return ''
+}
+
+function invalidOutputReason(error: unknown) {
+  if (NoObjectGeneratedError.isInstance(error) && error.cause instanceof Error) return error.cause.message
+  return error instanceof Error ? error.message : String(error)
 }
 
 function cleanSetting(value: unknown): SettingBriefInput {
@@ -95,6 +106,23 @@ const settingShape = `Return exactly one JSON object with this shape:
   "tone": "", "safetyConstraints": [], "accessibilityNeeds": [], "contentBoundaries": []
 }`
 
+type SettingRepair = {
+  reason: string
+  rejectedDraft: string
+}
+
+function repairInstruction(repair: SettingRepair) {
+  return [
+    'The prior draft was rejected. Return a fresh, complete JSON object that fixes every issue.',
+    `Validation or parsing error:\n${repair.reason}`,
+    repair.rejectedDraft ? `Rejected draft:\n${repair.rejectedDraft.slice(0, 6_000)}` : '',
+  ].filter(Boolean).join('\n\n')
+}
+
+function conservativeSetting() {
+  return createSettingBrief(completeSettingDraft({}))
+}
+
 export async function POST(request: Request) {
   if (!hasAllowedOrigin(request)) return problemResponse('invalid_request', { message: 'Cross-origin AI requests are not allowed.', status: 403 })
   if (!isConfigured()) return problemResponse('not_configured')
@@ -110,8 +138,8 @@ export async function POST(request: Request) {
   if (prompt.length > 10_000) return problemResponse('invalid_request', { message: 'Keep the opening description under 10,000 characters.' })
 
   const reference = createProblemReference()
-  let lastError = 'The generated setting was incomplete.'
-  for (let attempt = 0; attempt < 2; attempt += 1) {
+  let repair: SettingRepair | undefined
+  for (let attempt = 0; attempt < maxSettingGenerations; attempt += 1) {
     let output: unknown
     try {
       const result = await generateText({
@@ -122,16 +150,20 @@ Do not invent the fictional gathering, invitation, plot, or reason the character
 Do not invent specific architecture, local history, permissions, or objects. When the seed omits venue facts, use honest neutral language such as "host's venue", "main host-approved gathering area", and "location unspecified; do not use local details".
 There must be at least two playable areas. If only one real room is known, define two functional zones within it and state that no relocation is required.
 Default to present day unless the seed implies another era. Supply safe defaults: no contact, running, darkness, inaccessible essential movement, or graphic violence; all physical beats are optional and host-cued. Keep inferred features and props generic, easy, and removable. Return only the requested JSON.`,
-        prompt: [settingShape, `Mystery seed:\n${prompt}`, attempt ? `The prior setting was invalid. Correct these issues:\n${lastError}` : 'Complete the setting brief now.'].join('\n\n'),
+        prompt: [settingShape, `Mystery seed:\n${prompt}`, repair ? repairInstruction(repair) : 'Complete the setting brief now.'].join('\n\n'),
+        output: Output.json({ name: 'setting_brief', description: 'A complete, safe setting brief for a live mystery.' }),
         maxOutputTokens: 1800,
         temperature: 0.2,
         providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'setting-seeding'] } },
       })
-      output = parseJsonObject(result.text)
+      output = result.output ?? parseJsonObject(result.text)
     } catch (error) {
       const code = classifyAiProviderError(error)
-      if (code === 'invalid_output' && attempt === 0) {
-        lastError = 'The model did not return the requested setting shape.'
+      if (code === 'invalid_output') {
+        repair = {
+          reason: invalidOutputReason(error),
+          rejectedDraft: rejectedDraftFrom(error),
+        }
         continue
       }
       console.error('AI setting provider request failed', { reference, code, error })
@@ -142,13 +174,16 @@ Default to present day unless the seed implies another era. Supply safe defaults
       const setting = createSettingBrief(completeSettingDraft(cleanSetting(output)))
       return json({ setting, model })
     } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error)
+      repair = {
+        reason: error instanceof Error ? error.message : String(error),
+        rejectedDraft: JSON.stringify(output),
+      }
     }
   }
 
-  console.error('AI setting seeding failed validation', { reference, error: lastError })
-  return problemResponse('invalid_output', {
-    message: 'The AI setting did not pass the safety and playability checks.',
+  console.warn('AI setting seeding exhausted repair attempts; using conservative validated setting', {
     reference,
+    error: repair?.reason,
   })
+  return json({ setting: conservativeSetting(), model })
 }

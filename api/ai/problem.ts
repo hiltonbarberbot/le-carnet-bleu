@@ -51,7 +51,7 @@ export function classifyAiProviderError(error: unknown): AiProblemCode {
   if (error instanceof SyntaxError) return 'invalid_output'
   const deepest = deepestError(error)
   const names = [errorRecord(error)?.name, errorRecord(deepest)?.name]
-  if (names.includes('AI_NoObjectGeneratedError')) return 'invalid_output'
+  if (names.includes('AI_NoObjectGeneratedError') || names.includes('AI_NoOutputGeneratedError')) return 'invalid_output'
 
   const status = readStatus(error)
   if (status === 401 || status === 403) return 'access_denied'
