@@ -4,7 +4,6 @@ import { createDemoGame } from '../game/demo'
 import { createStorylineDefinition } from '../game/definition/create'
 import type { StorylineDefinition, StorylineDefinitionInput } from '../game/definition/contract'
 import { getKnownSecrets } from '../game/dossier/knowledge'
-import { createGramboisCatalog } from '../game/story/grambois/catalog'
 import {
   abortGame,
   advanceAct,
@@ -380,8 +379,7 @@ export function HostWorkspace({ definition, state, setState, capabilities, gatew
 
 export function App() {
   const demoStoryline = useMemo(() => createDemoGame('browser-demo'), [])
-  const defaultStorylines = useMemo(() => [demoStoryline, ...createGramboisCatalog()], [demoStoryline])
-  const initial = useMemo(() => readGameLibrary(localStorage, defaultStorylines), [defaultStorylines])
+  const initial = useMemo(() => readGameLibrary(localStorage, demoStoryline), [demoStoryline])
   const [storylines, setStorylines] = useState<StorylineDefinition[]>(initial.storylines)
   const [games, setGames] = useState<GameSessionEntry[]>(initial.games)
   const [selectedStorylineFingerprint, setSelectedStorylineFingerprint] = useState(initial.storylines[0].fingerprint)
@@ -407,7 +405,7 @@ export function App() {
 
   function discardInvalidState() {
     clearGameLibrary(localStorage)
-    setStorylines(defaultStorylines)
+    setStorylines([demoStoryline])
     setGames([])
     setSelectedStorylineFingerprint(demoStoryline.fingerprint)
     setActiveGameId(undefined)
