@@ -5,18 +5,17 @@ import { PlayerProfile } from './App'
 
 describe('player dossier projection', () => {
   const story = generateGame('dossier-ui')
-  const jacques = story.characters.find(character => character.id === 'jacques')!
+  const solange = story.characters.find(character => character.id === 'solange')!
 
   it('does not present future events as starting memories', () => {
-    const html = renderToStaticMarkup(<PlayerProfile character={jacques} />)
-    expect(html).toContain('Armand’s demands arrived in violet-black ink')
-    expect(html).not.toContain('You deliberately killed Armand')
-    expect(html).not.toContain('You tore page forty-seven')
+    const html = renderToStaticMarkup(<PlayerProfile character={solange} />)
+    expect(html).toContain('transfers Éditions du Méridien')
+    expect(html).not.toContain('safe prop envelope representing a poisoned-splinter trap')
   })
 
   it('shows the observations after the host confirms their event', () => {
-    const html = renderToStaticMarkup(<PlayerProfile character={jacques} completedBeatIds={['stage-murder']} />)
-    expect(html).toContain('You deliberately killed Armand')
-    expect(html).toContain('You tore page forty-seven')
+    const html = renderToStaticMarkup(<PlayerProfile character={solange} completedBeatIds={['stage-collapse']} />)
+    expect(html).toContain('safe prop envelope representing a poisoned-splinter trap')
+    expect(html).toContain('Mathilde’s handwriting')
   })
 })

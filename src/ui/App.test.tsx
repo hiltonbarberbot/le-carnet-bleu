@@ -88,7 +88,7 @@ describe('host lifecycle projection', () => {
   it('renders active play and reset-to-idle as separate states', () => {
     const active = startGame(definition, deliverAll(prepareGame(definition, enrolling(), noAi)))
     expect(getHostScreen(active)).toBe('active:opening')
-    expect(render(active)).toContain('The murder at Maison Bleue')
+    expect(render(active)).toContain('The last recording')
     const idle = resetGame(definition, active, true)
     expect(getHostScreen(idle)).toBe('idle')
     expect(render(idle)).toContain('READY FOR MAISON BLEUE DEMO HOUSE')
@@ -132,7 +132,7 @@ describe('private player card', () => {
     expect(html).toContain('Your three objectives')
     expect(html).toContain(character.traits[0])
     expect(html).toContain(character.relationships[0].text)
-    expect(html).toContain(character.secrets[0].text)
+    expect(html).toContain(character.secrets.find(secret => !secret.availableAfter)!.text)
     expect(html).not.toContain(story.characters[1].privateSecret)
     expect(html).not.toContain(story.solution)
     expect(html).not.toContain('THE SOLUTION')

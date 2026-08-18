@@ -78,30 +78,30 @@ describe('social investigation economy', () => {
 
     const deckId = first.definition.clueDecks[0].id
     const expectedClueId = first.active.clueDecks[deckId].remainingClueIds[0]
-    const bought = buyClue(first.definition, first.active, 'jacques', deckId)
-    expect(bought.tokenBalances.jacques).toBe(5)
-    expect(bought.ownedClueIds.jacques).toEqual([expectedClueId])
-    expect(bought.ownedClueIds.madame).toEqual([])
+    const bought = buyClue(first.definition, first.active, 'solange', deckId)
+    expect(bought.tokenBalances.solange).toBe(5)
+    expect(bought.ownedClueIds.solange).toEqual([expectedClueId])
+    expect(bought.ownedClueIds.mathilde).toEqual([])
     expect(bought.clueDecks[deckId].remainingClueIds).not.toContain(expectedClueId)
   })
 
   it('supports bargaining transfers, depletion, lower prices, and host-enabled duplicates', () => {
     const { definition, active: initial } = openInvestigation('market-controls')
-    let active = transferTokens(initial, 'jacques', 'madame', 3)
-    expect(active.tokenBalances).toMatchObject({ jacques: 7, madame: 13 })
-    expect(() => transferTokens(active, 'jacques', 'pierre', 8)).toThrow(/does not have 8 tokens/)
+    let active = transferTokens(initial, 'solange', 'mathilde', 3)
+    expect(active.tokenBalances).toMatchObject({ solange: 7, mathilde: 13 })
+    expect(() => transferTokens(active, 'solange', 'remy', 8)).toThrow(/does not have 8 tokens/)
 
     const deckId = definition.clueDecks.find(deck => deck.clues.length === 2)!.id
-    active = buyClue(definition, active, 'madame', deckId)
-    active = buyClue(definition, active, 'pierre', deckId)
-    expect(() => buyClue(definition, active, 'francois', deckId)).toThrow(/no clues left/)
+    active = buyClue(definition, active, 'mathilde', deckId)
+    active = buyClue(definition, active, 'remy', deckId)
+    expect(() => buyClue(definition, active, 'gabriel', deckId)).toThrow(/no clues left/)
 
     active = lowerCluePrice(active, 2)
     active = enableDuplicateClues(active)
-    active = buyClue(definition, active, 'francois', deckId)
-    expect(active.tokenBalances.francois).toBe(8)
-    expect(active.ownedClueIds.francois).toHaveLength(1)
-    expect(definition.clueDecks.find(deck => deck.id === deckId)!.clues.map(clue => clue.id)).toContain(active.ownedClueIds.francois[0])
+    active = buyClue(definition, active, 'gabriel', deckId)
+    expect(active.tokenBalances.gabriel).toBe(8)
+    expect(active.ownedClueIds.gabriel).toHaveLength(1)
+    expect(definition.clueDecks.find(deck => deck.id === deckId)!.clues.map(clue => clue.id)).toContain(active.ownedClueIds.gabriel[0])
   })
 })
 
@@ -112,14 +112,14 @@ describe('public accusation hearings and scoring', () => {
 
   it('returns to investigation after a failed five-player vote', () => {
     const { definition, active: initial } = openInvestigation('failed-hearing')
-    let active = callAccusation(initial, 'francois', 'jacques', 'The missing page points to Jacques.')
+    let active = callAccusation(initial, 'gabriel', 'solange', 'The sixth envelope points to Solange.')
     active = moveHearingToVoting(active)
     for (const [roleId, vote] of [
-      ['jacques', 'convict'],
-      ['madame', 'convict'],
-      ['francois', 'acquit'],
-      ['pierre', 'acquit'],
-      ['amelie', 'acquit'],
+      ['solange', 'convict'],
+      ['mathilde', 'convict'],
+      ['gabriel', 'acquit'],
+      ['remy', 'acquit'],
+      ['colette', 'acquit'],
     ] as const) active = castVote(definition, active, roleId, vote)
     expect(active).toMatchObject({ playPhase: 'investigation', hearing: null, outcome: null })
     expect(active.hearingHistory.at(-1)).toMatchObject({ result: 'failed', convictVotes: 2 })
@@ -127,21 +127,21 @@ describe('public accusation hearings and scoring', () => {
 
   it('ends on a strict-majority correct conviction and applies every applicable source weight', () => {
     const { definition, active: initial } = openInvestigation('correct-conviction')
-    const objective = definition.story.characters.find(character => character.id === 'francois')!.objectives[0]
-    let active = setObjectiveCompleted(definition, initial, 'francois', objective.id, true)
-    active = callAccusation(active, 'francois', 'jacques', 'The jacket switch, missing leaf, and garden trace form one chain.')
+    const objective = definition.story.characters.find(character => character.id === 'gabriel')!.objectives[0]
+    let active = setObjectiveCompleted(definition, initial, 'gabriel', objective.id, true)
+    active = callAccusation(active, 'gabriel', 'solange', 'The sixth envelope, carbon-copy label, and matching corner form one chain.')
     active = moveHearingToVoting(active)
     for (const [roleId, vote] of [
-      ['jacques', 'acquit'],
-      ['madame', 'convict'],
-      ['francois', 'convict'],
-      ['pierre', 'convict'],
-      ['amelie', 'acquit'],
+      ['solange', 'acquit'],
+      ['mathilde', 'convict'],
+      ['gabriel', 'convict'],
+      ['remy', 'convict'],
+      ['colette', 'acquit'],
     ] as const) active = castVote(definition, active, roleId, vote)
 
-    expect(active).toMatchObject({ playPhase: 'reveal', outcome: { kind: 'conviction', accusedRoleId: 'jacques' } })
+    expect(active).toMatchObject({ playPhase: 'reveal', outcome: { kind: 'conviction', accusedRoleId: 'solange' } })
     const completed = completeGame(definition, active)
-    expect(completed.finalScores.francois).toMatchObject({
+    expect(completed.finalScores.gabriel).toMatchObject({
       objectivePoints: objective.points,
       tokenPoints: 2,
       accuserPoints: SOCIAL_RULES.correctAccuserPoints,
@@ -149,27 +149,27 @@ describe('public accusation hearings and scoring', () => {
       culpritEscapePoints: 0,
       total: objective.points + 10,
     })
-    expect(completed.finalScores.madame.votePoints).toBe(3)
-    expect(completed.finalScores.amelie.votePoints).toBe(0)
+    expect(completed.finalScores.mathilde.votePoints).toBe(3)
+    expect(completed.finalScores.colette.votePoints).toBe(0)
   })
 
   it('ends on a wrongful conviction and awards the culprit ten escape points', () => {
     const { definition, active: initial } = openInvestigation('wrongful-conviction')
-    let active = callAccusation(initial, 'pierre', 'madame', 'The engraved prop and letters make Hélène look guilty.')
+    let active = callAccusation(initial, 'remy', 'mathilde', 'The carbon-copy address and threat make Mathilde look guilty.')
     active = moveHearingToVoting(active)
     for (const [roleId, vote] of [
-      ['jacques', 'convict'],
-      ['madame', 'acquit'],
-      ['francois', 'convict'],
-      ['pierre', 'convict'],
-      ['amelie', 'acquit'],
+      ['solange', 'convict'],
+      ['mathilde', 'acquit'],
+      ['gabriel', 'convict'],
+      ['remy', 'convict'],
+      ['colette', 'acquit'],
     ] as const) active = castVote(definition, active, roleId, vote)
-    active = recordAward(definition, active, 'performance', 'amelie')
-    active = recordAward(definition, active, 'costume', 'madame')
+    active = recordAward(definition, active, 'performance', 'colette')
+    active = recordAward(definition, active, 'costume', 'mathilde')
     const completed = completeGame(definition, active)
-    expect(completed.finalScores.jacques).toMatchObject({ tokenPoints: 2, culpritEscapePoints: 10, total: 12 })
-    expect(completed.finalScores.pierre.accuserPoints).toBe(0)
-    expect(completed.awards).toEqual({ performanceRoleId: 'amelie', costumeRoleId: 'madame' })
+    expect(completed.finalScores.solange).toMatchObject({ tokenPoints: 2, culpritEscapePoints: 10, total: 12 })
+    expect(completed.finalScores.remy.accuserPoints).toBe(0)
+    expect(completed.awards).toEqual({ performanceRoleId: 'colette', costumeRoleId: 'mathilde' })
   })
 
   it('can end on time without inventing a conviction', () => {

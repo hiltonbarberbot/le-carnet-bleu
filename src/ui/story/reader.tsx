@@ -111,7 +111,7 @@ function StoryTruth({ story }: { story: Story }) {
   const evidence = indexEvidence(story)
   return <section className="story-section story-truth">
     <div className="story-section-heading">
-      <span>05 · CANONICAL RECONSTRUCTION</span>
+      <span>05 · CANONICAL TRUTH</span>
       <h2>What actually happened</h2>
       <p>Read top to bottom as the solution. The indented notes are the independent routes by which players can establish each claim.</p>
     </div>

@@ -103,7 +103,7 @@ export function createOpenClawGameAdapter(options: OpenClawAdapterOptions) {
   const installed = discoverGames(options.runtimes)
 
   function listGames() {
-    return installed.map(({ manifest, runtime }) => `${runtime.authoredGame.storyTitle} (${runtime.authoredGame.definitionId}) · ${runtime.authoredGame.setting.venueName} · ${manifest.players.minHumans}–${manifest.players.maxHumans} human guests`).join('\n')
+    return installed.map(({ manifest, runtime }) => `${manifest.name}: ${runtime.authoredGame.storyTitle} (${runtime.authoredGame.definitionId}) · ${runtime.authoredGame.setting.venueName} · ${manifest.players.minHumans}–${manifest.players.maxHumans} human guests`).join('\n')
   }
 
   function bindingFor(request: ChatRequest) {

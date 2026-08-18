@@ -4,29 +4,22 @@ import { getKnownSecrets, getSecretsBeforeAction } from './knowledge'
 
 describe('dossier knowledge', () => {
   const story = generateGame('knowledge')
-  const jacques = story.characters.find(character => character.id === 'jacques')!
+  const solange = story.characters.find(character => character.id === 'solange')!
 
   it('keeps future events out of the starting dossier', () => {
-    expect(getKnownSecrets(jacques).map(secret => secret.id)).toEqual(
-      expect.arrayContaining(['jacques-duel', 'jacques-telegram']),
+    expect(getKnownSecrets(solange).map(secret => secret.id)).toEqual(
+      expect.arrayContaining(['solange-transfer', 'solange-warning']),
     )
   })
 
   it('unlocks observations only after their event is confirmed', () => {
-    expect(getKnownSecrets(jacques, ['jacket-switch']).map(secret => secret.id)).toEqual(
-      expect.arrayContaining(['jacques-duel', 'jacques-find']),
-    )
-    expect(getKnownSecrets(jacques, ['jacket-switch']).map(secret => secret.id)).not.toContain('jacques-shove')
-
-    expect(getKnownSecrets(jacques, ['jacket-switch', 'stage-murder']).map(secret => secret.id)).toEqual(
-      expect.arrayContaining(['jacques-find', 'jacques-confronts', 'jacques-shove', 'jacques-flight']),
-    )
+    expect(getKnownSecrets(solange, ['display-packets']).map(secret => secret.id)).not.toContain('solange-envelope')
+    expect(getKnownSecrets(solange, ['display-packets', 'stage-collapse']).map(secret => secret.id)).toContain('solange-envelope')
   })
 
   it('gives an AI actor prior knowledge without leaking its action outcome', () => {
-    const known = getSecretsBeforeAction(story, jacques, 'jacques-murder').map(secret => secret.id)
-    expect(known).toContain('jacques-find')
-    expect(known).not.toContain('jacques-shove')
-    expect(known).not.toContain('jacques-flight')
+    const known = getSecretsBeforeAction(story, solange, 'solange-place-envelope').map(secret => secret.id)
+    expect(known).toContain('solange-transfer')
+    expect(known).not.toContain('solange-envelope')
   })
 })

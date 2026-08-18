@@ -72,6 +72,11 @@ describe('story compilation', () => {
     expect(essential.every(action => planned.has(action.id))).toBe(true)
   })
 
+  it('does not make the present murder a recreation of an earlier crime', () => {
+    const story = generateGame('fresh-incident')
+    expect(JSON.stringify(story)).not.toMatch(/recreat|re-enact|reenact/i)
+  })
+
   it('rejects an isolated suspect in the combined secrets-and-relationships graph', () => {
     const story = structuredClone(generateGame('isolated-suspect'))
     const isolatedId = story.characters[0].id
@@ -169,11 +174,11 @@ describe('truthful game lifecycle', () => {
     let active = startGame(definition, prepared, new Date('2026-08-17T18:00:00Z'))
     expect(active.phase).toBe('active')
     expect(active.playPhase).toBe('opening')
-    expect(() => advanceAct(definition, active)).toThrow(/murder at Maison Bleue is missing/i)
+    expect(() => advanceAct(definition, active)).toThrow(/last recording is missing/i)
     for (const beat of story.runPlan.filter(beat => beat.phase === 'opening' && beat.essential)) active = confirmRunBeat(definition, active, beat.id)
     active = advanceAct(definition, active)
     for (const evidenceId of new Set(story.timeline.flatMap(beat => beat.evidence))) if (!active.revealedEvidenceIds.includes(evidenceId)) active = toggleEvidence(active, evidenceId)
-    active = callAccusation(active, 'francois', 'jacques', 'The jacket switch, garden route, and missing page form one chain.')
+    active = callAccusation(active, 'gabriel', 'solange', 'The sixth envelope, carbon-copy label, and matching corner form one chain.')
     active = advanceHearing(active)
     active = advanceHearing(active)
     active = advanceHearing(active)
