@@ -51,10 +51,11 @@ export function getHostScreen(state: GameState) {
   return state.phase
 }
 
-export function StartScreen({ storylines, games, importError, onCreateStoryline, onCreateGame, onContinueGame, onRules, onStory, onDossier, onImport, onExport }: {
+export function StartScreen({ storylines, games, importError, libraryWarning = '', onCreateStoryline, onCreateGame, onContinueGame, onRules, onStory, onDossier, onImport, onExport }: {
   storylines: StorylineDefinition[]
   games: GameSessionEntry[]
   importError: string
+  libraryWarning?: string
   onCreateStoryline: () => void
   onCreateGame: (storyline: StorylineDefinition) => void
   onContinueGame: (game: GameSessionEntry) => void
@@ -69,6 +70,7 @@ export function StartScreen({ storylines, games, importError, onCreateStoryline,
       <div><span className="kicker">{productNaming.uppercaseName}</span><h1>Your storylines</h1><p className="chooser-summary">Write a storyline once, then create a fresh game from it for every group or occasion.</p></div>
       <button className="create-storyline" onClick={onCreateStoryline}><span>NEW</span><b>Create storyline</b><small>Author a reusable mystery for a verified setting.</small><strong aria-hidden="true">＋</strong></button>
     </header>
+    {libraryWarning && <section className="library-notice"><span>SAVED GAME NOTICE</span><p>{libraryWarning}</p></section>}
     {importError && <section className="hard-errors compact"><span>IMPORT FAILED</span><pre>{importError}</pre></section>}
     <section className="storyline-library" aria-label="Existing storylines">
       <div className="library-title"><div><span className="kicker">EXISTING STORYLINES</span><h2>Choose a mystery</h2></div><label className="import-storyline"><input type="file" accept="application/json,.json" onChange={onImport} /><span>Import storyline</span></label></div>
@@ -413,5 +415,5 @@ export function App() {
   if (mode === 'player') return <main className="page player-page"><div className="profile-picker"><label>Choose your character</label><select value={selected} onChange={event => setSelected(event.target.value)}>{story.characters.map(character => <option value={character.id} key={character.id}>{character.name}</option>)}</select></div><PlayerProfile character={player} completedBeatIds={completedBeatIds} onExit={() => setMode('choose')} /></main>
   if (previewing) return <main className="page player-page host-preview"><div className="preview-parent"><button onClick={() => setPreviewing(false)}>← Back to host dashboard</button><span>HOST PREVIEW · {player.name}</span></div><PlayerProfile character={player} completedBeatIds={completedBeatIds} onExit={() => setPreviewing(false)} /></main>
   if (mode === 'host' && activeGame) return <><header className="mode-bar host-mode"><div><span>HOST DASHBOARD · PRIVATE</span><b>{definition.title} · {story.totalPeople} people · {getHostScreen(game)}</b></div><div className="mode-actions"><button className="quiet" onClick={() => setMode('choose')}>Back to storylines</button></div></header><HostWorkspace definition={definition} state={game} setState={updateActiveGame} capabilities={capabilities} gateway={gateway} onPreview={preview} /></>
-  return <StartScreen storylines={storylines} games={games} importError={importError} onCreateStoryline={() => setMode('author')} onCreateGame={startGameFromStoryline} onContinueGame={continueGame} onRules={storyline => showStoryline(storyline, 'rules')} onStory={storyline => showStoryline(storyline, 'story')} onDossier={storyline => showStoryline(storyline, 'player')} onImport={importStoryline} onExport={exportStoryline} />
+  return <StartScreen storylines={storylines} games={games} importError={importError} libraryWarning={initial.warning} onCreateStoryline={() => setMode('author')} onCreateGame={startGameFromStoryline} onContinueGame={continueGame} onRules={storyline => showStoryline(storyline, 'rules')} onStory={storyline => showStoryline(storyline, 'story')} onDossier={storyline => showStoryline(storyline, 'player')} onImport={importStoryline} onExport={exportStoryline} />
 }

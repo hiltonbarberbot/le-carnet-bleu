@@ -17,6 +17,7 @@ export type GameLibrary = {
   storylines: StorylineDefinition[]
   games: GameSessionEntry[]
   error: string
+  warning: string
 }
 
 type LibraryStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
@@ -27,6 +28,7 @@ function uniqueStorylines(storylines: StorylineDefinition[]) {
 
 export function readGameLibrary(storage: LibraryStorage, demo: StorylineDefinition): GameLibrary {
   try {
+    let warning = ''
     const storedStorylines = storage.getItem(STORYLINES_KEY)
     const storylines = storedStorylines
       ? (JSON.parse(storedStorylines) as StorylineDefinitionInput[]).map(createStorylineDefinition)
@@ -43,9 +45,13 @@ export function readGameLibrary(storage: LibraryStorage, demo: StorylineDefiniti
     if (!storedStorylines && !storedGames) {
       const legacy = storage.getItem(LEGACY_GAME_KEY)
       if (legacy) {
-        const restored = restoreGameSession(legacy)
-        if (restored.state.phase !== 'idle') games.push({ storyline: restored.definition, state: restored.state })
-        storylines.push(restored.definition)
+        try {
+          const restored = restoreGameSession(legacy)
+          if (restored.state.phase !== 'idle') games.push({ storyline: restored.definition, state: restored.state })
+          storylines.push(restored.definition)
+        } catch {
+          warning = 'An older saved game could not be migrated to the current storyline format. It has been left untouched.'
+        }
       }
     }
 
@@ -53,12 +59,14 @@ export function readGameLibrary(storage: LibraryStorage, demo: StorylineDefiniti
       storylines: uniqueStorylines([demo, ...storylines, ...games.map(game => game.storyline)]),
       games,
       error: '',
+      warning,
     }
   } catch (error) {
     return {
       storylines: [demo],
       games: [],
       error: error instanceof Error ? error.message : String(error),
+      warning: '',
     }
   }
 }
@@ -66,7 +74,6 @@ export function readGameLibrary(storage: LibraryStorage, demo: StorylineDefiniti
 export function writeGameLibrary(storage: LibraryStorage, storylines: StorylineDefinition[], games: GameSessionEntry[]) {
   storage.setItem(STORYLINES_KEY, JSON.stringify(uniqueStorylines(storylines)))
   storage.setItem(GAMES_KEY, JSON.stringify(games.map(game => serializeGameState(game.storyline, game.state))))
-  storage.removeItem(LEGACY_GAME_KEY)
 }
 
 export function clearGameLibrary(storage: LibraryStorage) {

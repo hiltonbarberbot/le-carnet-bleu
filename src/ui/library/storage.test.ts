@@ -41,8 +41,19 @@ describe('storyline and game library storage', () => {
     expect(restored.storylines.some(item => item.fingerprint === storyline.fingerprint)).toBe(true)
     expect(restored.games[0].state.id).toBe('legacy-game')
     writeGameLibrary(storage, restored.storylines, restored.games)
-    expect(storage.getItem(LEGACY_GAME_KEY)).toBeNull()
+    expect(storage.getItem(LEGACY_GAME_KEY)).not.toBeNull()
     expect(storage.getItem(STORYLINES_KEY)).not.toBeNull()
     expect(storage.getItem(GAMES_KEY)).not.toBeNull()
+  })
+
+  it('keeps an incompatible legacy save without blocking the storyline library', () => {
+    const storage = memoryStorage({ [LEGACY_GAME_KEY]: '{"obsolete":true}' })
+
+    const restored = readGameLibrary(storage, createDemoGame('browser-demo'))
+
+    expect(restored.error).toBe('')
+    expect(restored.warning).toContain('left untouched')
+    expect(restored.storylines).toHaveLength(1)
+    expect(storage.getItem(LEGACY_GAME_KEY)).toBe('{"obsolete":true}')
   })
 })
