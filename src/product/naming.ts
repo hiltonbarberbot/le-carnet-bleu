@@ -1,4 +1,4 @@
-import rawManifest from '../../game.manifest.json'
+import rawManifest from '../../game.manifest.json' with { type: 'json' }
 import type { GameManifest } from '../game/runtime/contract.js'
 
 /**
