@@ -1,17 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { createLeCarnetBleuRuntime } from '../../game/runtime/le-carnet-bleu'
+import { createGameRuntime } from '../../game/runtime/game'
 import { createDemoGame } from '../../game/demo'
+import { gameManifest, productNaming } from '../../product/naming'
 import { createMemoryChatSessionStore, createOpenClawGameAdapter } from './adapter'
 
 const capabilities = { aiControllers: true, privateMessaging: true, statePersistence: true }
 const sender = { id: 'host', displayName: 'Hilton' }
 const mentions = [{ id: 'alice', displayName: 'Alice' }, { id: 'bob', displayName: 'Bob' }]
-const demoRuntime = (seed: string) => createLeCarnetBleuRuntime(createDemoGame(seed))
+const demoRuntime = (seed: string) => createGameRuntime(createDemoGame(seed))
 
 describe('generic OpenClaw game adapter', () => {
   it('enumerates installed portable games without game-specific adapter code', () => {
     const adapter = createOpenClawGameAdapter({ runtimes: [demoRuntime('enumeration')], store: createMemoryChatSessionStore(), capabilities })
-    expect(adapter.listGames()).toEqual([expect.objectContaining({ id: 'le-carnet-bleu', name: 'Le Carnet Bleu' })])
+    expect(adapter.listGames()).toEqual([expect.objectContaining({ id: gameManifest.id, name: productNaming.name })])
   })
 
   it('uses a group binding and retains two mentioned humans as distinct participants', () => {
@@ -19,12 +20,12 @@ describe('generic OpenClaw game adapter', () => {
       runtimes: [demoRuntime('binding')],
       store: createMemoryChatSessionStore(),
       capabilities,
-      bindings: [{ channel: 'whatsapp', conversationId: 'game-group', gameId: 'le-carnet-bleu' }],
+      bindings: [{ channel: 'whatsapp', conversationId: 'game-group', gameId: gameManifest.id }],
       createId: () => 'openclaw-1',
     })
     const response = adapter.handle({ channel: 'whatsapp', conversationId: 'game-group', text: 'can we do a run of the game?', sender, mentions })
     expect(response.ok).toBe(true)
-    expect(response).toMatchObject({ gameId: 'le-carnet-bleu', sessionId: 'openclaw-1', state: { phase: 'enrolling' } })
+    expect(response).toMatchObject({ gameId: gameManifest.id, sessionId: 'openclaw-1', state: { phase: 'enrolling' } })
     if (response.state?.phase !== 'enrolling') throw new Error('Expected enrolling')
     expect(response.state.setup.seats.filter(seat => seat.humanName).map(seat => seat.humanName)).toEqual(['Alice', 'Bob'])
     expect(response.messages.join(' ')).toContain('Alice, Bob')
@@ -49,19 +50,19 @@ describe('generic OpenClaw game adapter', () => {
       advanced = adapter.handle({ channel: 'whatsapp', conversationId: 'game-group', text: 'delivered', sender, command: { name: 'record_delivery', payload: { roleId, ok: true, receipt: `whatsapp:${roleId}` } } })
     }
     advanced = adapter.handle({ channel: 'whatsapp', conversationId: 'game-group', text: 'start', sender, command: { name: 'start' } })
-    expect(advanced).toMatchObject({ ok: true, state: { phase: 'active', playPhase: 'schemes' } })
+    expect(advanced).toMatchObject({ ok: true, state: { phase: 'active', playPhase: 'opening' } })
   })
 
   it('lists games in an unbound context and requires explicit selection before starting', () => {
     const adapter = createOpenClawGameAdapter({ runtimes: [demoRuntime('selection')], store: createMemoryChatSessionStore(), capabilities })
     const listed = adapter.handle({ channel: 'whatsapp', conversationId: 'other', text: 'which games are available?', sender })
     expect(listed).toMatchObject({ ok: true })
-    expect(listed.messages.join(' ')).toContain('Le Carnet Bleu')
+    expect(listed.messages.join(' ')).toContain(productNaming.name)
     const unselected = adapter.handle({ channel: 'whatsapp', conversationId: 'other', text: 'start the game', sender, mentions })
     expect(unselected).toMatchObject({ ok: false })
     expect(unselected.messages.join(' ')).toContain('No game is selected')
-    const selected = adapter.handle({ channel: 'whatsapp', conversationId: 'other', text: 'start the game', game: 'carnet bleu', sender, mentions })
-    expect(selected).toMatchObject({ ok: true, gameId: 'le-carnet-bleu' })
+    const selected = adapter.handle({ channel: 'whatsapp', conversationId: 'other', text: 'start the game', game: gameManifest.aliases[0], sender, mentions })
+    expect(selected).toMatchObject({ ok: true, gameId: gameManifest.id })
   })
 
   it('normalizes participant identity before deriving a private address', () => {
@@ -69,7 +70,7 @@ describe('generic OpenClaw game adapter', () => {
       runtimes: [demoRuntime('normalized-participants')],
       store: createMemoryChatSessionStore(),
       capabilities,
-      bindings: [{ channel: 'whatsapp', conversationId: 'trimmed', gameId: 'le-carnet-bleu' }],
+      bindings: [{ channel: 'whatsapp', conversationId: 'trimmed', gameId: gameManifest.id }],
     })
     const response = adapter.handle({
       channel: 'whatsapp',
@@ -85,8 +86,8 @@ describe('generic OpenClaw game adapter', () => {
 
   it('returns precise installation and compatibility errors', () => {
     const absent = createOpenClawGameAdapter({ runtimes: [], store: createMemoryChatSessionStore(), capabilities })
-    expect(absent.handle({ channel: 'whatsapp', conversationId: 'x', text: 'start the game', game: 'le-carnet-bleu', sender, mentions }).messages.join(' ')).toContain('not installed')
+    expect(absent.handle({ channel: 'whatsapp', conversationId: 'x', text: 'start the game', game: gameManifest.id, sender, mentions }).messages.join(' ')).toContain('not installed')
     const incompatible = createOpenClawGameAdapter({ runtimes: [demoRuntime('compatibility')], store: createMemoryChatSessionStore(), capabilities: { ...capabilities, statePersistence: false } })
-    expect(incompatible.handle({ channel: 'whatsapp', conversationId: 'x', text: 'start the game', game: 'le-carnet-bleu', sender, mentions }).messages.join(' ')).toContain('state_persistence')
+    expect(incompatible.handle({ channel: 'whatsapp', conversationId: 'x', text: 'start the game', game: gameManifest.id, sender, mentions }).messages.join(' ')).toContain('state_persistence')
   })
 })

@@ -1,7 +1,7 @@
 import { hashString } from '../random/hash.js'
 import { createSettingBrief } from '../setting/brief.js'
 import { compileStory, validateStory } from '../story/compile.js'
-import type { GameDefinition, GameDefinitionInput } from './contract.js'
+import type { StorylineDefinition, StorylineDefinitionInput } from './contract.js'
 
 function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`
@@ -12,7 +12,7 @@ function canonical(value: unknown): string {
   return JSON.stringify(value)
 }
 
-function fingerprint(input: Omit<GameDefinition, 'fingerprint'>) {
+function fingerprint(input: Omit<StorylineDefinition, 'fingerprint'>) {
   const serialized = canonical(input)
   return [
     hashString(`definition:a:${serialized}`),
@@ -22,7 +22,7 @@ function fingerprint(input: Omit<GameDefinition, 'fingerprint'>) {
   ].map(value => value.toString(16).padStart(8, '0')).join('')
 }
 
-export function validateGameDefinition(input: GameDefinitionInput): string[] {
+export function validateStorylineDefinition(input: StorylineDefinitionInput): string[] {
   const clueIds = new Set(input.clueDecks.flatMap(deck => deck.clues.map(clue => clue.id)))
   const errors = validateStory(input.story, clueIds)
   if (!input.id.trim()) errors.push('definition id is required')
@@ -60,8 +60,16 @@ export function validateGameDefinition(input: GameDefinitionInput): string[] {
       errors.push(`act ${act.id || '(missing id)'} requires title, operatorGoal, playerGoal and completionLabel`)
     }
     if (!Number.isFinite(act.durationMinutes) || act.durationMinutes < 1) errors.push(`act ${act.id || '(missing id)'} needs a positive duration`)
+    if (act.durationMinutes > 15) errors.push(`opening act ${act.id || '(missing id)'} must finish within fifteen minutes`)
   }
-  if (!input.acts.length) errors.push('definition requires at least one authored act')
+  if (input.acts.length !== 1) errors.push('definition requires exactly one short authored opening before free play')
+
+  const investigationStages = input.story.evening.filter(stage => stage.phase === 'investigation')
+  if (investigationStages.length !== 1) errors.push('evening requires exactly one continuous open investigation stage')
+  const investigationMinutes = investigationStages[0]?.durationMinutes
+  if (investigationMinutes && (investigationMinutes < 60 || investigationMinutes > 180)) {
+    errors.push('open investigation must be planned for one to three hours')
+  }
 
   for (const beat of input.story.runPlan) {
     if (!actIds.has(beat.phase)) errors.push(`run-plan beat ${beat.id} uses undeclared act ${beat.phase}`)
@@ -107,8 +115,8 @@ export function validateGameDefinition(input: GameDefinitionInput): string[] {
   return [...new Set(errors)]
 }
 
-export function createGameDefinition(input: GameDefinitionInput): GameDefinition {
-  const normalized: Omit<GameDefinition, 'fingerprint'> = {
+export function createStorylineDefinition(input: StorylineDefinitionInput): StorylineDefinition {
+  const normalized: Omit<StorylineDefinition, 'fingerprint'> = {
     schemaVersion: 2,
     id: input.id.trim(),
     title: input.title.trim(),
@@ -118,9 +126,15 @@ export function createGameDefinition(input: GameDefinitionInput): GameDefinition
     acts: structuredClone(input.acts),
     setupRequirements: structuredClone(input.setupRequirements),
   }
-  const errors = validateGameDefinition({ ...normalized, fingerprint: input.fingerprint })
-  if (errors.length) throw new Error(`Invalid game definition:\n${errors.join('\n')}`)
+  const errors = validateStorylineDefinition({ ...normalized, fingerprint: input.fingerprint })
+  if (errors.length) throw new Error(`Invalid storyline definition:\n${errors.join('\n')}`)
   const expected = fingerprint(normalized)
-  if (input.fingerprint && input.fingerprint !== expected) throw new Error('Game definition fingerprint does not match its content.')
+  if (input.fingerprint && input.fingerprint !== expected) throw new Error('Storyline fingerprint does not match its content.')
   return { ...normalized, fingerprint: expected }
 }
+
+/** @deprecated Use validateStorylineDefinition. */
+export const validateGameDefinition = validateStorylineDefinition
+
+/** @deprecated Use createStorylineDefinition. */
+export const createGameDefinition = createStorylineDefinition

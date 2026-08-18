@@ -1,8 +1,8 @@
-import type { GameDefinition } from '../../game/definition/contract'
+import type { StorylineDefinition } from '../../game/definition/contract'
 import type { Action, Story } from '../../game/types'
 
 type StoryReaderProps = {
-  definition: GameDefinition
+  definition: StorylineDefinition
   onExit: () => void
 }
 
@@ -65,7 +65,7 @@ function StoryEvening({ story }: { story: Story }) {
   </section>
 }
 
-function StoryRun({ definition }: { definition: GameDefinition }) {
+function StoryRun({ definition }: { definition: StorylineDefinition }) {
   const actions = indexActions(definition.story)
   const plannedPhases = new Set(definition.acts.map(act => act.id))
   const phases = [
@@ -128,7 +128,7 @@ function StoryTruth({ story }: { story: Story }) {
   </section>
 }
 
-function StoryClues({ definition }: { definition: GameDefinition }) {
+function StoryClues({ definition }: { definition: StorylineDefinition }) {
   return <section className="story-section">
     <div className="story-section-heading"><span>04 · PURCHASABLE CLUES</span><h2>The complete clue-desk inventory</h2><p>Players draw these privately and without replacement. They corroborate the case; the canonical solution never depends on an unsold clue alone.</p></div>
     <div className="story-decks">{definition.clueDecks.map(deck => <article key={deck.id}><header><span>DECK</span><h3>{deck.label}</h3><small>{deck.settingValue}</small></header><ol>{deck.clues.map(clue => <li key={clue.id}><span>BEAT {clue.beat}</span><p>{clue.text}</p></li>)}</ol></article>)}</div>

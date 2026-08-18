@@ -20,12 +20,15 @@ import { hashString } from '../random/hash'
 export const SOCIAL_RULES = {
   startingTokens: 10,
   initialCluePrice: 5,
-  convictionVotes: 3,
   tokenPointDivisor: 5,
   correctAccuserPoints: 5,
   correctVotePoints: 3,
   culpritEscapePoints: 10,
 } as const
+
+export function getConvictionThreshold(definition: GameDefinition) {
+  return Math.floor(definition.story.characters.length / 2) + 1
+}
 
 export const browserCapabilities: RuntimeCapabilities = {
   aiControllers: false,
@@ -435,7 +438,7 @@ export function castVote(definition: GameDefinition, state: ActiveGameState, rol
   if (Object.keys(hearing.votes).length < definition.story.characters.length) return { ...state, hearing }
 
   const convictVotes = Object.values(hearing.votes).filter(value => value === 'convict').length
-  const result = convictVotes >= SOCIAL_RULES.convictionVotes ? 'convicted' as const : 'failed' as const
+  const result = convictVotes >= getConvictionThreshold(definition) ? 'convicted' as const : 'failed' as const
   const resolved = { ...hearing, result, convictVotes }
   if (result === 'failed') return { ...state, hearing: null, hearingHistory: [...state.hearingHistory, resolved] }
   return {

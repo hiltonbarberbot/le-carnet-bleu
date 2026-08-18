@@ -4,7 +4,7 @@ import { AuthoringStudio, readSettingList } from './studio'
 
 describe('AI authoring studio', () => {
   it('begins with one forgiving prompt instead of a setting form', () => {
-    const html = renderToStaticMarkup(<AuthoringStudio gateway={{ state: 'available', model: 'test/model' }} onExit={() => undefined} onUse={() => undefined} />)
+    const html = renderToStaticMarkup(<AuthoringStudio gateway={{ state: 'available', model: 'test/model' }} onExit={() => undefined} onSave={() => undefined} />)
     expect(html).toContain('CREATE WITH AI')
     expect(html).toContain('Tell us about your evening')
     expect(html).toContain('What do you have in mind?')

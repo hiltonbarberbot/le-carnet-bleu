@@ -13,6 +13,7 @@ import {
   createGame,
   enableDuplicateClues,
   endInvestigation,
+  getConvictionThreshold,
   lowerCluePrice,
   prepareGame,
   recordAward,
@@ -104,6 +105,10 @@ describe('social investigation economy', () => {
 })
 
 describe('public accusation hearings and scoring', () => {
+  it('derives a strict-majority threshold from the authored cast', () => {
+    expect(getConvictionThreshold(createDemoGame('majority'))).toBe(3)
+  })
+
   it('returns to investigation after a failed five-player vote', () => {
     const { definition, active: initial } = openInvestigation('failed-hearing')
     let active = callAccusation(initial, 'francois', 'jacques', 'The missing page points to Jacques.')
@@ -119,7 +124,7 @@ describe('public accusation hearings and scoring', () => {
     expect(active.hearingHistory.at(-1)).toMatchObject({ result: 'failed', convictVotes: 2 })
   })
 
-  it('ends on a 3-of-5 correct conviction and applies every applicable source weight', () => {
+  it('ends on a strict-majority correct conviction and applies every applicable source weight', () => {
     const { definition, active: initial } = openInvestigation('correct-conviction')
     const objective = definition.story.characters.find(character => character.id === 'francois')!.objectives[0]
     let active = setObjectiveCompleted(definition, initial, 'francois', objective.id, true)

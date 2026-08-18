@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { generateText } from 'ai'
 import { GET, POST } from '../../../api/ai/perform'
 import { createDemoGame } from '../demo'
+import { productNaming } from '../../product/naming'
 
 vi.mock('ai', () => ({ generateText: vi.fn() }))
 
@@ -74,7 +75,7 @@ describe('AI performance function', () => {
     expect(generateText).toHaveBeenCalledWith(expect.objectContaining({
       model: 'anthropic/claude-sonnet-4.6',
       maxOutputTokens: 120,
-      providerOptions: { gateway: { user: 'session-1', tags: ['le-carnet-bleu', 'ai-player', definition.fingerprint.slice(0, 12)] } },
+      providerOptions: { gateway: { user: 'session-1', tags: [productNaming.telemetryTag, 'ai-player', definition.fingerprint.slice(0, 12)] } },
     }))
   })
 })

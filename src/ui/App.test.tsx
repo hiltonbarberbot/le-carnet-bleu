@@ -14,7 +14,7 @@ import {
   startGame,
   updateEnrolment,
 } from '../game/session/lifecycle'
-import type { GameState, PreparedGameState } from '../game/types'
+import type { ExistingGameState, GameState, PreparedGameState } from '../game/types'
 import { getHostScreen, HostWorkspace, PlayerProfile, StartScreen } from './App'
 
 const definition = createDemoGame('ui')
@@ -83,8 +83,8 @@ describe('host lifecycle projection', () => {
 
   it('renders active play and reset-to-idle as separate states', () => {
     const active = startGame(definition, deliverAll(prepareGame(definition, enrolling(), noAi)))
-    expect(getHostScreen(active)).toBe('active:schemes')
-    expect(render(active)).toContain('Arrival and first schemes')
+    expect(getHostScreen(active)).toBe('active:opening')
+    expect(render(active)).toContain('The murder at Maison Bleue')
     const idle = resetGame(definition, active, true)
     expect(getHostScreen(idle)).toBe('idle')
     expect(render(idle)).toContain('READY FOR MAISON BLEUE DEMO HOUSE')
@@ -136,11 +136,13 @@ describe('private player card', () => {
 })
 
 describe('start screen', () => {
-  const renderStart = (state: GameState) => renderToStaticMarkup(<StartScreen
-    definition={definition}
-    game={state}
+  const renderStart = (states: ExistingGameState[] = []) => renderToStaticMarkup(<StartScreen
+    storylines={[definition]}
+    games={states.map(state => ({ storyline: definition, state }))}
     importError=""
-    onCreate={() => undefined}
+    onCreateStoryline={() => undefined}
+    onCreateGame={() => undefined}
+    onContinueGame={() => undefined}
     onRules={() => undefined}
     onStory={() => undefined}
     onDossier={() => undefined}
@@ -148,18 +150,24 @@ describe('start screen', () => {
     onExport={() => undefined}
   />)
 
-  it('makes creating a game the unmistakable primary action', () => {
-    const html = renderStart(createIdleState(definition))
-    expect(html).toContain('Create game')
-    expect(html).toContain('START HERE')
-    expect(html).toContain('Describe your setting and let AI draft the mystery')
+  it('shows storyline creation and game creation as separate actions', () => {
+    const html = renderStart()
+    expect(html).toContain('Your storylines')
+    expect(html).toContain('EXISTING STORYLINES')
+    expect(html).toContain('Create storyline')
+    expect(html).toContain('Create game from this storyline')
+    expect(html).toContain(story.title)
     expect(html).not.toContain('God mode')
-    expect(html.indexOf('Create game')).toBeLessThan(html.indexOf('Advanced'))
   })
 
-  it('offers to continue when a game already exists', () => {
-    const html = renderStart(createGame(definition, new Date('2026-08-18T10:00:00Z'), 'existing'))
-    expect(html).toContain('Continue game')
-    expect(html).toContain('Return to the enrolling game')
+  it('lists several games created from the same storyline', () => {
+    const html = renderStart([
+      createGame(definition, new Date('2026-08-18T10:00:00Z'), 'first-game'),
+      createGame(definition, new Date('2026-08-19T10:00:00Z'), 'second-game'),
+    ])
+    expect(html).toContain('2 GAMES')
+    expect(html).toContain('Game first-ga')
+    expect(html).toContain('Game second-g')
+    expect(html.match(/Continue →/g)).toHaveLength(2)
   })
 })

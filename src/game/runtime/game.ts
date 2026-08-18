@@ -1,4 +1,4 @@
-import manifest from '../../../game.manifest.json'
+import { gameManifest, productNaming } from '../../product/naming.js'
 import {
   advanceAct,
   advanceHearing,
@@ -25,11 +25,9 @@ import {
 } from '../session/lifecycle'
 import { restoreGameState, serializeGameState } from '../session/storage'
 import type { ActiveGameState, EnrollingGameState, GameState, PreparedGameState, SetupDraft } from '../types'
-import type { AuthoredGame } from '../story/authoring'
+import type { AuthoredStoryline } from '../story/authoring'
 import { createGameDefinition } from '../definition/create'
-import type { GameCommand, GameManifest, PortableGameRuntime, RuntimeContext, RuntimeEvent } from './contract'
-
-export const leCarnetBleuManifest = manifest as GameManifest
+import type { GameCommand, PortableGameRuntime, RuntimeContext, RuntimeEvent } from './contract'
 
 function payloadString(command: GameCommand, key: string) {
   const value = command.payload?.[key]
@@ -77,10 +75,10 @@ function enrolParticipants(state: EnrollingGameState, participants: { id: string
   return updateEnrolment(state, { ...state.setup, seats })
 }
 
-export function createLeCarnetBleuRuntime(authoredGame: AuthoredGame): PortableGameRuntime {
+export function createGameRuntime(authoredGame: AuthoredStoryline): PortableGameRuntime {
   const definition = createGameDefinition(authoredGame)
   return {
-    manifest: leCarnetBleuManifest,
+    manifest: gameManifest,
     authoredGame: {
       setting: definition.setting,
       definitionId: definition.id,
@@ -89,8 +87,8 @@ export function createLeCarnetBleuRuntime(authoredGame: AuthoredGame): PortableG
       storyTitle: definition.story.title,
     },
     createSession(request, context) {
-      if (request.participants.length < leCarnetBleuManifest.players.minHumans) {
-        throw new Error(`Le Carnet Bleu requires at least ${leCarnetBleuManifest.players.minHumans} human guest participants.`)
+      if (request.participants.length < gameManifest.players.minHumans) {
+        throw new Error(`${productNaming.name} requires at least ${gameManifest.players.minHumans} human guest participants.`)
       }
       let state = createGame(definition, context.now, context.createId?.())
       state = updateEnrolment(state, { ...state.setup, hostName: request.host.displayName.trim() })
@@ -183,3 +181,9 @@ export function createLeCarnetBleuRuntime(authoredGame: AuthoredGame): PortableG
     },
   }
 }
+
+/** @deprecated Use gameManifest. */
+export const leCarnetBleuManifest = gameManifest
+
+/** @deprecated Use createGameRuntime. */
+export const createLeCarnetBleuRuntime = createGameRuntime

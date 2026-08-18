@@ -51,7 +51,7 @@ function galleryStory(): Story {
       consequence: 'Places one authored fact into play.',
       essential: true,
       beat: index < 3 ? 1 : 2,
-      phase: index < 3 ? 'welcome' : 'unveiling',
+      phase: 'opening',
       physical: false,
       requires: [],
     }],
@@ -69,9 +69,9 @@ function galleryStory(): Story {
     characters,
     publicEvidence: [],
     evening: [
-      { id: 'gallery-arrival', title: 'Arrival', description: 'Meet the gallery circle.', durationMinutes: 15, phase: 'welcome' },
-      { id: 'gallery-reveal', title: 'Unveiling', description: 'Read the catalogue and investigate.', durationMinutes: 30, phase: 'unveiling' },
-      { id: 'gallery-investigation', title: 'Investigation', description: 'Trade information, bargain, and call a public accusation hearing.', durationMinutes: 35, phase: 'investigation' },
+      { id: 'gallery-briefing', title: 'Private briefing', description: 'Meet the gallery circle and review private dossiers.', durationMinutes: 10, phase: 'opening' },
+      { id: 'gallery-incident', title: 'The fatal unveiling', description: 'Read the catalogue and discover the curator.', durationMinutes: 15, phase: 'opening' },
+      { id: 'gallery-investigation', title: 'Open investigation', description: 'Trade information, bargain, and call a public accusation hearing.', durationMinutes: 90, phase: 'investigation' },
       { id: 'gallery-solution', title: 'Solution', description: 'Reveal the substitution and its consequences.', durationMinutes: 15, phase: 'reveal' },
     ],
     timeline: [
@@ -79,8 +79,8 @@ function galleryStory(): Story {
       { beat: 2, title: 'The fatal exposure', truth: 'The culprit silenced the curator when the catalogue proved the substitution.', evidence: ['gallery-evidence-3', 'gallery-evidence-4'] },
     ],
     runPlan: [
-      { id: 'gallery-welcome', phase: 'welcome', title: 'Welcome the circle', trigger: 'When everyone is seated', operator: 'Invite the first disclosures without moving anyone.', actionIds: ['gallery-action-1', 'gallery-action-2', 'gallery-action-3'], dependsOn: [], essential: true },
-      { id: 'gallery-unveiling', phase: 'unveiling', title: 'Read the catalogue', trigger: 'After the welcome disclosures', operator: 'Stage the curator’s off-page collapse with a bell, then continue in ordinary light.', actionIds: ['gallery-action-4', 'gallery-action-5'], dependsOn: ['gallery-welcome'], essential: true },
+      { id: 'gallery-welcome', phase: 'opening', title: 'Welcome the circle', trigger: 'When everyone is seated', operator: 'Invite the first disclosures without moving anyone.', actionIds: ['gallery-action-1', 'gallery-action-2', 'gallery-action-3'], dependsOn: [], essential: true },
+      { id: 'gallery-unveiling', phase: 'opening', title: 'Read the catalogue', trigger: 'After the welcome disclosures', operator: 'Stage the curator’s off-page collapse with a bell, then release the room into free play in ordinary light.', actionIds: ['gallery-action-4', 'gallery-action-5'], dependsOn: ['gallery-welcome'], essential: true },
     ],
     solution: 'Mara substituted the painting and silenced the curator before the catalogue could expose her.',
   }
@@ -106,8 +106,7 @@ function galleryDefinition() {
     },
     story: galleryStory(),
     acts: [
-      { id: 'welcome', title: 'The welcome', operatorGoal: 'Establish the relationships around the donation.', playerGoal: 'Meet the circle and share one fact.', durationMinutes: 15, completionLabel: 'Begin the unveiling →' },
-      { id: 'unveiling', title: 'The unveiling', operatorGoal: 'Expose the catalogue discrepancy and stage the discovery.', playerGoal: 'Compare the catalogue with what you know.', durationMinutes: 30, completionLabel: 'Begin the investigation →' },
+      { id: 'opening', title: 'The fatal unveiling', operatorGoal: 'Establish the relationships, expose the catalogue discrepancy, and stage the discovery.', playerGoal: 'Meet the circle, share one fact, and follow the opening cue until the curator is discovered.', durationMinutes: 15, completionLabel: 'Open the investigation →' },
     ],
     clueDecks: [
       {
@@ -158,6 +157,23 @@ describe('setting-specific game definitions', () => {
     expect(() => createGameDefinition(broken)).toThrow(/undeclared act blackout/)
   })
 
+  it('rejects a guided second act or a shortened free-play window', () => {
+    const guided = structuredClone(createDemoGame('guided-after-body'))
+    guided.acts.push({
+      id: 'interrogation',
+      title: 'Guided interrogation',
+      operatorGoal: 'Direct every conversation.',
+      playerGoal: 'Wait for the next prompt.',
+      durationMinutes: 10,
+      completionLabel: 'Continue',
+    })
+    expect(() => createGameDefinition(guided)).toThrow(/exactly one short authored opening/)
+
+    const rushed = structuredClone(createDemoGame('rushed-free-play'))
+    rushed.story.evening.find(stage => stage.phase === 'investigation')!.durationMinutes = 45
+    expect(() => createGameDefinition(rushed)).toThrow(/one to three hours/)
+  })
+
   it('plays and restores a complete non-blackout definition without demo assumptions', () => {
     const definition = galleryDefinition()
     expect(JSON.stringify(definition.story)).not.toMatch(/blackout|terrace|study|paper knife|weapon/i)
@@ -182,10 +198,8 @@ describe('setting-specific game definitions', () => {
       prepared = recordDeliveryOutcome(prepared, roleId, { ok: true, receipt: `gallery:${roleId}` })
     }
     let active = startGame(definition, prepared)
-    expect(active.playPhase).toBe('welcome')
+    expect(active.playPhase).toBe('opening')
     active = confirmRunBeat(definition, active, 'gallery-welcome')
-    active = advanceAct(definition, active)
-    expect(active.playPhase).toBe('unveiling')
     active = confirmRunBeat(definition, active, 'gallery-unveiling')
     active = advanceAct(definition, active)
     expect(active.playPhase).toBe('investigation')

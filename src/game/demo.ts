@@ -1,5 +1,5 @@
 import { generateGame } from './generate.js'
-import { createAuthoredGame } from './story/authoring.js'
+import { createAuthoredStoryline } from './story/authoring.js'
 import { clueDecks } from './scenario.js'
 
 export const demoSetting = {
@@ -17,8 +17,8 @@ export const demoSetting = {
   contentBoundaries: ['No graphic violence', 'No harm to children during play'],
 }
 
-export function createDemoGame(seed = 'maison-bleue-demo') {
-  return createAuthoredGame({
+export function createDemoStoryline(seed = 'maison-bleue-demo') {
+  return createAuthoredStoryline({
     id: 'maison-bleue-demo',
     title: 'Maison Bleue demo',
     setting: demoSetting,
@@ -26,28 +26,12 @@ export function createDemoGame(seed = 'maison-bleue-demo') {
     clueDecks,
     acts: [
       {
-        id: 'schemes',
-        title: 'Arrival and first schemes',
-        operatorGoal: 'Welcome the characters, then let them pursue private objectives without directing every conversation.',
-        playerGoal: 'Introduce yourself, begin with the people named on your card, and attempt at least one objective.',
-        durationMinutes: 20,
-        completionLabel: 'Call everyone to the reckoning →',
-      },
-      {
-        id: 'reckoning',
-        title: 'The public reckoning',
-        operatorGoal: 'Expose the notebook and old case while leaving room for bargains, objections, and accusations.',
-        playerGoal: 'Use what you learned, challenge another guest, and decide what truth to reveal before the reconstruction.',
-        durationMinutes: 25,
-        completionLabel: 'Begin the reconstructed minute →',
-      },
-      {
-        id: 'murder',
-        title: 'The reconstructed minute',
-        operatorGoal: 'Perform the one short, rehearsed incident and bring everyone immediately back together.',
-        playerGoal: 'Follow only your host cue. Everyone else stays at the table and listens.',
-        durationMinutes: 5,
-        completionLabel: 'Turn on the lights and investigate →',
+        id: 'opening',
+        title: 'The murder at Maison Bleue',
+        operatorGoal: 'Deliver the prepared reckoning, stage the short no-contact murder, then become Game Master and release the room into free play.',
+        playerGoal: 'Introduce your character, follow only your private host cue, and wait for the body to be discovered before bargaining begins.',
+        durationMinutes: 10,
+        completionLabel: 'Open the investigation →',
       },
     ],
     setupRequirements: [
@@ -63,3 +47,6 @@ export function createDemoGame(seed = 'maison-bleue-demo') {
     ],
   })
 }
+
+/** @deprecated Use createDemoStoryline. */
+export const createDemoGame = createDemoStoryline

@@ -1,6 +1,6 @@
-# Le Carnet Bleu agent rules
+# Live mystery agent rules
 
-Le Carnet Bleu is a setting-aware live mystery authoring system. The Maison Bleue plot in this repository is a demo, not universal canon.
+This product is a setting-aware live mystery authoring system. Its public name comes from `game.manifest.json`; do not repeat it in application code. The Maison Bleue plot in this repository is a demo, not universal canon.
 
 ## Setting gate
 
@@ -18,11 +18,11 @@ The minimum brief covers the real venue, location, occasion, fictional era, play
 
 Use the functional pipeline:
 
-`SettingBriefInput → createSettingBrief → createStoryAuthoringBrief → GameDefinitionInput → createGameDefinition → createLeCarnetBleuRuntime`
+`SettingBriefInput → createSettingBrief → createStoryAuthoringBrief → StorylineDefinitionInput → createStorylineDefinition → createGameRuntime`
 
 - `createStoryAuthoringBrief` is the handoff for a human or generative agent drafting the mystery.
 - `createGameDefinition` validates the evidence graph, authored acts, setting-backed setup requirements, physical-action dependencies, and content fingerprint.
-- `createLeCarnetBleuRuntime` requires an `AuthoredGame`; it must never silently fall back to the demo.
+- `createGameRuntime` requires an `AuthoredStoryline`; it must never silently fall back to the demo.
 - `createDemoGame` exists only for development, tests, and product demonstration.
 
 Every authored mystery must fit the verified setting, give all five suspects agency, use fair-play evidence, and keep physical actions no-contact and host-cued. Prefer functional composition and dependency injection over classes or hidden global configuration.

@@ -1,5 +1,6 @@
 import { generateText, Output } from 'ai'
 import type { SettingBriefInput } from '../../src/game/setting/contract.js'
+import { productNaming } from '../../src/product/naming.js'
 
 const model = process.env.AI_GATEWAY_MODEL || 'anthropic/claude-sonnet-4.6'
 export const maxDuration = 60
@@ -79,7 +80,7 @@ export async function POST(request: Request) {
       output: Output.json({ name: 'setting_notes', description: 'Only setting facts explicitly present in the host notes.' }),
       maxOutputTokens: 1500,
       temperature: 0,
-      providerOptions: { gateway: { tags: ['le-carnet-bleu', 'setting-extraction'] } },
+      providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'setting-extraction'] } },
     })
     return json({ setting: cleanSetting(result.output), model })
   } catch (error) {

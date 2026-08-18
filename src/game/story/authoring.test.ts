@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import manifest from '../../../game.manifest.json'
-import { createDemoGame, demoSetting } from '../demo'
+import { createDemoStoryline, demoSetting } from '../demo'
 import { createSettingBrief, getSettingBriefBlockers, settingQuestions } from '../setting/brief'
-import { createAuthoredGame, createStoryAuthoringBrief } from './authoring'
+import { createAuthoredStoryline, createStoryAuthoringBrief } from './authoring'
+import { productNaming } from '../../product/naming'
 
 describe('setting-first story authoring', () => {
   it('keeps the portable manifest questions synchronized with the code contract', () => {
@@ -20,14 +21,15 @@ describe('setting-first story authoring', () => {
 
   it('turns a validated setting into a bounded agent authoring brief', () => {
     const brief = createStoryAuthoringBrief(demoSetting)
+    expect(brief).toContain(`# ${productNaming.name} authoring brief`)
     expect(brief).toContain('Maison Bleue demo house')
     expect(brief).toContain('Do not invent rooms, routes, props')
     expect(brief).toContain('No sharp objects')
   })
 
   it('packages a compiled story with the setting required by the runtime', () => {
-    const demo = createDemoGame('authored')
-    const authored = createAuthoredGame({
+    const demo = createDemoStoryline('authored')
+    const authored = createAuthoredStoryline({
       id: demo.id,
       title: demo.title,
       setting: demo.setting,

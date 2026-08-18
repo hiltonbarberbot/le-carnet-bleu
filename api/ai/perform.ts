@@ -2,6 +2,7 @@ import { generateText } from 'ai'
 import { getSecretsBeforeAction } from '../../src/game/dossier/knowledge.js'
 import { createGameDefinition } from '../../src/game/definition/create.js'
 import type { GameDefinitionInput } from '../../src/game/definition/contract.js'
+import { productNaming } from '../../src/product/naming.js'
 
 const model = process.env.AI_GATEWAY_MODEL || 'anthropic/claude-sonnet-4.6'
 
@@ -103,7 +104,7 @@ export async function POST(request: Request) {
       providerOptions: {
         gateway: {
           user: input.sessionId,
-          tags: ['le-carnet-bleu', 'ai-player', definition.fingerprint.slice(0, 12)],
+          tags: [productNaming.telemetryTag, 'ai-player', definition.fingerprint.slice(0, 12)],
         },
       },
     })

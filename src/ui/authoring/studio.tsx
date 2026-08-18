@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { draftGameFromSetting } from '../../game/ai/author'
+import { draftStorylineFromSetting } from '../../game/ai/author'
 import { shapeSettingFromPrompt } from '../../game/ai/setting'
-import type { GameDefinition } from '../../game/definition/contract'
+import type { StorylineDefinition } from '../../game/definition/contract'
 import { createSettingBrief, getSettingBriefBlockers } from '../../game/setting/brief'
 import type { SettingBriefInput } from '../../game/setting/contract'
 import { StoryReader } from '../story/reader'
@@ -12,7 +12,7 @@ type ListField = 'playableSpaces' | 'routes' | 'usableFeatures' | 'availableProp
 type AuthoringStudioProps = {
   gateway: { state: 'checking' | 'available' | 'unavailable'; model?: string }
   onExit: () => void
-  onUse: (definition: GameDefinition) => void
+  onSave: (storyline: StorylineDefinition) => void
 }
 
 const steps = ['The spark', 'Reality check', 'Comfort & boundaries']
@@ -46,7 +46,7 @@ export function readSettingList(value: string) {
     .filter(Boolean)
 }
 
-export function AuthoringStudio({ gateway, onExit, onUse }: AuthoringStudioProps) {
+export function AuthoringStudio({ gateway, onExit, onSave }: AuthoringStudioProps) {
   const [step, setStep] = useState(0)
   const [prompt, setPrompt] = useState('')
   const [setting, setSetting] = useState<SettingBriefInput>({})
@@ -56,7 +56,7 @@ export function AuthoringStudio({ gateway, onExit, onUse }: AuthoringStudioProps
   const [shaping, setShaping] = useState(false)
   const [promptWasShaped, setPromptWasShaped] = useState(false)
   const [drafting, setDrafting] = useState(false)
-  const [draft, setDraft] = useState<GameDefinition>()
+  const [draft, setDraft] = useState<StorylineDefinition>()
   const [reviewing, setReviewing] = useState(false)
 
   function updateText(field: keyof SettingBriefInput, value: string) {
@@ -107,7 +107,7 @@ export function AuthoringStudio({ gateway, onExit, onUse }: AuthoringStudioProps
     if (blockers.length) return
     setDrafting(true)
     try {
-      const definition = await draftGameFromSetting(createSettingBrief(setting))
+      const definition = await draftStorylineFromSetting(createSettingBrief(setting))
       setDraft(definition)
     } catch (error) {
       setRequestError(error instanceof Error ? error.message : String(error))
@@ -121,11 +121,11 @@ export function AuthoringStudio({ gateway, onExit, onUse }: AuthoringStudioProps
   if (draft) return <main className="author-studio draft-ready">
     <button className="author-back" onClick={() => setDraft(undefined)}>← Change the setting</button>
     <section className="draft-card">
-      <span className="kicker">AI DRAFT · READY TO REVIEW</span>
+      <span className="kicker">STORYLINE DRAFT · READY TO REVIEW</span>
       <h1>{draft.title}</h1>
       <p>{draft.story.premise}</p>
       <div className="draft-facts"><span><b>{draft.story.characters.length}</b> suspects</span><span><b>{draft.story.runPlan.length}</b> live beats</span><span><b>{draft.story.timeline.length}</b> truth beats</span></div>
-      <div className="draft-actions"><button onClick={() => setReviewing(true)}>Review the full story</button><button className="use-draft" onClick={() => onUse(draft)}>Use this story and set up players →</button></div>
+      <div className="draft-actions"><button onClick={() => setReviewing(true)}>Review the full storyline</button><button className="use-draft" onClick={() => onSave(draft)}>Save storyline to library →</button></div>
     </section>
   </main>
 

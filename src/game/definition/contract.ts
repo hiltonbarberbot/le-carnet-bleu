@@ -40,7 +40,8 @@ export type ClueDeck = {
   clues: ClueCard[]
 }
 
-export type GameDefinition = {
+/** A validated, reusable mystery that can be instantiated as many games. */
+export type StorylineDefinition = {
   schemaVersion: 2
   id: string
   title: string
@@ -52,7 +53,7 @@ export type GameDefinition = {
   setupRequirements: SetupRequirement[]
 }
 
-export type GameDefinitionInput = {
+export type StorylineDefinitionInput = {
   id: string
   title: string
   fingerprint?: string
@@ -62,3 +63,9 @@ export type GameDefinitionInput = {
   acts: ActDefinition[]
   setupRequirements: SetupRequirement[]
 }
+
+/** @deprecated Use StorylineDefinition. */
+export type GameDefinition = StorylineDefinition
+
+/** @deprecated Use StorylineDefinitionInput. */
+export type GameDefinitionInput = StorylineDefinitionInput
