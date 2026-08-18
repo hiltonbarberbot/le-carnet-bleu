@@ -1,4 +1,4 @@
-import { generateText, Output } from 'ai'
+import { generateText } from 'ai'
 import { createSettingBrief } from '../../src/game/setting/brief.js'
 import type { SettingBriefInput } from '../../src/game/setting/contract.js'
 import { productNaming } from '../../src/product/naming.js'
@@ -32,6 +32,12 @@ function cleanText(value: unknown) {
 
 function cleanList(value: unknown) {
   return Array.isArray(value) ? value.map(cleanText).filter(Boolean) : []
+}
+
+function parseJsonObject(value: string) {
+  const text = value.trim()
+  const fenced = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i)
+  return JSON.parse(fenced?.[1] ?? text) as unknown
 }
 
 function cleanSetting(value: unknown): SettingBriefInput {
@@ -84,12 +90,11 @@ Do not invent specific architecture, local history, permissions, or objects. Whe
 There must be at least two playable areas. If only one real room is known, define two functional zones within it and state that no relocation is required.
 Default to present day unless the seed implies another era. Supply safe defaults: no contact, running, darkness, inaccessible essential movement, or graphic violence; all physical beats are optional and host-cued. Keep inferred features and props generic, easy, and removable. Return only the requested JSON.`,
         prompt: [settingShape, `Mystery seed:\n${prompt}`, attempt ? `The prior setting was invalid. Correct these issues:\n${lastError}` : 'Complete the setting brief now.'].join('\n\n'),
-        output: Output.json({ name: 'complete_setting_brief', description: 'A complete conservative setting brief derived from one mystery seed.' }),
         maxOutputTokens: 1800,
         temperature: 0.2,
         providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'setting-seeding'] } },
       })
-      const setting = createSettingBrief(cleanSetting(result.output))
+      const setting = createSettingBrief(cleanSetting(parseJsonObject(result.text)))
       return json({ setting, model })
     } catch (error) {
       lastError = error instanceof Error ? error.message : String(error)
