@@ -8,6 +8,7 @@ vi.mock('ai', () => ({ generateText: vi.fn() }))
 afterEach(() => {
   delete process.env.AI_GATEWAY_API_KEY
   delete process.env.VERCEL_OIDC_TOKEN
+  delete process.env.VERCEL
   vi.clearAllMocks()
 })
 
@@ -20,6 +21,11 @@ describe('AI performance function', () => {
       body: '{}',
     }))
     expect(response.status).toBe(503)
+  })
+
+  it('recognizes Vercel request-context OIDC availability', async () => {
+    process.env.VERCEL = '1'
+    expect(await GET().json()).toEqual({ available: true, model: 'anthropic/claude-sonnet-4.6' })
   })
 
   it('rejects roles and actions outside the authored case', async () => {

@@ -12,7 +12,7 @@ type PerformanceInput = {
 }
 
 function isConfigured() {
-  return Boolean(process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN)
+  return Boolean(process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || process.env.VERCEL)
 }
 
 function json(body: unknown, status = 200) {
