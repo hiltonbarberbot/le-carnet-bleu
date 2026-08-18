@@ -19,7 +19,7 @@
     "ai": "^7.0.66",
     "react": "latest",
     "react-dom": "latest",
-    "typescript": "latest",
+    "typescript": "5.9.3",
     "vite": "latest"
   },
   "devDependencies": {
