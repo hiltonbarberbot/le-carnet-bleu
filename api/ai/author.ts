@@ -1,4 +1,4 @@
-import { generateText, Output } from 'ai'
+import { generateText } from 'ai'
 import { createGameDefinition } from '../../src/game/definition/create.js'
 import type { GameDefinitionInput } from '../../src/game/definition/contract.js'
 import { createSettingBrief } from '../../src/game/setting/brief.js'
@@ -7,7 +7,7 @@ import { productNaming } from '../../src/product/naming.js'
 import { createStoryAuthoringBrief } from '../../src/game/story/authoring.js'
 import { classifyAiProviderError, createProblemReference, problemResponse } from './problem.js'
 
-const model = process.env.AI_GATEWAY_MODEL || 'anthropic/claude-sonnet-4.6'
+const model = process.env.AI_GATEWAY_AUTHOR_MODEL || 'google/gemini-3.6-flash'
 export const maxDuration = 300
 
 function isConfigured() {
@@ -28,6 +28,12 @@ function hasAllowedOrigin(request: Request) {
   } catch {
     return false
   }
+}
+
+function parseJsonObject(value: string) {
+  const text = value.trim()
+  const fenced = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i)
+  return JSON.parse(fenced?.[1] ?? text) as unknown
 }
 
 function readSetting(value: unknown): SettingBriefInput | null {
@@ -90,14 +96,15 @@ export async function POST(request: Request) {
     try {
       const result = await generateText({
         model,
-        system: 'You are a meticulous live-mystery designer. Return only the requested structured JSON. Build a playable, fair mystery from the verified setting; never reuse Maison Bleue demo canon.',
+        system: 'You are a meticulous live-mystery designer. Return only the requested JSON object with no markdown fences. Build a playable, fair mystery from the verified setting; never reuse Maison Bleue demo canon.',
         prompt: [authoringBrief, shape, attempt ? `A prior draft failed validation. Correct these issues in a fresh complete draft:\n${lastError}` : 'Draft the complete game now.'].join('\n\n'),
-        output: Output.json({ name: 'setting_specific_game_definition', description: `A complete validated ${productNaming.name} game definition.` }),
         maxOutputTokens: 12000,
         temperature: 0.7,
         providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'story-authoring'] } },
       })
-      output = result.output
+      output = result.text
+        ? parseJsonObject(result.text)
+        : (result as unknown as { output?: unknown }).output
     } catch (error) {
       const code = classifyAiProviderError(error)
       if (code === 'invalid_output' && attempt === 0) {

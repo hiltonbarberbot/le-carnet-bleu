@@ -51,7 +51,7 @@ describe('AI story authoring function', () => {
     expect(payload.definition.fingerprint).toHaveLength(32)
     expect(payload.definition.story.characters).toHaveLength(5)
     expect(generateText).toHaveBeenCalledWith(expect.objectContaining({
-      model: 'anthropic/claude-sonnet-4.6',
+      model: 'google/gemini-3.6-flash',
       maxOutputTokens: 12000,
     }))
   })
