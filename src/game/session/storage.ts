@@ -43,6 +43,9 @@ function restoreStateObject(definition: GameDefinition, value: unknown): GameSta
     if (seats.length !== roleIds.size || seats.some(seat => !isRecord(seat) || !roleIds.has(String(seat.roleId)))) {
       throw new Error('Stored enrolment does not contain exactly the story roles.')
     }
+    if (setup.peoplePlaying !== undefined && !Number.isInteger(setup.peoplePlaying)) {
+      throw new Error('Stored enrolment has invalid peoplePlaying.')
+    }
     return value as GameState
   }
 

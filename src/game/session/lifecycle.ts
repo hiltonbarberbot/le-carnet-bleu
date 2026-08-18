@@ -37,6 +37,7 @@ export const browserCapabilities: RuntimeCapabilities = {
 export function createSetupDraft(definition: GameDefinition): SetupDraft {
   const { story } = definition
   return {
+    peoplePlaying: undefined,
     hostName: '',
     seats: story.characters.map<SeatDraft>(character => ({
       roleId: character.id,
@@ -71,6 +72,16 @@ export function updateEnrolment(state: EnrollingGameState, setup: SetupDraft): E
 export function getSetupBlockers(definition: GameDefinition, setup: SetupDraft, capabilities: RuntimeCapabilities): string[] {
   const { story } = definition
   const blockers: string[] = []
+  if (typeof setup.peoplePlaying !== 'number' || !Number.isInteger(setup.peoplePlaying)) {
+    blockers.push('How many people are playing?')
+  } else if (setup.peoplePlaying < 3 || setup.peoplePlaying > story.characters.length + 1) {
+    blockers.push(`Choose between 3 and ${story.characters.length + 1} people, including the host.`)
+  } else {
+    const humanGuestSeats = setup.seats.filter(seat => !seat.allowAiFallback).length
+    if (humanGuestSeats !== setup.peoplePlaying - 1) {
+      blockers.push(`${setup.peoplePlaying} people means ${setup.peoplePlaying - 1} human guest roles plus the host.`)
+    }
+  }
   if (!setup.hostName.trim()) blockers.push(`The host for “${story.hostRole}” has not been named.`)
 
   const participantIds = new Set<string>()

@@ -134,6 +134,7 @@ export type VenueCheck = {
 }
 
 export type SetupDraft = {
+  peoplePlaying?: number
   hostName: string
   seats: SeatDraft[]
   venue: Record<string, boolean>

@@ -2,7 +2,7 @@
   "id": "le-carnet-bleu",
   "version": "0.5.0",
   "name": "Le Carnet Bleu",
-  "description": "A setting-aware six-person live murder mystery with one host and five suspect seats.",
+  "description": "A setting-aware live murder mystery with one host role and five suspect roles.",
   "aliases": ["carnet bleu", "the blue notebook", "blue notebook"],
   "players": {
     "minHumans": 2,

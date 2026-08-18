@@ -40,6 +40,7 @@ function openInvestigation(seed = 'social-loop') {
   const definition = createDemoGame(seed)
   let enrolling = createGame(definition, new Date('2026-08-18T17:00:00Z'), `game-${seed}`)
   enrolling = updateEnrolment(enrolling, {
+    peoplePlaying: 6,
     hostName: 'Host',
     seats: enrolling.setup.seats.map((seat, index) => ({
       ...seat,

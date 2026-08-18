@@ -26,6 +26,7 @@ const noAi = { aiControllers: false }
 function enrolling() {
   let state = createGame(definition, new Date('2026-08-18T10:00:00Z'), 'ui-game')
   state = updateEnrolment(state, {
+    peoplePlaying: 6,
     hostName: 'Host',
     seats: state.setup.seats.map((seat, index) => ({ ...seat, participantId: `p${index}`, humanName: `Player ${index}`, privateAddress: `private:${index}`, ready: true })),
     venue: Object.fromEntries(definition.setupRequirements.map(check => [check.id, true])),
@@ -59,15 +60,16 @@ describe('host lifecycle projection', () => {
   it('renders first load as idle with create but no reset action', () => {
     const html = render(createIdleState(definition))
     expect(html).toContain('READY FOR MAISON BLEUE DEMO HOUSE')
-    expect(html).toContain('Set up this game')
+    expect(html).toContain('How many people are playing?')
+    expect(html).toContain('Choose the group size')
     expect(html).not.toContain('Reset game')
   })
 
-  it('renders partial enrolment as blocked', () => {
+  it('asks for the number of people before showing enrolment', () => {
     const html = render(createGame(definition, new Date('2026-08-18T10:00:00Z'), 'partial'))
     expect(html).toContain('SETUP')
-    expect(html).toContain('things left before roles are ready')
-    expect(html).toContain('disabled')
+    expect(html).toContain('How many people are playing?')
+    expect(html).not.toContain('Name the host')
   })
 
   it('renders prepared-but-unsent and failed delivery distinctly', () => {
@@ -97,6 +99,7 @@ describe('host lifecycle projection', () => {
     const aiRole = story.characters[0].id
     const withVacancy = updateEnrolment(state, {
       ...state.setup,
+      peoplePlaying: 5,
       seats: state.setup.seats.map(seat => seat.roleId === aiRole
         ? { ...seat, participantId: '', humanName: '', privateAddress: '', ready: false, allowAiFallback: true }
         : seat),

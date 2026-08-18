@@ -18,7 +18,7 @@ export function createStoryAuthoringBrief(input: SettingBriefInput): string {
   const setting = createSettingBrief(input)
   return `# ${productNaming.name} authoring brief
 
-Draft a new, setting-specific six-person live murder mystery from the verified information below. Do not reuse the demo plot unless the setting independently supports it. Do not invent rooms, routes, props, permissions, accessibility, or local history.
+Draft a new, setting-specific six-role live murder mystery from the verified information below. Do not reuse the demo plot unless the setting independently supports it. Do not invent rooms, routes, props, permissions, accessibility, or local history.
 
 ## Real setting
 

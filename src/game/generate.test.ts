@@ -31,6 +31,7 @@ function enrolledGame(seed = 'lifecycle') {
   const { story } = definition
   let state = createGame(definition, new Date('2026-08-17T17:00:00Z'), 'game-1')
   state = updateEnrolment(state, {
+    peoplePlaying: 6,
     hostName: 'Host',
     seats: state.setup.seats.map((seat, index) => ({
       ...seat,
@@ -57,7 +58,7 @@ function deliverAll(state: PreparedGameState) {
 describe('story compilation', () => {
   it('is deterministic for a seed', () => expect(generateGame('bleu')).toEqual(generateGame('bleu')))
 
-  it('models six people as one host and five guests', () => {
+  it('models six roles as one host and five guests', () => {
     const story = generateGame('headcount')
     expect(story.totalPeople).toBe(6)
     expect(story.characters).toHaveLength(5)
@@ -127,6 +128,7 @@ describe('truthful game lifecycle', () => {
     const definition = createDemoGame('blocked')
     const { story } = definition
     let state = createGame(definition, new Date('2026-08-17T17:00:00Z'), 'game-blocked')
+    state.setup.peoplePlaying = 5
     state.setup.hostName = 'Host'
     state.setup.seats[0] = { ...state.setup.seats[0], allowAiFallback: true }
     expect(getSetupBlockers(definition, state.setup, noAi)).toContain(`${story.characters[0].name} would require AI fallback, but this host has no AI controller runtime.`)

@@ -56,7 +56,7 @@ export function ActiveGameBar({ game, onGodView, onExit }: {
   onGodView: () => void
   onExit: () => void
 }) {
-  return <header className="mode-bar host-mode"><div><span>HOST DASHBOARD · PRIVATE</span><b>{game.storyline.title} · {game.storyline.story.totalPeople} people · {getHostScreen(game.state)}</b></div><div className="mode-actions"><button onClick={onGodView}>God view · spoilers</button><button className="quiet" onClick={onExit}>Back to storylines</button></div></header>
+  return <header className="mode-bar host-mode"><div><span>HOST DASHBOARD · PRIVATE</span><b>{game.storyline.title} · {game.storyline.story.totalPeople} roles · {getHostScreen(game.state)}</b></div><div className="mode-actions"><button onClick={onGodView}>God view · spoilers</button><button className="quiet" onClick={onExit}>Back to storylines</button></div></header>
 }
 
 export function StartScreen({ storylines, games, importError, libraryWarning = '', onCreateStoryline, onCreateGame, onContinueGame, onRules, onImport, onExport }: {
@@ -109,8 +109,8 @@ export function EveningTimeline({ definition, phase }: { definition: StorylineDe
 function Rules({ definition, onExit }: { definition: StorylineDefinition; onExit: () => void }) {
   return <main className="rules-page">
     <button className="rules-back" onClick={onExit}>← Back</button>
-    <header><span className="kicker">HOW TO PLAY</span><h1>A murder mystery authored for the place where it happens.</h1><p>Six people play: one host performs the victim and becomes Game Master after the staged incident; five guests each play one suspect.</p></header>
-    <section className="rules-summary"><article><b>PEOPLE</b><strong>6 total</strong></article><article><b>TIME</b><strong>1–3 hours</strong></article><article><b>YOU NEED</b><strong>Your private card, the prepared props, and a willingness to ask questions</strong></article></section>
+    <header><span className="kicker">HOW TO PLAY</span><h1>A murder mystery authored for the place where it happens.</h1><p>At setup, we ask how many people are playing. One person hosts; people take the suspect roles they want, and AI can perform the rest.</p></header>
+    <section className="rules-summary"><article><b>ROLES</b><strong>1 host + 5 suspects</strong></article><article><b>TIME</b><strong>1–3 hours</strong></article><article><b>YOU NEED</b><strong>Your private card, the prepared props, and a willingness to ask questions</strong></article></section>
     <EveningTimeline definition={definition} />
     <section className="rules-block"><span>THREE RULES</span><h2>Everything players need to remember</h2><ol><li>Once the body is discovered, pursue your three objectives in any order.</li><li>Bargain, bluff, and withhold—but never invent evidence or pressure the real person.</li><li>Any player may accuse. A strict majority ends the investigation.</li></ol></section>
     <section className="rules-block"><span>THE SOCIAL LOOP</span><h2>Talk → trade → accuse → vote</h2><p>After the short cold open, the room belongs to the players. Each suspect starts with 10 tokens and a private clue costs 5. Trade tokens, clues, and truthful information freely; when someone is ready, they call a public accusation hearing. Set an early time limit and extend it if the room is still alive.</p></section>
@@ -212,16 +212,45 @@ function SetupPanel({ definition, setup, capabilities, gateway, onChange, onPrep
   function updateSeat(roleId: string, patch: Partial<SetupDraft['seats'][number]>) {
     onChange({ ...setup, seats: setup.seats.map(seat => seat.roleId === roleId ? { ...seat, ...patch } : seat) })
   }
+  function choosePeoplePlaying(peoplePlaying: number) {
+    const humanGuestCount = peoplePlaying - 1
+    const preferredHumanSeats = [
+      ...setup.seats.filter(seat => seat.humanName.trim()),
+      ...setup.seats.filter(seat => !seat.humanName.trim() && !seat.allowAiFallback),
+      ...setup.seats.filter(seat => !seat.humanName.trim() && seat.allowAiFallback),
+    ].slice(0, humanGuestCount)
+    const humanRoleIds = new Set(preferredHumanSeats.map(seat => seat.roleId))
+    onChange({
+      ...setup,
+      peoplePlaying,
+      seats: setup.seats.map(seat => humanRoleIds.has(seat.roleId)
+        ? { ...seat, allowAiFallback: false }
+        : { ...seat, participantId: '', humanName: '', privateAddress: '', ready: false, allowAiFallback: true }),
+    })
+  }
+  function setHumanRole(roleId: string, human: boolean) {
+    const seats = setup.seats.map(seat => seat.roleId !== roleId
+      ? seat
+      : human
+        ? { ...seat, allowAiFallback: false }
+        : { ...seat, participantId: '', humanName: '', privateAddress: '', ready: false, allowAiFallback: true })
+    const peoplePlaying = 1 + seats.filter(seat => !seat.allowAiFallback).length
+    if (peoplePlaying < 3 || peoplePlaying > story.characters.length + 1) return
+    onChange({ ...setup, peoplePlaying, seats })
+  }
+  const countChosen = Number.isInteger(setup.peoplePlaying)
+  const canUseAi = gateway.state === 'available' && capabilities.aiControllers
   return <>
-    <section className="setup-hero"><span className="kicker">SETUP</span><h1>Assign one person to each role.</h1><p>Enter five names and private handoff addresses, then check the small prop list. The game will guide the rest.</p></section>
-    <section className="setup-section"><div className="setup-heading"><span>1</span><div><h2>Name the host</h2><p>The host begins as {story.victim}, performs the short cold open, then becomes Game Master for free play.</p></div></div><label className="field"><span>Host name</span><input value={setup.hostName} onChange={event => onChange({ ...setup, hostName: event.target.value })} placeholder="Host" /></label></section>
-    <section className="setup-section"><div className="setup-heading"><span>2</span><div><h2>Enrol the five guest seats</h2><p>Identity and private address must be distinct. Ready means this human accepted the role, not that their dossier was delivered.</p></div></div><div className="seat-grid">{story.characters.map(character => {
+    <section className="setup-hero"><span className="kicker">SETUP</span><h1>How many people are playing?</h1><p>Count the host too. This mystery has five suspect roles; AI can perform the roles that people do not take.</p><div className="people-picker" role="radiogroup" aria-label="How many people are playing?">{Array.from({ length: story.characters.length - 1 }, (_, index) => index + 3).map(count => <button key={count} type="button" role="radio" aria-checked={setup.peoplePlaying === count} className={setup.peoplePlaying === count ? 'selected' : ''} disabled={count < story.characters.length + 1 && !canUseAi} onClick={() => choosePeoplePlaying(count)}><b>{count}</b><span>people</span></button>)}</div>{!canUseAi && <small className="people-note">AI roles are unavailable here, so all six people are needed.</small>}</section>
+    {countChosen && <><section className="setup-section"><div className="setup-heading"><span>1</span><div><h2>Name the host</h2><p>The host begins as {story.victim}, performs the short cold open, then becomes Game Master for free play.</p></div></div><label className="field"><span>Host name</span><input value={setup.hostName} onChange={event => onChange({ ...setup, hostName: event.target.value })} placeholder="Host" /></label></section>
+    <section className="setup-section"><div className="setup-heading"><span>2</span><div><h2>Choose who plays each suspect</h2><p>Each person needs a distinct private address. AI takes any role marked as an AI role.</p></div></div><div className="seat-grid">{story.characters.map(character => {
       const seat = setup.seats.find(item => item.roleId === character.id)!
-      return <article key={character.id} className="seat-card"><header><div><b>{character.name}</b><small>{character.title}</small></div><button onClick={() => onPreview(character.id)}>Preview card</button></header><label className="field"><span>Player name</span><input value={seat.humanName} onChange={event => updateSeat(character.id, { humanName: event.target.value, participantId: event.target.value.trim().toLowerCase().replace(/\s+/g, '-'), ready: false })} placeholder="Name" /></label><label className="field"><span>Private handoff</span><input value={seat.privateAddress} onChange={event => updateSeat(character.id, { privateAddress: event.target.value })} placeholder="Phone, chat, email, or printed envelope" /></label><label className="check-row"><input type="checkbox" checked={seat.ready} onChange={event => updateSeat(character.id, { ready: event.target.checked })} /><span>This person has accepted the role</span></label></article>
+      const human = !seat.allowAiFallback
+      return <article key={character.id} className={`seat-card ${human ? 'human-seat' : 'ai-seat'}`}><header><div><b>{character.name}</b><small>{character.title}</small></div><button onClick={() => onPreview(character.id)}>Preview card</button></header><div className="seat-controller"><strong>{human ? 'PERSON' : 'AI ROLE'}</strong>{canUseAi && <button type="button" disabled={human && setup.peoplePlaying === 3} onClick={() => setHumanRole(character.id, !human)}>{human ? 'Use AI' : 'Make human'}</button>}</div>{human ? <><label className="field"><span>Player name</span><input value={seat.humanName} onChange={event => updateSeat(character.id, { humanName: event.target.value, participantId: event.target.value.trim().toLowerCase().replace(/\s+/g, '-'), ready: false })} placeholder="Name" /></label><label className="field"><span>Private handoff</span><input value={seat.privateAddress} onChange={event => updateSeat(character.id, { privateAddress: event.target.value })} placeholder="Phone, chat, email, or printed envelope" /></label><label className="check-row"><input type="checkbox" checked={seat.ready} onChange={event => updateSeat(character.id, { ready: event.target.checked })} /><span>This person has accepted the role</span></label></> : <p className="ai-seat-note">AI performs this character. The host remains the physical proxy for any staged action.</p>}</article>
     })}</div></section>
     <section className="setup-section"><div className="setup-heading"><span>3</span><div><h2>Prove the setting can perform this story</h2><p>These requirements come from the authored definition for {definition.setting.venueName}.</p></div></div><div className="venue-list">{definition.setupRequirements.map(check => <label key={check.id}><input type="checkbox" checked={Boolean(setup.venue[check.id])} onChange={event => onChange({ ...setup, venue: { ...setup.venue, [check.id]: event.target.checked } })} /><span>{check.label}</span></label>)}</div></section>
     {blockers.length > 0 && <details className="setup-left"><summary>{blockers.length} {blockers.length === 1 ? 'thing' : 'things'} left before roles are ready</summary><ul>{blockers.map(blocker => <li key={blocker}>{blocker}</li>)}</ul></details>}
-    <button className="primary-action" disabled={blockers.length > 0} onClick={onPrepare}>Prepare the five private cards →</button>
+    <button className="primary-action" disabled={blockers.length > 0} onClick={onPrepare}>Prepare the private cards →</button></>}
   </>
 }
 
@@ -357,7 +386,7 @@ export function HostWorkspace({ definition, state, setState, capabilities, gatew
     }
   }
 
-  if (state.phase === 'idle') return <main className="page host-page"><section className="setup-hero idle-hero"><span className="kicker">READY FOR {definition.setting.venueName.toUpperCase()}</span><h1>Set up one host and five players.</h1><p>The dashboard will walk you through private cards, the timed evening, accusations, and the reveal.</p><EveningTimeline definition={definition} /><button className="primary-action" onClick={() => setState(createGame(definition))}>Set up this game →</button></section></main>
+  if (state.phase === 'idle') return <main className="page host-page"><section className="setup-hero idle-hero"><span className="kicker">READY FOR {definition.setting.venueName.toUpperCase()}</span><h1>How many people are playing?</h1><p>The dashboard will ask for your group size, then walk you through private cards, the timed evening, accusations, and the reveal.</p><EveningTimeline definition={definition} /><button className="primary-action" onClick={() => setState(createGame(definition))}>Choose the group size →</button></section></main>
 
   const active = state.phase === 'active' ? state : null
   const hostName = state.phase === 'enrolling' ? state.setup.hostName : state.hostName

@@ -72,7 +72,7 @@ function enrolParticipants(state: EnrollingGameState, participants: { id: string
       ? { ...seat, participantId: participant.id, humanName: participant.displayName, privateAddress: participant.privateAddress, ready: true }
       : { ...seat, allowAiFallback }
   })
-  return updateEnrolment(state, { ...state.setup, seats })
+  return updateEnrolment(state, { ...state.setup, peoplePlaying: participants.length + 1, seats })
 }
 
 export function createGameRuntime(authoredGame: AuthoredStoryline): PortableGameRuntime {

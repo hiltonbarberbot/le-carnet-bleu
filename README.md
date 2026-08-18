@@ -1,6 +1,6 @@
 # Setting-aware live mystery engine
 
-A setting-aware, six-person live dinner-party murder mystery system: one host performs the victim and becomes Game Master after the staged murder; five guest seats play the suspects.
+A setting-aware live dinner-party murder mystery system with one host role and five suspect roles. At setup, the host chooses how many people are playing; AI can perform the remaining suspect roles.
 
 The repository includes one Maison Bleue demo story and seven validated 1960s Grambois spy mysteries, but none is universal canon. A real run begins by learning the actual venue, usable spaces, safe routes, props, tone, accessibility needs, and content boundaries. The fictional gathering and invitations are generated with the story. Only then should a human or agent draft the mystery.
 

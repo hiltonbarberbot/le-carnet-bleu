@@ -180,6 +180,7 @@ describe('setting-specific game definitions', () => {
 
     let enrolling = createGame(definition, new Date('2026-08-18T17:00:00Z'), 'gallery-session')
     enrolling = updateEnrolment(enrolling, {
+      peoplePlaying: 6,
       hostName: 'Host',
       seats: enrolling.setup.seats.map((seat, index) => ({
         ...seat,
