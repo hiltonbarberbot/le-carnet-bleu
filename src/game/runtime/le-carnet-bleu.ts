@@ -1,6 +1,6 @@
-import { generateGame } from '../generate'
 import manifest from '../../../game.manifest.json'
 import {
+  advanceAct,
   beginDelivery,
   completeGame,
   confirmRunBeat,
@@ -10,15 +10,15 @@ import {
   recordDeliveryOutcome,
   requestDelivery,
   revealToTable,
-  startBlackout,
   startGame,
-  startInvestigation,
   toggleEvidence,
   updateAccusation,
   updateEnrolment,
 } from '../session/lifecycle'
 import { restoreGameState, serializeGameState } from '../session/storage'
 import type { ActiveGameState, EnrollingGameState, GameState, PreparedGameState, SetupDraft } from '../types'
+import type { AuthoredGame } from '../story/authoring'
+import { createGameDefinition } from '../definition/create'
 import type { GameCommand, GameManifest, PortableGameRuntime, RuntimeContext, RuntimeEvent } from './contract'
 
 export const leCarnetBleuManifest = manifest as GameManifest
@@ -57,21 +57,27 @@ function enrolParticipants(state: EnrollingGameState, participants: { id: string
   return updateEnrolment(state, { ...state.setup, seats })
 }
 
-export function createLeCarnetBleuRuntime(seed = 'grambois-bleu'): PortableGameRuntime {
+export function createLeCarnetBleuRuntime(authoredGame: AuthoredGame): PortableGameRuntime {
+  const definition = createGameDefinition(authoredGame)
   return {
     manifest: leCarnetBleuManifest,
+    authoredGame: {
+      setting: definition.setting,
+      definitionId: definition.id,
+      definitionFingerprint: definition.fingerprint,
+      storyId: definition.story.id,
+      storyTitle: definition.story.title,
+    },
     createSession(request, context) {
       if (request.participants.length < leCarnetBleuManifest.players.minHumans) {
         throw new Error(`Le Carnet Bleu requires at least ${leCarnetBleuManifest.players.minHumans} human guest participants.`)
       }
-      const sessionStory = generateGame(request.seed ?? seed)
-      let state = createGame(sessionStory, context.now, context.createId?.())
+      let state = createGame(definition, context.now, context.createId?.())
       state = updateEnrolment(state, { ...state.setup, hostName: request.host.displayName.trim() })
       state = enrolParticipants(state, request.participants, Boolean(request.allowAiFallback))
       return { state, events: [{ type: 'session_created', message: `Created ${state.id} with ${request.participants.length} distinct human participants.` }] }
     },
     handleInput(state, command, context) {
-      const currentStory = generateGame(state.seed)
       switch (command.name) {
         case 'replace_enrolment': {
           const setup = command.payload?.setup
@@ -79,7 +85,7 @@ export function createLeCarnetBleuRuntime(seed = 'grambois-bleu'): PortableGameR
           return changed(updateEnrolment(expectPhase(state, 'enrolling'), setup as SetupDraft), 'Enrolment updated.')
         }
         case 'prepare':
-          return changed(prepareGame(currentStory, expectPhase(state, 'enrolling'), context.capabilities, context.now), 'Roster prepared; no delivery has been attempted.')
+          return changed(prepareGame(definition, expectPhase(state, 'enrolling'), context.capabilities, context.now), 'Roster prepared; no delivery has been attempted.')
         case 'request_delivery': {
           const roleId = payloadString(command, 'roleId')
           const next = requestDelivery(expectPhase(state, 'prepared'), roleId, context.now)
@@ -98,15 +104,15 @@ export function createLeCarnetBleuRuntime(seed = 'grambois-bleu'): PortableGameR
           return changed(next, `Delivery for ${roleId} is ${next.deliveries[roleId].status}.`, { type: 'delivery_finished', message: `Delivery for ${roleId} is ${next.deliveries[roleId].status}.` })
         }
         case 'start':
-          return changed(startGame(currentStory, expectPhase(state, 'prepared'), context.now), 'Game started.')
+          return changed(startGame(definition, expectPhase(state, 'prepared'), context.now), 'Game started.')
         case 'record_ai_performance':
-          return changed(recordAiPerformance(currentStory, expectPhase(state, 'active'), payloadString(command, 'roleId'), payloadString(command, 'actionId'), payloadString(command, 'text'), context.now), 'AI performance recorded.')
+          return changed(recordAiPerformance(definition, expectPhase(state, 'active'), payloadString(command, 'roleId'), payloadString(command, 'actionId'), payloadString(command, 'text'), context.now), 'AI performance recorded.')
         case 'confirm_beat':
-          return changed(confirmRunBeat(currentStory, expectPhase(state, 'active'), payloadString(command, 'beatId')), 'Beat confirmed.')
-        case 'start_blackout':
-          return changed(startBlackout(currentStory, expectPhase(state, 'active')), 'Blackout started.')
-        case 'start_investigation':
-          return changed(startInvestigation(currentStory, expectPhase(state, 'active')), 'Investigation started.')
+          return changed(confirmRunBeat(definition, expectPhase(state, 'active'), payloadString(command, 'beatId')), 'Beat confirmed.')
+        case 'advance_act': {
+          const next = advanceAct(definition, expectPhase(state, 'active'))
+          return changed(next, next.playPhase === 'investigation' ? 'Investigation started.' : `Advanced to ${next.playPhase}.`)
+        }
         case 'toggle_evidence':
           return changed(toggleEvidence(expectPhase(state, 'active'), payloadString(command, 'evidenceId')), 'Evidence tracking updated.')
         case 'accuse': {
@@ -118,18 +124,18 @@ export function createLeCarnetBleuRuntime(seed = 'grambois-bleu'): PortableGameR
           }), 'Accusation recorded.')
         }
         case 'reveal':
-          return changed(revealToTable(currentStory, expectPhase(state, 'active')), 'Canonical reveal started.')
+          return changed(revealToTable(definition, expectPhase(state, 'active')), 'Canonical reveal started.')
         case 'complete':
           return changed(completeGame(expectPhase(state, 'active'), context.now), 'Game completed.')
         default:
           throw new Error(`Unknown game command ${command.name}.`)
       }
     },
-    serializeState: serializeGameState,
+    serializeState(state) {
+      return serializeGameState(definition, state)
+    },
     restoreState(serialized) {
-      const parsed = JSON.parse(serialized) as { seed?: unknown }
-      if (typeof parsed.seed !== 'string') throw new Error('Stored runtime state has no seed.')
-      return restoreGameState(generateGame(parsed.seed), serialized)
+      return restoreGameState(definition, serialized)
     },
   }
 }

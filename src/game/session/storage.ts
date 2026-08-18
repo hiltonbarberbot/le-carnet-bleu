@@ -1,4 +1,6 @@
-import type { GameState, Story } from '../types'
+import { createGameDefinition } from '../definition/create.js'
+import type { GameDefinition, GameDefinitionInput } from '../definition/contract.js'
+import type { GameState } from '../types.js'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -16,20 +18,11 @@ function requireArray(record: Record<string, unknown>, key: string) {
   if (!Array.isArray(record[key])) throw new Error(`Stored game state has invalid ${key}.`)
 }
 
-export function serializeGameState(state: GameState): string {
-  return JSON.stringify(state)
-}
-
-export function restoreGameState(story: Story, serialized: string): GameState {
-  let value: unknown
-  try {
-    value = JSON.parse(serialized)
-  } catch {
-    throw new Error('Stored game state is not valid JSON.')
-  }
+function restoreStateObject(definition: GameDefinition, value: unknown): GameState {
   if (!isRecord(value)) throw new Error('Stored game state is not an object.')
-  if (value.schemaVersion !== 1) throw new Error(`Unsupported stored game schema ${String(value.schemaVersion)}.`)
-  if (value.storyId !== story.id || value.seed !== story.seed) throw new Error('Stored game state belongs to a different story or seed.')
+  if (value.schemaVersion !== 2) throw new Error(`Unsupported stored game schema ${String(value.schemaVersion)}.`)
+  if (value.definitionFingerprint !== definition.fingerprint) throw new Error('Stored game state belongs to a different game definition.')
+  if (value.storyId !== definition.story.id || value.seed !== definition.story.seed) throw new Error('Stored game state belongs to a different story or seed.')
 
   const phase = value.phase
   if (!['idle', 'enrolling', 'prepared', 'active', 'completed', 'aborted'].includes(String(phase))) {
@@ -45,7 +38,7 @@ export function restoreGameState(story: Story, serialized: string): GameState {
     if (typeof setup.hostName !== 'string') throw new Error('Stored enrolment has invalid hostName.')
     requireArray(setup, 'seats')
     requireRecord(setup, 'venue')
-    const roleIds = new Set(story.characters.map(character => character.id))
+    const roleIds = new Set(definition.story.characters.map(character => character.id))
     const seats = setup.seats as unknown[]
     if (seats.length !== roleIds.size || seats.some(seat => !isRecord(seat) || !roleIds.has(String(seat.roleId)))) {
       throw new Error('Stored enrolment does not contain exactly the story roles.')
@@ -65,7 +58,7 @@ export function restoreGameState(story: Story, serialized: string): GameState {
   requireRecord(value, 'deliveries')
   const roster = value.roster as Record<string, unknown>
   const deliveries = value.deliveries as Record<string, unknown>
-  for (const character of story.characters) {
+  for (const character of definition.story.characters) {
     if (!isRecord(roster[character.id])) throw new Error(`Stored roster is missing ${character.id}.`)
     if (!isRecord(deliveries[character.id])) throw new Error(`Stored deliveries are missing ${character.id}.`)
     const delivery = deliveries[character.id] as Record<string, unknown>
@@ -77,6 +70,8 @@ export function restoreGameState(story: Story, serialized: string): GameState {
 
   requireString(value, 'startedAt')
   requireString(value, 'playPhase')
+  const allowedPlayPhases = new Set([...definition.acts.map(act => act.id), 'investigation', 'reveal'])
+  if (!allowedPlayPhases.has(String(value.playPhase))) throw new Error(`Stored game state has unknown play phase ${String(value.playPhase)}.`)
   requireArray(value, 'completedBeatIds')
   requireArray(value, 'revealedEvidenceIds')
   requireRecord(value, 'accusation')
@@ -84,4 +79,31 @@ export function restoreGameState(story: Story, serialized: string): GameState {
   if (typeof value.paused !== 'boolean') throw new Error('Stored game state has invalid paused flag.')
   if (phase === 'completed') requireString(value, 'completedAt')
   return value as GameState
+}
+
+export function serializeGameState(definition: GameDefinition, state: GameState): string {
+  if (state.definitionFingerprint !== definition.fingerprint) throw new Error('Cannot serialize state with a different game definition.')
+  return JSON.stringify({ formatVersion: 1, definition, state })
+}
+
+export function restoreGameSession(serialized: string): { definition: GameDefinition; state: GameState } {
+  let value: unknown
+  try {
+    value = JSON.parse(serialized)
+  } catch {
+    throw new Error('Stored game session is not valid JSON.')
+  }
+  if (!isRecord(value) || value.formatVersion !== 1 || !isRecord(value.definition)) {
+    throw new Error('Stored game session has an unsupported envelope.')
+  }
+  const definition = createGameDefinition(value.definition as unknown as GameDefinitionInput)
+  return { definition, state: restoreStateObject(definition, value.state) }
+}
+
+export function restoreGameState(expectedDefinition: GameDefinition, serialized: string): GameState {
+  const restored = restoreGameSession(serialized)
+  if (restored.definition.fingerprint !== expectedDefinition.fingerprint) {
+    throw new Error('Stored game session belongs to a different authored definition.')
+  }
+  return restored.state
 }

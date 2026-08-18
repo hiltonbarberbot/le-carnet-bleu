@@ -1,24 +1,38 @@
 import { describe, expect, it } from 'vitest'
-import { venueChecks } from '../session/lifecycle'
 import { generateGame } from '../generate'
 import type { EnrollingGameState, GameState } from '../types'
 import { createLeCarnetBleuRuntime } from './le-carnet-bleu'
-import { discoverGames } from './registry'
+import { discoverGames, resolveGame } from './registry'
+import { createDemoGame } from '../demo'
+import { createGameDefinition } from '../definition/create'
 
 describe('portable game runtime', () => {
   it('declares discoverable identity, player constraints, capabilities, and lifecycle commands', () => {
-    const runtime = createLeCarnetBleuRuntime()
+    const runtime = createLeCarnetBleuRuntime(createDemoGame('discovery'))
     const [discovered] = discoverGames([runtime])
     expect(discovered.manifest).toMatchObject({
       id: 'le-carnet-bleu',
       players: { minHumans: 2, maxHumans: 5, gameSeats: 5, hostRequired: true },
       requiredHostCapabilities: ['state_persistence'],
+      authoring: { mode: 'setting_first', requiredBeforeStory: true },
     })
+    expect(discovered.runtime.authoredGame.setting.venueName).toBe('Maison Bleue demo house')
     expect(discovered.manifest.commands.map(command => command.name)).toContain('start')
   })
 
+  it('distinguishes multiple authored definitions of the same game engine', () => {
+    const first = createDemoGame('first-definition')
+    const secondBase = createDemoGame('second-definition')
+    const second = createGameDefinition({ ...secondBase, id: 'second-setting', fingerprint: undefined })
+    const runtimes = [createLeCarnetBleuRuntime(first), createLeCarnetBleuRuntime(second)]
+    expect(discoverGames(runtimes)).toHaveLength(2)
+    expect(resolveGame(runtimes, 'second-setting')?.authoredGame.definitionFingerprint).toBe(second.fingerprint)
+    expect(resolveGame(runtimes, 'le-carnet-bleu')).toBeNull()
+  })
+
   it('creates a two-human session, assigns AI only at prepare, persists it, and advances via the published interface', () => {
-    const runtime = createLeCarnetBleuRuntime('portable')
+    const runtime = createLeCarnetBleuRuntime(createDemoGame('portable'))
+    const definition = createDemoGame('portable')
     const context = { capabilities: { aiControllers: true }, now: new Date('2026-08-18T10:00:00Z'), createId: () => 'portable-1' }
     let result = runtime.createSession({
       host: { id: 'host', displayName: 'Host', privateAddress: 'wa:host' },
@@ -34,7 +48,7 @@ describe('portable game runtime', () => {
     expect(enrolling.setup.seats.filter(seat => seat.humanName)).toHaveLength(2)
     expect(enrolling.setup.seats.filter(seat => seat.allowAiFallback)).toHaveLength(3)
 
-    const setup = { ...enrolling.setup, venue: Object.fromEntries(venueChecks.map(check => [check.id, true])) }
+    const setup = { ...enrolling.setup, venue: Object.fromEntries(definition.setupRequirements.map(check => [check.id, true])) }
     result = runtime.handleInput(result.state, { name: 'replace_enrolment', payload: { setup } }, context)
     result = runtime.handleInput(result.state, { name: 'prepare' }, context)
     expect(result.state.phase).toBe('prepared')
@@ -71,7 +85,7 @@ describe('portable game runtime', () => {
   })
 
   it('rejects duplicate participant identities and unknown commands precisely', () => {
-    const runtime = createLeCarnetBleuRuntime()
+    const runtime = createLeCarnetBleuRuntime(createDemoGame('rejections'))
     const context = { capabilities: { aiControllers: true }, createId: () => 'portable-2' }
     expect(() => runtime.createSession({
       host: { id: 'host', displayName: 'Host', privateAddress: 'wa:host' },

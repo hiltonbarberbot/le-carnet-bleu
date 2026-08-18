@@ -9,14 +9,14 @@ describe('player dossier projection', () => {
 
   it('does not present future events as starting memories', () => {
     const html = renderToStaticMarkup(<PlayerProfile character={jacques} />)
-    expect(html).toContain('Pierre once challenged you')
-    expect(html).not.toContain('Your shove in the study caused the fatal fall')
-    expect(html).not.toContain('You left the study with Le Carnet Bleu')
+    expect(html).toContain('Armand’s demands arrived in violet-black ink')
+    expect(html).not.toContain('You deliberately killed Armand')
+    expect(html).not.toContain('You tore page forty-seven')
   })
 
   it('shows the observations after the host confirms their event', () => {
     const html = renderToStaticMarkup(<PlayerProfile character={jacques} completedBeatIds={['stage-murder']} />)
-    expect(html).toContain('Your shove in the study caused the fatal fall')
-    expect(html).toContain('You left the study with Le Carnet Bleu')
+    expect(html).toContain('You deliberately killed Armand')
+    expect(html).toContain('You tore page forty-seven')
   })
 })

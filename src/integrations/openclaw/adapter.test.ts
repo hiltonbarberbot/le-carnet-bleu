@@ -1,21 +1,22 @@
 import { describe, expect, it } from 'vitest'
 import { createLeCarnetBleuRuntime } from '../../game/runtime/le-carnet-bleu'
-import { venueChecks } from '../../game/session/lifecycle'
+import { createDemoGame } from '../../game/demo'
 import { createMemoryChatSessionStore, createOpenClawGameAdapter } from './adapter'
 
 const capabilities = { aiControllers: true, privateMessaging: true, statePersistence: true }
 const sender = { id: 'host', displayName: 'Hilton' }
 const mentions = [{ id: 'alice', displayName: 'Alice' }, { id: 'bob', displayName: 'Bob' }]
+const demoRuntime = (seed: string) => createLeCarnetBleuRuntime(createDemoGame(seed))
 
 describe('generic OpenClaw game adapter', () => {
   it('enumerates installed portable games without game-specific adapter code', () => {
-    const adapter = createOpenClawGameAdapter({ runtimes: [createLeCarnetBleuRuntime()], store: createMemoryChatSessionStore(), capabilities })
+    const adapter = createOpenClawGameAdapter({ runtimes: [demoRuntime('enumeration')], store: createMemoryChatSessionStore(), capabilities })
     expect(adapter.listGames()).toEqual([expect.objectContaining({ id: 'le-carnet-bleu', name: 'Le Carnet Bleu' })])
   })
 
   it('uses a group binding and retains two mentioned humans as distinct participants', () => {
     const adapter = createOpenClawGameAdapter({
-      runtimes: [createLeCarnetBleuRuntime()],
+      runtimes: [demoRuntime('binding')],
       store: createMemoryChatSessionStore(),
       capabilities,
       bindings: [{ channel: 'whatsapp', conversationId: 'game-group', gameId: 'le-carnet-bleu' }],
@@ -31,9 +32,10 @@ describe('generic OpenClaw game adapter', () => {
     const resumed = adapter.handle({ channel: 'whatsapp', conversationId: 'game-group', text: 'status', sender })
     expect(resumed).toMatchObject({ ok: true, sessionId: 'openclaw-1', state: { phase: 'enrolling' } })
 
+    const definition = createDemoGame('binding')
     const setup = {
       ...response.state.setup,
-      venue: Object.fromEntries(venueChecks.map(check => [check.id, true])),
+      venue: Object.fromEntries(definition.setupRequirements.map(check => [check.id, true])),
     }
     let advanced = adapter.handle({ channel: 'whatsapp', conversationId: 'game-group', text: 'configure', sender, command: { name: 'replace_enrolment', payload: { setup } } })
     advanced = adapter.handle({ channel: 'whatsapp', conversationId: 'game-group', text: 'prepare', sender, command: { name: 'prepare' } })
@@ -51,7 +53,7 @@ describe('generic OpenClaw game adapter', () => {
   })
 
   it('lists games in an unbound context and requires explicit selection before starting', () => {
-    const adapter = createOpenClawGameAdapter({ runtimes: [createLeCarnetBleuRuntime()], store: createMemoryChatSessionStore(), capabilities })
+    const adapter = createOpenClawGameAdapter({ runtimes: [demoRuntime('selection')], store: createMemoryChatSessionStore(), capabilities })
     const listed = adapter.handle({ channel: 'whatsapp', conversationId: 'other', text: 'which games are available?', sender })
     expect(listed).toMatchObject({ ok: true })
     expect(listed.messages.join(' ')).toContain('Le Carnet Bleu')
@@ -65,7 +67,7 @@ describe('generic OpenClaw game adapter', () => {
   it('returns precise installation and compatibility errors', () => {
     const absent = createOpenClawGameAdapter({ runtimes: [], store: createMemoryChatSessionStore(), capabilities })
     expect(absent.handle({ channel: 'whatsapp', conversationId: 'x', text: 'start the game', game: 'le-carnet-bleu', sender, mentions }).messages.join(' ')).toContain('not installed')
-    const incompatible = createOpenClawGameAdapter({ runtimes: [createLeCarnetBleuRuntime()], store: createMemoryChatSessionStore(), capabilities: { ...capabilities, statePersistence: false } })
+    const incompatible = createOpenClawGameAdapter({ runtimes: [demoRuntime('compatibility')], store: createMemoryChatSessionStore(), capabilities: { ...capabilities, statePersistence: false } })
     expect(incompatible.handle({ channel: 'whatsapp', conversationId: 'x', text: 'start the game', game: 'le-carnet-bleu', sender, mentions }).messages.join(' ')).toContain('state_persistence')
   })
 })

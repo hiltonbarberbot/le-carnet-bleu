@@ -1,11 +1,13 @@
+import type { GameDefinition } from '../definition/contract'
+
 export type AiGatewayStatus = {
   available: boolean
   model?: string
 }
 
 export type AiPerformanceRequest = {
+  definition: GameDefinition
   sessionId: string
-  seed: string
   roleId: string
   actionId: string
 }

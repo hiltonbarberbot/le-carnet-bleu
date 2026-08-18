@@ -33,6 +33,8 @@ export type ChatResponse = {
 
 export type PersistedChatSession = {
   gameId: string
+  definitionId: string
+  definitionFingerprint: string
   serializedState: string
 }
 
@@ -105,7 +107,7 @@ export function createOpenClawGameAdapter(options: OpenClawAdapterOptions) {
   const installed = discoverGames(options.runtimes)
 
   function listGames() {
-    return installed.map(({ manifest }) => `${manifest.name} (${manifest.id}) · ${manifest.players.minHumans}–${manifest.players.maxHumans} human guests`).join('\n')
+    return installed.map(({ manifest, runtime }) => `${runtime.authoredGame.storyTitle} (${runtime.authoredGame.definitionId}) · ${runtime.authoredGame.setting.venueName} · ${manifest.players.minHumans}–${manifest.players.maxHumans} human guests`).join('\n')
   }
 
   function bindingFor(request: ChatRequest) {
@@ -113,13 +115,18 @@ export function createOpenClawGameAdapter(options: OpenClawAdapterOptions) {
   }
 
   function runtimeForPersisted(session: PersistedChatSession) {
-    const runtime = resolveGame(options.runtimes, session.gameId)
-    if (!runtime) throw new Error(`Game ${session.gameId} is stored for this conversation but is not installed.`)
+    const runtime = options.runtimes.find(candidate => candidate.authoredGame.definitionFingerprint === session.definitionFingerprint)
+    if (!runtime) throw new Error(`Game definition ${session.definitionId} is stored for this conversation but is not installed.`)
     return runtime
   }
 
   function persist(key: string, gameId: string, runtime: PortableGameRuntime, state: GameState) {
-    options.store.save(key, { gameId, serializedState: runtime.serializeState(state) })
+    options.store.save(key, {
+      gameId,
+      definitionId: runtime.authoredGame.definitionId,
+      definitionFingerprint: runtime.authoredGame.definitionFingerprint,
+      serializedState: runtime.serializeState(state),
+    })
   }
 
   function handle(request: ChatRequest): ChatResponse {
@@ -166,7 +173,15 @@ export function createOpenClawGameAdapter(options: OpenClawAdapterOptions) {
         return { ok: false, messages: [`No game is selected for ${key}. Choose one of:\n${listGames() || 'none installed'}`] }
       }
       const runtime = resolveGame(options.runtimes, selector)
-      if (!runtime) return { ok: false, messages: [`Game “${selector}” is not installed. Available games:\n${listGames() || 'none'}`] }
+      if (!runtime) {
+        const wanted = selector.trim().toLowerCase()
+        const variants = options.runtimes.filter(candidate => candidate.manifest.id.toLowerCase() === wanted
+          || candidate.manifest.name.toLowerCase() === wanted
+          || candidate.manifest.aliases.some(alias => alias.toLowerCase() === wanted))
+        return variants.length > 1
+          ? { ok: false, messages: [`More than one authored definition matches “${selector}”. Select its definition id:\n${variants.map(candidate => `- ${candidate.authoredGame.definitionId} · ${candidate.authoredGame.setting.venueName}`).join('\n')}`] }
+          : { ok: false, messages: [`Game “${selector}” is not installed. Available games:\n${listGames() || 'none'}`] }
+      }
       const missing = capabilityErrors(runtime, options.capabilities)
       if (missing.length) return { ok: false, gameId: runtime.manifest.id, messages: [`${runtime.manifest.name} is incompatible with this OpenClaw host. Missing: ${missing.join(', ')}.`] }
 

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { generateText } from 'ai'
 import { GET, POST } from '../../../api/ai/perform'
-import { generateGame } from '../generate'
+import { createDemoGame } from '../demo'
 
 vi.mock('ai', () => ({ generateText: vi.fn() }))
 
@@ -33,7 +33,7 @@ describe('AI performance function', () => {
     const response = await POST(new Request('https://example.test/api/ai/perform', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ sessionId: 'session-1', seed: 'bleu', roleId: 'intruder', actionId: 'invented' }),
+      body: JSON.stringify({ definition: createDemoGame('bleu'), sessionId: 'session-1', roleId: 'intruder', actionId: 'invented' }),
     }))
 
     expect(response.status).toBe(404)
@@ -55,14 +55,15 @@ describe('AI performance function', () => {
   it('generates a bounded performance for an authored action', async () => {
     process.env.AI_GATEWAY_API_KEY = 'test-key'
     vi.mocked(generateText).mockResolvedValue({ text: 'Ce carnet ne vous regarde pas.' } as never)
-    const story = generateGame('bleu')
+    const definition = createDemoGame('bleu')
+    const story = definition.story
     const character = story.characters[0]
     const action = character.actions[0]
 
     const response = await POST(new Request('https://example.test/api/ai/perform', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ sessionId: 'session-1', seed: story.seed, roleId: character.id, actionId: action.id }),
+      body: JSON.stringify({ definition, sessionId: 'session-1', roleId: character.id, actionId: action.id }),
     }))
 
     expect(response.status).toBe(200)
@@ -73,7 +74,7 @@ describe('AI performance function', () => {
     expect(generateText).toHaveBeenCalledWith(expect.objectContaining({
       model: 'anthropic/claude-sonnet-4.6',
       maxOutputTokens: 120,
-      providerOptions: { gateway: { user: 'session-1', tags: ['le-carnet-bleu', 'ai-player'] } },
+      providerOptions: { gateway: { user: 'session-1', tags: ['le-carnet-bleu', 'ai-player', definition.fingerprint.slice(0, 12)] } },
     }))
   })
 })

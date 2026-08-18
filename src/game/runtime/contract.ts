@@ -1,4 +1,5 @@
 import type { GameState, RuntimeCapabilities } from '../types'
+import type { SettingBrief } from '../setting/contract'
 
 export type GameParticipant = {
   id: string
@@ -13,7 +14,6 @@ export type RuntimeContext = {
 }
 
 export type CreateSessionRequest = {
-  seed?: string
   host: GameParticipant
   participants: GameParticipant[]
   allowAiFallback?: boolean
@@ -56,12 +56,30 @@ export type GameManifest = {
   }
   requiredHostCapabilities: string[]
   optionalHostCapabilities: string[]
+  authoring: {
+    mode: 'setting_first'
+    requiredBeforeStory: boolean
+    instructions: string
+    settingQuestions: Array<{
+      id: string
+      prompt: string
+      required: boolean
+    }>
+    workflow: string[]
+  }
   lifecycle: string[]
   commands: GameCommandDescriptor[]
 }
 
 export type PortableGameRuntime<State = GameState> = {
   manifest: GameManifest
+  authoredGame: {
+    setting: SettingBrief
+    definitionId: string
+    definitionFingerprint: string
+    storyId: string
+    storyTitle: string
+  }
   createSession(request: CreateSessionRequest, context: RuntimeContext): RuntimeResult<State>
   handleInput(state: State, command: GameCommand, context: RuntimeContext): RuntimeResult<State>
   serializeState(state: State): string

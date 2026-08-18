@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { generateGame } from './generate'
+import { createDemoGame } from './demo'
 import {
+  advanceAct,
   beginDelivery,
   completeGame,
   confirmRunBeat,
@@ -12,13 +14,10 @@ import {
   requestDelivery,
   resetGame,
   revealToTable,
-  startBlackout,
   startGame,
-  startInvestigation,
   toggleEvidence,
   updateAccusation,
   updateEnrolment,
-  venueChecks,
 } from './session/lifecycle'
 import { restoreGameState, serializeGameState } from './session/storage'
 import type { EnrollingGameState, PreparedGameState } from './types'
@@ -27,8 +26,9 @@ import { validateStory } from './story/compile'
 const noAi = { aiControllers: false }
 
 function enrolledGame(seed = 'lifecycle') {
-  const story = generateGame(seed)
-  let state = createGame(story, new Date('2026-08-17T17:00:00Z'), 'game-1')
+  const definition = createDemoGame(seed)
+  const { story } = definition
+  let state = createGame(definition, new Date('2026-08-17T17:00:00Z'), 'game-1')
   state = updateEnrolment(state, {
     hostName: 'Host',
     seats: state.setup.seats.map((seat, index) => ({
@@ -38,9 +38,9 @@ function enrolledGame(seed = 'lifecycle') {
       privateAddress: `private:${index + 1}`,
       ready: true,
     })),
-    venue: Object.fromEntries(venueChecks.map(check => [check.id, true])),
+    venue: Object.fromEntries(definition.setupRequirements.map(check => [check.id, true])),
   })
-  return { story, state }
+  return { definition, story, state }
 }
 
 function deliverAll(state: PreparedGameState) {
@@ -85,33 +85,35 @@ describe('story compilation', () => {
 
 describe('truthful game lifecycle', () => {
   it('starts at idle with no game identity, assignments, deliveries, or timestamps', () => {
-    const idle = createIdleState(generateGame('idle'))
-    expect(idle).toEqual({ schemaVersion: 1, storyId: 'le-carnet-bleu', seed: 'idle', phase: 'idle' })
+    const definition = createDemoGame('idle')
+    const idle = createIdleState(definition)
+    expect(idle).toEqual({ schemaVersion: 2, definitionFingerprint: definition.fingerprint, storyId: 'le-carnet-bleu', seed: 'idle', phase: 'idle' })
     expect('id' in idle).toBe(false)
   })
 
   it('keeps partial enrolment blocked and refuses unavailable AI fallback', () => {
-    const story = generateGame('blocked')
-    let state = createGame(story, new Date('2026-08-17T17:00:00Z'), 'game-blocked')
+    const definition = createDemoGame('blocked')
+    const { story } = definition
+    let state = createGame(definition, new Date('2026-08-17T17:00:00Z'), 'game-blocked')
     state.setup.hostName = 'Host'
     state.setup.seats[0] = { ...state.setup.seats[0], allowAiFallback: true }
-    expect(getSetupBlockers(story, state.setup, noAi)).toContain(`${story.characters[0].name} would require AI fallback, but this host has no AI controller runtime.`)
-    expect(() => prepareGame(story, state, noAi)).toThrow(/AI fallback/)
+    expect(getSetupBlockers(definition, state.setup, noAi)).toContain(`${story.characters[0].name} would require AI fallback, but this host has no AI controller runtime.`)
+    expect(() => prepareGame(definition, state, noAi)).toThrow(/AI fallback/)
   })
 
   it('prepares assignments without fabricating delivery outcomes', () => {
-    const { story, state } = enrolledGame()
-    const prepared = prepareGame(story, state, noAi, new Date('2026-08-17T17:05:00Z'))
+    const { definition, state } = enrolledGame()
+    const prepared = prepareGame(definition, state, noAi, new Date('2026-08-17T17:05:00Z'))
     expect(prepared.phase).toBe('prepared')
     expect(Object.values(prepared.roster)).toHaveLength(5)
     expect(Object.values(prepared.deliveries).every(delivery => delivery.status === 'not_requested')).toBe(true)
     expect(Object.values(prepared.deliveries).every(delivery => !delivery.deliveredAt && !delivery.receipt)).toBe(true)
-    expect(() => startGame(story, prepared)).toThrow(/dossier is not_requested/)
+    expect(() => startGame(definition, prepared)).toThrow(/dossier is not_requested/)
   })
 
   it('preserves queued, sending, failed, retried, and confirmed delivery states', () => {
-    const { story, state } = enrolledGame('delivery')
-    let prepared = prepareGame(story, state, noAi)
+    const { definition, story, state } = enrolledGame('delivery')
+    let prepared = prepareGame(definition, state, noAi)
     const roleId = story.characters[0].id
     prepared = requestDelivery(prepared, roleId, new Date('2026-08-17T17:10:00Z'))
     expect(prepared.deliveries[roleId].status).toBe('queued')
@@ -128,39 +130,39 @@ describe('truthful game lifecycle', () => {
   })
 
   it('runs a complete gated playthrough only after confirmed delivery', () => {
-    const { story, state } = enrolledGame('playthrough')
-    let prepared = deliverAll(prepareGame(story, state, noAi))
-    let active = startGame(story, prepared, new Date('2026-08-17T18:00:00Z'))
+    const { definition, story, state } = enrolledGame('playthrough')
+    let prepared = deliverAll(prepareGame(definition, state, noAi))
+    let active = startGame(definition, prepared, new Date('2026-08-17T18:00:00Z'))
     expect(active.phase).toBe('active')
     expect(active.playPhase).toBe('dinner')
-    expect(() => startBlackout(story, active)).toThrow(/Dinner is missing/)
-    for (const beat of story.runPlan.filter(beat => beat.phase === 'dinner' && beat.essential)) active = confirmRunBeat(story, active, beat.id)
-    active = startBlackout(story, active)
-    expect(() => startInvestigation(story, active)).toThrow(/murder scene is incomplete/i)
-    for (const beat of story.runPlan.filter(beat => beat.phase === 'blackout' && beat.essential)) active = confirmRunBeat(story, active, beat.id)
-    active = startInvestigation(story, active)
+    expect(() => advanceAct(definition, active)).toThrow(/Dinner and the old accusation is missing/)
+    for (const beat of story.runPlan.filter(beat => beat.phase === 'dinner' && beat.essential)) active = confirmRunBeat(definition, active, beat.id)
+    active = advanceAct(definition, active)
+    expect(() => advanceAct(definition, active)).toThrow(/reconstructed minute is missing/i)
+    for (const beat of story.runPlan.filter(beat => beat.phase === 'blackout' && beat.essential)) active = confirmRunBeat(definition, active, beat.id)
+    active = advanceAct(definition, active)
     for (const evidenceId of new Set(story.timeline.flatMap(beat => beat.evidence))) if (!active.revealedEvidenceIds.includes(evidenceId)) active = toggleEvidence(active, evidenceId)
     active = updateAccusation(active, { culprit: 'Jacques', motive: 'He believed he was framed.', chain: 'Jackets, terrace, blackout, confrontation.' })
-    active = revealToTable(story, active)
+    active = revealToTable(definition, active)
     const completed = completeGame(active, new Date('2026-08-17T21:00:00Z'))
     expect(completed.phase).toBe('completed')
   })
 
   it('requires explicit reset and returns to true idle', () => {
-    const { story, state } = enrolledGame('reset')
-    expect(() => resetGame(story, createIdleState(story), true)).toThrow(/no game/)
-    expect(() => resetGame(story, state, false)).toThrow(/explicit confirmation/)
-    expect(resetGame(story, state, true)).toEqual(createIdleState(story))
+    const { definition, state } = enrolledGame('reset')
+    expect(() => resetGame(definition, createIdleState(definition), true)).toThrow(/no game/)
+    expect(() => resetGame(definition, state, false)).toThrow(/explicit confirmation/)
+    expect(resetGame(definition, state, true)).toEqual(createIdleState(definition))
   })
 
   it('restores the exact lifecycle state and rejects malformed storage', () => {
-    const { story, state } = enrolledGame('storage')
-    let prepared = prepareGame(story, state, noAi)
+    const { definition, story, state } = enrolledGame('storage')
+    let prepared = prepareGame(definition, state, noAi)
     prepared = requestDelivery(prepared, story.characters[0].id)
-    const serialized = serializeGameState(prepared)
-    expect(restoreGameState(story, serialized)).toEqual(prepared)
-    expect(() => restoreGameState(story, '{"schemaVersion":1,"phase":"prepared"}')).toThrow()
-    expect(() => restoreGameState(story, '{bad json')).toThrow(/valid JSON/)
+    const serialized = serializeGameState(definition, prepared)
+    expect(restoreGameState(definition, serialized)).toEqual(prepared)
+    expect(() => restoreGameState(definition, '{"schemaVersion":1,"phase":"prepared"}')).toThrow()
+    expect(() => restoreGameState(definition, '{bad json')).toThrow(/valid JSON/)
   })
 })
 

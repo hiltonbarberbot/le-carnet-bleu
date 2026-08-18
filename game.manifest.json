@@ -1,8 +1,8 @@
 {
   "id": "le-carnet-bleu",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "name": "Le Carnet Bleu",
-  "description": "A six-person live French espionage murder mystery with one host and five suspect seats.",
+  "description": "A setting-aware six-person live murder mystery with one host and five suspect seats.",
   "aliases": ["carnet bleu", "the blue notebook", "blue notebook"],
   "players": {
     "minHumans": 2,
@@ -12,6 +12,33 @@
   },
   "requiredHostCapabilities": ["state_persistence"],
   "optionalHostCapabilities": ["private_messaging", "ai_controllers"],
+  "authoring": {
+    "mode": "setting_first",
+    "requiredBeforeStory": true,
+    "instructions": "Collect and validate the real setting before drafting characters, clues, physical actions, or the canonical solution. Never assume the demo house is the venue.",
+    "settingQuestions": [
+      { "id": "venueName", "prompt": "What is the real venue called, and what kind of place is it?", "required": true },
+      { "id": "location", "prompt": "Where is the venue, and which local details should the story use?", "required": true },
+      { "id": "occasion", "prompt": "Why are the players gathering, and what will really happen during the evening?", "required": true },
+      { "id": "era", "prompt": "Should the fiction be present-day, historical, timeless, or another specific era?", "required": true },
+      { "id": "playableSpaces", "prompt": "Which rooms or outdoor areas may be used during play?", "required": true },
+      { "id": "routes", "prompt": "How can players safely move between those spaces, and which routes are off-limits?", "required": true },
+      { "id": "usableFeatures", "prompt": "Which real features could become clues or story elements?", "required": false },
+      { "id": "availableProps", "prompt": "Which costumes and safe props already exist or can easily be prepared?", "required": false },
+      { "id": "tone", "prompt": "What tone should the evening have?", "required": true },
+      { "id": "safetyConstraints", "prompt": "What physical, privacy, timing, or venue rules must never be crossed?", "required": true },
+      { "id": "accessibilityNeeds", "prompt": "Does anyone need seated play, step-free routes, larger text, lower sensory load, or another accommodation?", "required": false },
+      { "id": "contentBoundaries", "prompt": "Which themes, relationships, or kinds of harm should the story avoid?", "required": true }
+    ],
+    "workflow": [
+      "collect_setting",
+      "validate_setting",
+      "draft_definition",
+      "validate_definition",
+      "create_runtime",
+      "enrol_players"
+    ]
+  },
   "lifecycle": ["idle", "enrolling", "prepared", "active", "completed", "aborted"],
   "commands": [
     { "name": "replace_enrolment", "description": "Replace the editable host, seats and venue proof.", "allowedPhases": ["enrolling"], "payload": { "setup": "SetupDraft" } },
@@ -22,8 +49,7 @@
     { "name": "start", "description": "Start play after every human dossier is confirmed delivered.", "allowedPhases": ["prepared"], "payload": {} },
     { "name": "record_ai_performance", "description": "Persist the bounded output produced for one AI-controlled authored action.", "allowedPhases": ["active"], "payload": { "roleId": "string", "actionId": "string", "text": "string" } },
     { "name": "confirm_beat", "description": "Confirm an authored live beat.", "allowedPhases": ["active"], "payload": { "beatId": "string" } },
-    { "name": "start_blackout", "description": "Advance from dinner to blackout.", "allowedPhases": ["active"], "payload": {} },
-    { "name": "start_investigation", "description": "Advance from blackout to investigation.", "allowedPhases": ["active"], "payload": {} },
+    { "name": "advance_act", "description": "Advance to the next authored act or begin investigation after completing the current act.", "allowedPhases": ["active"], "payload": {} },
     { "name": "toggle_evidence", "description": "Mark evidence as surfaced or withdrawn.", "allowedPhases": ["active"], "payload": { "evidenceId": "string" } },
     { "name": "accuse", "description": "Record the table accusation.", "allowedPhases": ["active"], "payload": { "culprit": "string", "motive": "string", "chain": "string" } },
     { "name": "reveal", "description": "Lock the accusation and enter the canonical reveal.", "allowedPhases": ["active"], "payload": {} },

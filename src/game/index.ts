@@ -1,4 +1,8 @@
 export { generateGame } from './generate'
+export { createDemoGame, demoSetting } from './demo'
+export { createSettingBrief, getSettingBriefBlockers, settingQuestions } from './setting/brief'
+export { createAuthoredGame, createStoryAuthoringBrief } from './story/authoring'
+export { createGameDefinition, validateGameDefinition } from './definition/create'
 export { createLeCarnetBleuRuntime, leCarnetBleuManifest } from './runtime/le-carnet-bleu'
 export { discoverGames, resolveGame } from './runtime/registry'
 export type {
@@ -11,4 +15,7 @@ export type {
   RuntimeEvent,
   RuntimeResult,
 } from './runtime/contract'
-export type { GameState } from './types'
+export type { GameState, Story } from './types'
+export type { SettingBrief, SettingBriefInput, SettingQuestion } from './setting/contract'
+export type { AuthoredGame } from './story/authoring'
+export type { ActDefinition, GameDefinition, GameDefinitionInput, SetupRequirement } from './definition/contract'

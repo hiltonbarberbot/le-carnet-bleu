@@ -1,12 +1,13 @@
 import { generateText } from 'ai'
 import { getMemoriesBeforeAction } from '../../src/game/dossier/knowledge.js'
-import { generateGame } from '../../src/game/generate.js'
+import { createGameDefinition } from '../../src/game/definition/create.js'
+import type { GameDefinitionInput } from '../../src/game/definition/contract.js'
 
 const model = process.env.AI_GATEWAY_MODEL || 'anthropic/claude-sonnet-4.6'
 
 type PerformanceInput = {
+  definition: GameDefinitionInput
   sessionId: string
-  seed: string
   roleId: string
   actionId: string
 }
@@ -27,9 +28,9 @@ function readInput(value: unknown): PerformanceInput | null {
   const input = value as Partial<PerformanceInput>
   if (
     typeof input.sessionId !== 'string' || input.sessionId.length < 1 || input.sessionId.length > 100
-    || typeof input.seed !== 'string' || input.seed.length > 100
     || typeof input.roleId !== 'string' || input.roleId.length > 100
     || typeof input.actionId !== 'string' || input.actionId.length > 100
+    || !input.definition || typeof input.definition !== 'object'
   ) return null
   return input as PerformanceInput
 }
@@ -61,9 +62,15 @@ export async function POST(request: Request) {
   } catch {
     return json({ error: 'Request body must be valid JSON.' }, 400)
   }
-  if (!input) return json({ error: 'A valid session, seed, role and action are required.' }, 400)
+  if (!input) return json({ error: 'A valid authored definition, session, role and action are required.' }, 400)
 
-  const story = generateGame(input.seed)
+  let definition
+  try {
+    definition = createGameDefinition(input.definition)
+  } catch (error) {
+    return json({ error: error instanceof Error ? error.message : 'The authored game definition is invalid.' }, 400)
+  }
+  const story = definition.story
   const character = story.characters.find(item => item.id === input.roleId)
   const action = character?.actions.find(item => item.id === input.actionId)
   if (!character || !action) return json({ error: 'That role or action does not exist in this case.' }, 404)
@@ -73,7 +80,7 @@ export async function POST(request: Request) {
     const result = await generateText({
       model,
       system: [
-        `You are performing ${character.name}, ${character.title}, in a live dinner-party murder mystery.`,
+        `You are performing ${character.name}, ${character.title}, in a live murder mystery authored for ${definition.setting.venueName}.`,
         `Public face: ${character.publicFace}`,
         `Private secret: ${character.privateSecret}`,
         `Your memories: ${memories.map(memory => memory.text).join(' | ')}`,
@@ -92,7 +99,7 @@ export async function POST(request: Request) {
       providerOptions: {
         gateway: {
           user: input.sessionId,
-          tags: ['le-carnet-bleu', 'ai-player'],
+          tags: ['le-carnet-bleu', 'ai-player', definition.fingerprint.slice(0, 12)],
         },
       },
     })

@@ -12,24 +12,15 @@ import type {
   RuntimeCapabilities,
   SeatDraft,
   SetupDraft,
-  Story,
-  VenueCheck,
 } from '../types'
-
-export const venueChecks: VenueCheck[] = [
-  { id: 'notebook', label: 'A blue notebook is hidden in Pierre’s blue jacket before guests arrive.' },
-  { id: 'jackets', label: 'Pierre and Jacques have distinct labelled jackets that can be removed and switched.' },
-  { id: 'route', label: 'A safe terrace-or-hall route connects the dinner table to the staged study.' },
-  { id: 'lights', label: 'The host can safely control a sixty-second blackout.' },
-  { id: 'study', label: 'The study has a desk and enough clear space to mime the fall without contact.' },
-  { id: 'briefing', label: 'The host has privately rehearsed the blackout sequence with Jacques, Madame, and Pierre.' },
-]
+import type { GameDefinition } from '../definition/contract'
 
 export const browserCapabilities: RuntimeCapabilities = {
   aiControllers: false,
 }
 
-export function createSetupDraft(story: Story): SetupDraft {
+export function createSetupDraft(definition: GameDefinition): SetupDraft {
+  const { story } = definition
   return {
     hostName: '',
     seats: story.characters.map<SeatDraft>(character => ({
@@ -40,21 +31,21 @@ export function createSetupDraft(story: Story): SetupDraft {
       ready: false,
       allowAiFallback: false,
     })),
-    venue: Object.fromEntries(venueChecks.map(check => [check.id, false])),
+    venue: Object.fromEntries(definition.setupRequirements.map(check => [check.id, false])),
   }
 }
 
-export function createIdleState(story: Story): IdleGameState {
-  return { schemaVersion: 1, storyId: story.id, seed: story.seed, phase: 'idle' }
+export function createIdleState(definition: GameDefinition): IdleGameState {
+  return { schemaVersion: 2, definitionFingerprint: definition.fingerprint, storyId: definition.story.id, seed: definition.story.seed, phase: 'idle' }
 }
 
-export function createGame(story: Story, now = new Date(), id: string = crypto.randomUUID()): EnrollingGameState {
+export function createGame(definition: GameDefinition, now = new Date(), id: string = crypto.randomUUID()): EnrollingGameState {
   return {
-    ...createIdleState(story),
+    ...createIdleState(definition),
     phase: 'enrolling',
     id,
     createdAt: now.toISOString(),
-    setup: createSetupDraft(story),
+    setup: createSetupDraft(definition),
   }
 }
 
@@ -62,9 +53,10 @@ export function updateEnrolment(state: EnrollingGameState, setup: SetupDraft): E
   return { ...state, setup }
 }
 
-export function getSetupBlockers(story: Story, setup: SetupDraft, capabilities: RuntimeCapabilities): string[] {
+export function getSetupBlockers(definition: GameDefinition, setup: SetupDraft, capabilities: RuntimeCapabilities): string[] {
+  const { story } = definition
   const blockers: string[] = []
-  if (!setup.hostName.trim()) blockers.push('The host/Concierge has not been named.')
+  if (!setup.hostName.trim()) blockers.push(`The host for “${story.hostRole}” has not been named.`)
 
   const participantIds = new Set<string>()
   const addresses = new Set<string>()
@@ -93,7 +85,7 @@ export function getSetupBlockers(story: Story, setup: SetupDraft, capabilities: 
     }
   }
 
-  for (const check of venueChecks) {
+  for (const check of definition.setupRequirements) {
     if (!setup.venue[check.id]) blockers.push(`Venue requirement missing: ${check.label}`)
   }
 
@@ -101,12 +93,13 @@ export function getSetupBlockers(story: Story, setup: SetupDraft, capabilities: 
 }
 
 export function prepareGame(
-  story: Story,
+  definition: GameDefinition,
   state: EnrollingGameState,
   capabilities: RuntimeCapabilities,
   now = new Date(),
 ): PreparedGameState {
-  const blockers = getSetupBlockers(story, state.setup, capabilities)
+  const { story } = definition
+  const blockers = getSetupBlockers(definition, state.setup, capabilities)
   if (blockers.length) throw new Error(blockers.join('\n'))
 
   const roster = Object.fromEntries(story.characters.map(character => {
@@ -135,7 +128,8 @@ export function prepareGame(
   }))
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
+    definitionFingerprint: state.definitionFingerprint,
     storyId: state.storyId,
     seed: state.seed,
     phase: 'prepared',
@@ -193,7 +187,8 @@ export function recordDeliveryOutcome(
     : { ...delivery, status: 'failed', failedAt: now.toISOString(), error: outcome.error.trim() })
 }
 
-export function getStartBlockers(story: Story, state: PreparedGameState): string[] {
+export function getStartBlockers(definition: GameDefinition, state: PreparedGameState): string[] {
+  const { story } = definition
   return story.characters.flatMap(character => {
     const delivery = state.deliveries[character.id]
     return delivery?.status === 'delivered' || delivery?.status === 'not_required'
@@ -202,13 +197,13 @@ export function getStartBlockers(story: Story, state: PreparedGameState): string
   })
 }
 
-export function startGame(story: Story, state: PreparedGameState, now = new Date()): ActiveGameState {
-  const blockers = getStartBlockers(story, state)
+export function startGame(definition: GameDefinition, state: PreparedGameState, now = new Date()): ActiveGameState {
+  const blockers = getStartBlockers(definition, state)
   if (blockers.length) throw new Error(blockers.join('\n'))
   return {
     ...state,
     phase: 'active',
-    playPhase: 'dinner',
+    playPhase: definition.acts[0].id,
     paused: false,
     completedBeatIds: [],
     revealedEvidenceIds: [],
@@ -222,11 +217,12 @@ function assertActive(state: ActiveGameState) {
   if (state.paused) throw new Error('The game is paused.')
 }
 
-function essentialBeats(story: Story, phase: RunBeat['phase']) {
-  return story.runPlan.filter(beat => beat.phase === phase && beat.essential)
+function essentialBeats(definition: GameDefinition, phase: RunBeat['phase']) {
+  return definition.story.runPlan.filter(beat => beat.phase === phase && beat.essential)
 }
 
-export function confirmRunBeat(story: Story, state: ActiveGameState, beatId: string): ActiveGameState {
+export function confirmRunBeat(definition: GameDefinition, state: ActiveGameState, beatId: string): ActiveGameState {
+  const { story } = definition
   assertActive(state)
   const beat = story.runPlan.find(item => item.id === beatId)
   if (!beat) throw new Error(`Unknown run-plan beat ${beatId}.`)
@@ -243,7 +239,7 @@ export function confirmRunBeat(story: Story, state: ActiveGameState, beatId: str
 }
 
 export function recordAiPerformance(
-  story: Story,
+  definition: GameDefinition,
   state: ActiveGameState,
   roleId: string,
   actionId: string,
@@ -251,6 +247,7 @@ export function recordAiPerformance(
   now = new Date(),
 ): ActiveGameState {
   assertActive(state)
+  const { story } = definition
   const character = story.characters.find(item => item.id === roleId)
   const action = character?.actions.find(item => item.id === actionId)
   if (!character || !action) throw new Error('That AI role or action does not exist in this story.')
@@ -266,27 +263,25 @@ export function recordAiPerformance(
   }
 }
 
-export function undoRunBeat(story: Story, state: ActiveGameState, beatId: string): ActiveGameState {
+export function undoRunBeat(definition: GameDefinition, state: ActiveGameState, beatId: string): ActiveGameState {
   assertActive(state)
+  const { story } = definition
   const dependants = story.runPlan.filter(beat => beat.dependsOn.includes(beatId) && state.completedBeatIds.includes(beat.id))
   if (dependants.length) throw new Error(`Cannot undo while ${dependants.map(beat => beat.title).join(', ')} depends on it.`)
   return { ...state, completedBeatIds: state.completedBeatIds.filter(id => id !== beatId) }
 }
 
-export function startBlackout(story: Story, state: ActiveGameState): ActiveGameState {
+export function advanceAct(definition: GameDefinition, state: ActiveGameState): ActiveGameState {
   assertActive(state)
-  if (state.playPhase !== 'dinner') throw new Error('The blackout can start only during dinner.')
-  const missing = essentialBeats(story, 'dinner').filter(beat => !state.completedBeatIds.includes(beat.id))
-  if (missing.length) throw new Error(`Dinner is missing: ${missing.map(beat => beat.title).join(', ')}.`)
-  return { ...state, playPhase: 'blackout' }
-}
-
-export function startInvestigation(story: Story, state: ActiveGameState): ActiveGameState {
-  assertActive(state)
-  if (state.playPhase !== 'blackout') throw new Error('Investigation can start only after the blackout.')
-  const missing = essentialBeats(story, 'blackout').filter(beat => !state.completedBeatIds.includes(beat.id))
-  if (missing.length) throw new Error(`The murder scene is incomplete: ${missing.map(beat => beat.title).join(', ')}.`)
-  return { ...state, playPhase: 'investigation', revealedEvidenceIds: story.publicEvidence.map(item => item.id) }
+  const actIndex = definition.acts.findIndex(act => act.id === state.playPhase)
+  if (actIndex < 0) throw new Error(`${state.playPhase} is not an authored act.`)
+  const current = definition.acts[actIndex]
+  const missing = essentialBeats(definition, current.id).filter(beat => !state.completedBeatIds.includes(beat.id))
+  if (missing.length) throw new Error(`${current.title} is missing: ${missing.map(beat => beat.title).join(', ')}.`)
+  const next = definition.acts[actIndex + 1]
+  return next
+    ? { ...state, playPhase: next.id }
+    : { ...state, playPhase: 'investigation', revealedEvidenceIds: definition.story.publicEvidence.map(item => item.id) }
 }
 
 export function toggleEvidence(state: ActiveGameState, evidenceId: string): ActiveGameState {
@@ -302,7 +297,8 @@ export function updateAccusation(state: ActiveGameState, accusation: Accusation)
   return { ...state, accusation }
 }
 
-export function getRevealBlockers(story: Story, state: ActiveGameState): string[] {
+export function getRevealBlockers(definition: GameDefinition, state: ActiveGameState): string[] {
+  const { story } = definition
   const blockers: string[] = []
   if (!state.accusation.culprit.trim()) blockers.push('The group has not named a culprit.')
   if (!state.accusation.motive.trim()) blockers.push('The group has not stated a motive.')
@@ -313,10 +309,10 @@ export function getRevealBlockers(story: Story, state: ActiveGameState): string[
   return blockers
 }
 
-export function revealToTable(story: Story, state: ActiveGameState): ActiveGameState {
+export function revealToTable(definition: GameDefinition, state: ActiveGameState): ActiveGameState {
   assertActive(state)
   if (state.playPhase !== 'investigation') throw new Error('The table reveal can start only after investigation.')
-  const blockers = getRevealBlockers(story, state)
+  const blockers = getRevealBlockers(definition, state)
   if (blockers.length) throw new Error(blockers.join('\n'))
   return { ...state, playPhase: 'reveal' }
 }
@@ -335,7 +331,8 @@ export function abortGame(state: ExistingGameState, now = new Date()) {
   if (state.phase === 'completed') throw new Error('A completed game cannot be aborted.')
   if (state.phase === 'aborted') return state
   return {
-    schemaVersion: 1 as const,
+    schemaVersion: 2 as const,
+    definitionFingerprint: state.definitionFingerprint,
     storyId: state.storyId,
     seed: state.seed,
     phase: 'aborted' as const,
@@ -347,8 +344,8 @@ export function abortGame(state: ExistingGameState, now = new Date()) {
   }
 }
 
-export function resetGame(story: Story, state: GameState, confirmed: boolean): IdleGameState {
+export function resetGame(definition: GameDefinition, state: GameState, confirmed: boolean): IdleGameState {
   if (state.phase === 'idle') throw new Error('There is no game to reset.')
   if (!confirmed) throw new Error('Reset requires explicit confirmation.')
-  return createIdleState(story)
+  return createIdleState(definition)
 }

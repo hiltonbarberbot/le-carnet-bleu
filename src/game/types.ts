@@ -1,4 +1,4 @@
-export type RunPhase = 'dinner' | 'blackout'
+export type RunPhase = string
 export type PlayPhase = RunPhase | 'investigation' | 'reveal'
 export type GameLifecyclePhase = 'idle' | 'enrolling' | 'prepared' | 'active' | 'completed' | 'aborted'
 
@@ -19,6 +19,7 @@ export type Action = {
   beat?: number
   phase: RunPhase
   physical: boolean
+  requires: string[]
 }
 
 export type Character = {
@@ -136,7 +137,8 @@ export type AiPerformanceRecord = {
 }
 
 type StateIdentity = {
-  schemaVersion: 1
+  schemaVersion: 2
+  definitionFingerprint: string
   storyId: string
   seed: string
 }
