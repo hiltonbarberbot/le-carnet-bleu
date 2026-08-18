@@ -27,6 +27,10 @@ function galleryStory(): Story {
     title: `Gallery guest ${index + 1}`,
     costume: 'Contemporary evening wear',
     publicFace: 'A composed member of the gallery circle.',
+    invitationPretext: 'You were invited to celebrate the gallery donation.',
+    invitationPromise: 'The curator promised to settle one private question about the donated painting.',
+    privateIdentity: `You secretly witnessed part ${index + 1} of the forgery scandal.`,
+    privateObjective: 'Learn who substituted the donated painting without exposing your own involvement.',
     privateSecret: index === 0 ? 'You replaced the original painting and caused the curator’s death.' : `You concealed part ${index + 1} of the forgery scandal.`,
     memories: [{
       id: `gallery-evidence-${index + 1}`,
@@ -51,6 +55,7 @@ function galleryStory(): Story {
     seed: 'gallery-opening',
     title: 'The Last Label',
     subtitle: 'A present-day gallery mystery played entirely in ordinary light.',
+    premise: 'Five gallery guests accepted respectable invitations while privately seeking answers about a disputed donation.',
     totalPeople: 6,
     hostRole: 'The gallery curator, then Game Master',
     victim: 'The gallery curator',

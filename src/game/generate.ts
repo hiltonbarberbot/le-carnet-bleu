@@ -41,7 +41,8 @@ export function generateGame(seed: string): Story {
     id: 'le-carnet-bleu',
     seed: cleanSeed,
     title: 'Le Carnet Bleu',
-    subtitle: 'A closed-circle mystery of an old injustice, a missing page, and one fatal minute of darkness.',
+    subtitle: 'Five guests came to recover five different secrets. Only one was willing to kill for theirs.',
+    premise: 'Armand Valère has summoned five people to Maison Bleue, each under a respectable pretext and each with a different private promise: before midnight, he will return what he took from them. When they arrive, they discover that the private settlement is a shared reckoning. Armand declares that Le Carnet Bleu will leave the house at midnight carrying the complete truth about Luc Bellande. First, he will recreate the one minute of darkness that condemned Luc sixteen years ago.',
     totalPeople: 6,
     hostRole: 'Armand Valère, keeper of Le Carnet Bleu, then Game Master',
     victim: 'Armand Valère',
@@ -50,6 +51,6 @@ export function generateGame(seed: string): Story {
     publicEvidence,
     timeline,
     runPlan,
-    solution: 'Jacques Vallon deliberately murdered Armand Valère during the reconstructed blackout. Sixteen years earlier, Jacques had stolen the Saint-Auban sapphire and allowed Luc Bellande to die in prison for it. Armand recorded the truth on page forty-seven of Le Carnet Bleu and blackmailed everyone who helped suppress it. Jacques borrowed Hélène’s silver paper knife in advance, used the open terrace to reach the study, killed Armand, tore out the page naming him, and left the weapon to frame Hélène. She was found beside the body only because she had entered moments later to recover Luc’s love letters.',
+    solution: 'Armand lured every guest to Maison Bleue with a different private promise, then revealed that the supposed settlements were one shared reckoning. Jacques Vallon deliberately murdered him during the reconstructed blackout. Sixteen years earlier, Jacques had stolen the Saint-Auban sapphire and allowed Luc Bellande to die in prison for it. Armand recorded the truth on page forty-seven of Le Carnet Bleu and blackmailed everyone who helped suppress it. Jacques borrowed Hélène’s silver paper knife in advance, used the open terrace to reach the study, killed Armand, tore out the page naming him, and left the weapon to frame Hélène. She was found beside the body only because she had entered moments later to recover Luc’s love letters.',
   }, cleanSeed)
 }

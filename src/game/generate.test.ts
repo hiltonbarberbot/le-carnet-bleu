@@ -70,6 +70,18 @@ describe('story compilation', () => {
     expect(essential.every(action => planned.has(action.id))).toBe(true)
   })
 
+  it('gives every guest a private invitation, identity, and objective without making them canonical evidence', () => {
+    const story = generateGame('private-promises')
+    for (const character of story.characters) {
+      expect(character.invitationPretext).toBeTruthy()
+      expect(character.invitationPromise).toMatch(/before midnight/i)
+      expect(character.privateIdentity).toBeTruthy()
+      expect(character.privateObjective).toBeTruthy()
+    }
+    const canonicalEvidence = new Set(story.timeline.flatMap(beat => beat.evidence))
+    expect([...canonicalEvidence].some(id => /identity|invitation|promise|objective/.test(id))).toBe(false)
+  })
+
   it('rejects missing canonical evidence', () => {
     const story = structuredClone(generateGame('broken'))
     story.timeline[0].evidence.push('missing-proof')
@@ -135,7 +147,7 @@ describe('truthful game lifecycle', () => {
     let active = startGame(definition, prepared, new Date('2026-08-17T18:00:00Z'))
     expect(active.phase).toBe('active')
     expect(active.playPhase).toBe('dinner')
-    expect(() => advanceAct(definition, active)).toThrow(/Dinner and the old accusation is missing/)
+    expect(() => advanceAct(definition, active)).toThrow(/Dinner and the reckoning is missing/)
     for (const beat of story.runPlan.filter(beat => beat.phase === 'dinner' && beat.essential)) active = confirmRunBeat(definition, active, beat.id)
     active = advanceAct(definition, active)
     expect(() => advanceAct(definition, active)).toThrow(/reconstructed minute is missing/i)

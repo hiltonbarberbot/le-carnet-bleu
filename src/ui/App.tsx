@@ -73,7 +73,7 @@ export function PlayerProfile({ character, completedBeatIds = [], onExit }: { ch
     <div className="mode-bar player-mode"><div><span>PLAYER PROFILE</span><b>You are viewing only {character.name}’s information</b></div><div className="mode-actions"><button onClick={() => window.print()}>Print / save PDF</button>{onExit && <button className="quiet" onClick={onExit}>Exit profile</button>}</div></div>
     <article className="profile">
       <header><div><span className="label">YOUR CHARACTER</span><p>{character.title}</p><h1>{character.name}</h1></div><span className="stamp">PRIVATE</span></header>
-      <section className="start-here"><span className="number">1</span><div><h2>Who you are</h2><p>{character.publicFace}</p><p><b>Your secret:</b> {character.privateSecret}</p><p><b>Wear:</b> {character.costume}</p></div></section>
+      <section className="start-here"><span className="number">1</span><div><h2>Why you came</h2><p><b>What you tell the table:</b> {character.invitationPretext}</p><p><b>Armand’s private promise:</b> {character.invitationPromise}</p><p><b>Who you really are:</b> {character.privateIdentity}</p><p><b>What you need tonight:</b> {character.privateObjective}</p><p><b>The secret beneath it:</b> {character.privateSecret}</p><p><b>How you appear:</b> {character.publicFace}</p><p><b>Wear:</b> {character.costume}</p></div></section>
       <section><div className="profile-heading"><span className="number">2</span><div><h2>What you know now</h2><p>Only established facts and events the host has confirmed appear here. Share, hide or lie about them as you wish.</p></div></div><div className="plain-list">{memories.map(memory => <div key={memory.id}>{memory.text}</div>)}</div></section>
       <section><div className="profile-heading"><span className="number red">3</span><div><h2>What you must do</h2><p>Perform these only when the cue happens. Physical conflict is always mimed without contact.</p></div></div><div className="task-list">{character.actions.map(action => <article key={action.id}><b>WHEN: {action.cue}</b><p>{action.text}</p></article>)}</div></section>
     </article>
@@ -81,7 +81,7 @@ export function PlayerProfile({ character, completedBeatIds = [], onExit }: { ch
 }
 
 function CanonicalTruth({ story }: { story: Story }) {
-  return <details className="canonical-truth" open><summary><span>GOD MODE TRUTH</span><b>{story.culprit}</b></summary><p>{story.solution}</p><div className="truth-grid">{story.timeline.map(beat => <article key={beat.beat}><span>{beat.beat}</span><div><b>{beat.title}</b><p>{beat.truth}</p><small>{beat.evidence.join(' · ')}</small></div></article>)}</div></details>
+  return <details className="canonical-truth" open><summary><span>GOD MODE TRUTH</span><b>{story.culprit}</b></summary><h3>The premise</h3><p>{story.premise}</p><h3>The solution</h3><p>{story.solution}</p><div className="truth-grid">{story.timeline.map(beat => <article key={beat.beat}><span>{beat.beat}</span><div><b>{beat.title}</b><p>{beat.truth}</p><small>{beat.evidence.join(' · ')}</small></div></article>)}</div></details>
 }
 
 function SetupPanel({ definition, setup, capabilities, gateway, onChange, onPrepare, onPreview }: {

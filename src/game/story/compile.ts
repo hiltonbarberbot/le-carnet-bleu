@@ -16,6 +16,11 @@ export function validateStory(story: Story): string[] {
     if (characterIds.has(character.id)) errors.push(`duplicate character id ${character.id}`)
     characterIds.add(character.id)
 
+    if (!character.invitationPretext?.trim()) errors.push(`character ${character.id} has no invitation pretext`)
+    if (!character.invitationPromise?.trim()) errors.push(`character ${character.id} has no private invitation promise`)
+    if (!character.privateIdentity?.trim()) errors.push(`character ${character.id} has no private identity`)
+    if (!character.privateObjective?.trim()) errors.push(`character ${character.id} has no private objective`)
+
     for (const memory of character.memories) {
       if (evidenceIds.has(memory.id)) errors.push(`duplicate evidence id ${memory.id}`)
       evidenceIds.add(memory.id)
@@ -72,6 +77,7 @@ export function validateStory(story: Story): string[] {
   if (!story.characters.some(character => character.name === story.culprit)) {
     errors.push(`culprit ${story.culprit} is not a guest character`)
   }
+  if (!story.premise?.trim()) errors.push('story premise is required')
 
   return errors
 }

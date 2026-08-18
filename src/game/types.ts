@@ -28,6 +28,10 @@ export type Character = {
   title: string
   costume: string
   publicFace: string
+  invitationPretext: string
+  invitationPromise: string
+  privateIdentity: string
+  privateObjective: string
   privateSecret: string
   memories: Memory[]
   actions: Action[]
@@ -62,6 +66,7 @@ export type Story = {
   seed: string
   title: string
   subtitle: string
+  premise: string
   totalPeople: number
   hostRole: string
   victim: string

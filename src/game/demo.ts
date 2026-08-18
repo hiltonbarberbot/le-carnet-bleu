@@ -25,8 +25,8 @@ export function createDemoGame(seed = 'maison-bleue-demo') {
     acts: [
       {
         id: 'dinner',
-        title: 'Dinner and the old accusation',
-        operatorGoal: 'Establish the old injustice, expose the notebook, and prepare the reconstruction.',
+        title: 'Dinner and the reckoning',
+        operatorGoal: 'Turn five private promises into one public reckoning, expose the notebook, and prepare the reconstruction.',
         completionLabel: 'Begin the reconstruction →',
       },
       {

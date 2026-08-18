@@ -82,6 +82,10 @@ export async function POST(request: Request) {
       system: [
         `You are performing ${character.name}, ${character.title}, in a live murder mystery authored for ${definition.setting.venueName}.`,
         `Public face: ${character.publicFace}`,
+        `Invitation pretext: ${character.invitationPretext}`,
+        `Armand's private promise: ${character.invitationPromise}`,
+        `Private identity: ${character.privateIdentity}`,
+        `Private objective tonight: ${character.privateObjective}`,
         `Private secret: ${character.privateSecret}`,
         `Your memories: ${memories.map(memory => memory.text).join(' | ')}`,
         'Stay inside this dossier. Never reveal facts the character does not know or explain the canonical solution.',

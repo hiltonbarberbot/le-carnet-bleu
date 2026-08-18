@@ -82,7 +82,7 @@ describe('God mode lifecycle projection', () => {
   it('renders active play and reset-to-idle as separate states', () => {
     const active = startGame(definition, deliverAll(prepareGame(definition, enrolling(), noAi)))
     expect(getHostScreen(active)).toBe('active:dinner')
-    expect(render(active)).toContain('Dinner and the old accusation')
+    expect(render(active)).toContain('Dinner and the reckoning')
     const idle = resetGame(definition, active, true)
     expect(getHostScreen(idle)).toBe('idle')
     expect(render(idle)).toContain('IDLE · AUTHORED FOR')

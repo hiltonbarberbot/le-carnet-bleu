@@ -49,7 +49,7 @@ ${list(setting.contentBoundaries)}
 
 1. Create one host role that becomes Game Master after the staged murder and exactly five suspect roles.
 2. Begin with a human wound or consequential shared history, then derive culprit, motive, method, and cover-up from it.
-3. Give every suspect a credible motive, a private secret, agency during dinner, and a reason to conceal truthful evidence.
+3. Give every suspect a respectable invitation pretext, a different private promise from the host, a private identity, an urgent personal objective, a credible motive, agency during play, and a reason to conceal truthful evidence. These identities should explain lies without becoming facts the group must discover to solve the murder.
 4. Make the canonical solution fair: every timeline beat needs at least two independent evidence routes.
 5. Separate prior memories from events created live. Gate future observations behind the run-plan beat that creates them.
 6. Define generic authored acts for this story; do not assume a dinner or blackout phase.

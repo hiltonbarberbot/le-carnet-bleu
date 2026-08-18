@@ -78,6 +78,10 @@ export const cast: Character[] = [
     title: 'Financier and former secretary to the Marquis de Veyrac',
     costume: 'Immaculate black tie, pale gloves, a silver carnation',
     publicFace: 'Courteous, prosperous, and never surprised. You speak of the past as though it were a regrettable servant who has already been dismissed.',
+    invitationPretext: 'Armand asked you to advise him on a discreet sale of Maison Bleue and settle the last Veyrac accounts.',
+    invitationPromise: '“Come to Maison Bleue. Before midnight, I will return the page that has cost you fifteen years.”',
+    privateIdentity: 'You are the real Saint-Auban thief: the respected financier whose fortune began with the sapphire Luc Bellande died for stealing.',
+    privateObjective: 'Take page forty-seven and make certain no surviving account can name you. If Armand refuses, carry out the murder and frame Hélène as planned.',
     privateSecret: 'You stole the Saint-Auban sapphire and allowed Luc Bellande to die for it. Armand has blackmailed you ever since. Tonight you intend to kill him, remove page forty-seven from Le Carnet Bleu, and leave Hélène’s paper knife at the scene.',
     memories: [
       {
@@ -145,6 +149,10 @@ export const cast: Character[] = [
     title: 'Widow of the late Marquis de Veyrac',
     costume: 'Black silk, a single strand of pearls, violet perfume',
     publicFace: 'A woman trained never to hurry, explain, or forgive. The house once belonged to your family, and you still behave as though everyone in it does too.',
+    invitationPretext: 'Armand invited you to identify the last Veyrac family effects before Maison Bleue changes hands.',
+    invitationPromise: '“Come to Maison Bleue. Before midnight, I will return what Luc Bellande left in this house.”',
+    privateIdentity: 'You were Luc Bellande’s lover, and your daughter—not the Marquis’s—is his child.',
+    privateObjective: 'Recover Luc’s letters before anyone can read them, and keep your daughter’s parentage out of Armand’s reckoning.',
     privateSecret: 'Luc Bellande was your lover, and your daughter was his child. You let him be convicted rather than expose her parentage. Armand kept Luc’s letters and used them to extort your late husband. Tonight you mean to recover them before the notebook is opened.',
     memories: [
       {
@@ -207,6 +215,10 @@ export const cast: Character[] = [
     title: 'Pastry chef and son of the man condemned for the Saint-Auban theft',
     costume: 'A dark dinner suit with an old prison letter in the breast pocket',
     publicFace: 'Quiet and self-possessed. You have spent your life hearing that bitterness is unbecoming in the son of a criminal.',
+    invitationPretext: 'Armand commissioned a final course in Luc Bellande’s memory and invited you to discuss a small memorial at the house.',
+    invitationPromise: '“Come to Maison Bleue. Before midnight, I will give you proof that your father was innocent.”',
+    privateIdentity: 'You are the anonymous author of the false official telegram announcing an examining magistrate at dawn.',
+    privateObjective: 'Force Armand to open Le Carnet Bleu in front of witnesses and leave with proof that clears your father, even if your forgery is exposed.',
     privateSecret: 'You forged the telegram claiming an examining magistrate will collect Le Carnet Bleu at dawn. You wanted to frighten Armand into producing the proof that would clear your father, but the forgery gives you an obvious reason to silence him.',
     memories: [
       {
@@ -259,6 +271,10 @@ export const cast: Character[] = [
     title: 'Retired examining inspector',
     costume: 'A sober blue suit, old police watch, carefully polished shoes',
     publicFace: 'Methodical and dry. You correct imprecise times, unlocked doors, and other people’s recollections without being invited.',
+    invitationPretext: 'Armand asked you to act as a neutral expert and certify that his reconstruction of the old theft is accurate.',
+    invitationPromise: '“Come to Maison Bleue. Before midnight, I will place the last account of the Bellande investigation in your hands.”',
+    privateIdentity: 'You are the officer who deliberately buried Amélie’s corrected statement and built his career on Luc Bellande’s conviction.',
+    privateObjective: 'Discover exactly what Armand preserved, prevent your corruption from being read aloud, and retain the authority to define what counts as evidence.',
     privateSecret: 'You led the investigation that convicted Luc Bellande. When Amélie contradicted Jacques’s alibi, the Marquis promised you promotion in exchange for losing her statement. You destroyed it.',
     memories: [
       {
@@ -331,6 +347,10 @@ export const cast: Character[] = [
     title: 'Former cabaret singer and the forgotten witness',
     costume: 'Midnight-blue dress, opera gloves, a small blue handkerchief',
     publicFace: 'Observant, amused, and apparently fearless. You remember voices better than faces and lies better than either.',
+    invitationPretext: 'Armand hired you to sing one old song at a private farewell dinner for Maison Bleue.',
+    invitationPromise: '“Come to Maison Bleue. Before midnight, your true statement will finally be heard.”',
+    privateIdentity: 'You are the forgotten eyewitness whose first statement protected Jacques and whose corrected statement Pierre destroyed.',
+    privateObjective: 'Make the truth about the old blackout impossible to bury again, while deciding how much of your own betrayal you can bear to confess.',
     privateSecret: 'You saw Jacques leave the blue salon during the original blackout, but you loved him and first gave him a false alibi. When you tried to correct it, Pierre destroyed your statement. Luc Bellande went to prison because both versions of your testimony failed him.',
     memories: [
       {
@@ -393,9 +413,9 @@ export const runPlan: RunBeat[] = [
   {
     id: 'coded-toast',
     phase: 'dinner',
-    title: 'Name the absent guest',
+    title: 'Reveal the reckoning',
     trigger: 'After the first wine is poured',
-    operator: 'Give Jacques the ribboned cigar box and let his toast force the Bellande case into the open. Use only the prepared blunt prop paper knife.',
+    operator: 'Tell the table: “Each of you was promised something different. Before midnight, Le Carnet Bleu will leave this house and the complete truth will go with it.” Do not reveal the private promises. Give Jacques the ribboned cigar box and let his toast name Luc Bellande. Use only the prepared blunt prop paper knife.',
     actionIds: ['jacques-toast'],
     dependsOn: [],
     essential: true,
