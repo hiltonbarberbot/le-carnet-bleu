@@ -26,10 +26,10 @@ export const cast: Character[] = [
     publicFace: 'Smooth, vain, and offended by any cheese served below room temperature.',
     privateSecret: 'Years ago you sold one name from Le Carnet Bleu to clear a gambling debt. The Concierge knew.',
     memories: [
-      { id: 'jacques-find', kind: 'evidence', beat: 4, text: 'When you put your jacket back on, you find Le Carnet Bleu inside and believe the Concierge planted it to expose you.' },
-      { id: 'jacques-confronts', kind: 'evidence', beat: 7, text: 'During the blackout, the Concierge laughs when you accuse him of framing you and says the jackets were switched.' },
-      { id: 'jacques-shove', kind: 'secret', beat: 8, text: 'You know the shove in the study causes the fatal fall. It is an accident, but you panic.' },
-      { id: 'jacques-flight', kind: 'secret', beat: 9, text: 'You leave the study with Le Carnet Bleu before the lights return.' },
+      { id: 'jacques-find', kind: 'evidence', beat: 4, availableAfter: 'jacket-switch', text: 'When you put your jacket back on, you found Le Carnet Bleu inside and believed the Concierge had planted it to expose you.' },
+      { id: 'jacques-confronts', kind: 'evidence', beat: 7, availableAfter: 'stage-murder', text: 'During the blackout, the Concierge laughed when you accused him of framing you and said the jackets had been switched.' },
+      { id: 'jacques-shove', kind: 'secret', beat: 8, availableAfter: 'stage-murder', text: 'Your shove in the study caused the fatal fall. It was an accident, but you panicked.' },
+      { id: 'jacques-flight', kind: 'secret', beat: 9, availableAfter: 'stage-murder', text: 'You left the study with Le Carnet Bleu before the lights returned.' },
       { id: 'jacques-duel', kind: 'colour', text: 'Pierre once challenged you to a duel with cocktail umbrellas. You lost.' },
     ],
     actions: [
@@ -65,7 +65,7 @@ export const cast: Character[] = [
     memories: [
       { id: 'madame-ledger', kind: 'evidence', beat: 1, text: 'Years ago, you saw a private ledger proving the Concierge still controlled Le Carnet Bleu.' },
       { id: 'madame-glimpse', kind: 'evidence', beat: 2, text: 'Before dinner, you glimpse the Concierge slip a blue notebook into Pierre’s jacket.' },
-      { id: 'madame-search', kind: 'secret', beat: 10, text: 'During the blackout, you search the desk for the notebook instead of helping the fallen Concierge.' },
+      { id: 'madame-search', kind: 'secret', beat: 10, availableAfter: 'stage-false-culprit', text: 'During the blackout, you searched the desk for the notebook instead of helping the fallen Concierge.' },
       { id: 'madame-argument', kind: 'secret', text: 'You argued with the Concierge this afternoon and threatened to ruin him.' },
       { id: 'madame-perfume', kind: 'colour', text: 'You deliberately wear the perfume the Concierge hated.' },
     ],
@@ -99,8 +99,8 @@ export const cast: Character[] = [
     publicFace: 'Cheerful, indiscreet, and constantly checking his watch.',
     privateSecret: 'Your bakery is a dead-drop network. Tonight’s tasks arrived through it.',
     memories: [
-      { id: 'francois-switch', kind: 'evidence', beat: 3, text: 'You switch Jacques and Pierre’s jackets, assuming the instruction is a joke.' },
-      { id: 'francois-clock', kind: 'evidence', beat: 6, text: 'The blackout lasts almost exactly sixty seconds; you time it by habit.' },
+      { id: 'francois-switch', kind: 'evidence', beat: 3, availableAfter: 'jacket-switch', text: 'You switched Jacques and Pierre’s jackets, assuming the instruction was a joke.' },
+      { id: 'francois-clock', kind: 'evidence', beat: 6, availableAfter: 'stage-false-culprit', text: 'The blackout lasted almost exactly sixty seconds; you timed it by habit.' },
       { id: 'francois-letter', kind: 'secret', text: 'The instruction envelope bore Madame’s family crest, probably forged.' },
       { id: 'francois-kiss', kind: 'colour', text: 'Pierre kissed you at Cannes and has denied it ever since.' },
       { id: 'francois-recipe', kind: 'colour', text: 'The Concierge stole your recipe for diplomatic brioche.' },
@@ -128,9 +128,9 @@ export const cast: Character[] = [
     memories: [
       { id: 'pierre-pocket', kind: 'evidence', beat: 2, text: 'Before dinner, your blue jacket feels oddly heavy at the inner pocket.' },
       { id: 'pierre-label', kind: 'evidence', beat: 4, text: 'Your jacket has a hand-sewn “P. Escargot” label. Jacques’s jacket does not.' },
-      { id: 'pierre-door', kind: 'evidence', beat: 5, text: 'You open the terrace door because your secret instruction demands it.' },
-      { id: 'pierre-shadow', kind: 'evidence', beat: 9, text: 'Near the end of the blackout, a man shaped like Jacques passes from the study toward the hall.' },
-      { id: 'pierre-sees', kind: 'evidence', beat: 10, text: 'When the lights return, you find Madame over the Concierge with the desk open.' },
+      { id: 'pierre-door', kind: 'evidence', beat: 5, availableAfter: 'terrace-route', text: 'You opened the terrace door because your secret instruction demanded it.' },
+      { id: 'pierre-shadow', kind: 'evidence', beat: 9, availableAfter: 'stage-murder', text: 'Near the end of the blackout, a man shaped like Jacques passed from the study toward the hall.' },
+      { id: 'pierre-sees', kind: 'evidence', beat: 10, availableAfter: 'stage-false-culprit', text: 'When the lights returned, you found Madame over the Concierge with the desk open.' },
       { id: 'pierre-key', kind: 'secret', text: 'You stole the study key and gave it to Amélie before dinner.' },
     ],
     actions: [
@@ -165,10 +165,10 @@ export const cast: Character[] = [
     privateSecret: 'You stole the study key, but only to copy the Concierge’s private radio frequencies.',
     memories: [
       { id: 'amelie-rumour', kind: 'evidence', beat: 1, text: 'The Concierge once drunkenly admitted Le Carnet Bleu never left this house.' },
-      { id: 'amelie-jackets', kind: 'evidence', beat: 3, text: 'You see François carrying Pierre and Jacques’s jackets near the hall.' },
-      { id: 'amelie-draught', kind: 'evidence', beat: 5, text: 'Just before the blackout, you feel a strong draught from the terrace.' },
-      { id: 'amelie-blackout', kind: 'evidence', beat: 6, text: 'You give the coded blackout signal immediately after Jacques’s toast.' },
-      { id: 'amelie-laugh', kind: 'evidence', beat: 7, text: 'In the darkness, you hear the Concierge laugh in the study, then a crash.' },
+      { id: 'amelie-jackets', kind: 'evidence', beat: 3, availableAfter: 'jacket-switch', text: 'You saw François carrying Pierre and Jacques’s jackets near the hall.' },
+      { id: 'amelie-draught', kind: 'evidence', beat: 5, availableAfter: 'terrace-route', text: 'Just before the blackout, you felt a strong draught from the terrace.' },
+      { id: 'amelie-blackout', kind: 'evidence', beat: 6, availableAfter: 'blackout-signal', text: 'You gave the coded blackout signal immediately after Jacques’s toast.' },
+      { id: 'amelie-laugh', kind: 'evidence', beat: 7, availableAfter: 'stage-murder', text: 'In the darkness, you heard the Concierge laugh in the study, then a crash.' },
       { id: 'amelie-key', kind: 'secret', text: 'You stole the study key with Pierre’s help, but returned it before dinner.' },
     ],
     actions: [

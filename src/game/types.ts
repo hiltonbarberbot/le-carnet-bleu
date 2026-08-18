@@ -1,11 +1,13 @@
-export type GamePhase = 'lobby' | 'dinner' | 'blackout' | 'investigation' | 'reveal' | 'complete' | 'aborted'
-export type RunPhase = Extract<GamePhase, 'dinner' | 'blackout'>
+export type RunPhase = 'dinner' | 'blackout'
+export type PlayPhase = RunPhase | 'investigation' | 'reveal'
+export type GameLifecyclePhase = 'idle' | 'enrolling' | 'prepared' | 'active' | 'completed' | 'aborted'
 
 export type Memory = {
   id: string
   text: string
   kind: 'evidence' | 'secret' | 'colour'
   beat?: number
+  availableAfter?: string
 }
 
 export type Action = {
@@ -70,13 +72,26 @@ export type Story = {
   solution: string
 }
 
-export type Controller =
-  | { kind: 'human'; displayName: string }
-  | { kind: 'ai'; displayName: string; physicalProxy: string }
+export type HumanController = {
+  kind: 'human'
+  participantId: string
+  displayName: string
+  privateAddress: string
+}
+
+export type AiController = {
+  kind: 'ai'
+  displayName: string
+  physicalProxy: string
+}
+
+export type Controller = HumanController | AiController
 
 export type SeatDraft = {
   roleId: string
+  participantId: string
   humanName: string
+  privateAddress: string
   ready: boolean
   allowAiFallback: boolean
 }
@@ -92,23 +107,96 @@ export type SetupDraft = {
   venue: Record<string, boolean>
 }
 
+export type DeliveryStatus = 'not_required' | 'not_requested' | 'queued' | 'sending' | 'delivered' | 'failed'
+
+export type DeliveryRecord = {
+  roleId: string
+  address?: string
+  status: DeliveryStatus
+  attempts: number
+  requestedAt?: string
+  sendingAt?: string
+  deliveredAt?: string
+  receipt?: string
+  failedAt?: string
+  error?: string
+}
+
 export type Accusation = {
   culprit: string
   motive: string
   chain: string
 }
 
-export type GameSession = {
-  id: string
+export type AiPerformanceRecord = {
+  roleId: string
+  actionId: string
+  text: string
+  generatedAt: string
+}
+
+type StateIdentity = {
+  schemaVersion: 1
   storyId: string
   seed: string
-  phase: GamePhase
-  paused: boolean
+}
+
+export type IdleGameState = StateIdentity & {
+  phase: 'idle'
+}
+
+export type EnrollingGameState = StateIdentity & {
+  phase: 'enrolling'
+  id: string
+  createdAt: string
+  setup: SetupDraft
+}
+
+export type PreparedGameState = StateIdentity & {
+  phase: 'prepared'
+  id: string
+  createdAt: string
+  preparedAt: string
   hostName: string
   roster: Record<string, Controller>
+  deliveries: Record<string, DeliveryRecord>
+}
+
+export type ActiveGameState = StateIdentity & {
+  phase: 'active'
+  id: string
+  createdAt: string
+  preparedAt: string
+  startedAt: string
+  hostName: string
+  roster: Record<string, Controller>
+  deliveries: Record<string, DeliveryRecord>
+  playPhase: PlayPhase
+  paused: boolean
   completedBeatIds: string[]
   revealedEvidenceIds: string[]
   accusation: Accusation
-  startedAt: string
-  completedAt?: string
+  aiPerformances: Record<string, AiPerformanceRecord>
+}
+
+export type CompletedGameState = Omit<ActiveGameState, 'phase' | 'paused'> & {
+  phase: 'completed'
+  paused: false
+  completedAt: string
+}
+
+export type AbortedGameState = StateIdentity & {
+  phase: 'aborted'
+  id: string
+  createdAt: string
+  hostName: string
+  abortedAt: string
+  previousPhase: Exclude<GameLifecyclePhase, 'idle' | 'aborted'>
+}
+
+export type ExistingGameState = EnrollingGameState | PreparedGameState | ActiveGameState | CompletedGameState | AbortedGameState
+export type GameState = IdleGameState | ExistingGameState
+
+export type RuntimeCapabilities = {
+  aiControllers: boolean
 }

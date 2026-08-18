@@ -1,0 +1,32 @@
+{
+  "id": "le-carnet-bleu",
+  "version": "0.1.0",
+  "name": "Le Carnet Bleu",
+  "description": "A six-person live French espionage murder mystery with one host and five suspect seats.",
+  "aliases": ["carnet bleu", "the blue notebook", "blue notebook"],
+  "players": {
+    "minHumans": 2,
+    "maxHumans": 5,
+    "gameSeats": 5,
+    "hostRequired": true
+  },
+  "requiredHostCapabilities": ["state_persistence"],
+  "optionalHostCapabilities": ["private_messaging", "ai_controllers"],
+  "lifecycle": ["idle", "enrolling", "prepared", "active", "completed", "aborted"],
+  "commands": [
+    { "name": "replace_enrolment", "description": "Replace the editable host, seats and venue proof.", "allowedPhases": ["enrolling"], "payload": { "setup": "SetupDraft" } },
+    { "name": "prepare", "description": "Lock the roster and create unsent delivery records.", "allowedPhases": ["enrolling"], "payload": {} },
+    { "name": "request_delivery", "description": "Queue one private dossier.", "allowedPhases": ["prepared"], "payload": { "roleId": "string" } },
+    { "name": "begin_delivery", "description": "Record that a queued delivery attempt began.", "allowedPhases": ["prepared"], "payload": { "roleId": "string" } },
+    { "name": "record_delivery", "description": "Apply a confirmed delivery result.", "allowedPhases": ["prepared"], "payload": { "roleId": "string", "ok": "boolean", "receipt": "string?", "error": "string?" } },
+    { "name": "start", "description": "Start play after every human dossier is confirmed delivered.", "allowedPhases": ["prepared"], "payload": {} },
+    { "name": "record_ai_performance", "description": "Persist the bounded output produced for one AI-controlled authored action.", "allowedPhases": ["active"], "payload": { "roleId": "string", "actionId": "string", "text": "string" } },
+    { "name": "confirm_beat", "description": "Confirm an authored live beat.", "allowedPhases": ["active"], "payload": { "beatId": "string" } },
+    { "name": "start_blackout", "description": "Advance from dinner to blackout.", "allowedPhases": ["active"], "payload": {} },
+    { "name": "start_investigation", "description": "Advance from blackout to investigation.", "allowedPhases": ["active"], "payload": {} },
+    { "name": "toggle_evidence", "description": "Mark evidence as surfaced or withdrawn.", "allowedPhases": ["active"], "payload": { "evidenceId": "string" } },
+    { "name": "accuse", "description": "Record the table accusation.", "allowedPhases": ["active"], "payload": { "culprit": "string", "motive": "string", "chain": "string" } },
+    { "name": "reveal", "description": "Lock the accusation and enter the canonical reveal.", "allowedPhases": ["active"], "payload": {} },
+    { "name": "complete", "description": "Complete the revealed game.", "allowedPhases": ["active"], "payload": {} }
+  ]
+}

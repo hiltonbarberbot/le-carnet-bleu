@@ -6,6 +6,7 @@ export function validateStory(story: Story): string[] {
   const actionIds = new Set<string>()
   const evidenceIds = new Set(story.publicEvidence.map(item => item.id))
   const runBeatIds = new Set<string>()
+  const declaredRunBeatIds = new Set(story.runPlan.map(beat => beat.id))
 
   if (story.totalPeople !== story.characters.length + 1) {
     errors.push(`story requires ${story.characters.length} guests plus one host, but totalPeople is ${story.totalPeople}`)
@@ -18,6 +19,9 @@ export function validateStory(story: Story): string[] {
     for (const memory of character.memories) {
       if (evidenceIds.has(memory.id)) errors.push(`duplicate evidence id ${memory.id}`)
       evidenceIds.add(memory.id)
+      if (memory.availableAfter && !declaredRunBeatIds.has(memory.availableAfter)) {
+        errors.push(`memory ${memory.id} unlocks after missing run-plan beat ${memory.availableAfter}`)
+      }
     }
 
     for (const action of character.actions) {
