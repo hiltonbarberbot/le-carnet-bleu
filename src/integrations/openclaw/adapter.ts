@@ -10,7 +10,6 @@ export type OpenClawCapabilities = RuntimeCapabilities & {
 export type ChatParticipant = {
   id: string
   displayName: string
-  privateAddress?: string
 }
 
 export type ChatRequest = {
@@ -62,23 +61,12 @@ function conversationKey(request: Pick<ChatRequest, 'channel' | 'conversationId'
   return `${request.channel}:${request.conversationId}`
 }
 
-function participantAddress(channel: string, participant: ChatParticipant) {
-  return participant.privateAddress?.trim() || `${channel}:${participant.id.trim()}`
-}
-
-function uniqueParticipants(channel: string, participants: ChatParticipant[]): GameParticipant[] {
-  const ids = new Set<string>()
-  const addresses = new Set<string>()
+function mentionedParticipants(participants: ChatParticipant[]): GameParticipant[] {
   return participants.map(participant => {
     const id = participant.id.trim()
     const displayName = participant.displayName.trim()
-    const privateAddress = participantAddress(channel, participant)
     if (!id || !displayName) throw new Error('Every mentioned participant needs a stable id and display name.')
-    if (ids.has(id)) throw new Error(`Participant ${displayName} was mentioned more than once.`)
-    if (addresses.has(privateAddress)) throw new Error(`Participant ${displayName} does not have a distinct private address.`)
-    ids.add(id)
-    addresses.add(privateAddress)
-    return { id, displayName, privateAddress }
+    return { displayName }
   })
 }
 
@@ -103,7 +91,7 @@ export function createOpenClawGameAdapter(options: OpenClawAdapterOptions) {
   const installed = discoverGames(options.runtimes)
 
   function listGames() {
-    return installed.map(({ manifest, runtime }) => `${manifest.name}: ${runtime.authoredGame.storyTitle} (${runtime.authoredGame.definitionId}) · ${runtime.authoredGame.setting.venueName} · ${manifest.players.minHumans}–${manifest.players.maxHumans} human guests`).join('\n')
+    return installed.map(({ manifest, runtime }) => `${manifest.name}: ${runtime.authoredGame.storyTitle} (${runtime.authoredGame.definitionId}) · ${runtime.authoredGame.setting.venueName} · ${manifest.roles.suspects} assignable suspect roles`).join('\n')
   }
 
   function bindingFor(request: ChatRequest) {
@@ -179,12 +167,10 @@ export function createOpenClawGameAdapter(options: OpenClawAdapterOptions) {
       const missing = capabilityErrors(runtime, options.capabilities)
       if (missing.length) return { ok: false, gameId: runtime.manifest.id, messages: [`${runtime.manifest.name} is incompatible with this OpenClaw host. Missing: ${missing.join(', ')}.`] }
 
-      const participants = uniqueParticipants(request.channel, request.mentions ?? [])
+      const participants = mentionedParticipants(request.mentions ?? [])
       const result = runtime.createSession({
         host: {
-          id: request.sender.id,
           displayName: request.sender.displayName,
-          privateAddress: participantAddress(request.channel, request.sender),
         },
         participants,
         allowAiFallback: options.capabilities.aiControllers,

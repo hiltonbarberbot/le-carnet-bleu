@@ -43,12 +43,6 @@ describe('generic OpenClaw game adapter', () => {
     expect(advanced.state?.phase).toBe('prepared')
     if (advanced.state?.phase !== 'prepared') throw new Error('Expected prepared')
     expect(Object.values(advanced.state.roster).filter(controller => controller.kind === 'human')).toHaveLength(2)
-    const humanRoleIds = Object.keys(advanced.state.deliveries).filter(roleId => advanced.state?.phase === 'prepared' && advanced.state.deliveries[roleId].status === 'not_requested')
-    for (const roleId of humanRoleIds) {
-      advanced = adapter.handle({ channel: 'whatsapp', conversationId: 'game-group', text: 'queue', sender, command: { name: 'request_delivery', payload: { roleId } } })
-      advanced = adapter.handle({ channel: 'whatsapp', conversationId: 'game-group', text: 'send', sender, command: { name: 'begin_delivery', payload: { roleId } } })
-      advanced = adapter.handle({ channel: 'whatsapp', conversationId: 'game-group', text: 'delivered', sender, command: { name: 'record_delivery', payload: { roleId, ok: true, receipt: `whatsapp:${roleId}` } } })
-    }
     advanced = adapter.handle({ channel: 'whatsapp', conversationId: 'game-group', text: 'start', sender, command: { name: 'start' } })
     expect(advanced).toMatchObject({ ok: true, state: { phase: 'active', playPhase: 'opening' } })
   })
@@ -65,7 +59,7 @@ describe('generic OpenClaw game adapter', () => {
     expect(selected).toMatchObject({ ok: true, gameId: gameManifest.id })
   })
 
-  it('normalizes participant identity before deriving a private address', () => {
+  it('keeps only normalized display names in role assignments', () => {
     const adapter = createOpenClawGameAdapter({
       runtimes: [demoRuntime('normalized-participants')],
       store: createMemoryChatSessionStore(),
@@ -81,7 +75,7 @@ describe('generic OpenClaw game adapter', () => {
     })
     expect(response.state?.phase).toBe('enrolling')
     if (response.state?.phase !== 'enrolling') throw new Error('Expected enrolling')
-    expect(response.state.setup.seats[0]).toMatchObject({ participantId: 'alice', privateAddress: 'whatsapp:alice' })
+    expect(response.state.setup.seats[0]).toEqual({ roleId: response.state.setup.seats[0].roleId, humanName: 'Alice' })
   })
 
   it('returns precise installation and compatibility errors', () => {

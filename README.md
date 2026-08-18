@@ -1,6 +1,6 @@
 # Setting-aware live mystery engine
 
-A setting-aware live dinner-party murder mystery system with one host role and five suspect roles. At setup, the host chooses how many people are playing; AI can perform the remaining suspect roles.
+A setting-aware live dinner-party murder mystery system with one host role and five suspect roles. At setup, the host may add names to any roles, leave roles unassigned, or reuse a name; the app does not infer a real-world headcount.
 
 The repository includes one Maison Bleue demo story and seven validated 1960s Grambois spy mysteries, but none is universal canon. A real run begins by learning the actual venue, usable spaces, safe routes, props, tone, accessibility needs, and content boundaries. The fictional gathering and invitations are generated with the story. Only then should a human or agent draft the mystery.
 
@@ -46,16 +46,16 @@ The game opens with one short authored incident, then gets out of the players’
 
 ## What is actually implemented
 
-- Five private dossiers with traits, variable relationships, secrets, three scored objectives, live instructions, and distinct human or AI controllers
+- Five private dossiers with traits, variable relationships, secrets, three scored objectives, live instructions, and optional name labels or AI controllers
 - One explicit host/victim role and a complete host-only truth and clue-inventory view
 - A validated, connected social and evidence graph plus one dependency-aware, setting-specific cold open before free play
 - Two setting-derived clue decks with five deterministic private clues, ten starting tokens per player, trades, and host pacing controls
 - Player-called accusation hearings with a case, defense, open statements, a public vote, and a strict-majority conviction threshold
 - Objective, token, accusation, vote, and culprit-escape scoring with separate overall, performance, and costume awards
 - One persisted lifecycle: `idle → enrolling → prepared → active → completed | aborted`
-- A delivery state machine: `not_requested → queued → sending → delivered | failed`
-- Hard gates for definition fingerprint, roster identity, private addresses, setting-derived setup, confirmed dossier delivery, causal beats, fair-play evidence, and accusation outcomes
-- Explicit, confirmed reset back to true idle; constructors and reloads never fabricate assignments, deliveries, feed entries, or timestamps
+- Direct role-specific dossier/PDF actions with no fabricated account identity, address, receipt, or delivery claim
+- Hard gates for definition fingerprint, setting-derived setup, causal beats, fair-play evidence, and accusation outcomes
+- Explicit, confirmed reset back to true idle; constructors and reloads never fabricate assignments, feed entries, or timestamps
 - Optional, fail-closed Vercel AI Gateway controllers assigned only at `prepare`, after humans have had the entire enrolment window
 
 The intended table rhythm follows the durable party-game architecture: private packets first, a brief murder setup, then one to three hours of player-led conversation. There are no guided acts after the body is discovered. The host keeps time, sells clues, arbitrates subjective objectives, and runs a hearing only when a player calls one.
@@ -64,7 +64,7 @@ AI output is restricted to a short line for an authored role action. It cannot i
 
 ## Portable game contract
 
-[`game.manifest.json`](./game.manifest.json) exposes the setting-first authoring questions and workflow alongside stable identity, aliases, human-player constraints, host capabilities, lifecycle phases, commands, and payload shapes without importing OpenClaw or WhatsApp.
+[`game.manifest.json`](./game.manifest.json) exposes the setting-first authoring questions and workflow alongside stable product identity, aliases, role slots, host capabilities, lifecycle phases, commands, and payload shapes without importing OpenClaw or WhatsApp.
 
 The `./game` package export provides a functional runtime:
 
@@ -74,10 +74,10 @@ import { createDemoStoryline, createGameRuntime, discoverGames } from 'le-carnet
 const runtime = createGameRuntime(createDemoStoryline())
 const installed = discoverGames([runtime])
 const created = runtime.createSession({
-  host: { id: 'host', displayName: 'Host', privateAddress: 'local:host' },
+  host: { displayName: 'Host' },
   participants: [
-    { id: 'alice', displayName: 'Alice', privateAddress: 'local:alice' },
-    { id: 'bob', displayName: 'Bob', privateAddress: 'local:bob' },
+    { displayName: 'Alice' },
+    { displayName: 'Bob' },
   ],
   allowAiFallback: true,
 }, { capabilities: { aiControllers: true } })
@@ -91,7 +91,7 @@ The `./openclaw` export is a generic adapter over any `PortableGameRuntime`; it 
 
 - enumerates installed manifests;
 - resolves explicit selection or a channel/conversation binding;
-- retains mentioned chat humans as distinct participant identities and private addresses;
+- copies mentioned display names into editable role labels without treating chat metadata as game identity;
 - persists one serialized runtime state per conversation;
 - passes structured game commands through the portable interface;
 - renders runtime events back to the channel; and

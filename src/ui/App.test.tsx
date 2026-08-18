@@ -3,18 +3,15 @@ import { describe, expect, it } from 'vitest'
 import { createDemoGame } from '../game/demo'
 import {
   advanceAct,
-  beginDelivery,
   confirmRunBeat,
   createGame,
   createIdleState,
   prepareGame,
-  recordDeliveryOutcome,
-  requestDelivery,
   resetGame,
   startGame,
   updateEnrolment,
 } from '../game/session/lifecycle'
-import type { ExistingGameState, GameState, PreparedGameState } from '../game/types'
+import type { ExistingGameState, GameState } from '../game/types'
 import { bindGameToStoryline } from './library/storage'
 import { ActiveGameBar, getHostScreen, HostWorkspace, PlayerProfile, StartScreen } from './App'
 import { GodView } from './story/reader'
@@ -26,9 +23,8 @@ const noAi = { aiControllers: false }
 function enrolling() {
   let state = createGame(definition, new Date('2026-08-18T10:00:00Z'), 'ui-game')
   state = updateEnrolment(state, {
-    peoplePlaying: 6,
     hostName: 'Host',
-    seats: state.setup.seats.map((seat, index) => ({ ...seat, participantId: `p${index}`, humanName: `Player ${index}`, privateAddress: `private:${index}`, ready: true })),
+    seats: state.setup.seats.map((seat, index) => ({ ...seat, humanName: `Player ${index}` })),
     venue: Object.fromEntries(definition.setupRequirements.map(check => [check.id, true])),
   })
   return state
@@ -45,48 +41,35 @@ function render(state: GameState, capabilities = noAi) {
   />)
 }
 
-function deliverAll(state: PreparedGameState) {
-  let next = state
-  for (const roleId of Object.keys(next.deliveries)) {
-    if (next.deliveries[roleId].status === 'not_required') continue
-    next = requestDelivery(next, roleId)
-    next = beginDelivery(next, roleId)
-    next = recordDeliveryOutcome(next, roleId, { ok: true, receipt: `receipt:${roleId}` })
-  }
-  return next
-}
-
 describe('host lifecycle projection', () => {
   it('renders first load as idle with create but no reset action', () => {
     const html = render(createIdleState(definition))
     expect(html).toContain('READY FOR MAISON BLEUE DEMO HOUSE')
-    expect(html).toContain('How many people are playing?')
-    expect(html).toContain('Choose the group size')
+    expect(html).toContain('Assign names, then open the dossiers')
+    expect(html).toContain('No assumed headcount')
     expect(html).not.toContain('Reset game')
   })
 
-  it('asks for the number of people before showing enrolment', () => {
+  it('asks only for optional assignment labels before showing dossier links', () => {
     const html = render(createGame(definition, new Date('2026-08-18T10:00:00Z'), 'partial'))
-    expect(html).toContain('SETUP')
-    expect(html).toContain('How many people are playing?')
-    expect(html).not.toContain('Name the host')
+    expect(html).toContain('ROLE ASSIGNMENTS')
+    expect(html).toContain('Assigned name (optional)')
+    expect(html).toContain('Open dossier / PDF')
+    expect(html).not.toContain('Private handoff')
+    expect(html).not.toContain('How many people')
   })
 
-  it('renders prepared-but-unsent and failed delivery distinctly', () => {
-    let prepared = prepareGame(definition, enrolling(), noAi)
-    expect(render(prepared)).toContain('waiting')
-    const roleId = story.characters[0].id
-    prepared = requestDelivery(prepared, roleId)
-    prepared = beginDelivery(prepared, roleId)
-    prepared = recordDeliveryOutcome(prepared, roleId, { ok: false, error: 'No route' })
-    const failed = render(prepared)
-    expect(failed).toContain('failed')
-    expect(failed).toContain('No route')
-    expect(failed).toContain('START BLOCKED')
+  it('links assignment labels directly to dossiers without delivery claims', () => {
+    const prepared = prepareGame(definition, enrolling(), noAi)
+    const html = render(prepared)
+    expect(html).toContain('Player 0')
+    expect(html).toContain('Open / save PDF')
+    expect(html).not.toContain('waiting')
+    expect(html).not.toContain('Mark received')
   })
 
   it('renders active play and reset-to-idle as separate states', () => {
-    const active = startGame(definition, deliverAll(prepareGame(definition, enrolling(), noAi)))
+    const active = startGame(definition, prepareGame(definition, enrolling(), noAi))
     expect(getHostScreen(active)).toBe('active:opening')
     expect(render(active)).toContain('The last recording')
     const idle = resetGame(definition, active, true)
@@ -99,19 +82,18 @@ describe('host lifecycle projection', () => {
     const aiRole = story.characters[0].id
     const withVacancy = updateEnrolment(state, {
       ...state.setup,
-      peoplePlaying: 5,
       seats: state.setup.seats.map(seat => seat.roleId === aiRole
-        ? { ...seat, participantId: '', humanName: '', privateAddress: '', ready: false, allowAiFallback: true }
+        ? { ...seat, humanName: '', allowAiFallback: true }
         : seat),
     })
-    const active = startGame(definition, deliverAll(prepareGame(definition, withVacancy, { aiControllers: true })))
+    const active = startGame(definition, prepareGame(definition, withVacancy, { aiControllers: true }))
     const html = render(active, { aiControllers: true })
     expect(html).toContain('Generate AI line')
     expect(html).toContain('AI performance required')
   })
 
   it('turns investigation into three visible social steps without private ballots', () => {
-    let active = startGame(definition, deliverAll(prepareGame(definition, enrolling(), noAi)))
+    let active = startGame(definition, prepareGame(definition, enrolling(), noAi))
     for (const act of definition.acts) {
       for (const beat of story.runPlan.filter(item => item.phase === act.id && item.essential)) active = confirmRunBeat(definition, active, beat.id)
       active = advanceAct(definition, active)

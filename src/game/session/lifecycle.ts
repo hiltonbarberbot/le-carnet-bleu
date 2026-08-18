@@ -2,7 +2,6 @@ import type {
   AccusationVote,
   ActiveGameState,
   Controller,
-  DeliveryRecord,
   EnrollingGameState,
   ExistingGameState,
   GameState,
@@ -37,15 +36,10 @@ export const browserCapabilities: RuntimeCapabilities = {
 export function createSetupDraft(definition: GameDefinition): SetupDraft {
   const { story } = definition
   return {
-    peoplePlaying: undefined,
     hostName: '',
     seats: story.characters.map<SeatDraft>(character => ({
       roleId: character.id,
-      participantId: '',
       humanName: '',
-      privateAddress: '',
-      ready: false,
-      allowAiFallback: false,
     })),
     venue: Object.fromEntries(definition.setupRequirements.map(check => [check.id, false])),
   }
@@ -72,20 +66,8 @@ export function updateEnrolment(state: EnrollingGameState, setup: SetupDraft): E
 export function getSetupBlockers(definition: GameDefinition, setup: SetupDraft, capabilities: RuntimeCapabilities): string[] {
   const { story } = definition
   const blockers: string[] = []
-  if (typeof setup.peoplePlaying !== 'number' || !Number.isInteger(setup.peoplePlaying)) {
-    blockers.push('How many people are playing?')
-  } else if (setup.peoplePlaying < 3 || setup.peoplePlaying > story.characters.length + 1) {
-    blockers.push(`Choose between 3 and ${story.characters.length + 1} people, including the host.`)
-  } else {
-    const humanGuestSeats = setup.seats.filter(seat => !seat.allowAiFallback).length
-    if (humanGuestSeats !== setup.peoplePlaying - 1) {
-      blockers.push(`${setup.peoplePlaying} people means ${setup.peoplePlaying - 1} human guest roles plus the host.`)
-    }
-  }
   if (!setup.hostName.trim()) blockers.push(`The host for “${story.hostRole}” has not been named.`)
 
-  const participantIds = new Set<string>()
-  const addresses = new Set<string>()
   for (const character of story.characters) {
     const seat = setup.seats.find(item => item.roleId === character.id)
     if (!seat) {
@@ -93,20 +75,7 @@ export function getSetupBlockers(definition: GameDefinition, setup: SetupDraft, 
       continue
     }
 
-    if (seat.humanName.trim()) {
-      if (!seat.participantId.trim()) blockers.push(`${seat.humanName.trim()} has no stable participant identity.`)
-      if (!seat.privateAddress.trim()) blockers.push(`${seat.humanName.trim()} has no private delivery address.`)
-      if (!seat.ready) blockers.push(`${seat.humanName.trim()} has not confirmed readiness for ${character.name}.`)
-      if (seat.participantId.trim() && participantIds.has(seat.participantId.trim())) blockers.push(`${seat.humanName.trim()} duplicates another participant identity.`)
-      if (seat.privateAddress.trim() && addresses.has(seat.privateAddress.trim())) blockers.push(`${seat.humanName.trim()} duplicates another private delivery address.`)
-      participantIds.add(seat.participantId.trim())
-      addresses.add(seat.privateAddress.trim())
-      continue
-    }
-
-    if (!seat.allowAiFallback) {
-      blockers.push(`${character.name} has no ready human and no fallback permission.`)
-    } else if (!capabilities.aiControllers) {
+    if (seat.allowAiFallback && !capabilities.aiControllers) {
       blockers.push(`${character.name} would require AI fallback, but this host has no AI controller runtime.`)
     }
   }
@@ -130,27 +99,22 @@ export function prepareGame(
 
   const roster = Object.fromEntries(story.characters.map(character => {
     const seat = state.setup.seats.find(item => item.roleId === character.id)!
-    const controller: Controller = seat.humanName.trim()
+    const controller: Controller = seat.allowAiFallback
       ? {
-          kind: 'human',
-          participantId: seat.participantId.trim(),
-          displayName: seat.humanName.trim(),
-          privateAddress: seat.privateAddress.trim(),
-        }
-      : {
           kind: 'ai',
           displayName: `AI · ${character.name}`,
           physicalProxy: state.setup.hostName.trim(),
         }
+      : seat.humanName.trim()
+      ? {
+          kind: 'human',
+          displayName: seat.humanName.trim(),
+        }
+      : {
+          kind: 'unassigned',
+          displayName: 'Unassigned',
+        }
     return [character.id, controller]
-  }))
-
-  const deliveries = Object.fromEntries(story.characters.map(character => {
-    const controller = roster[character.id]
-    const delivery: DeliveryRecord = controller.kind === 'human'
-      ? { roleId: character.id, address: controller.privateAddress, status: 'not_requested', attempts: 0 }
-      : { roleId: character.id, status: 'not_required', attempts: 0 }
-    return [character.id, delivery]
   }))
 
   return {
@@ -164,68 +128,10 @@ export function prepareGame(
     preparedAt: now.toISOString(),
     hostName: state.setup.hostName.trim(),
     roster,
-    deliveries,
   }
-}
-
-function updateDelivery(state: PreparedGameState, roleId: string, record: DeliveryRecord): PreparedGameState {
-  if (!state.deliveries[roleId]) throw new Error(`No delivery exists for role ${roleId}.`)
-  return { ...state, deliveries: { ...state.deliveries, [roleId]: record } }
-}
-
-export function requestDelivery(state: PreparedGameState, roleId: string, now = new Date()): PreparedGameState {
-  const delivery = state.deliveries[roleId]
-  if (!delivery) throw new Error(`No delivery exists for role ${roleId}.`)
-  if (delivery.status !== 'not_requested' && delivery.status !== 'failed') {
-    throw new Error(`Delivery for ${roleId} cannot be queued from ${delivery.status}.`)
-  }
-  return updateDelivery(state, roleId, {
-    roleId,
-    address: delivery.address,
-    status: 'queued',
-    attempts: delivery.attempts + 1,
-    requestedAt: now.toISOString(),
-  })
-}
-
-export function beginDelivery(state: PreparedGameState, roleId: string, now = new Date()): PreparedGameState {
-  const delivery = state.deliveries[roleId]
-  if (!delivery || delivery.status !== 'queued') throw new Error(`Delivery for ${roleId} can begin only from queued.`)
-  return updateDelivery(state, roleId, { ...delivery, status: 'sending', sendingAt: now.toISOString() })
-}
-
-export type DeliveryOutcome =
-  | { ok: true; receipt: string }
-  | { ok: false; error: string }
-
-export function recordDeliveryOutcome(
-  state: PreparedGameState,
-  roleId: string,
-  outcome: DeliveryOutcome,
-  now = new Date(),
-): PreparedGameState {
-  const delivery = state.deliveries[roleId]
-  if (!delivery || delivery.status !== 'sending') throw new Error(`Delivery for ${roleId} can finish only from sending.`)
-  if (outcome.ok && !outcome.receipt.trim()) throw new Error('A confirmed delivery requires a non-empty receipt.')
-  if (!outcome.ok && !outcome.error.trim()) throw new Error('A failed delivery requires an error.')
-  return updateDelivery(state, roleId, outcome.ok
-    ? { ...delivery, status: 'delivered', deliveredAt: now.toISOString(), receipt: outcome.receipt.trim() }
-    : { ...delivery, status: 'failed', failedAt: now.toISOString(), error: outcome.error.trim() })
-}
-
-export function getStartBlockers(definition: GameDefinition, state: PreparedGameState): string[] {
-  const { story } = definition
-  return story.characters.flatMap(character => {
-    const delivery = state.deliveries[character.id]
-    return delivery?.status === 'delivered' || delivery?.status === 'not_required'
-      ? []
-      : [`${character.name} dossier is ${delivery?.status ?? 'missing'}.`]
-  })
 }
 
 export function startGame(definition: GameDefinition, state: PreparedGameState, now = new Date()): ActiveGameState {
-  const blockers = getStartBlockers(definition, state)
-  if (blockers.length) throw new Error(blockers.join('\n'))
   return {
     ...state,
     phase: 'active',

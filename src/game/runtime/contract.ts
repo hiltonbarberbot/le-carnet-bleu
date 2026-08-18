@@ -2,9 +2,7 @@ import type { GameState, RuntimeCapabilities } from '../types'
 import type { SettingBrief } from '../setting/contract'
 
 export type GameParticipant = {
-  id: string
   displayName: string
-  privateAddress: string
 }
 
 export type RuntimeContext = {
@@ -25,9 +23,8 @@ export type GameCommand = {
 }
 
 export type RuntimeEvent = {
-  type: 'session_created' | 'state_changed' | 'delivery_requested' | 'delivery_finished' | 'error'
+  type: 'session_created' | 'state_changed' | 'error'
   message: string
-  privateAddress?: string
 }
 
 export type RuntimeResult<State> = {
@@ -48,10 +45,8 @@ export type GameManifest = {
   name: string
   description: string
   aliases: string[]
-  players: {
-    minHumans: number
-    maxHumans: number
-    gameSeats: number
+  roles: {
+    suspects: number
     hostRequired: boolean
   }
   requiredHostCapabilities: string[]

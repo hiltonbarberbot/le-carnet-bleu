@@ -2,15 +2,12 @@ import { describe, expect, it } from 'vitest'
 import {
   advanceAct,
   advanceHearing,
-  beginDelivery,
   callAccusation,
   castVote,
   completeGame,
   confirmRunBeat,
   createGame,
   prepareGame,
-  recordDeliveryOutcome,
-  requestDelivery,
   startGame,
   toggleEvidence,
   updateEnrolment,
@@ -180,23 +177,14 @@ describe('setting-specific game definitions', () => {
 
     let enrolling = createGame(definition, new Date('2026-08-18T17:00:00Z'), 'gallery-session')
     enrolling = updateEnrolment(enrolling, {
-      peoplePlaying: 6,
       hostName: 'Host',
       seats: enrolling.setup.seats.map((seat, index) => ({
         ...seat,
-        participantId: `gallery-human-${index}`,
         humanName: `Player ${index + 1}`,
-        privateAddress: `private:gallery:${index}`,
-        ready: true,
       })),
       venue: Object.fromEntries(definition.setupRequirements.map(requirement => [requirement.id, true])),
     })
     let prepared = prepareGame(definition, enrolling, { aiControllers: false })
-    for (const roleId of Object.keys(prepared.deliveries)) {
-      prepared = requestDelivery(prepared, roleId)
-      prepared = beginDelivery(prepared, roleId)
-      prepared = recordDeliveryOutcome(prepared, roleId, { ok: true, receipt: `gallery:${roleId}` })
-    }
     let active = startGame(definition, prepared)
     expect(active.playPhase).toBe('opening')
     active = confirmRunBeat(definition, active, 'gallery-welcome')

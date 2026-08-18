@@ -1,8 +1,7 @@
-import { gameManifest, productNaming } from '../../product/naming.js'
+import { gameManifest } from '../../product/naming.js'
 import {
   advanceAct,
   advanceHearing,
-  beginDelivery,
   buyClue,
   callAccusation,
   castVote,
@@ -15,8 +14,6 @@ import {
   prepareGame,
   recordAward,
   recordAiPerformance,
-  recordDeliveryOutcome,
-  requestDelivery,
   setObjectiveCompleted,
   startGame,
   toggleEvidence,
@@ -56,23 +53,21 @@ function changed(state: GameState, message: string, event?: RuntimeEvent): { sta
   return { state, events: [event ?? { type: 'state_changed', message }] }
 }
 
-function enrolParticipants(state: EnrollingGameState, participants: { id: string; displayName: string; privateAddress: string }[], allowAiFallback: boolean) {
-  const ids = new Set<string>()
-  const addresses = new Set<string>()
+function enrolParticipants(state: EnrollingGameState, participants: { displayName: string }[], allowAiFallback: boolean) {
   for (const participant of participants) {
-    if (!participant.id.trim() || !participant.displayName.trim() || !participant.privateAddress.trim()) throw new Error('Every participant requires id, displayName and privateAddress.')
-    if (ids.has(participant.id) || addresses.has(participant.privateAddress)) throw new Error('Participants and private addresses must be distinct.')
-    ids.add(participant.id)
-    addresses.add(participant.privateAddress)
+    if (!participant.displayName.trim()) throw new Error('Every assigned participant requires a display name.')
   }
   if (participants.length > state.setup.seats.length) throw new Error(`This game has only ${state.setup.seats.length} guest seats.`)
   const seats = state.setup.seats.map((seat, index) => {
     const participant = participants[index]
     return participant
-      ? { ...seat, participantId: participant.id, humanName: participant.displayName, privateAddress: participant.privateAddress, ready: true }
+      ? {
+          ...seat,
+          humanName: participant.displayName.trim(),
+        }
       : { ...seat, allowAiFallback }
   })
-  return updateEnrolment(state, { ...state.setup, peoplePlaying: participants.length + 1, seats })
+  return updateEnrolment(state, { ...state.setup, seats })
 }
 
 export function createGameRuntime(authoredGame: AuthoredStoryline): PortableGameRuntime {
@@ -87,13 +82,10 @@ export function createGameRuntime(authoredGame: AuthoredStoryline): PortableGame
       storyTitle: definition.story.title,
     },
     createSession(request, context) {
-      if (request.participants.length < gameManifest.players.minHumans) {
-        throw new Error(`${productNaming.name} requires at least ${gameManifest.players.minHumans} human guest participants.`)
-      }
       let state = createGame(definition, context.now, context.createId?.())
       state = updateEnrolment(state, { ...state.setup, hostName: request.host.displayName.trim() })
       state = enrolParticipants(state, request.participants, Boolean(request.allowAiFallback))
-      return { state, events: [{ type: 'session_created', message: `Created ${state.id} with ${request.participants.length} distinct human participants.` }] }
+      return { state, events: [{ type: 'session_created', message: `Created ${state.id} with ${request.participants.length} supplied role labels.` }] }
     },
     handleInput(state, command, context) {
       switch (command.name) {
@@ -103,24 +95,7 @@ export function createGameRuntime(authoredGame: AuthoredStoryline): PortableGame
           return changed(updateEnrolment(expectPhase(state, 'enrolling'), setup as SetupDraft), 'Enrolment updated.')
         }
         case 'prepare':
-          return changed(prepareGame(definition, expectPhase(state, 'enrolling'), context.capabilities, context.now), 'Roster prepared; no delivery has been attempted.')
-        case 'request_delivery': {
-          const roleId = payloadString(command, 'roleId')
-          const next = requestDelivery(expectPhase(state, 'prepared'), roleId, context.now)
-          return changed(next, `Queued dossier for ${roleId}.`, { type: 'delivery_requested', message: `Queue dossier for ${roleId}.`, privateAddress: next.deliveries[roleId].address })
-        }
-        case 'begin_delivery':
-          return changed(beginDelivery(expectPhase(state, 'prepared'), payloadString(command, 'roleId'), context.now), 'Delivery attempt started.')
-        case 'record_delivery': {
-          const prepared = expectPhase(state, 'prepared')
-          const roleId = payloadString(command, 'roleId')
-          const ok = command.payload?.ok
-          if (typeof ok !== 'boolean') throw new Error('record_delivery requires ok.')
-          const next = recordDeliveryOutcome(prepared, roleId, ok
-            ? { ok: true, receipt: payloadString(command, 'receipt') }
-            : { ok: false, error: payloadString(command, 'error') }, context.now)
-          return changed(next, `Delivery for ${roleId} is ${next.deliveries[roleId].status}.`, { type: 'delivery_finished', message: `Delivery for ${roleId} is ${next.deliveries[roleId].status}.` })
-        }
+          return changed(prepareGame(definition, expectPhase(state, 'enrolling'), context.capabilities, context.now), 'Role assignments prepared.')
         case 'start':
           return changed(startGame(definition, expectPhase(state, 'prepared'), context.now), 'Game started.')
         case 'record_ai_performance':
@@ -139,8 +114,7 @@ export function createGameRuntime(authoredGame: AuthoredStoryline): PortableGame
           const next = buyClue(definition, active, roleId, payloadString(command, 'deckId'))
           const clueId = next.ownedClueIds[roleId].at(-1)!
           const clue = definition.clueDecks.flatMap(deck => deck.clues).find(item => item.id === clueId)!
-          const controller = next.roster[roleId]
-          return changed(next, `Clue purchased for ${roleId}.`, { type: 'state_changed', message: clue.text, privateAddress: controller.kind === 'human' ? controller.privateAddress : undefined })
+          return changed(next, `Clue purchased for ${roleId}.`, { type: 'state_changed', message: clue.text })
         }
         case 'transfer_tokens':
           return changed(transferTokens(expectPhase(state, 'active'), payloadString(command, 'fromRoleId'), payloadString(command, 'toRoleId'), payloadNumber(command, 'amount')), 'Tokens transferred.')

@@ -43,9 +43,6 @@ function restoreStateObject(definition: GameDefinition, value: unknown): GameSta
     if (seats.length !== roleIds.size || seats.some(seat => !isRecord(seat) || !roleIds.has(String(seat.roleId)))) {
       throw new Error('Stored enrolment does not contain exactly the story roles.')
     }
-    if (setup.peoplePlaying !== undefined && !Number.isInteger(setup.peoplePlaying)) {
-      throw new Error('Stored enrolment has invalid peoplePlaying.')
-    }
     return value as GameState
   }
 
@@ -58,16 +55,9 @@ function restoreStateObject(definition: GameDefinition, value: unknown): GameSta
 
   requireString(value, 'preparedAt')
   requireRecord(value, 'roster')
-  requireRecord(value, 'deliveries')
   const roster = value.roster as Record<string, unknown>
-  const deliveries = value.deliveries as Record<string, unknown>
   for (const character of definition.story.characters) {
     if (!isRecord(roster[character.id])) throw new Error(`Stored roster is missing ${character.id}.`)
-    if (!isRecord(deliveries[character.id])) throw new Error(`Stored deliveries are missing ${character.id}.`)
-    const delivery = deliveries[character.id] as Record<string, unknown>
-    if (!['not_required', 'not_requested', 'queued', 'sending', 'delivered', 'failed'].includes(String(delivery.status))) {
-      throw new Error(`Stored delivery for ${character.id} has invalid status.`)
-    }
   }
   if (phase === 'prepared') return value as GameState
 

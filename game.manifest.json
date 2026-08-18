@@ -2,16 +2,14 @@
   "id": "le-carnet-bleu",
   "version": "0.5.0",
   "name": "Le Carnet Bleu",
-  "description": "A setting-aware live murder mystery with one host role and five suspect roles.",
+  "description": "A setting-aware live murder mystery with one host role and five assignable suspect roles.",
   "aliases": ["carnet bleu", "the blue notebook", "blue notebook"],
-  "players": {
-    "minHumans": 2,
-    "maxHumans": 5,
-    "gameSeats": 5,
+  "roles": {
+    "suspects": 5,
     "hostRequired": true
   },
   "requiredHostCapabilities": ["state_persistence"],
-  "optionalHostCapabilities": ["private_messaging", "ai_controllers"],
+  "optionalHostCapabilities": ["ai_controllers"],
   "authoring": {
     "mode": "setting_first",
     "requiredBeforeStory": true,
@@ -35,17 +33,14 @@
       "draft_definition",
       "validate_definition",
       "create_runtime",
-      "enrol_players"
+      "assign_role_labels"
     ]
   },
   "lifecycle": ["idle", "enrolling", "prepared", "active", "completed", "aborted"],
   "commands": [
     { "name": "replace_enrolment", "description": "Replace the editable host, seats and venue proof.", "allowedPhases": ["enrolling"], "payload": { "setup": "SetupDraft" } },
-    { "name": "prepare", "description": "Lock the roster and create unsent delivery records.", "allowedPhases": ["enrolling"], "payload": {} },
-    { "name": "request_delivery", "description": "Queue one private dossier.", "allowedPhases": ["prepared"], "payload": { "roleId": "string" } },
-    { "name": "begin_delivery", "description": "Record that a queued delivery attempt began.", "allowedPhases": ["prepared"], "payload": { "roleId": "string" } },
-    { "name": "record_delivery", "description": "Apply a confirmed delivery result.", "allowedPhases": ["prepared"], "payload": { "roleId": "string", "ok": "boolean", "receipt": "string?", "error": "string?" } },
-    { "name": "start", "description": "Start play after every human dossier is confirmed delivered.", "allowedPhases": ["prepared"], "payload": {} },
+    { "name": "prepare", "description": "Lock the role labels and expose the dossier links.", "allowedPhases": ["enrolling"], "payload": {} },
+    { "name": "start", "description": "Start play when the host is ready.", "allowedPhases": ["prepared"], "payload": {} },
     { "name": "record_ai_performance", "description": "Persist the bounded output produced for one AI-controlled authored action.", "allowedPhases": ["active"], "payload": { "roleId": "string", "actionId": "string", "text": "string" } },
     { "name": "confirm_beat", "description": "Confirm an authored live beat.", "allowedPhases": ["active"], "payload": { "beatId": "string" } },
     { "name": "advance_act", "description": "Finish the single authored cold open and release the room into continuous investigation.", "allowedPhases": ["active"], "payload": {} },

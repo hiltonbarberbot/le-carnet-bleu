@@ -106,9 +106,7 @@ export type Story = {
 
 export type HumanController = {
   kind: 'human'
-  participantId: string
   displayName: string
-  privateAddress: string
 }
 
 export type AiController = {
@@ -117,15 +115,17 @@ export type AiController = {
   physicalProxy: string
 }
 
-export type Controller = HumanController | AiController
+export type UnassignedController = {
+  kind: 'unassigned'
+  displayName: string
+}
+
+export type Controller = HumanController | AiController | UnassignedController
 
 export type SeatDraft = {
   roleId: string
-  participantId: string
   humanName: string
-  privateAddress: string
-  ready: boolean
-  allowAiFallback: boolean
+  allowAiFallback?: boolean
 }
 
 export type VenueCheck = {
@@ -134,25 +134,9 @@ export type VenueCheck = {
 }
 
 export type SetupDraft = {
-  peoplePlaying?: number
   hostName: string
   seats: SeatDraft[]
   venue: Record<string, boolean>
-}
-
-export type DeliveryStatus = 'not_required' | 'not_requested' | 'queued' | 'sending' | 'delivered' | 'failed'
-
-export type DeliveryRecord = {
-  roleId: string
-  address?: string
-  status: DeliveryStatus
-  attempts: number
-  requestedAt?: string
-  sendingAt?: string
-  deliveredAt?: string
-  receipt?: string
-  failedAt?: string
-  error?: string
 }
 
 export type ClueDeckState = {
@@ -229,7 +213,6 @@ export type PreparedGameState = StateIdentity & {
   preparedAt: string
   hostName: string
   roster: Record<string, Controller>
-  deliveries: Record<string, DeliveryRecord>
 }
 
 export type ActiveGameState = StateIdentity & {
@@ -240,7 +223,6 @@ export type ActiveGameState = StateIdentity & {
   startedAt: string
   hostName: string
   roster: Record<string, Controller>
-  deliveries: Record<string, DeliveryRecord>
   playPhase: PlayPhase
   paused: boolean
   completedBeatIds: string[]

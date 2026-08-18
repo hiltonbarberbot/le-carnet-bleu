@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { createDemoGame } from '../demo'
-import type { ActiveGameState, PreparedGameState } from '../types'
+import type { ActiveGameState } from '../types'
 import {
   advanceAct,
   advanceHearing,
-  beginDelivery,
   buyClue,
   callAccusation,
   castVote,
@@ -17,8 +16,6 @@ import {
   lowerCluePrice,
   prepareGame,
   recordAward,
-  recordDeliveryOutcome,
-  requestDelivery,
   setObjectiveCompleted,
   SOCIAL_RULES,
   startGame,
@@ -26,32 +23,18 @@ import {
   updateEnrolment,
 } from './lifecycle'
 
-function deliverAll(state: PreparedGameState) {
-  let next = state
-  for (const roleId of Object.keys(next.deliveries)) {
-    next = requestDelivery(next, roleId)
-    next = beginDelivery(next, roleId)
-    next = recordDeliveryOutcome(next, roleId, { ok: true, receipt: `receipt:${roleId}` })
-  }
-  return next
-}
-
 function openInvestigation(seed = 'social-loop') {
   const definition = createDemoGame(seed)
   let enrolling = createGame(definition, new Date('2026-08-18T17:00:00Z'), `game-${seed}`)
   enrolling = updateEnrolment(enrolling, {
-    peoplePlaying: 6,
     hostName: 'Host',
     seats: enrolling.setup.seats.map((seat, index) => ({
       ...seat,
-      participantId: `human-${index + 1}`,
       humanName: `Player ${index + 1}`,
-      privateAddress: `private:${index + 1}`,
-      ready: true,
     })),
     venue: Object.fromEntries(definition.setupRequirements.map(requirement => [requirement.id, true])),
   })
-  let active = startGame(definition, deliverAll(prepareGame(definition, enrolling, { aiControllers: false })))
+  let active = startGame(definition, prepareGame(definition, enrolling, { aiControllers: false }))
   for (const act of definition.acts) {
     for (const beat of definition.story.runPlan.filter(beat => beat.phase === act.id && beat.essential)) {
       active = confirmRunBeat(definition, active, beat.id)

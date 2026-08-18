@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
 import { generateAiPerformance, readAiGatewayStatus } from '../game/ai/gateway'
-import { createDemoGame } from '../game/demo'
 import { createStorylineDefinition } from '../game/definition/create'
 import type { StorylineDefinition, StorylineDefinitionInput } from '../game/definition/contract'
 import { getKnownSecrets } from '../game/dossier/knowledge'
@@ -9,7 +8,6 @@ import {
   abortGame,
   advanceAct,
   advanceHearing,
-  beginDelivery,
   buyClue,
   calculateScores,
   callAccusation,
@@ -21,13 +19,10 @@ import {
   endInvestigation,
   getConvictionThreshold,
   getSetupBlockers,
-  getStartBlockers,
   lowerCluePrice,
   prepareGame,
   recordAward,
   recordAiPerformance,
-  recordDeliveryOutcome,
-  requestDelivery,
   resetGame,
   setObjectiveCompleted,
   startGame,
@@ -56,7 +51,7 @@ export function ActiveGameBar({ game, onGodView, onExit }: {
   onGodView: () => void
   onExit: () => void
 }) {
-  return <header className="mode-bar host-mode"><div><span>HOST DASHBOARD · PRIVATE</span><b>{game.storyline.title} · {game.storyline.story.totalPeople} roles · {getHostScreen(game.state)}</b></div><div className="mode-actions"><button onClick={onGodView}>God view · spoilers</button><button className="quiet" onClick={onExit}>Back to storylines</button></div></header>
+  return <header className="mode-bar host-mode"><div><span>HOST DASHBOARD · PRIVATE</span><b>{game.storyline.title} · {game.storyline.story.characters.length} suspect roles · {getHostScreen(game.state)}</b></div><div className="mode-actions"><button onClick={onGodView}>God view · spoilers</button><button className="quiet" onClick={onExit}>Back to storylines</button></div></header>
 }
 
 export function StartScreen({ storylines, games, importError, libraryWarning = '', onCreateStoryline, onCreateGame, onContinueGame, onRules, onImport, onExport }: {
@@ -109,8 +104,8 @@ export function EveningTimeline({ definition, phase }: { definition: StorylineDe
 function Rules({ definition, onExit }: { definition: StorylineDefinition; onExit: () => void }) {
   return <main className="rules-page">
     <button className="rules-back" onClick={onExit}>← Back</button>
-    <header><span className="kicker">HOW TO PLAY</span><h1>A murder mystery authored for the place where it happens.</h1><p>At setup, we ask how many people are playing. One person hosts; people take the suspect roles they want, and AI can perform the rest.</p></header>
-    <section className="rules-summary"><article><b>ROLES</b><strong>1 host + 5 suspects</strong></article><article><b>TIME</b><strong>1–3 hours</strong></article><article><b>YOU NEED</b><strong>Your private card, the prepared props, and a willingness to ask questions</strong></article></section>
+    <header><span className="kicker">HOW TO PLAY</span><h1>A murder mystery authored for the place where it happens.</h1><p>At setup, assign names only where useful, then open the private dossier for each role. The app does not infer how many real people are present.</p></header>
+    <section className="rules-summary"><article><b>ROLES</b><strong>1 host role + {definition.story.characters.length} suspect roles</strong></article><article><b>TIME</b><strong>1–3 hours</strong></article><article><b>YOU NEED</b><strong>Your private card, the prepared props, and a willingness to ask questions</strong></article></section>
     <EveningTimeline definition={definition} />
     <section className="rules-block"><span>THREE RULES</span><h2>Everything players need to remember</h2><ol><li>Once the body is discovered, pursue your three objectives in any order.</li><li>Bargain, bluff, and withhold—but never invent evidence or pressure the real person.</li><li>Any player may accuse. A strict majority ends the investigation.</li></ol></section>
     <section className="rules-block"><span>THE SOCIAL LOOP</span><h2>Talk → trade → accuse → vote</h2><p>After the short cold open, the room belongs to the players. Each suspect starts with 10 tokens and a private clue costs 5. Trade tokens, clues, and truthful information freely; when someone is ready, they call a public accusation hearing. Set an early time limit and extend it if the room is still alive.</p></section>
@@ -198,11 +193,10 @@ function CanonicalTruth({ story }: { story: Story }) {
   return <section className="canonical-truth"><header><span>THE SOLUTION</span><b>{story.culprit}</b></header><h3>The premise</h3><p>{story.premise}</p><h3>What happened</h3><p>{story.solution}</p><div className="truth-grid">{story.timeline.map(beat => <article key={beat.beat}><span>{beat.beat}</span><div><b>{beat.title}</b><p>{beat.truth}</p></div></article>)}</div></section>
 }
 
-function SetupPanel({ definition, setup, capabilities, gateway, onChange, onPrepare, onPreview }: {
+function SetupPanel({ definition, setup, capabilities, onChange, onPrepare, onPreview }: {
   definition: StorylineDefinition
   setup: SetupDraft
   capabilities: RuntimeCapabilities
-  gateway: GatewayConnection
   onChange: (setup: SetupDraft) => void
   onPrepare: () => void
   onPreview: (roleId: string) => void
@@ -212,45 +206,16 @@ function SetupPanel({ definition, setup, capabilities, gateway, onChange, onPrep
   function updateSeat(roleId: string, patch: Partial<SetupDraft['seats'][number]>) {
     onChange({ ...setup, seats: setup.seats.map(seat => seat.roleId === roleId ? { ...seat, ...patch } : seat) })
   }
-  function choosePeoplePlaying(peoplePlaying: number) {
-    const humanGuestCount = peoplePlaying - 1
-    const preferredHumanSeats = [
-      ...setup.seats.filter(seat => seat.humanName.trim()),
-      ...setup.seats.filter(seat => !seat.humanName.trim() && !seat.allowAiFallback),
-      ...setup.seats.filter(seat => !seat.humanName.trim() && seat.allowAiFallback),
-    ].slice(0, humanGuestCount)
-    const humanRoleIds = new Set(preferredHumanSeats.map(seat => seat.roleId))
-    onChange({
-      ...setup,
-      peoplePlaying,
-      seats: setup.seats.map(seat => humanRoleIds.has(seat.roleId)
-        ? { ...seat, allowAiFallback: false }
-        : { ...seat, participantId: '', humanName: '', privateAddress: '', ready: false, allowAiFallback: true }),
-    })
-  }
-  function setHumanRole(roleId: string, human: boolean) {
-    const seats = setup.seats.map(seat => seat.roleId !== roleId
-      ? seat
-      : human
-        ? { ...seat, allowAiFallback: false }
-        : { ...seat, participantId: '', humanName: '', privateAddress: '', ready: false, allowAiFallback: true })
-    const peoplePlaying = 1 + seats.filter(seat => !seat.allowAiFallback).length
-    if (peoplePlaying < 3 || peoplePlaying > story.characters.length + 1) return
-    onChange({ ...setup, peoplePlaying, seats })
-  }
-  const countChosen = Number.isInteger(setup.peoplePlaying)
-  const canUseAi = gateway.state === 'available' && capabilities.aiControllers
   return <>
-    <section className="setup-hero"><span className="kicker">SETUP</span><h1>How many people are playing?</h1><p>Count the host too. This mystery has five suspect roles; AI can perform the roles that people do not take.</p><div className="people-picker" role="radiogroup" aria-label="How many people are playing?">{Array.from({ length: story.characters.length - 1 }, (_, index) => index + 3).map(count => <button key={count} type="button" role="radio" aria-checked={setup.peoplePlaying === count} className={setup.peoplePlaying === count ? 'selected' : ''} disabled={count < story.characters.length + 1 && !canUseAi} onClick={() => choosePeoplePlaying(count)}><b>{count}</b><span>people</span></button>)}</div>{!canUseAi && <small className="people-note">AI roles are unavailable here, so all six people are needed.</small>}</section>
-    {countChosen && <><section className="setup-section"><div className="setup-heading"><span>1</span><div><h2>Name the host</h2><p>The host begins as {story.victim}, performs the short cold open, then becomes Game Master for free play.</p></div></div><label className="field"><span>Host name</span><input value={setup.hostName} onChange={event => onChange({ ...setup, hostName: event.target.value })} placeholder="Host" /></label></section>
-    <section className="setup-section"><div className="setup-heading"><span>2</span><div><h2>Choose who plays each suspect</h2><p>Each person needs a distinct private address. AI takes any role marked as an AI role.</p></div></div><div className="seat-grid">{story.characters.map(character => {
+    <section className="setup-hero"><span className="kicker">ROLE ASSIGNMENTS</span><h1>Add only the names you know.</h1><p>No headcount is inferred. Names may repeat, and any role can stay unassigned until you decide.</p></section>
+    <section className="setup-section"><div className="setup-heading"><span>1</span><div><h2>Name the host</h2><p>The host begins as {story.victim}, performs the short cold open, then becomes Game Master for free play.</p></div></div><label className="field"><span>Host name</span><input value={setup.hostName} onChange={event => onChange({ ...setup, hostName: event.target.value })} placeholder="Host" /></label></section>
+    <section className="setup-section"><div className="setup-heading"><span>2</span><div><h2>Assign names to roles</h2><p>These are labels for the dossier list—not verified identities or delivery addresses.</p></div></div><div className="seat-grid">{story.characters.map(character => {
       const seat = setup.seats.find(item => item.roleId === character.id)!
-      const human = !seat.allowAiFallback
-      return <article key={character.id} className={`seat-card ${human ? 'human-seat' : 'ai-seat'}`}><header><div><b>{character.name}</b><small>{character.title}</small></div><button onClick={() => onPreview(character.id)}>Preview card</button></header><div className="seat-controller"><strong>{human ? 'PERSON' : 'AI ROLE'}</strong>{canUseAi && <button type="button" disabled={human && setup.peoplePlaying === 3} onClick={() => setHumanRole(character.id, !human)}>{human ? 'Use AI' : 'Make human'}</button>}</div>{human ? <><label className="field"><span>Player name</span><input value={seat.humanName} onChange={event => updateSeat(character.id, { humanName: event.target.value, participantId: event.target.value.trim().toLowerCase().replace(/\s+/g, '-'), ready: false })} placeholder="Name" /></label><label className="field"><span>Private handoff</span><input value={seat.privateAddress} onChange={event => updateSeat(character.id, { privateAddress: event.target.value })} placeholder="Phone, chat, email, or printed envelope" /></label><label className="check-row"><input type="checkbox" checked={seat.ready} onChange={event => updateSeat(character.id, { ready: event.target.checked })} /><span>This person has accepted the role</span></label></> : <p className="ai-seat-note">AI performs this character. The host remains the physical proxy for any staged action.</p>}</article>
+      return <article key={character.id} className="seat-card"><header><div><b>{character.name}</b><small>{character.title}</small></div><button type="button" onClick={() => onPreview(character.id)}>Open dossier / PDF</button></header><label className="field"><span>Assigned name (optional)</span><input value={seat.humanName} onChange={event => updateSeat(character.id, { humanName: event.target.value })} placeholder="Add a name when ready" /></label></article>
     })}</div></section>
     <section className="setup-section"><div className="setup-heading"><span>3</span><div><h2>Prove the setting can perform this story</h2><p>These requirements come from the authored definition for {definition.setting.venueName}.</p></div></div><div className="venue-list">{definition.setupRequirements.map(check => <label key={check.id}><input type="checkbox" checked={Boolean(setup.venue[check.id])} onChange={event => onChange({ ...setup, venue: { ...setup.venue, [check.id]: event.target.checked } })} /><span>{check.label}</span></label>)}</div></section>
     {blockers.length > 0 && <details className="setup-left"><summary>{blockers.length} {blockers.length === 1 ? 'thing' : 'things'} left before roles are ready</summary><ul>{blockers.map(blocker => <li key={blocker}>{blocker}</li>)}</ul></details>}
-    <button className="primary-action" disabled={blockers.length > 0} onClick={onPrepare}>Prepare the private cards →</button></>}
+    <button className="primary-action" disabled={blockers.length > 0} onClick={onPrepare}>Save assignments and open dossiers →</button>
   </>
 }
 
@@ -258,23 +223,12 @@ function Roster({ story, state, onPreview }: { story: Story; state: PreparedGame
   return <section className="roster-strip">{story.characters.map(character => <button key={character.id} onClick={() => onPreview(character.id)}><span>{character.name}</span><b>{state.roster[character.id]?.displayName}</b><small>{state.roster[character.id]?.kind} · dossier →</small></button>)}</section>
 }
 
-function DeliveryDesk({ definition, state, onState, run }: { definition: StorylineDefinition; state: PreparedGameState; onState: (state: GameState) => void; run: (command: () => GameState) => void }) {
+function DossierDesk({ definition, state, onState, onPreview }: { definition: StorylineDefinition; state: PreparedGameState; onState: (state: GameState) => void; onPreview: (roleId: string) => void }) {
   const { story } = definition
-  const blockers = getStartBlockers(definition, state)
-  function markReceived(roleId: string) {
-    run(() => {
-      let next = state
-      const status = next.deliveries[roleId]?.status
-      if (status === 'not_requested' || status === 'failed') next = requestDelivery(next, roleId)
-      if (next.deliveries[roleId].status === 'queued') next = beginDelivery(next, roleId)
-      if (next.deliveries[roleId].status === 'sending') next = recordDeliveryOutcome(next, roleId, { ok: true, receipt: `Confirmed by ${state.hostName}` })
-      return next
-    })
-  }
-  return <section className="phase-panel delivery-desk"><span className="kicker">PRIVATE CARDS</span><h2>Make sure each player has only their own role.</h2><p>Send the card privately or place a printed copy in a named envelope. Mark it received when the player has it.</p><div className="delivery-list">{story.characters.map(character => {
-    const delivery = state.deliveries[character.id]
-    return <article key={character.id} data-status={delivery.status}><div><b>{character.name}</b><small>{state.roster[character.id].displayName} · {delivery.address || 'private card'}</small>{delivery.error && <small className="danger">{delivery.error}</small>}</div><strong>{delivery.status === 'delivered' || delivery.status === 'not_required' ? 'ready' : delivery.status === 'failed' ? 'failed' : 'waiting'}</strong><div className="delivery-actions">{delivery.status !== 'delivered' && delivery.status !== 'not_required' && <button onClick={() => markReceived(character.id)}>Mark received</button>}</div></article>
-  })}</div>{blockers.length > 0 && <details className="setup-left"><summary>START BLOCKED · {blockers.length} private {blockers.length === 1 ? 'card' : 'cards'} left</summary><ul>{blockers.map(blocker => <li key={blocker}>{blocker}</li>)}</ul></details>}<button className="primary-action" disabled={blockers.length > 0} onClick={() => onState(startGame(definition, state))}>Everyone is ready — begin the evening →</button></section>
+  return <section className="phase-panel dossier-desk"><span className="kicker">DOSSIERS</span><h2>Open each role’s private PDF.</h2><p>The assigned name is only a label. You decide how to share or print each dossier.</p><div className="dossier-links">{story.characters.map(character => {
+    const assignment = state.roster[character.id]
+    return <article key={character.id}><div><b>{character.name}</b><small>{assignment.displayName}</small></div><div className="dossier-actions"><button type="button" onClick={() => onPreview(character.id)}>Open / save PDF</button></div></article>
+  })}</div><button className="primary-action" onClick={() => onState(startGame(definition, state))}>Begin the evening →</button></section>
 }
 
 function RunSheet({ story, state, performances, onPerform, onConfirm, onUndo }: {
@@ -324,7 +278,7 @@ function Investigation({ definition, state, run }: { definition: StorylineDefini
 
     <section className="social-panel"><div className="social-heading"><div><span className="kicker">TOKEN TABLE</span><h3>Record a trade</h3></div><small>Each player began with 10</small></div><div className="trade-form"><select aria-label="Token sender" value={fromRoleId} onChange={event => setFromRoleId(event.target.value)}>{story.characters.map(character => <option key={character.id} value={character.id}>{character.name} · {state.tokenBalances[character.id]}</option>)}</select><span>gives</span><input aria-label="Token amount" type="number" min="1" value={amount} onChange={event => setAmount(Number(event.target.value))} /><span>to</span><select aria-label="Token recipient" value={toRoleId} onChange={event => setToRoleId(event.target.value)}>{story.characters.map(character => <option key={character.id} value={character.id}>{character.name} · {state.tokenBalances[character.id]}</option>)}</select><button disabled={fromRoleId === toRoleId || amount < 1} onClick={() => run(() => transferTokens(state, fromRoleId, toRoleId, amount))}>Record trade</button></div></section>
 
-    <section className="social-panel"><div className="social-heading"><div><span className="kicker">PRIVATE CLUE DESK</span><h3>Sell a clue, then show it only to that player</h3></div><small>{definition.clueDecks.reduce((total, deck) => total + state.clueDecks[deck.id].remainingClueIds.length, 0)} unique clues left</small></div><div className="clue-buyers">{story.characters.map(character => <details key={character.id}><summary><span><b>{character.name}</b><small>{state.tokenBalances[character.id]} tokens · {state.ownedClueIds[character.id].length} clues</small></span><strong>private handoff →</strong></summary><div className="clue-options">{definition.clueDecks.map(deck => <button key={deck.id} disabled={Boolean(state.hearing) || state.tokenBalances[character.id] < state.cluePrice || (!state.clueDecks[deck.id].remainingClueIds.length && !state.duplicateClues)} onClick={() => run(() => buyClue(definition, state, character.id, deck.id))}><b>{deck.label}</b><small>{state.cluePrice} tokens · {state.clueDecks[deck.id].remainingClueIds.length} unique left</small></button>)}</div>{state.ownedClueIds[character.id].map((clueId, index) => <article className="private-clue" key={`${clueId}-${index}`}><span>CLUE {index + 1}</span><p>{clues.get(clueId)?.text}</p></article>)}</details>)}</div><details className="pacing-tools"><summary>Host pacing help</summary><p>If information is moving too slowly, lower the price or allow repeats after a deck empties.</p><div><button disabled={state.cluePrice === 0} onClick={() => run(() => lowerCluePrice(state, state.cluePrice - 1))}>Lower price to {Math.max(0, state.cluePrice - 1)}</button><button disabled={state.duplicateClues} onClick={() => run(() => enableDuplicateClues(state))}>{state.duplicateClues ? 'Repeat clues enabled' : 'Allow repeat clues'}</button></div></details></section>
+    <section className="social-panel"><div className="social-heading"><div><span className="kicker">PRIVATE CLUE DESK</span><h3>Sell a clue, then show it only to that role</h3></div><small>{definition.clueDecks.reduce((total, deck) => total + state.clueDecks[deck.id].remainingClueIds.length, 0)} unique clues left</small></div><div className="clue-buyers">{story.characters.map(character => <details key={character.id}><summary><span><b>{character.name}</b><small>{state.tokenBalances[character.id]} tokens · {state.ownedClueIds[character.id].length} clues</small></span><strong>open privately →</strong></summary><div className="clue-options">{definition.clueDecks.map(deck => <button key={deck.id} disabled={Boolean(state.hearing) || state.tokenBalances[character.id] < state.cluePrice || (!state.clueDecks[deck.id].remainingClueIds.length && !state.duplicateClues)} onClick={() => run(() => buyClue(definition, state, character.id, deck.id))}><b>{deck.label}</b><small>{state.cluePrice} tokens · {state.clueDecks[deck.id].remainingClueIds.length} unique left</small></button>)}</div>{state.ownedClueIds[character.id].map((clueId, index) => <article className="private-clue" key={`${clueId}-${index}`}><span>CLUE {index + 1}</span><p>{clues.get(clueId)?.text}</p></article>)}</details>)}</div><details className="pacing-tools"><summary>Host pacing help</summary><p>If information is moving too slowly, lower the price or allow repeats after a deck empties.</p><div><button disabled={state.cluePrice === 0} onClick={() => run(() => lowerCluePrice(state, state.cluePrice - 1))}>Lower price to {Math.max(0, state.cluePrice - 1)}</button><button disabled={state.duplicateClues} onClick={() => run(() => enableDuplicateClues(state))}>{state.duplicateClues ? 'Repeat clues enabled' : 'Allow repeat clues'}</button></div></details></section>
 
     <section className="social-panel hearing-panel"><div className="social-heading"><div><span className="kicker">PUBLIC ACCUSATION</span><h3>{state.hearing ? `${characterName(state.hearing.accuserRoleId)} accuses ${characterName(state.hearing.accusedRoleId)}` : 'Call a hearing when someone is ready'}</h3></div>{state.hearing && <strong>{state.hearing.stage.toUpperCase()}</strong>}</div>{state.hearing ? <><aside className="hearing-now"><b>{hearingCopy}</b><p>{state.hearing.caseText}</p></aside>{state.hearing.stage !== 'voting' ? <button className="primary-action" onClick={() => run(() => advanceHearing(state))}>Next: {state.hearing.stage === 'case' ? 'the defense' : state.hearing.stage === 'defense' ? 'open statements' : 'the vote'} →</button> : <div className="vote-list">{story.characters.map(character => { const vote = state.hearing?.votes[character.id]; return <article key={character.id}><b>{character.name}</b>{vote ? <strong>{vote}</strong> : <div><button onClick={() => run(() => castVote(definition, state, character.id, 'convict'))}>Convict</button><button onClick={() => run(() => castVote(definition, state, character.id, 'acquit'))}>Acquit</button></div>}</article> })}</div>}</> : <><div className="accusation-form"><label className="field"><span>Accuser</span><select value={accuserRoleId} onChange={event => setAccuserRoleId(event.target.value)}>{story.characters.map(character => <option key={character.id} value={character.id}>{character.name}</option>)}</select></label><label className="field"><span>Accused</span><select value={accusedRoleId} onChange={event => setAccusedRoleId(event.target.value)}>{story.characters.map(character => <option key={character.id} value={character.id}>{character.name}</option>)}</select></label><label className="field case-field"><span>The case in one sentence</span><input value={caseText} onChange={event => setCaseText(event.target.value)} placeholder="I accuse… because…" /></label></div>{state.hearingHistory.at(-1)?.result === 'failed' && <p className="failed-hearing">The last vote failed. Investigation continues.</p>}<button className="primary-action" disabled={accuserRoleId === accusedRoleId || !caseText.trim()} onClick={() => run(() => callAccusation(state, accuserRoleId, accusedRoleId, caseText))}>Begin the public hearing →</button><button className="time-up" onClick={() => run(() => endInvestigation(state))}>Time is up — reveal without a conviction</button></>}</section>
   </>
@@ -373,7 +327,7 @@ export function HostWorkspace({ definition, state, setState, capabilities, gatew
   const gameId = state.phase === 'idle' ? '' : state.id
   useEffect(() => setPerformanceRequests({}), [gameId])
   function run<T extends GameState>(command: () => T) { try { setCommandError(''); setState(command()) } catch (error) { setCommandError(error instanceof Error ? error.message : String(error)) } }
-  function reset() { if (window.confirm('Reset this game to idle? All enrolment, delivery, and play state will be discarded.')) run(() => resetGame(definition, state, true)) }
+  function reset() { if (window.confirm('Reset this game to idle? All assignments and play state will be discarded.')) run(() => resetGame(definition, state, true)) }
   async function perform(roleId: string, actionId: string) {
     if (state.phase !== 'active') return
     setPerformanceRequests(current => ({ ...current, [actionId]: { pending: true } }))
@@ -386,15 +340,15 @@ export function HostWorkspace({ definition, state, setState, capabilities, gatew
     }
   }
 
-  if (state.phase === 'idle') return <main className="page host-page"><section className="setup-hero idle-hero"><span className="kicker">READY FOR {definition.setting.venueName.toUpperCase()}</span><h1>How many people are playing?</h1><p>The dashboard will ask for your group size, then walk you through private cards, the timed evening, accusations, and the reveal.</p><EveningTimeline definition={definition} /><button className="primary-action" onClick={() => setState(createGame(definition))}>Choose the group size →</button></section></main>
+  if (state.phase === 'idle') return <main className="page host-page"><section className="setup-hero idle-hero"><span className="kicker">READY FOR {definition.setting.venueName.toUpperCase()}</span><h1>Assign names, then open the dossiers.</h1><p>No assumed headcount, account IDs, or delivery receipts. You decide who takes which role and how the PDFs reach them.</p><EveningTimeline definition={definition} /><button className="primary-action" onClick={() => setState(createGame(definition))}>Assign roles →</button></section></main>
 
   const active = state.phase === 'active' ? state : null
   const hostName = state.phase === 'enrolling' ? state.setup.hostName : state.hostName
   return <main className="page host-page">
-    <section className="session-head"><div><span className="kicker">GAME {state.id.slice(0, 8)}</span><h1>{active ? `${active.paused ? 'paused · ' : ''}${active.playPhase}` : state.phase}</h1><p>{state.phase === 'enrolling' ? 'Assignments are still editable.' : `${'roster' in state ? Object.keys(state.roster).length : 0} guest seats · ${hostName} host`}</p></div><div className="session-actions">{active && <button onClick={() => setState(togglePause(active))}>{active.paused ? 'Resume' : 'Pause'}</button>}{state.phase !== 'completed' && state.phase !== 'aborted' && <button className="danger-button" onClick={() => run(() => abortGame(state))}>Abort</button>}<button className="danger-button" onClick={reset}>Reset game</button></div></section>
+    <section className="session-head"><div><span className="kicker">GAME {state.id.slice(0, 8)}</span><h1>{active ? `${active.paused ? 'paused · ' : ''}${active.playPhase}` : state.phase}</h1><p>{state.phase === 'enrolling' ? 'Assignments are still editable.' : `${'roster' in state ? Object.keys(state.roster).length : 0} suspect roles · ${hostName} host`}</p></div><div className="session-actions">{active && <button onClick={() => setState(togglePause(active))}>{active.paused ? 'Resume' : 'Pause'}</button>}{state.phase !== 'completed' && state.phase !== 'aborted' && <button className="danger-button" onClick={() => run(() => abortGame(state))}>Abort</button>}<button className="danger-button" onClick={reset}>Reset game</button></div></section>
     {commandError && <section className="hard-errors compact"><span>COMMAND FAILED</span><pre>{commandError}</pre></section>}
-    {state.phase === 'enrolling' && <SetupPanel definition={definition} setup={state.setup} capabilities={capabilities} gateway={gateway} onChange={setup => setState(updateEnrolment(state, setup))} onPreview={onPreview} onPrepare={() => run(() => prepareGame(definition, state, capabilities))} />}
-    {state.phase === 'prepared' && <><Roster story={story} state={state} onPreview={onPreview} /><DeliveryDesk definition={definition} state={state} onState={setState} run={run} /></>}
+    {state.phase === 'enrolling' && <SetupPanel definition={definition} setup={state.setup} capabilities={capabilities} onChange={setup => setState(updateEnrolment(state, setup))} onPreview={onPreview} onPrepare={() => run(() => prepareGame(definition, state, capabilities))} />}
+    {state.phase === 'prepared' && <><Roster story={story} state={state} onPreview={onPreview} /><DossierDesk definition={definition} state={state} onState={setState} onPreview={onPreview} /></>}
     {active && <>
       <EveningTimeline definition={definition} phase={active.playPhase} />
       <Roster story={story} state={active} onPreview={onPreview} />
@@ -408,8 +362,7 @@ export function HostWorkspace({ definition, state, setState, capabilities, gatew
 }
 
 export function App() {
-  const demoStoryline = useMemo(() => createDemoGame('browser-demo'), [])
-  const defaultStorylines = useMemo(() => [demoStoryline, ...createGramboisCatalog()], [demoStoryline])
+  const defaultStorylines = useMemo(() => createGramboisCatalog(), [])
   const initial = useMemo(() => readGameLibrary(localStorage, defaultStorylines), [defaultStorylines])
   const [storylines, setStorylines] = useState<StorylineDefinition[]>(initial.storylines)
   const [games, setGames] = useState<GameSessionEntry[]>(initial.games)
@@ -438,7 +391,7 @@ export function App() {
     clearGameLibrary(localStorage)
     setStorylines(defaultStorylines)
     setGames([])
-    setSelectedStorylineFingerprint(demoStoryline.fingerprint)
+    setSelectedStorylineFingerprint(defaultStorylines[0].fingerprint)
     setActiveGameId(undefined)
     setStorageError('')
   }
