@@ -1,6 +1,6 @@
-import { cast, publicEvidence, runPlan, timeline } from './scenario'
-import { compileStory } from './story/compile'
-import type { Character, Story } from './types'
+import { cast, publicEvidence, runPlan, timeline } from './scenario.js'
+import { compileStory } from './story/compile.js'
+import type { Character, Story } from './types.js'
 
 export function hashSeed(value: string) {
   let hash = 2166136261

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { generateText } from 'ai'
-import { generateGame } from '../../src/game/generate'
-import { GET, POST } from './perform'
+import { GET, POST } from '../../../api/ai/perform'
+import { generateGame } from '../generate'
 
 vi.mock('ai', () => ({ generateText: vi.fn() }))
 

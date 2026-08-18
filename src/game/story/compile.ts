@@ -1,4 +1,4 @@
-import type { Story } from '../types'
+import type { Story } from '../types.js'
 
 export function validateStory(story: Story): string[] {
   const errors: string[] = []

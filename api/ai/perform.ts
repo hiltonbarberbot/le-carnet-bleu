@@ -1,6 +1,6 @@
 import { generateText } from 'ai'
-import { getMemoriesBeforeAction } from '../../src/game/dossier/knowledge'
-import { generateGame } from '../../src/game/generate'
+import { getMemoriesBeforeAction } from '../../src/game/dossier/knowledge.js'
+import { generateGame } from '../../src/game/generate.js'
 
 const model = process.env.AI_GATEWAY_MODEL || 'anthropic/claude-sonnet-4.6'
 

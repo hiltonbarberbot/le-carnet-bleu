@@ -1,4 +1,4 @@
-import type { Character, PublicEvidence, RunBeat, TimelineBeat } from './types'
+import type { Character, PublicEvidence, RunBeat, TimelineBeat } from './types.js'
 
 export const timeline: TimelineBeat[] = [
   { beat: 1, title: 'The old secret', truth: 'Le Maître Concierge kept Le Carnet Bleu, despite claiming it vanished years ago.', evidence: ['amelie-rumour', 'madame-ledger'] },

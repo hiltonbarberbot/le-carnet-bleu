@@ -1,4 +1,4 @@
-import type { Character, Story } from '../types'
+import type { Character, Story } from '../types.js'
 
 export function getKnownMemories(character: Character, completedBeatIds: readonly string[] = []) {
   const completed = new Set(completedBeatIds)
