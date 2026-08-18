@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { draftGameFromSetting } from '../../game/ai/author'
+import { shapeSettingFromPrompt } from '../../game/ai/setting'
 import type { GameDefinition } from '../../game/definition/contract'
 import { createSettingBrief, getSettingBriefBlockers } from '../../game/setting/brief'
 import type { SettingBriefInput } from '../../game/setting/contract'
@@ -14,7 +15,13 @@ type AuthoringStudioProps = {
   onUse: (definition: GameDefinition) => void
 }
 
-const steps = ['Your evening', 'The real place', 'Comfort & boundaries']
+const steps = ['The spark', 'Reality check', 'Comfort & boundaries']
+
+const listFields: ListField[] = ['playableSpaces', 'routes', 'usableFeatures', 'availableProps', 'safetyConstraints', 'accessibilityNeeds', 'contentBoundaries']
+
+function emptyListDrafts(): Record<ListField, string> {
+  return Object.fromEntries(listFields.map(field => [field, ''])) as Record<ListField, string>
+}
 
 function TextField({ label, hint, value, onChange, multiline = false }: {
   label: string
@@ -32,15 +39,22 @@ function listValue(setting: SettingBriefInput, field: ListField) {
   return (setting[field] ?? []).join('\n')
 }
 
-function readList(value: string) {
-  return value.split('\n').map(item => item.trim()).filter(Boolean)
+export function readSettingList(value: string) {
+  return value
+    .split(/\r?\n|;/)
+    .map(item => item.replace(/^\s*(?:[-*•]|\d+[.)])\s*/, '').trim())
+    .filter(Boolean)
 }
 
 export function AuthoringStudio({ gateway, onExit, onUse }: AuthoringStudioProps) {
   const [step, setStep] = useState(0)
+  const [prompt, setPrompt] = useState('')
   const [setting, setSetting] = useState<SettingBriefInput>({})
+  const [listDrafts, setListDrafts] = useState<Record<ListField, string>>(emptyListDrafts)
   const [errors, setErrors] = useState<string[]>([])
   const [requestError, setRequestError] = useState('')
+  const [shaping, setShaping] = useState(false)
+  const [promptWasShaped, setPromptWasShaped] = useState(false)
   const [drafting, setDrafting] = useState(false)
   const [draft, setDraft] = useState<GameDefinition>()
   const [reviewing, setReviewing] = useState(false)
@@ -50,7 +64,40 @@ export function AuthoringStudio({ gateway, onExit, onUse }: AuthoringStudioProps
   }
 
   function updateList(field: ListField, value: string) {
-    setSetting(current => ({ ...current, [field]: readList(value) }))
+    // Keep the exact editing buffer separate from its normalized value. Normalizing
+    // the controlled textarea itself makes trailing spaces and new lines disappear.
+    setListDrafts(current => ({ ...current, [field]: value }))
+    setSetting(current => ({ ...current, [field]: readSettingList(value) }))
+  }
+
+  function applySettingDraft(next: SettingBriefInput) {
+    setSetting(next)
+    setListDrafts(Object.fromEntries(listFields.map(field => [field, listValue(next, field)])) as Record<ListField, string>)
+  }
+
+  async function shapePrompt() {
+    if (!prompt.trim()) {
+      setRequestError('Give us a few lines about the evening first.')
+      return
+    }
+    setRequestError('')
+    if (gateway.state !== 'available') {
+      applySettingDraft({ occasion: prompt.trim() })
+      setPromptWasShaped(false)
+      setStep(1)
+      return
+    }
+
+    setShaping(true)
+    try {
+      applySettingDraft(await shapeSettingFromPrompt(prompt))
+      setPromptWasShaped(true)
+      setStep(1)
+    } catch (error) {
+      setRequestError(error instanceof Error ? error.message : String(error))
+    } finally {
+      setShaping(false)
+    }
   }
 
   async function createDraft() {
@@ -83,34 +130,39 @@ export function AuthoringStudio({ gateway, onExit, onUse }: AuthoringStudioProps
   </main>
 
   return <main className="author-studio">
-    <header className="author-head"><button className="author-back" onClick={onExit}>← Back</button><div><span className="kicker">CREATE WITH AI</span><h1>Tell us about your evening.</h1><p>The mystery will be written around your real venue, your people, and your boundaries.</p></div></header>
+    <header className="author-head"><button className="author-back" onClick={onExit}>← Back</button><div><span className="kicker">CREATE WITH AI</span><h1>Tell us about your evening.</h1><p>Start with the feeling, the place, or the people. We’ll pull out the practical details together afterwards.</p></div></header>
     <nav className="author-progress" aria-label="Story setup progress">{steps.map((label, index) => <span key={label} className={index === step ? 'active' : index < step ? 'done' : ''}><b>{index + 1}</b>{label}</span>)}</nav>
 
-    {step === 0 && <section className="author-step"><div className="author-step-copy"><span>STEP 1 OF 3</span><h2>What are we creating this for?</h2><p>Give the AI enough social context to make the invitation and tone feel natural.</p></div><div className="author-fields">
-      <TextField label="Venue" hint="My apartment, a family farmhouse, a small hotel…" value={setting.venueName ?? ''} onChange={value => updateText('venueName', value)} />
-      <TextField label="Location and useful local flavour" hint="Paris; old building near the canal; rainy November evening…" value={setting.location ?? ''} onChange={value => updateText('location', value)} multiline />
-      <TextField label="Real occasion" hint="A birthday dinner for six; drinks at 7, dinner at 8…" value={setting.occasion ?? ''} onChange={value => updateText('occasion', value)} multiline />
-      <div className="author-pair"><TextField label="Fictional era" hint="Present day, 1920s, timeless…" value={setting.era ?? ''} onChange={value => updateText('era', value)} /><TextField label="Tone" hint="Elegant, funny, gothic…" value={setting.tone ?? ''} onChange={value => updateText('tone', value)} /></div>
-    </div></section>}
+    {step === 0 && <section className="author-prompt-step">
+      <div className="author-prompt-copy"><span>THE OPENING PAGE</span><h2>What do you have in mind?</h2><p>Loose notes are perfect. Mention whatever you already know and leave the rest for later.</p></div>
+      <label className="author-prompt"><span className="sr-only">Describe the evening</span><textarea autoFocus spellCheck value={prompt} onChange={event => setPrompt(event.target.value)} placeholder={'A slightly decadent birthday dinner in our old apartment in Lyon. Six friends, present day, funny and elegant rather than grim. We can use the dining room and little winter garden…'} /></label>
+      <div className="author-prompt-meta"><span>Write naturally. Spaces, paragraphs, and bullet points all work.</span><span>{prompt.trim().length ? `${prompt.trim().length} characters` : 'Start anywhere'}</span></div>
+      {requestError && <section className="author-errors compact"><b>Not quite yet</b><p>{requestError}</p></section>}
+      <button className="author-shape" disabled={shaping} onClick={shapePrompt}>{shaping ? 'Finding the shape of it…' : gateway.state === 'available' ? 'Shape this into a brief →' : 'Continue with these notes →'}</button>
+    </section>}
 
-    {step === 1 && <section className="author-step"><div className="author-step-copy"><span>STEP 2 OF 3</span><h2>What can the story actually use?</h2><p>One item per line. The AI is not allowed to invent a secret passage, terrace, prop, or lighting trick.</p></div><div className="author-fields">
-      <TextField label="Playable spaces" hint={'Dining room\nLiving room\nCovered balcony'} value={listValue(setting, 'playableSpaces')} onChange={value => updateList('playableSpaces', value)} multiline />
-      <TextField label="Safe routes between them" hint={'Step-free hall between dining and living rooms\nBalcony only with host present'} value={listValue(setting, 'routes')} onChange={value => updateList('routes', value)} multiline />
-      <TextField label="Features worth using (optional)" hint={'Old fireplace\nRecord player\nView of the church clock'} value={listValue(setting, 'usableFeatures')} onChange={value => updateList('usableFeatures', value)} multiline />
-      <TextField label="Easy props and costumes (optional)" hint={'Sealed envelopes\nCostume jewellery\nBattery candles'} value={listValue(setting, 'availableProps')} onChange={value => updateList('availableProps', value)} multiline />
+    {step === 1 && <section className="author-step"><div className="author-step-copy"><span>STEP 2 OF 3</span><h2>Make it true to the real place.</h2><p>{promptWasShaped ? 'We pulled out only what you told us. Correct anything that landed wrong and fill the genuine gaps.' : 'Add the concrete facts the story is not allowed to invent.'}</p></div><div className="author-fields">
+      <TextField label="Venue" hint="My apartment, a family farmhouse, a small hotel…" value={setting.venueName ?? ''} onChange={value => updateText('venueName', value)} />
+      <TextField label="Location and useful local flavour" hint="Lyon; old building near the river; rainy November evening…" value={setting.location ?? ''} onChange={value => updateText('location', value)} multiline />
+      <TextField label="What is really happening" hint="A birthday dinner for six; drinks at 7, dinner at 8…" value={setting.occasion ?? ''} onChange={value => updateText('occasion', value)} multiline />
+      <div className="author-pair"><TextField label="Fictional era" hint="Present day, 1920s, timeless…" value={setting.era ?? ''} onChange={value => updateText('era', value)} /><TextField label="Tone" hint="Elegant, funny, gothic…" value={setting.tone ?? ''} onChange={value => updateText('tone', value)} /></div>
+      <TextField label="Playable spaces" hint={'Dining room\nLiving room\nCovered balcony'} value={listDrafts.playableSpaces} onChange={value => updateList('playableSpaces', value)} multiline />
+      <TextField label="Safe routes between them" hint={'Step-free hall between dining and living rooms\nBalcony only with host present'} value={listDrafts.routes} onChange={value => updateList('routes', value)} multiline />
+      <TextField label="Features worth using (optional)" hint={'Old fireplace\nRecord player\nView of the church clock'} value={listDrafts.usableFeatures} onChange={value => updateList('usableFeatures', value)} multiline />
+      <TextField label="Easy props and costumes (optional)" hint={'Sealed envelopes\nCostume jewellery\nBattery candles'} value={listDrafts.availableProps} onChange={value => updateList('availableProps', value)} multiline />
     </div></section>}
 
     {step === 2 && <section className="author-step"><div className="author-step-copy"><span>STEP 3 OF 3</span><h2>Keep it fun for the actual group.</h2><p>These answers are hard rules for the generated story, not suggestions.</p></div><div className="author-fields">
-      <TextField label="Safety, privacy, timing, or venue rules" hint={'No darkness\nNo physical contact\nFinish within three hours'} value={listValue(setting, 'safetyConstraints')} onChange={value => updateList('safetyConstraints', value)} multiline />
-      <TextField label="Accessibility needs (optional)" hint={'All essential play must work seated\nAvoid small printed text'} value={listValue(setting, 'accessibilityNeeds')} onChange={value => updateList('accessibilityNeeds', value)} multiline />
-      <TextField label="Themes or content to avoid" hint={'No harm to children\nNo sexual violence\nNo real family secrets'} value={listValue(setting, 'contentBoundaries')} onChange={value => updateList('contentBoundaries', value)} multiline />
+      <TextField label="Safety, privacy, timing, or venue rules" hint={'No darkness\nNo physical contact\nFinish within three hours'} value={listDrafts.safetyConstraints} onChange={value => updateList('safetyConstraints', value)} multiline />
+      <TextField label="Accessibility needs (optional)" hint={'All essential play must work seated\nAvoid small printed text'} value={listDrafts.accessibilityNeeds} onChange={value => updateList('accessibilityNeeds', value)} multiline />
+      <TextField label="Themes or content to avoid" hint={'No harm to children\nNo sexual violence\nNo real family secrets'} value={listDrafts.contentBoundaries} onChange={value => updateList('contentBoundaries', value)} multiline />
       {errors.length > 0 && <section className="author-errors"><b>Please finish the setting first</b><ul>{errors.map(error => <li key={error}>{error}</li>)}</ul></section>}
       {requestError && <section className="author-errors"><b>The draft failed</b><p>{requestError}</p></section>}
       <div className={`author-ai-status ${gateway.state}`}>{gateway.state === 'available' ? `AI ready${gateway.model ? ` · ${gateway.model}` : ''}` : gateway.state === 'checking' ? 'Checking AI…' : 'AI drafting is not configured on this deployment.'}</div>
     </div></section>}
 
-    <footer className="author-footer"><button className="author-secondary" disabled={step === 0 || drafting} onClick={() => { setErrors([]); setStep(current => current - 1) }}>Back</button>{step < steps.length - 1
+    {step > 0 && <footer className="author-footer"><button className="author-secondary" disabled={drafting} onClick={() => { setErrors([]); setRequestError(''); setStep(current => current - 1) }}>Back</button>{step < steps.length - 1
       ? <button className="author-next" onClick={() => { setErrors([]); setStep(current => current + 1) }}>Continue →</button>
-      : <button className="author-next" disabled={drafting || gateway.state !== 'available'} onClick={createDraft}>{drafting ? 'Writing your mystery…' : 'Draft my story with AI →'}</button>}</footer>
+      : <button className="author-next" disabled={drafting || gateway.state !== 'available'} onClick={createDraft}>{drafting ? 'Writing your mystery…' : 'Draft my story with AI →'}</button>}</footer>}
   </main>
 }
