@@ -33,7 +33,32 @@ function hasAllowedOrigin(request: Request) {
 function parseJsonObject(value: string) {
   const text = value.trim()
   const fenced = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i)
-  return JSON.parse(fenced?.[1] ?? text) as unknown
+  const source = fenced?.[1] ?? text
+  try {
+    return JSON.parse(source) as unknown
+  } catch {
+    let repaired = ''
+    let inString = false
+    let escaping = false
+    for (let index = 0; index < source.length; index += 1) {
+      const character = source[index]
+      if (inString) {
+        repaired += character
+        if (escaping) escaping = false
+        else if (character === '\\') escaping = true
+        else if (character === '"') inString = false
+        continue
+      }
+      if (character === '"') inString = true
+      if (character === ',') {
+        let next = index + 1
+        while (/\s/.test(source[next] ?? '')) next += 1
+        if (source[next] === '}' || source[next] === ']') continue
+      }
+      repaired += character
+    }
+    return JSON.parse(repaired) as unknown
+  }
 }
 
 function readSetting(value: unknown): SettingBriefInput | null {

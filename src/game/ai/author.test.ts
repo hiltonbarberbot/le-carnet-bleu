@@ -56,6 +56,16 @@ describe('AI story authoring function', () => {
     }))
   })
 
+  it('accepts fenced JSON with a trailing comma', async () => {
+    process.env.AI_GATEWAY_API_KEY = 'test-key'
+    const text = `${JSON.stringify(generatedDefinition(), null, 2).replace(/\n}$/, ',\n}')}`
+    vi.mocked(generateText).mockResolvedValue({ text: `\`\`\`json\n${text}\n\`\`\`` } as never)
+
+    const response = await POST(request(demoSetting))
+
+    expect(response.status).toBe(200)
+  })
+
   it('retries a draft that fails the domain checks', async () => {
     process.env.AI_GATEWAY_API_KEY = 'test-key'
     vi.mocked(generateText).mockResolvedValue({ output: { id: 'broken' } } as never)
