@@ -7,8 +7,10 @@ import lastOrphicSummer from '../../../../story/runs/last-orphic-summer/story.js
 import mistralCipher from '../../../../story/runs/mistral-cipher/story.json'
 import saintTropezDouble from '../../../../story/runs/saint-tropez-double/story.json'
 import velvetConsul from '../../../../story/runs/velvet-consul/story.json'
+import griefOfTheDove from '../../../../story/runs/grief-of-the-dove/story.json'
 
 const storylines = [
+  griefOfTheDove,
   glassEmbassy,
   blueCicada,
   velvetConsul,

@@ -1,0 +1,56 @@
+{
+  "venueName": "House in Grambois",
+  "location": "Grambois, France",
+  "era": "August 1962",
+  "playableSpaces": [
+    "Terrace",
+    "Dining room",
+    "Kitchen",
+    "Poolside parlor",
+    "Salon",
+    "Entrance hall",
+    "Staircase to the bedrooms",
+    "Master bedroom",
+    "Basement",
+    "Basement room marked private",
+    "Swimming pool area",
+    "Cottage"
+  ],
+  "routes": [
+    "All named spaces are accessible through the house's ordinary connected layout",
+    "The staircase connects the entrance level with the bedrooms",
+    "The basement and its room marked private are accessible by the ordinary basement route",
+    "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+    "The cottage is accessible from the house and is farther from the kitchen than the dining room is"
+  ],
+  "usableFeatures": [
+    "Salon mantelpiece or equivalent display surface",
+    "Lockable study cabinet or equivalent secure document case",
+    "Framed picture on the staircase landing",
+    "Poolside chair kept outside the swimming pool",
+    "Ordinary terrace route between the house and cottage"
+  ],
+  "availableProps": [
+    "Replica blue diamond and glass display dome",
+    "Linen jacket and prop key ring",
+    "Sealed inheritance letter and lockable document case",
+    "Hollow art book",
+    "Framed photograph",
+    "Hollow bronze dove and empty prop pill bottle",
+    "Paper envelopes and lacquer cigarette box",
+    "Safe cognac glass containing no medicine or substance"
+  ],
+  "tone": "Hard-edged August 1962 Riviera noir: elegance, blackmail, inheritance, and family betrayal",
+  "safetyConstraints": [
+    "No physical contact",
+    "All physical beats are reversible and host-cued",
+    "No running or entering the swimming pool during play",
+    "Use only inert props; no real medicine, sharps, forced consumption, or uncontrolled darkness"
+  ],
+  "accessibilityNeeds": [
+    "All essential actions can be performed seated or by the host as named human proxy"
+  ],
+  "contentBoundaries": [
+    "No fictional content exclusions: murder, blackmail, infidelity, concealed sexuality, secret parentage, and class conflict may be treated without softening"
+  ]
+}

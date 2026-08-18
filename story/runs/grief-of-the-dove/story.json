@@ -1,0 +1,882 @@
+{
+  "schemaVersion": 2,
+  "id": "grief-of-the-dove",
+  "title": "La Colombe",
+  "setting": {
+    "venueName": "House in Grambois",
+    "location": "Grambois, France",
+    "era": "August 1962",
+    "playableSpaces": [
+      "Terrace",
+      "Dining room",
+      "Kitchen",
+      "Poolside parlor",
+      "Salon",
+      "Entrance hall",
+      "Staircase to the bedrooms",
+      "Master bedroom",
+      "Basement",
+      "Basement room marked private",
+      "Swimming pool area",
+      "Cottage"
+    ],
+    "routes": [
+      "All named spaces are accessible through the house's ordinary connected layout",
+      "The staircase connects the entrance level with the bedrooms",
+      "The basement and its room marked private are accessible by the ordinary basement route",
+      "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+      "The cottage is accessible from the house and is farther from the kitchen than the dining room is"
+    ],
+    "usableFeatures": [
+      "Salon mantelpiece or equivalent display surface",
+      "Lockable study cabinet or equivalent secure document case",
+      "Framed picture on the staircase landing",
+      "Poolside chair kept outside the swimming pool",
+      "Ordinary terrace route between the house and cottage"
+    ],
+    "availableProps": [
+      "Replica blue diamond and glass display dome",
+      "Linen jacket and prop key ring",
+      "Sealed inheritance letter and lockable document case",
+      "Hollow art book",
+      "Framed photograph",
+      "Hollow bronze dove and empty prop pill bottle",
+      "Paper envelopes and lacquer cigarette box",
+      "Safe cognac glass containing no medicine or substance"
+    ],
+    "tone": "Hard-edged August 1962 Riviera noir: elegance, blackmail, inheritance, and family betrayal",
+    "safetyConstraints": [
+      "No physical contact",
+      "All physical beats are reversible and host-cued",
+      "No running or entering the swimming pool during play",
+      "Use only inert props; no real medicine, sharps, forced consumption, or uncontrolled darkness"
+    ],
+    "accessibilityNeeds": [
+      "All essential actions can be performed seated or by the host as named human proxy"
+    ],
+    "contentBoundaries": [
+      "No fictional content exclusions: murder, blackmail, infidelity, concealed sexuality, secret parentage, and class conflict may be treated without softening"
+    ]
+  },
+  "story": {
+    "id": "grief-of-the-dove",
+    "seed": "grief-of-the-dove",
+    "title": "La Colombe",
+    "subtitle": "A blue diamond, one dead patriarch, and two crimes committed by different hands.",
+    "premise": "In August 1962, Sacha de Vernay summons five people to the House in Grambois and places his family's blue diamond, La Colombe, beneath a glass dome. Each guest received a private promise. Before Sacha can explain why their lives meet in this house, he collapses over his cognac and the diamond disappears. The murderer and the thief are not the same person.",
+    "totalPeople": 6,
+    "hostRole": "Sacha de Vernay, collector and patriarch; then Game Master",
+    "victim": "Sacha de Vernay",
+    "culprit": "Hélène de Vernay",
+    "characters": [
+      {
+        "id": "helene-de-vernay",
+        "name": "Hélène de Vernay",
+        "title": "Sacha's wife and the fortune behind the house",
+        "costume": "Severe black Riviera couture, old pearls, and immaculate gloves",
+        "publicFace": "Controlled, patrician, and lethal with a courtesy. You never raise your voice because the room already belongs to you.",
+        "invitationPretext": "As mistress of the house, you were expected to preside over Sacha's annual display of La Colombe.",
+        "invitationPromise": "Sacha promised that his announcement would finally settle what the Vernay marriage owed to the Rachaud fortune.",
+        "privateIdentity": "Rachaud money bought the house, the boat, the cars, and most of Sacha's collection; the Vernay name merely signed the invitations.",
+        "privateObjective": "Keep the inheritance letter sealed, destroy the evidence in the bronze dove, and turn Renato's study visit into the murder case.",
+        "privateSecret": "You killed Sacha. After reading that he meant to leave the house and La Colombe to Julien, you fictionally crushed Sacha's heart pills into his cognac. You hid the empty prop bottle inside the hollow bronze dove.",
+        "traits": [
+          "Glacial command",
+          "Truth deployed as a weapon",
+          "Absolute refusal to be dispossessed"
+        ],
+        "objectives": [
+          {
+            "id": "helene-burn-letter",
+            "title": "Erase the inheritance",
+            "text": "Gain control of the sealed letter and persuade another suspect that it should remain private or be destroyed.",
+            "phase": "investigation",
+            "points": 1
+          },
+          {
+            "id": "helene-frame-renato",
+            "title": "Build the actor",
+            "text": "Make two suspects publicly acknowledge that Renato entered the study and touched Sacha's glass.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "helene-keep-house",
+            "title": "Own the room",
+            "text": "Avoid conviction and make one suspect say aloud that the house was bought with your family's money.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "odile-bassot",
+            "text": "Thirty years of mutual contempt: Odile knows this household's bloodlines, and you know she has always protected Julien over you."
+          },
+          {
+            "roleId": "julien-bassot",
+            "text": "You have called Julien 'the boy' since childhood and refuse to consider what Sacha may have owed him."
+          },
+          {
+            "roleId": "renato-sabbatini",
+            "text": "Renato is vain, frightened, and useful: his secret study visit can carry the weight of your crime."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "helene-renato-exit",
+            "text": "At ten past seven, after Sacha had already collapsed, you saw Renato come out of the study white-faced and watched him wipe his fingers on a handkerchief.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "renato-sabbatini"
+            ],
+            "beat": 4,
+            "availableAfter": "stage-collapse"
+          },
+          {
+            "id": "helene-odile-threat",
+            "text": "Odile told Sacha this afternoon that if he failed Julien again, she would put the truth before every guest herself.",
+            "kind": "secret",
+            "aboutRoleIds": [
+              "odile-bassot"
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "id": "helene-serve-cognac",
+            "text": "Place the inert prop glass beside Sacha without touching him. Say, 'Drink to the house you are so eager to give away.' The host mimes one sip, sets it down, and performs the rehearsed collapse.",
+            "cue": "After Odile places the sealed letter beside La Colombe",
+            "consequence": "Creates the only staged death and makes Hélène's delivery of the cognac public without revealing the fictional pills.",
+            "essential": true,
+            "beat": 3,
+            "phase": "opening",
+            "physical": true,
+            "requires": [
+              "safe-glass",
+              "no-contact",
+              "host-proxy"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "renato-sabbatini",
+        "name": "Renato Sabbatini",
+        "title": "International film star and captive ornament",
+        "costume": "Impeccable dinner jacket, dark glasses, and a silk pocket square",
+        "publicFace": "Magnetic, sardonic, and exhausted by being looked at. You turn confession into performance before anyone can call it fear.",
+        "invitationPretext": "Sacha invited his most famous summer guest to lend glamour to the annual unveiling of La Colombe.",
+        "invitationPromise": "Sacha promised to return the Portofino photographs he had used to control eleven summers of your life.",
+        "privateIdentity": "You have maintained a forbidden relationship with Prince Amaury for six years, and Sacha made your silence part of the price of every invitation.",
+        "privateObjective": "Recover the photographs, keep Amaury unnamed, and survive the fact that you entered the study after Sacha was already dead.",
+        "privateSecret": "At ten past seven you entered the study to steal the photographs. Sacha was already dead. You searched the desk, found a drawer already disturbed, and touched the cognac glass before panic drove you out.",
+        "traits": [
+          "Weaponised charisma",
+          "Protective under cruelty",
+          "Instinctive theatrical misdirection"
+        ],
+        "objectives": [
+          {
+            "id": "renato-find-photograph",
+            "title": "Recover the photograph",
+            "text": "Gain possession of the framed photograph or convince another suspect to keep its subject private.",
+            "phase": "investigation",
+            "points": 1
+          },
+          {
+            "id": "renato-break-alibi",
+            "title": "Control the confession",
+            "text": "Admit entering the study before Hélène can use the fact as a complete case against you.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "renato-save-amaury",
+            "title": "Keep one name clean",
+            "text": "Reach the vote without any suspect publicly naming Amaury as the person in the Portofino photograph.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "poppy-ashcombe",
+            "text": "You brought Poppy because Sacha knew her mother; now you fear you delivered her to another man's cruelty."
+          },
+          {
+            "roleId": "helene-de-vernay",
+            "text": "Hélène saw you leave the study and will trade that truth for your destruction."
+          },
+          {
+            "roleId": "julien-bassot",
+            "text": "You have offered Julien escape through cinema twice; he rejected you twice and remains the only man here unimpressed by fame."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "renato-staircase-glass",
+            "text": "Before the gathering, you passed Hélène on the staircase carrying Sacha's cognac from underneath like a waiter. She was not fetching a shawl.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "helene-de-vernay"
+            ],
+            "beat": 3
+          },
+          {
+            "id": "renato-dove-rattle",
+            "text": "At six, Odile lifted the bronze dove while dusting and it made no sound. After Sacha fell, you moved it aside for an ashtray and heard something rattle inside.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "helene-de-vernay",
+              "odile-bassot"
+            ],
+            "beat": 6,
+            "availableAfter": "stage-collapse"
+          }
+        ],
+        "actions": [
+          {
+            "id": "renato-show-photograph",
+            "text": "Lift the prepared framed photograph from the staircase display, keep its image facing you, and tell Sacha that blackmail is not hospitality. Return it immediately when the host cues you.",
+            "cue": "After Julien places Sacha's wet jacket and keys by the display",
+            "consequence": "Establishes Renato's motive and the physical object he later enters the study to recover.",
+            "essential": true,
+            "beat": 4,
+            "phase": "opening",
+            "physical": true,
+            "requires": [
+              "staircase-picture",
+              "framed-photograph",
+              "no-contact",
+              "host-proxy"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "poppy-ashcombe",
+        "name": "Poppy Ashcombe",
+        "title": "English nightclub singer searching for her father",
+        "costume": "One excellent rain-darkened dress, borrowed jewellery, and defiant lipstick",
+        "publicFace": "Young, unsentimental, and quicker than anyone rich enough to underestimate you.",
+        "invitationPretext": "Renato brought you as his guest after Sacha wrote to your Paris club claiming he had known your mother in Rouen.",
+        "invitationPromise": "Sacha promised proof of your father's identity and 'the things you are owed'.",
+        "privateIdentity": "You came believing Sacha might be your father, although the photograph you stole from his desk is your only proof he knew your mother.",
+        "privateObjective": "Discover why Sacha summoned you, protect Julien from the class prejudice around the table, and keep your stolen photograph from becoming evidence against you.",
+        "privateSecret": "This afternoon you stole a photograph of your mother from Sacha's desk. After the collapse, you saw Odile cross the wet terrace toward the cottage holding something in both hands.",
+        "traits": [
+          "Direct without deference",
+          "Fiercely loyal to outsiders",
+          "Curiosity sharpened by grief"
+        ],
+        "objectives": [
+          {
+            "id": "poppy-read-invitation",
+            "title": "Collect what is owed",
+            "text": "Make another suspect explain what Sacha could have meant by 'the things you are owed'.",
+            "phase": "investigation",
+            "points": 1
+          },
+          {
+            "id": "poppy-protect-julien",
+            "title": "Refuse the easy suspect",
+            "text": "Break one public accusation against Julien by producing a truthful fact that points elsewhere.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "poppy-force-truth",
+            "title": "Make the house answer",
+            "text": "Get the inheritance letter read aloud and obtain a direct answer about your mother before the final vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "julien-bassot",
+            "text": "Julien showed you the cottage and spoke to you as an equal. Four days have been enough to make his fate matter."
+          },
+          {
+            "roleId": "odile-bassot",
+            "text": "Odile recognized your mother's name at the door and has avoided your eyes ever since."
+          },
+          {
+            "roleId": "renato-sabbatini",
+            "text": "Renato brought you and protects you, but he knows Sacha said he was not the man who owed you answers."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "poppy-cabinet-witness",
+            "text": "This afternoon you heard Hélène tell Sacha through the half-open study door: 'My money bought this house. I will not be written out of it for Odile's boy.'",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "helene-de-vernay",
+              "odile-bassot",
+              "julien-bassot"
+            ],
+            "beat": 2
+          },
+          {
+            "id": "poppy-study-light",
+            "text": "After Sacha collapsed, you saw the study lamp switch on and off while Renato was missing from the salon; Hélène remained with the others.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "renato-sabbatini",
+              "helene-de-vernay"
+            ],
+            "beat": 4,
+            "availableAfter": "stage-collapse"
+          },
+          {
+            "id": "poppy-rain-crossing",
+            "text": "In the confusion after the collapse, you saw Odile cross the terrace toward the cottage with her apron closed around a small hard object. She returned empty-handed.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "odile-bassot"
+            ],
+            "beat": 5,
+            "availableAfter": "stage-collapse"
+          }
+        ],
+        "actions": [
+          {
+            "id": "poppy-read-letter",
+            "text": "Open your prepared invitation and read Sacha's promise aloud: 'I knew your mother in Rouen. Come to Grambois; there are things you are owed.' Ask him whether he was your father.",
+            "cue": "When Sacha unveils La Colombe beneath its glass dome",
+            "consequence": "Places secret parentage and Sacha's contradictory private promises at the centre of the gathering.",
+            "essential": true,
+            "beat": 1,
+            "phase": "opening",
+            "physical": true,
+            "requires": [
+              "paper-envelopes",
+              "no-contact"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "julien-bassot",
+        "name": "Julien Bassot",
+        "title": "Boatman, caretaker, and unacknowledged son",
+        "costume": "Rolled white sleeves, dark trousers, and a rain-marked work jacket",
+        "publicFace": "Proud, practical, and done being summoned by people who never learned where you sleep.",
+        "invitationPretext": "You run the house, boat, shutters, and cars; Sacha ordered you to attend dinner as a guest for the first time.",
+        "invitationPromise": "After refusing your request for eleven thousand francs, Sacha said: 'Stay until midnight and you will have enough never to ask me again.'",
+        "privateIdentity": "You were born in the room behind the kitchen and have never been told who your father was.",
+        "privateObjective": "Learn what Sacha meant to give you, force Odile to name your father, and keep the public row from becoming a false murder case.",
+        "privateSecret": "At four you shouted that Sacha would regret keeping you trapped here. You also know his cabinet key is on the ring inside the linen jacket he left beside the swimming pool area.",
+        "traits": [
+          "Blunt working pride",
+          "Mechanical attentiveness",
+          "Long-contained anger"
+        ],
+        "objectives": [
+          {
+            "id": "julien-open-letter",
+            "title": "Hear the announcement",
+            "text": "Use the prop keys to have the sealed inheritance letter opened and read aloud.",
+            "phase": "investigation",
+            "points": 1
+          },
+          {
+            "id": "julien-name-father",
+            "title": "End the silence",
+            "text": "Make Odile tell you who your father was in front of at least one witness.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "julien-separate-crimes",
+            "title": "Separate blood from theft",
+            "text": "Correctly identify both the killer and the person who took La Colombe before the final reveal.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "odile-bassot",
+            "text": "Your mother has protected you with lies until protection and imprisonment became the same thing."
+          },
+          {
+            "roleId": "poppy-ashcombe",
+            "text": "Poppy is the only guest who asked about your life and waited for the answer."
+          },
+          {
+            "roleId": "helene-de-vernay",
+            "text": "Hélène has always treated you as part of the weather; today she heard Sacha promise you everything."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "julien-final-promise",
+            "text": "After your public row, Sacha told you privately: 'At dinner I will give you the house, the Dove, and the name I denied you.'",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "odile-bassot",
+              "helene-de-vernay"
+            ],
+            "beat": 1
+          },
+          {
+            "id": "julien-pill-question",
+            "text": "Before dinner you heard Hélène ask Odile where Sacha kept the spare bottle of heart pills; she claimed she wanted to pack his case.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "helene-de-vernay",
+              "odile-bassot"
+            ],
+            "beat": 3
+          },
+          {
+            "id": "julien-hollow-book",
+            "text": "Only you and Poppy know the cottage's hollow art book. After the collapse, its pages were damp and the replica Dove was inside, wrapped in one of Odile's polishing cloths.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "poppy-ashcombe",
+              "odile-bassot"
+            ],
+            "beat": 5,
+            "availableAfter": "stage-collapse"
+          }
+        ],
+        "actions": [
+          {
+            "id": "julien-bring-keys",
+            "text": "Walk by the ordinary outdoor route to the poolside chair, without approaching or entering the pool. Bring back the prepared linen jacket and prop keys, place them beside the dome, and tell Sacha you are done asking for what he owes you.",
+            "cue": "After Poppy asks Sacha about her father",
+            "consequence": "Makes the cabinet key available and publicly establishes Julien's explosive financial motive.",
+            "essential": true,
+            "beat": 1,
+            "phase": "opening",
+            "physical": true,
+            "requires": [
+              "poolside-chair",
+              "poolside-route",
+              "jacket-keys",
+              "no-running",
+              "host-proxy"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "odile-bassot",
+        "name": "Odile Bassot",
+        "title": "Housekeeper, keeper of the bloodline, and thief of La Colombe",
+        "costume": "Dark house dress, immaculate apron, sensible shoes, and a ring of ordinary household keys",
+        "publicFace": "Unsparing, observant, and almost invisible to anyone who mistakes service for ignorance.",
+        "invitationPretext": "After thirty years running the house, Sacha ordered you to sit at his table because his announcement concerned your family.",
+        "invitationPromise": "Sacha promised to acknowledge Julien publicly and put in writing what he had denied for twenty-seven years.",
+        "privateIdentity": "Sacha is Julien's father. You have protected that truth until the lie became another form of cruelty.",
+        "privateObjective": "Get the inheritance letter read aloud, keep Julien from being convicted, and decide whether safeguarding the diamond excuses stealing it.",
+        "privateSecret": "You did not kill Sacha. In the confusion after his collapse, you took La Colombe from beneath the dome and hid it in the hollow art book in the cottage so Julien would have one inheritance lawyers could not strip away.",
+        "traits": [
+          "Forensic household memory",
+          "Merciless class awareness",
+          "Maternal love hardened into control"
+        ],
+        "objectives": [
+          {
+            "id": "odile-read-letter",
+            "title": "Make paper speak",
+            "text": "Get another suspect—not you—to open and read Sacha's inheritance letter aloud.",
+            "phase": "investigation",
+            "points": 1
+          },
+          {
+            "id": "odile-protect-julien",
+            "title": "Protect the son",
+            "text": "Prevent Julien from being convicted, even if doing so requires admitting you took the diamond.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "odile-control-dove",
+            "title": "Choose the inheritance",
+            "text": "End the investigation either still controlling La Colombe's location or having surrendered it directly to Julien after naming his father.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "julien-bassot",
+            "text": "Your son deserves the truth, and you have spent twenty-seven years deciding that tomorrow would be kinder than today."
+          },
+          {
+            "roleId": "helene-de-vernay",
+            "text": "Hélène knows the Rachaud money bought the house; you know Sacha intended his blood to inherit it."
+          },
+          {
+            "roleId": "poppy-ashcombe",
+            "text": "You posted money orders to Poppy's mother in Rouen and know Sacha was not Poppy's father."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "odile-sealed-letter",
+            "text": "You witnessed Sacha seal the inheritance letter. It names Julien as his son and leaves him the House in Grambois and La Colombe.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "julien-bassot",
+              "helene-de-vernay"
+            ],
+            "beat": 1
+          },
+          {
+            "id": "odile-helenes-knowledge",
+            "text": "At five fifteen you found Hélène standing over the open document case with Sacha's inheritance letter in her hand. She knew exactly what he planned.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "helene-de-vernay",
+              "julien-bassot"
+            ],
+            "beat": 2
+          },
+          {
+            "id": "odile-dove-silent",
+            "text": "You polished the hollow bronze dove at six. It was empty and silent; the prop pill bottle could only have been placed inside after then.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "helene-de-vernay"
+            ],
+            "beat": 6
+          }
+        ],
+        "actions": [
+          {
+            "id": "odile-place-letter",
+            "text": "Use the prepared prop key to open the lockable document case. Remove the sealed inheritance letter without opening it, place it beside La Colombe, and tell Sacha that paper is the only promise this house will believe.",
+            "cue": "After Renato returns the framed photograph",
+            "consequence": "Puts the inheritance within reach while keeping its contents secret until free investigation.",
+            "essential": true,
+            "beat": 1,
+            "phase": "opening",
+            "physical": true,
+            "requires": [
+              "document-case",
+              "paper-envelopes",
+              "no-contact",
+              "host-proxy"
+            ]
+          }
+        ]
+      }
+    ],
+    "publicEvidence": [
+      {
+        "id": "scene-empty-dome",
+        "text": "After Sacha's collapse, the host removes the replica diamond from beneath the glass dome while the table's attention is on the body. The empty dome becomes public evidence; no player handles the disappearance itself.",
+        "beat": 5
+      },
+      {
+        "id": "scene-cognac-glass",
+        "text": "The inert prop glass remains beside Sacha. Its host card states that the fiction treats the drink as containing a fatal excess of Sacha's own heart medicine; no real substance was ever used.",
+        "beat": 3
+      }
+    ],
+    "evening": [
+      {
+        "id": "dove-briefing",
+        "title": "Private briefing",
+        "description": "Read the dossiers, establish August 1962, and give each suspect ten tokens.",
+        "durationMinutes": 10,
+        "phase": "opening"
+      },
+      {
+        "id": "dove-incident",
+        "title": "The last promise",
+        "description": "Follow the five short host-cued beats until Sacha collapses and the empty dome is revealed.",
+        "durationMinutes": 15,
+        "phase": "opening"
+      },
+      {
+        "id": "dove-investigation",
+        "title": "Dinner under accusation",
+        "description": "Bargain, trade, buy clues, expose private histories, and call a public accusation whenever the room is ready.",
+        "durationMinutes": 120,
+        "phase": "investigation"
+      },
+      {
+        "id": "dove-reveal",
+        "title": "The murderer and the thief",
+        "description": "Reveal both crimes, score objectives and tokens, and name the evening's awards.",
+        "durationMinutes": 15,
+        "phase": "reveal"
+      }
+    ],
+    "timeline": [
+      {
+        "beat": 1,
+        "title": "The unacknowledged heir",
+        "truth": "Sacha was Julien's father and intended to leave him the House in Grambois and La Colombe that night.",
+        "evidence": [
+          "odile-sealed-letter",
+          "julien-final-promise"
+        ]
+      },
+      {
+        "beat": 2,
+        "title": "The wife who read ahead",
+        "truth": "Hélène read the inheritance letter before dinner and knew the fortune bought with her family's money would pass to Odile's son.",
+        "evidence": [
+          "poppy-cabinet-witness",
+          "odile-helenes-knowledge"
+        ]
+      },
+      {
+        "beat": 3,
+        "title": "The fatal cognac",
+        "truth": "Hélène fictionally crushed Sacha's heart medicine into his cognac and personally delivered the glass that killed him.",
+        "evidence": [
+          "renato-staircase-glass",
+          "julien-pill-question",
+          "scene-cognac-glass"
+        ]
+      },
+      {
+        "beat": 4,
+        "title": "The intruder after death",
+        "truth": "Renato entered the study after Sacha was already dead, searching for blackmail photographs, and contaminated the glass without committing the murder.",
+        "evidence": [
+          "helene-renato-exit",
+          "poppy-study-light"
+        ]
+      },
+      {
+        "beat": 5,
+        "title": "The second crime",
+        "truth": "Odile took La Colombe after discovering the body and hid it in the cottage's hollow art book for Julien.",
+        "evidence": [
+          "poppy-rain-crossing",
+          "julien-hollow-book",
+          "scene-empty-dome"
+        ]
+      },
+      {
+        "beat": 6,
+        "title": "The bronze confession",
+        "truth": "Hélène hid the empty pill bottle inside the hollow bronze dove after Odile had polished it, proving the murderer and diamond thief were different people.",
+        "evidence": [
+          "odile-dove-silent",
+          "renato-dove-rattle"
+        ]
+      }
+    ],
+    "runPlan": [
+      {
+        "id": "open-the-dome",
+        "phase": "opening",
+        "title": "Unveil La Colombe",
+        "trigger": "When every player is seated and has read their dossier",
+        "operator": "Sacha welcomes the five guests, unveils the replica blue diamond, then cues Poppy to read her invitation.",
+        "actionIds": [
+          "poppy-read-letter"
+        ],
+        "dependsOn": [],
+        "essential": true
+      },
+      {
+        "id": "bring-the-keys",
+        "phase": "opening",
+        "title": "Bring in the rain",
+        "trigger": "After Poppy asks whether Sacha was her father",
+        "operator": "Sacha refuses to answer and cues Julien to retrieve only the prepared jacket and prop keys by the verified poolside route.",
+        "actionIds": [
+          "julien-bring-keys"
+        ],
+        "dependsOn": [
+          "open-the-dome"
+        ],
+        "essential": true
+      },
+      {
+        "id": "show-the-photograph",
+        "phase": "opening",
+        "title": "Name the blackmail",
+        "trigger": "When Julien places the jacket beside the display",
+        "operator": "Sacha turns the insult toward Renato and cues the prepared framed photograph beat.",
+        "actionIds": [
+          "renato-show-photograph"
+        ],
+        "dependsOn": [
+          "bring-the-keys"
+        ],
+        "essential": true
+      },
+      {
+        "id": "place-the-letter",
+        "phase": "opening",
+        "title": "Put the promise in reach",
+        "trigger": "After Renato returns the prepared photograph",
+        "operator": "Sacha gives Odile permission to open the prepared document case and place the sealed letter beside the diamond.",
+        "actionIds": [
+          "odile-place-letter"
+        ],
+        "dependsOn": [
+          "show-the-photograph"
+        ],
+        "essential": true
+      },
+      {
+        "id": "stage-collapse",
+        "phase": "opening",
+        "title": "The last cognac",
+        "trigger": "When the sealed letter rests beside La Colombe",
+        "operator": "Cue Hélène to place the inert glass. Perform the rehearsed no-contact collapse, announce Sacha dead, secretly remove the replica diamond, display the empty dome, and become Game Master.",
+        "actionIds": [
+          "helene-serve-cognac"
+        ],
+        "dependsOn": [
+          "place-the-letter"
+        ],
+        "essential": true
+      }
+    ],
+    "solution": "Sacha de Vernay meant to acknowledge Julien Bassot as his son and leave him the House in Grambois and La Colombe. Hélène had read the letter. Refusing to watch property bought with Rachaud money pass to Odile's child, she fictionally crushed Sacha's heart pills into his cognac and served it herself, then hid the empty bottle inside the hollow bronze dove. Renato entered the study only after Sacha was dead, searching for photographs of himself and Prince Amaury; his fingerprints and lies made him useful to Hélène but did not make him the killer. Odile discovered what had happened and committed the night's second crime: she took La Colombe and hid it in the cottage's hollow art book so Julien would receive something no lawyer could contest. Hélène killed Sacha. Odile stole the diamond."
+  },
+  "clueDecks": [
+    {
+      "id": "salon-testimony",
+      "label": "Salon testimony",
+      "settingField": "playableSpaces",
+      "settingValue": "Salon",
+      "clues": [
+        {
+          "id": "clue-letter-impression",
+          "text": "The sealed letter's blotting sheet carries the words 'my son Julien' and a transfer of the House in Grambois.",
+          "beat": 1
+        },
+        {
+          "id": "clue-cognac-residue",
+          "text": "The fictional residue described on the host card matches Sacha's own heart medicine, not any substance Renato brought into the study.",
+          "beat": 3
+        },
+        {
+          "id": "clue-bronze-thread",
+          "text": "A black thread caught inside the bronze dove matches Hélène's glove and not Odile's polishing cloth.",
+          "beat": 6
+        }
+      ]
+    },
+    {
+      "id": "cottage-cache",
+      "label": "Cottage cache",
+      "settingField": "playableSpaces",
+      "settingValue": "Cottage",
+      "clues": [
+        {
+          "id": "clue-art-book",
+          "text": "Blue velvet fibres from La Colombe's display base cling to the hollow art book, beside damp marks from an apron hem.",
+          "beat": 5
+        },
+        {
+          "id": "clue-photograph-time",
+          "text": "The prepared study clock record places Renato's search after the fatal glass was served, making him an intruder but not the poisoner.",
+          "beat": 4
+        }
+      ]
+    }
+  ],
+  "acts": [
+    {
+      "id": "opening",
+      "title": "The last promise",
+      "operatorGoal": "Expose five incompatible private promises, stage Sacha's single no-contact death, reveal the empty dome, then become Game Master.",
+      "playerGoal": "Deliver only your prepared cue, touch only your assigned inert props, and wait for Sacha's collapse before bargaining begins.",
+      "durationMinutes": 15,
+      "completionLabel": "Open dinner under accusation →"
+    }
+  ],
+  "setupRequirements": [
+    {
+      "id": "diamond-display",
+      "label": "Place the replica blue diamond beneath its glass display dome in the dining room.",
+      "settingField": "availableProps",
+      "settingValue": "Replica blue diamond and glass display dome"
+    },
+    {
+      "id": "jacket-keys",
+      "label": "Put the linen jacket and prop key ring on the verified poolside chair, away from the pool edge.",
+      "settingField": "availableProps",
+      "settingValue": "Linen jacket and prop key ring"
+    },
+    {
+      "id": "document-case",
+      "label": "Prepare the sealed inheritance letter inside the lockable document case.",
+      "settingField": "availableProps",
+      "settingValue": "Sealed inheritance letter and lockable document case"
+    },
+    {
+      "id": "paper-envelopes",
+      "label": "Prepare Poppy's invitation and the other paper packets used in the opening.",
+      "settingField": "availableProps",
+      "settingValue": "Paper envelopes and lacquer cigarette box"
+    },
+    {
+      "id": "framed-photograph",
+      "label": "Prepare the harmless framed Portofino photograph prop.",
+      "settingField": "availableProps",
+      "settingValue": "Framed photograph"
+    },
+    {
+      "id": "staircase-picture",
+      "label": "Place the prepared framed picture on the verified staircase landing.",
+      "settingField": "usableFeatures",
+      "settingValue": "Framed picture on the staircase landing"
+    },
+    {
+      "id": "bronze-dove",
+      "label": "Place the empty prop pill bottle inside the hollow bronze dove only after the host's setup check.",
+      "settingField": "availableProps",
+      "settingValue": "Hollow bronze dove and empty prop pill bottle"
+    },
+    {
+      "id": "hollow-book",
+      "label": "Prepare the hollow art book in the cottage; the host alone manages the replica diamond's hidden duplicate or transfer.",
+      "settingField": "availableProps",
+      "settingValue": "Hollow art book"
+    },
+    {
+      "id": "safe-glass",
+      "label": "Prepare an inert cognac glass with no medicine, substance, or required drinking.",
+      "settingField": "availableProps",
+      "settingValue": "Safe cognac glass containing no medicine or substance"
+    },
+    {
+      "id": "poolside-chair",
+      "label": "Confirm the jacket's chair is outside the swimming pool and reachable without approaching the water.",
+      "settingField": "usableFeatures",
+      "settingValue": "Poolside chair kept outside the swimming pool"
+    },
+    {
+      "id": "poolside-route",
+      "label": "Confirm the ordinary outdoor route to the swimming pool area is clear and host-approved.",
+      "settingField": "routes",
+      "settingValue": "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation"
+    },
+    {
+      "id": "no-contact",
+      "label": "Rehearse every handoff and Sacha's collapse without physical contact.",
+      "settingField": "safetyConstraints",
+      "settingValue": "No physical contact"
+    },
+    {
+      "id": "no-running",
+      "label": "Confirm that nobody runs or enters the swimming pool during play.",
+      "settingField": "safetyConstraints",
+      "settingValue": "No running or entering the swimming pool during play"
+    },
+    {
+      "id": "host-proxy",
+      "label": "Assign the host as proxy for any physical action a player cannot or should not perform.",
+      "settingField": "accessibilityNeeds",
+      "settingValue": "All essential actions can be performed seated or by the host as named human proxy"
+    }
+  ]
+}
