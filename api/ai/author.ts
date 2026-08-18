@@ -1,4 +1,4 @@
-import { generateText } from 'ai'
+import { generateText, Output } from 'ai'
 import { createGameDefinition } from '../../src/game/definition/create.js'
 import type { GameDefinitionInput } from '../../src/game/definition/contract.js'
 import { createSettingBrief } from '../../src/game/setting/brief.js'
@@ -123,13 +123,12 @@ export async function POST(request: Request) {
         model,
         system: 'You are a meticulous live-mystery designer. Return only the requested JSON object with no markdown fences. Build a playable, fair mystery from the verified setting; never reuse Maison Bleue demo canon.',
         prompt: [authoringBrief, shape, attempt ? `A prior draft failed validation. Correct these issues in a fresh complete draft:\n${lastError}` : 'Draft the complete game now.'].join('\n\n'),
+        output: Output.json({ name: 'setting_specific_game_definition', description: `A complete validated ${productNaming.name} game definition.` }),
         maxOutputTokens: 12000,
         temperature: 0.7,
         providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'story-authoring'] } },
       })
-      output = result.text
-        ? parseJsonObject(result.text)
-        : (result as unknown as { output?: unknown }).output
+      output = result.output ?? (result.text ? parseJsonObject(result.text) : undefined)
     } catch (error) {
       const code = classifyAiProviderError(error)
       if (code === 'invalid_output' && attempt === 0) {
