@@ -1,4 +1,5 @@
 import { generateText, Output } from 'ai'
+import { createSettingBrief } from '../../src/game/setting/brief.js'
 import type { SettingBriefInput } from '../../src/game/setting/contract.js'
 import { productNaming } from '../../src/product/naming.js'
 
@@ -72,19 +73,29 @@ export async function POST(request: Request) {
   if (!prompt) return json({ error: 'A description of the evening is required.' }, 400)
   if (prompt.length > 10_000) return json({ error: 'Keep the opening description under 10,000 characters.' }, 400)
 
-  try {
-    const result = await generateText({
-      model,
-      system: 'You extract a factual venue brief for a live mystery. Copy or concisely restate only facts the host explicitly supplied. Never invent, assume, or fill gaps. Unknown strings stay empty and unknown lists stay empty.',
-      prompt: `${settingShape}\n\nHost notes:\n${prompt}`,
-      output: Output.json({ name: 'setting_notes', description: 'Only setting facts explicitly present in the host notes.' }),
-      maxOutputTokens: 1500,
-      temperature: 0,
-      providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'setting-extraction'] } },
-    })
-    return json({ setting: cleanSetting(result.output), model })
-  } catch (error) {
-    console.error('AI setting extraction failed', error)
-    return json({ error: 'We could not shape those notes just now. Please try again.' }, 502)
+  let lastError = 'The generated setting was incomplete.'
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const result = await generateText({
+        model,
+        system: `You turn a tiny seed into a complete, conservative setting brief for a live mystery.
+Use every fact the host supplied. Fill every missing required field so the host never has to complete a form.
+Do not invent specific architecture, local history, permissions, or objects. When the seed omits venue facts, use honest neutral language such as "host's venue", "main host-approved gathering area", and "location unspecified; do not use local details".
+There must be at least two playable areas. If only one real room is known, define two functional zones within it and state that no relocation is required.
+Default to present day unless the seed implies another era. Supply safe defaults: no contact, running, darkness, inaccessible essential movement, or graphic violence; all physical beats are optional and host-cued. Keep inferred features and props generic, easy, and removable. Return only the requested JSON.`,
+        prompt: [settingShape, `Mystery seed:\n${prompt}`, attempt ? `The prior setting was invalid. Correct these issues:\n${lastError}` : 'Complete the setting brief now.'].join('\n\n'),
+        output: Output.json({ name: 'complete_setting_brief', description: 'A complete conservative setting brief derived from one mystery seed.' }),
+        maxOutputTokens: 1800,
+        temperature: 0.2,
+        providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'setting-seeding'] } },
+      })
+      const setting = createSettingBrief(cleanSetting(result.output))
+      return json({ setting, model })
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error)
+    }
   }
+
+  console.error('AI setting seeding failed validation', lastError)
+  return json({ error: 'We could not turn that seed into a safe playable setting. Please try again.' }, 502)
 }
