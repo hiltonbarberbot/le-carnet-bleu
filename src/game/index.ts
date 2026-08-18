@@ -1,9 +1,11 @@
 export { generateGame } from './generate'
-export { createDemoGame, demoSetting } from './demo'
+export { createDemoGame, createDemoStoryline, demoSetting } from './demo'
 export { createSettingBrief, getSettingBriefBlockers, settingQuestions } from './setting/brief'
-export { createAuthoredGame, createStoryAuthoringBrief } from './story/authoring'
-export { createGameDefinition, validateGameDefinition } from './definition/create'
-export { createLeCarnetBleuRuntime, leCarnetBleuManifest } from './runtime/le-carnet-bleu'
+export { createAuthoredGame, createAuthoredStoryline, createStoryAuthoringBrief } from './story/authoring'
+export { createGameDefinition, createStorylineDefinition, validateGameDefinition, validateStorylineDefinition } from './definition/create'
+export { createGame } from './session/lifecycle'
+export { createGameRuntime, createLeCarnetBleuRuntime, leCarnetBleuManifest } from './runtime/game'
+export { gameManifest, productNaming } from '../product/naming'
 export { discoverGames, resolveGame } from './runtime/registry'
 export type {
   CreateSessionRequest,
@@ -15,7 +17,7 @@ export type {
   RuntimeEvent,
   RuntimeResult,
 } from './runtime/contract'
-export type { GameState, Story } from './types'
+export type { ActiveGameState, GameState, ScoreCard, Story } from './types'
 export type { SettingBrief, SettingBriefInput, SettingQuestion } from './setting/contract'
-export type { AuthoredGame } from './story/authoring'
-export type { ActDefinition, GameDefinition, GameDefinitionInput, SetupRequirement } from './definition/contract'
+export type { AuthoredGame, AuthoredStoryline } from './story/authoring'
+export type { ActDefinition, ClueCard, ClueDeck, GameDefinition, GameDefinitionInput, SetupRequirement, StorylineDefinition, StorylineDefinitionInput } from './definition/contract'

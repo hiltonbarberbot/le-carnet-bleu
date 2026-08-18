@@ -1,7 +1,7 @@
 import { hashString } from '../random/hash.js'
 import { createSettingBrief } from '../setting/brief.js'
 import { compileStory, validateStory } from '../story/compile.js'
-import type { GameDefinition, GameDefinitionInput } from './contract.js'
+import type { StorylineDefinition, StorylineDefinitionInput } from './contract.js'
 
 function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`
@@ -12,7 +12,7 @@ function canonical(value: unknown): string {
   return JSON.stringify(value)
 }
 
-function fingerprint(input: Omit<GameDefinition, 'fingerprint'>) {
+function fingerprint(input: Omit<StorylineDefinition, 'fingerprint'>) {
   const serialized = canonical(input)
   return [
     hashString(`definition:a:${serialized}`),
@@ -22,24 +22,54 @@ function fingerprint(input: Omit<GameDefinition, 'fingerprint'>) {
   ].map(value => value.toString(16).padStart(8, '0')).join('')
 }
 
-export function validateGameDefinition(input: GameDefinitionInput): string[] {
-  const errors = validateStory(input.story)
+export function validateStorylineDefinition(input: StorylineDefinitionInput): string[] {
+  const clueIds = new Set(input.clueDecks.flatMap(deck => deck.clues.map(clue => clue.id)))
+  const errors = validateStory(input.story, clueIds)
   if (!input.id.trim()) errors.push('definition id is required')
   if (!input.title.trim()) errors.push('definition title is required')
   if (input.story.characters.length !== 5 || input.story.totalPeople !== 6) {
     errors.push('definition requires exactly five suspects and one host')
   }
 
+  if (input.clueDecks.length !== 2) errors.push('definition requires exactly two setting-derived clue decks')
+  const deckIds = new Set<string>()
+  let clueCount = 0
+  for (const deck of input.clueDecks) {
+    if (!deck.id.trim() || !deck.label.trim()) errors.push('clue decks require id and label')
+    if (deckIds.has(deck.id)) errors.push(`duplicate clue deck ${deck.id}`)
+    deckIds.add(deck.id)
+    if (!input.setting[deck.settingField].includes(deck.settingValue)) {
+      errors.push(`clue deck ${deck.id} references missing ${deck.settingField} value “${deck.settingValue}”`)
+    }
+    if (!deck.clues.length) errors.push(`clue deck ${deck.id} is empty`)
+    for (const clue of deck.clues) {
+      clueCount += 1
+      if (!clue.id.trim() || !clue.text.trim()) errors.push(`clue deck ${deck.id} contains an incomplete clue`)
+      if (!Number.isInteger(clue.beat) || clue.beat < 1 || clue.beat > input.story.timeline.length) errors.push(`clue ${clue.id} references invalid timeline beat ${clue.beat}`)
+    }
+  }
+  if (clueIds.size !== clueCount) errors.push('purchasable clue ids must be unique')
+  if (clueCount !== input.story.characters.length) errors.push('definition requires exactly one unique purchasable clue per suspect')
+
   const actIds = new Set<string>()
   for (const act of input.acts) {
     if (!act.id.trim()) errors.push('act id is required')
     if (actIds.has(act.id)) errors.push(`duplicate act id ${act.id}`)
     actIds.add(act.id)
-    if (!act.title.trim() || !act.operatorGoal.trim() || !act.completionLabel.trim()) {
-      errors.push(`act ${act.id || '(missing id)'} requires title, operatorGoal and completionLabel`)
+    if (!act.title.trim() || !act.operatorGoal.trim() || !act.playerGoal.trim() || !act.completionLabel.trim()) {
+      errors.push(`act ${act.id || '(missing id)'} requires title, operatorGoal, playerGoal and completionLabel`)
     }
+    if (!Number.isFinite(act.durationMinutes) || act.durationMinutes < 1) errors.push(`act ${act.id || '(missing id)'} needs a positive duration`)
+    if (act.durationMinutes > 15) errors.push(`opening act ${act.id || '(missing id)'} must finish within fifteen minutes`)
   }
-  if (!input.acts.length) errors.push('definition requires at least one authored act')
+  if (input.acts.length !== 1) errors.push('definition requires exactly one short authored opening before free play')
+
+  const investigationStages = input.story.evening.filter(stage => stage.phase === 'investigation')
+  if (investigationStages.length !== 1) errors.push('evening requires exactly one continuous open investigation stage')
+  const investigationMinutes = investigationStages[0]?.durationMinutes
+  if (investigationMinutes && (investigationMinutes < 60 || investigationMinutes > 180)) {
+    errors.push('open investigation must be planned for one to three hours')
+  }
 
   for (const beat of input.story.runPlan) {
     if (!actIds.has(beat.phase)) errors.push(`run-plan beat ${beat.id} uses undeclared act ${beat.phase}`)
@@ -85,19 +115,26 @@ export function validateGameDefinition(input: GameDefinitionInput): string[] {
   return [...new Set(errors)]
 }
 
-export function createGameDefinition(input: GameDefinitionInput): GameDefinition {
-  const normalized: Omit<GameDefinition, 'fingerprint'> = {
-    schemaVersion: 1,
+export function createStorylineDefinition(input: StorylineDefinitionInput): StorylineDefinition {
+  const normalized: Omit<StorylineDefinition, 'fingerprint'> = {
+    schemaVersion: 2,
     id: input.id.trim(),
     title: input.title.trim(),
     setting: createSettingBrief(input.setting),
-    story: compileStory(structuredClone(input.story)),
+    story: compileStory(structuredClone(input.story), new Set(input.clueDecks.flatMap(deck => deck.clues.map(clue => clue.id)))),
+    clueDecks: structuredClone(input.clueDecks),
     acts: structuredClone(input.acts),
     setupRequirements: structuredClone(input.setupRequirements),
   }
-  const errors = validateGameDefinition({ ...normalized, fingerprint: input.fingerprint })
-  if (errors.length) throw new Error(`Invalid game definition:\n${errors.join('\n')}`)
+  const errors = validateStorylineDefinition({ ...normalized, fingerprint: input.fingerprint })
+  if (errors.length) throw new Error(`Invalid storyline definition:\n${errors.join('\n')}`)
   const expected = fingerprint(normalized)
-  if (input.fingerprint && input.fingerprint !== expected) throw new Error('Game definition fingerprint does not match its content.')
+  if (input.fingerprint && input.fingerprint !== expected) throw new Error('Storyline fingerprint does not match its content.')
   return { ...normalized, fingerprint: expected }
 }
+
+/** @deprecated Use validateStorylineDefinition. */
+export const validateGameDefinition = validateStorylineDefinition
+
+/** @deprecated Use createStorylineDefinition. */
+export const createGameDefinition = createStorylineDefinition

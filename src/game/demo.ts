@@ -1,5 +1,6 @@
 import { generateGame } from './generate.js'
-import { createAuthoredGame } from './story/authoring.js'
+import { createAuthoredStoryline } from './story/authoring.js'
+import { clueDecks } from './scenario.js'
 
 export const demoSetting = {
   venueName: 'Maison Bleue demo house',
@@ -16,24 +17,21 @@ export const demoSetting = {
   contentBoundaries: ['No graphic violence', 'No harm to children during play'],
 }
 
-export function createDemoGame(seed = 'maison-bleue-demo') {
-  return createAuthoredGame({
+export function createDemoStoryline(seed = 'maison-bleue-demo') {
+  return createAuthoredStoryline({
     id: 'maison-bleue-demo',
     title: 'Maison Bleue demo',
     setting: demoSetting,
     story: generateGame(seed),
+    clueDecks,
     acts: [
       {
-        id: 'dinner',
-        title: 'Dinner and the old accusation',
-        operatorGoal: 'Establish the old injustice, expose the notebook, and prepare the reconstruction.',
-        completionLabel: 'Begin the reconstruction →',
-      },
-      {
-        id: 'blackout',
-        title: 'The reconstructed minute',
-        operatorGoal: 'Stage the murder and false-suspect discovery under safe host control.',
-        completionLabel: 'End the reconstruction and investigate →',
+        id: 'opening',
+        title: 'The murder at Maison Bleue',
+        operatorGoal: 'Deliver the prepared reckoning, stage the short no-contact murder, then become Game Master and release the room into free play.',
+        playerGoal: 'Introduce your character, follow only your private host cue, and wait for the body to be discovered before bargaining begins.',
+        durationMinutes: 10,
+        completionLabel: 'Open the investigation →',
       },
     ],
     setupRequirements: [
@@ -41,6 +39,7 @@ export function createDemoGame(seed = 'maison-bleue-demo') {
       { id: 'paper-knife', label: 'Prepare only the blunt prop paper knife.', settingField: 'availableProps', settingValue: 'Blunt prop paper knife' },
       { id: 'replica-letters', label: 'Place the replica letters where the host can retrieve them.', settingField: 'availableProps', settingValue: 'Replica letters' },
       { id: 'paper-notes', label: 'Prepare the private note and envelope.', settingField: 'availableProps', settingValue: 'Paper notes and envelopes' },
+      { id: 'timer-track', label: 'Prepare the timer or gramophone track used for the reconstructed minute.', settingField: 'availableProps', settingValue: 'Timer or gramophone track' },
       { id: 'safe-route', label: 'Verify the route between the dining room and staged area.', settingField: 'routes', settingValue: 'A host-verified, step-free route connects the dining room and staged study' },
       { id: 'controlled-lights', label: 'Verify the host-controlled lighting and timer.', settingField: 'usableFeatures', settingValue: 'Controllable dining-room lights' },
       { id: 'staged-area', label: 'Clear the staged study area and desk.', settingField: 'playableSpaces', settingValue: 'Staged study' },
@@ -48,3 +47,6 @@ export function createDemoGame(seed = 'maison-bleue-demo') {
     ],
   })
 }
+
+/** @deprecated Use createDemoStoryline. */
+export const createDemoGame = createDemoStoryline

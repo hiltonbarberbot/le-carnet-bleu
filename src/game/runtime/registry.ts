@@ -14,13 +14,17 @@ export function discoverGames(runtimes: PortableGameRuntime[]): DiscoveredGame[]
   })
 }
 
-export function resolveGame(runtimes: PortableGameRuntime[], selector: string): PortableGameRuntime | null {
+export function findMatchingGames(runtimes: PortableGameRuntime[], selector: string): PortableGameRuntime[] {
   const wanted = selector.trim().toLowerCase()
-  const exactDefinition = runtimes.find(runtime => runtime.authoredGame.definitionId.toLowerCase() === wanted
+  const exactDefinitions = runtimes.filter(runtime => runtime.authoredGame.definitionId.toLowerCase() === wanted
     || runtime.authoredGame.definitionFingerprint.toLowerCase() === wanted)
-  if (exactDefinition) return exactDefinition
-  const matches = runtimes.filter(runtime => runtime.manifest.id.toLowerCase() === wanted
+  if (exactDefinitions.length) return exactDefinitions
+  return runtimes.filter(runtime => runtime.manifest.id.toLowerCase() === wanted
     || runtime.manifest.name.toLowerCase() === wanted
     || runtime.manifest.aliases.some(alias => alias.toLowerCase() === wanted))
+}
+
+export function resolveGame(runtimes: PortableGameRuntime[], selector: string): PortableGameRuntime | null {
+  const matches = findMatchingGames(runtimes, selector)
   return matches.length === 1 ? matches[0] : null
 }

@@ -1,4 +1,5 @@
 import type { Character, PublicEvidence, RunBeat, TimelineBeat } from './types.js'
+import type { ClueDeck } from './definition/contract.js'
 
 export const timeline: TimelineBeat[] = [
   {
@@ -16,7 +17,7 @@ export const timeline: TimelineBeat[] = [
   {
     beat: 3,
     title: 'The borrowed blade',
-    truth: 'During the first course, Jacques borrowed Hélène’s silver paper knife to cut a ribbon. He appeared to return it, but left only its ornamental sheath beside her place.',
+    truth: 'During the first course, Jacques borrowed Hélène’s silver paper knife while pointing out a name in the notebook. He appeared to return it, but left only its ornamental sheath beside her place.',
     evidence: ['francois-switch', 'amelie-jackets'],
   },
   {
@@ -27,8 +28,8 @@ export const timeline: TimelineBeat[] = [
   },
   {
     beat: 5,
-    title: 'The open terrace',
-    truth: 'Pierre opened the terrace doors for Armand’s reconstruction of the old crime. The short garden passage then offered an unseen route between the dining room and study.',
+    title: 'The verified passage',
+    truth: 'Pierre traced the host-verified route for Armand’s reconstruction of the old crime. The clear passage offered an unseen route between the dining room and staged study.',
     evidence: ['pierre-door', 'amelie-draught'],
   },
   {
@@ -40,7 +41,7 @@ export const timeline: TimelineBeat[] = [
   {
     beat: 7,
     title: 'The words in the study',
-    truth: 'Jacques entered through the terrace and demanded page forty-seven. Armand refused, saying that a written confession had already gone to the examining magistrate.',
+    truth: 'Jacques entered by the host-verified passage and demanded page forty-seven. Armand refused, saying that a written confession had already gone to the examining magistrate.',
     evidence: ['jacques-confronts', 'amelie-laugh'],
   },
   {
@@ -52,7 +53,7 @@ export const timeline: TimelineBeat[] = [
   {
     beat: 9,
     title: 'The missing leaf',
-    truth: 'Jacques tore page forty-seven from Le Carnet Bleu and returned by the garden passage before the lights came back. He could destroy a page, but not the confession Armand had already sent.',
+    truth: 'Jacques tore page forty-seven from Le Carnet Bleu and returned by the host-verified passage before the lights came back. He could destroy a page, but not the confession Armand had already sent.',
     evidence: ['jacques-flight', 'pierre-shadow'],
   },
   {
@@ -71,6 +72,30 @@ export const publicEvidence: PublicEvidence[] = [
   },
 ]
 
+export const clueDecks: ClueDeck[] = [
+  {
+    id: 'study-records',
+    label: 'Study records',
+    settingField: 'playableSpaces',
+    settingValue: 'Staged study',
+    clues: [
+      { id: 'clue-page-impression', beat: 4, text: 'A paper note beneath the blue notebook preserves a reversed impression from page forty-seven: “J. Vallon — Saint-Auban.”' },
+      { id: 'clue-confession-receipt', beat: 9, text: 'A courier receipt shows that Armand sent a sealed confession to the examining magistrate before the guests arrived.' },
+      { id: 'clue-letters-dust', beat: 10, text: 'The clean rectangle in the west drawer matches the bundle of Luc’s letters in Hélène’s hands; they were removed only moments ago.' },
+    ],
+  },
+  {
+    id: 'dining-room-traces',
+    label: 'Dining-room traces',
+    settingField: 'playableSpaces',
+    settingValue: 'Dining room',
+    clues: [
+      { id: 'clue-velvet-fibres', beat: 3, text: 'Blue velvet fibres from the empty paper-knife sheath cling to Jacques’s pale left glove.' },
+      { id: 'clue-passage-dust', beat: 9, text: 'Fine dust from the staged-study threshold marks the heel of Jacques’s otherwise polished shoe.' },
+    ],
+  },
+]
+
 export const cast: Character[] = [
   {
     id: 'jacques',
@@ -78,11 +103,27 @@ export const cast: Character[] = [
     title: 'Financier and former secretary to the Marquis de Veyrac',
     costume: 'Immaculate black tie, pale gloves, a silver carnation',
     publicFace: 'Courteous, prosperous, and never surprised. You speak of the past as though it were a regrettable servant who has already been dismissed.',
+    invitationPretext: 'Armand asked you to advise him on a discreet sale of Maison Bleue and settle the last Veyrac accounts.',
+    invitationPromise: '“Come to Maison Bleue. Before midnight, I will return the page that has cost you fifteen years.”',
+    privateIdentity: 'You are the real Saint-Auban thief: the respected financier whose fortune began with the sapphire Luc Bellande died for stealing.',
+    privateObjective: 'Take page forty-seven and make certain no surviving account can name you. If Armand refuses, carry out the murder and frame Hélène as planned.',
     privateSecret: 'You stole the Saint-Auban sapphire and allowed Luc Bellande to die for it. Armand has blackmailed you ever since. Tonight you intend to kill him, remove page forty-seven from Le Carnet Bleu, and leave Hélène’s paper knife at the scene.',
-    memories: [
+    traits: ['Immaculately composed', 'Courteous under pressure', 'Treats every confidence as a transaction'],
+    objectives: [
+      { id: 'jacques-page', title: 'Find page forty-seven', text: 'Learn where Armand kept the page and who else saw it before the murder.', phase: 'investigation', points: 1 },
+      { id: 'jacques-frame', title: 'Build another suspect', text: 'Make at least two guests openly question Hélène’s motive.', phase: 'any', points: 1 },
+      { id: 'jacques-escape', title: 'Escape the vote', text: 'Keep the final conviction vote away from you.', phase: 'investigation', points: 2 },
+    ],
+    relationships: [
+      { roleId: 'madame', text: 'Hélène has the weapon you need and a secret worth exploiting.' },
+      { roleId: 'pierre', text: 'Pierre once protected you, but may sacrifice you to save himself.' },
+      { roleId: 'francois', text: 'François is hunting proof that could destroy the life you built.' },
+    ],
+    secrets: [
       {
         id: 'jacques-find',
         kind: 'evidence',
+        aboutRoleIds: ['pierre'],
         beat: 4,
         availableAfter: 'jacket-switch',
         text: 'When Armand displayed Le Carnet Bleu, you saw your name at the top of page forty-seven. The next page began with an account of payments from the Veyrac household.',
@@ -97,6 +138,7 @@ export const cast: Character[] = [
       {
         id: 'jacques-shove',
         kind: 'secret',
+        aboutRoleIds: ['madame'],
         beat: 8,
         availableAfter: 'stage-murder',
         text: 'You deliberately killed Armand with Hélène’s silver paper knife. This was not a quarrel that went too far; you came prepared to murder him.',
@@ -106,34 +148,40 @@ export const cast: Character[] = [
         kind: 'secret',
         beat: 9,
         availableAfter: 'stage-murder',
-        text: 'You tore page forty-seven from the notebook, left the paper knife beside Armand, and returned through the terrace before the lights came back.',
+        text: 'You tore page forty-seven from the notebook, left the paper knife beside Armand, and returned through the host-verified passage before the lights came back.',
       },
       {
         id: 'jacques-duel',
         kind: 'colour',
         text: 'For fifteen years, Armand’s demands arrived in violet-black ink, each signed with a small blue cross. You have paid every one of them.',
       },
+      {
+        id: 'jacques-telegram',
+        kind: 'secret',
+        aboutRoleIds: ['francois'],
+        text: 'The supposed official telegram smells of the sealing wax François uses on his pâtisserie accounts. You suspect he forged it.',
+      },
     ],
     actions: [
       {
         id: 'jacques-toast',
-        text: 'Raise your glass to “Luc Bellande, whose empty chair has waited sixteen years.” Challenge Armand to say why you have all been summoned. While opening the host’s ribboned cigar box, borrow Hélène’s blunt silver prop paper knife and appear to return it by placing only its sheath beside her.',
-        cue: 'After the first wine is poured and Hélène’s prop paper knife is in place',
+        text: 'Propose a toast to “Luc Bellande, whose empty chair has waited sixteen years.” Challenge Armand to say why you have all been summoned. Ask to inspect Hélène’s blunt silver prop paper knife, use it to point at a name in the prepared blue notebook, then appear to return it by placing only its sheath beside her.',
+        cue: 'When the host places the blue notebook and Hélène’s prop paper knife',
         consequence: 'Forces the old case into the open and places the staged murder weapon in your possession.',
         essential: true,
         beat: 3,
-        phase: 'dinner',
+        phase: 'opening',
         physical: true,
-        requires: ['paper-knife'],
+        requires: ['notebook', 'paper-knife'],
       },
       {
         id: 'jacques-murder',
-        text: 'During the blackout, take the safe terrace route to the study. Demand page forty-seven, perform the rehearsed confrontation, mime one thrust without touching the host, place the blunt prop beside them, tear out the replica page, and leave by the same route.',
+        text: 'During the blackout, take the host-verified route to the staged study. Demand page forty-seven, perform the rehearsed confrontation, mime one thrust without touching the host, place the blunt prop beside them, tear out the replica page, and leave by the same route.',
         cue: 'When the lights go out and the host quietly calls you to the study',
         consequence: 'Creates the deliberate murder, the attempt to frame Hélène, and the missing page.',
         essential: true,
         beat: 8,
-        phase: 'blackout',
+        phase: 'opening',
         physical: true,
         requires: ['paper-knife', 'safe-route', 'controlled-lights', 'staged-area', 'no-contact'],
       },
@@ -145,17 +193,34 @@ export const cast: Character[] = [
     title: 'Widow of the late Marquis de Veyrac',
     costume: 'Black silk, a single strand of pearls, violet perfume',
     publicFace: 'A woman trained never to hurry, explain, or forgive. The house once belonged to your family, and you still behave as though everyone in it does too.',
+    invitationPretext: 'Armand invited you to identify the last Veyrac family effects before Maison Bleue changes hands.',
+    invitationPromise: '“Come to Maison Bleue. Before midnight, I will return what Luc Bellande left in this house.”',
+    privateIdentity: 'You were Luc Bellande’s lover, and your daughter—not the Marquis’s—is his child.',
+    privateObjective: 'Recover Luc’s letters before anyone can read them, and keep your daughter’s parentage out of Armand’s reckoning.',
     privateSecret: 'Luc Bellande was your lover, and your daughter was his child. You let him be convicted rather than expose her parentage. Armand kept Luc’s letters and used them to extort your late husband. Tonight you mean to recover them before the notebook is opened.',
-    memories: [
+    traits: ['Regal and unhurried', 'Protective of family', 'Never explains more than necessary'],
+    objectives: [
+      { id: 'madame-letters', title: 'Recover Luc’s letters', text: 'Learn where the letters are and leave the evening holding them.', phase: 'any', points: 2 },
+      { id: 'madame-daughter', title: 'Protect your daughter', text: 'Keep her parentage out of the public discussion.', phase: 'any', points: 1 },
+      { id: 'madame-trust', title: 'Win one protector', text: 'Persuade François or Pierre to defend you when accusations begin.', phase: 'investigation', points: 1 },
+    ],
+    relationships: [
+      { roleId: 'francois', text: 'François deserves the truth about Luc, but that truth could destroy your family.' },
+      { roleId: 'pierre', text: 'Pierre knows how evidence disappears and may still have the habit.' },
+      { roleId: 'amelie', text: 'Amélie remembers the night that joined your secrets, but you do not know which version she will tell.' },
+    ],
+    secrets: [
       {
         id: 'madame-ledger',
         kind: 'evidence',
+        aboutRoleIds: ['jacques', 'pierre'],
         beat: 1,
         text: 'Your late husband’s household ledger records a large payment to Armand three days after Luc Bellande withdrew his accusation against Jacques. The entry is marked only “for silence”.',
       },
       {
         id: 'madame-glimpse',
         kind: 'evidence',
+        aboutRoleIds: ['jacques'],
         beat: 2,
         text: 'Before dinner, you saw Le Carnet Bleu open on Armand’s desk. One heading read “The Bellande affair”; beneath it were your initials and Jacques Vallon’s name.',
       },
@@ -176,6 +241,12 @@ export const cast: Character[] = [
         kind: 'colour',
         text: 'Your violet perfume lingers in every room you enter. You know it will place you in the study whether or not you tell the truth.',
       },
+      {
+        id: 'madame-songbook',
+        kind: 'colour',
+        aboutRoleIds: ['amelie'],
+        text: 'Amélie once hid a signed statement inside her songbook. You saw Pierre take the book away after the old investigation.',
+      },
     ],
     actions: [
       {
@@ -184,7 +255,7 @@ export const cast: Character[] = [
         cue: 'Before Armand displays Le Carnet Bleu',
         consequence: 'Creates a genuine secret alliance and an apparently murderous piece of evidence.',
         essential: false,
-        phase: 'dinner',
+        phase: 'opening',
         physical: true,
         requires: ['paper-notes'],
       },
@@ -195,7 +266,7 @@ export const cast: Character[] = [
         consequence: 'Places you at the scene with a secret worth concealing, making you the strongest false suspect.',
         essential: true,
         beat: 10,
-        phase: 'blackout',
+        phase: 'opening',
         physical: true,
         requires: ['replica-letters', 'controlled-lights', 'staged-area', 'no-contact'],
       },
@@ -207,11 +278,27 @@ export const cast: Character[] = [
     title: 'Pastry chef and son of the man condemned for the Saint-Auban theft',
     costume: 'A dark dinner suit with an old prison letter in the breast pocket',
     publicFace: 'Quiet and self-possessed. You have spent your life hearing that bitterness is unbecoming in the son of a criminal.',
+    invitationPretext: 'Armand commissioned a final course in Luc Bellande’s memory and invited you to discuss a small memorial at the house.',
+    invitationPromise: '“Come to Maison Bleue. Before midnight, I will give you proof that your father was innocent.”',
+    privateIdentity: 'You are the anonymous author of the false official telegram announcing an examining magistrate at dawn.',
+    privateObjective: 'Force Armand to open Le Carnet Bleu in front of witnesses and leave with proof that clears your father, even if your forgery is exposed.',
     privateSecret: 'You forged the telegram claiming an examining magistrate will collect Le Carnet Bleu at dawn. You wanted to frighten Armand into producing the proof that would clear your father, but the forgery gives you an obvious reason to silence him.',
-    memories: [
+    traits: ['Quietly determined', 'Suspicious of inherited authority', 'Careful until his father is discussed'],
+    objectives: [
+      { id: 'francois-clear', title: 'Clear your father', text: 'Put two independent pieces of evidence for Luc’s innocence before the table.', phase: 'any', points: 2 },
+      { id: 'francois-signatures', title: 'Gather witnesses', text: 'Persuade two guests to sign the back of Luc’s letter in support of reopening the case.', phase: 'investigation', points: 1 },
+      { id: 'francois-forgery', title: 'Protect the telegram', text: 'Keep your forgery secret until accusations are made.', phase: 'investigation', points: 1 },
+    ],
+    relationships: [
+      { roleId: 'amelie', text: 'Amélie was present during the original blackout and may know your father was innocent.' },
+      { roleId: 'madame', text: 'Hélène visited Luc in prison and has never explained why.' },
+      { roleId: 'pierre', text: 'Pierre built the case against your father and still insists every missing page was an accident.' },
+    ],
+    secrets: [
       {
         id: 'francois-switch',
         kind: 'evidence',
+        aboutRoleIds: ['jacques', 'madame'],
         beat: 3,
         availableAfter: 'jacket-switch',
         text: 'You watched Jacques borrow Hélène’s silver paper knife. When he moved away, you saw its decorated sheath beside her plate—but the silver handle itself was not inside it.',
@@ -219,6 +306,7 @@ export const cast: Character[] = [
       {
         id: 'francois-clock',
         kind: 'evidence',
+        aboutRoleIds: ['amelie'],
         beat: 6,
         availableAfter: 'stage-false-culprit',
         text: 'You timed the blackout against the gramophone record. It lasted exactly sixty seconds, and the fatal noise came before the final refrain.',
@@ -231,6 +319,7 @@ export const cast: Character[] = [
       {
         id: 'francois-kiss',
         kind: 'colour',
+        aboutRoleIds: ['madame'],
         text: 'Hélène visited your father once in prison. He refused to see her, but kept her unopened letter until he died.',
       },
       {
@@ -247,7 +336,7 @@ export const cast: Character[] = [
         consequence: 'Makes the old conviction the moral centre of the dinner and forces Armand to display the notebook.',
         essential: true,
         beat: 2,
-        phase: 'dinner',
+        phase: 'opening',
         physical: true,
         requires: ['notebook', 'replica-letters'],
       },
@@ -259,37 +348,56 @@ export const cast: Character[] = [
     title: 'Retired examining inspector',
     costume: 'A sober blue suit, old police watch, carefully polished shoes',
     publicFace: 'Methodical and dry. You correct imprecise times, unlocked doors, and other people’s recollections without being invited.',
+    invitationPretext: 'Armand asked you to act as a neutral expert and certify that his reconstruction of the old theft is accurate.',
+    invitationPromise: '“Come to Maison Bleue. Before midnight, I will place the last account of the Bellande investigation in your hands.”',
+    privateIdentity: 'You are the officer who deliberately buried Amélie’s corrected statement and built his career on Luc Bellande’s conviction.',
+    privateObjective: 'Discover exactly what Armand preserved, prevent your corruption from being read aloud, and retain the authority to define what counts as evidence.',
     privateSecret: 'You led the investigation that convicted Luc Bellande. When Amélie contradicted Jacques’s alibi, the Marquis promised you promotion in exchange for losing her statement. You destroyed it.',
-    memories: [
+    traits: ['Methodical and exact', 'Protective of institutional authority', 'Corrects every imprecise recollection'],
+    objectives: [
+      { id: 'pierre-account', title: 'Inspect the blue account', text: 'Learn exactly what Armand recorded about your investigation.', phase: 'investigation', points: 1 },
+      { id: 'pierre-control', title: 'Control the evidence', text: 'End the first round holding another guest’s item or securing their promise to show it to you first.', phase: 'investigation', points: 1 },
+      { id: 'pierre-report', title: 'Protect your career', text: 'Keep the destroyed statement out of the final accusation.', phase: 'investigation', points: 2 },
+    ],
+    relationships: [
+      { roleId: 'jacques', text: 'Jacques benefited from your old report and owes you protection.' },
+      { roleId: 'amelie', text: 'Amélie can prove your report was deliberately false.' },
+    ],
+    secrets: [
       {
         id: 'pierre-pocket',
         kind: 'evidence',
+        aboutRoleIds: ['jacques'],
         beat: 2,
-        text: 'Before dinner, Armand showed you the notebook. Page forty-seven began “J. Vallon left the blue salon during the failure of the lights.”',
+        text: 'Before dinner, Armand showed you the notebook. Page forty-seven began “J. Vallon left the dining room during the failure of the lights.”',
       },
       {
         id: 'pierre-label',
         kind: 'evidence',
+        aboutRoleIds: ['jacques'],
         beat: 4,
         text: 'After the murder, the notebook lies open at a rough edge. The numbering passes directly from page forty-six to page forty-eight.',
       },
       {
         id: 'pierre-door',
         kind: 'evidence',
+        aboutRoleIds: ['amelie'],
         beat: 5,
-        availableAfter: 'terrace-route',
-        text: 'You opened both terrace doors for Armand’s reconstruction and personally checked that the garden passage to the study was clear.',
+        availableAfter: 'verified-route',
+        text: 'You traced the host-verified route for Armand’s reconstruction and personally checked that the passage to the staged study was clear.',
       },
       {
         id: 'pierre-shadow',
         kind: 'evidence',
+        aboutRoleIds: ['jacques'],
         beat: 9,
         availableAfter: 'stage-murder',
-        text: 'Seconds before the lights returned, you saw a pale-gloved man come in from the terrace. Jacques is the only guest wearing pale gloves.',
+        text: 'Seconds before the lights returned, you saw a pale-gloved man return along the verified passage. Jacques is the only guest wearing pale gloves.',
       },
       {
         id: 'pierre-sees',
         kind: 'evidence',
+        aboutRoleIds: ['madame'],
         beat: 10,
         availableAfter: 'stage-false-culprit',
         text: 'When you reached the study, Hélène stood over Armand holding a bundle of Luc Bellande’s letters. The west drawer was open, but the notebook was on the desk.',
@@ -303,12 +411,12 @@ export const cast: Character[] = [
     actions: [
       {
         id: 'pierre-door-action',
-        text: 'Open both terrace doors and leave them open. Announce that the garden passage now matches the conditions recorded on the night of the theft.',
-        cue: 'When Armand says, “Let us give the past the same doors it had before”',
-        consequence: 'Completes the reconstruction while unknowingly creating the murderer’s unseen route.',
+        text: 'Trace the host-verified route between the dining room and staged study. Announce that its clear passage now matches the conditions recorded on the night of the theft.',
+        cue: 'When Armand says, “Let us give the past the same route it had before”',
+        consequence: 'Completes the reconstruction while unknowingly establishing the murderer’s unseen route.',
         essential: true,
         beat: 5,
-        phase: 'dinner',
+        phase: 'opening',
         physical: true,
         requires: ['safe-route'],
       },
@@ -319,7 +427,7 @@ export const cast: Character[] = [
         consequence: 'Introduces the body, the damaged notebook, and the apparent culprit without interpreting them.',
         essential: true,
         beat: 10,
-        phase: 'blackout',
+        phase: 'opening',
         physical: true,
         requires: ['controlled-lights', 'staged-area', 'no-contact'],
       },
@@ -331,27 +439,45 @@ export const cast: Character[] = [
     title: 'Former cabaret singer and the forgotten witness',
     costume: 'Midnight-blue dress, opera gloves, a small blue handkerchief',
     publicFace: 'Observant, amused, and apparently fearless. You remember voices better than faces and lies better than either.',
-    privateSecret: 'You saw Jacques leave the blue salon during the original blackout, but you loved him and first gave him a false alibi. When you tried to correct it, Pierre destroyed your statement. Luc Bellande went to prison because both versions of your testimony failed him.',
-    memories: [
+    invitationPretext: 'Armand hired you to sing one old song at a private farewell dinner for Maison Bleue.',
+    invitationPromise: '“Come to Maison Bleue. Before midnight, your true statement will finally be heard.”',
+    privateIdentity: 'You are the forgotten eyewitness whose first statement protected Jacques and whose corrected statement Pierre destroyed.',
+    privateObjective: 'Make the truth about the old blackout impossible to bury again, while deciding how much of your own betrayal you can bear to confess.',
+    privateSecret: 'You saw Jacques leave the dining room during the original blackout, but you loved him and first gave him a false alibi. When you tried to correct it, Pierre destroyed your statement. Luc Bellande went to prison because both versions of your testimony failed him.',
+    traits: ['Observant and amused', 'Remembers voices precisely', 'Uses wit to conceal regret'],
+    objectives: [
+      { id: 'amelie-alibi', title: 'Break the old alibi', text: 'Make two guests understand that Jacques was not beside you during the original blackout.', phase: 'any', points: 1 },
+      { id: 'amelie-statement', title: 'Find the missing statement', text: 'Get Pierre to admit—or another guest to conclude—that your correction was suppressed.', phase: 'any', points: 2 },
+      { id: 'amelie-confession', title: 'Choose your truth', text: 'Before the vote, either confess your first lie publicly or persuade one person to keep it private.', phase: 'investigation', points: 1 },
+    ],
+    relationships: [
+      { roleId: 'francois', text: 'François is owed the testimony you failed to give his father.' },
+      { roleId: 'jacques', text: 'You once loved Jacques. He will expect that old loyalty to survive tonight.' },
+      { roleId: 'madame', text: 'Hélène knows your corrected statement existed and may reveal why you first lied.' },
+    ],
+    secrets: [
       {
         id: 'amelie-rumour',
         kind: 'evidence',
+        aboutRoleIds: ['jacques'],
         beat: 1,
-        text: 'During the old lighting failure, you heard Jacques’s distinctive silver-topped cane strike the blue salon tiles. He was not beside you, despite the alibi you first gave him.',
+        text: 'During the old lighting failure, you heard Jacques’s distinctive silver-topped cane strike the dining-room floor. He was not beside you, despite the alibi you first gave him.',
       },
       {
         id: 'amelie-jackets',
         kind: 'evidence',
+        aboutRoleIds: ['jacques', 'madame'],
         beat: 3,
         availableAfter: 'jacket-switch',
-        text: 'You saw Jacques close his left hand around Hélène’s silver paper knife. A moment later he placed only its blue velvet sheath beside her glass.',
+        text: 'You saw Jacques close his left hand around Hélène’s silver paper knife. A moment later he placed only its blue velvet sheath beside her place.',
       },
       {
         id: 'amelie-draught',
         kind: 'evidence',
+        aboutRoleIds: ['pierre'],
         beat: 5,
-        availableAfter: 'terrace-route',
-        text: 'Once Pierre opened the terrace doors, a cold draught crossed the dining room from the garden passage. Anyone could reach the study without using the hall.',
+        availableAfter: 'verified-route',
+        text: 'Once Pierre traced the verified passage, you saw that anyone could reach the staged study without crossing the centre of the dining room.',
       },
       {
         id: 'amelie-blackout',
@@ -363,6 +489,7 @@ export const cast: Character[] = [
       {
         id: 'amelie-laugh',
         kind: 'evidence',
+        aboutRoleIds: ['jacques'],
         beat: 7,
         availableAfter: 'stage-murder',
         text: 'From the dining room you heard Jacques say, “Give me page forty-seven.” Armand replied, “A page can burn; my confession cannot.” Then came a single sharp cry.',
@@ -370,6 +497,7 @@ export const cast: Character[] = [
       {
         id: 'amelie-key',
         kind: 'secret',
+        aboutRoleIds: ['pierre', 'jacques'],
         text: 'Your first statement gave Jacques a false alibi. Your second told the truth, but Pierre destroyed it. You have concealed both facts for sixteen years.',
       },
     ],
@@ -377,13 +505,13 @@ export const cast: Character[] = [
       {
         id: 'amelie-blackout-action',
         text: 'Place the gramophone track at its marked position. At the final refrain, raise your blue handkerchief. The host—not you—controls the real lights.',
-        cue: 'After the terrace doors are open and Armand announces the reconstruction',
+        cue: 'After Pierre verifies the passage and Armand announces the reconstruction',
         consequence: 'Begins the exact one-minute recreation of the old crime under safe host control.',
         essential: true,
         beat: 6,
-        phase: 'dinner',
-        physical: false,
-        requires: ['controlled-lights'],
+        phase: 'opening',
+        physical: true,
+        requires: ['timer-track', 'controlled-lights'],
       },
     ],
   },
@@ -391,58 +519,58 @@ export const cast: Character[] = [
 
 export const runPlan: RunBeat[] = [
   {
-    id: 'coded-toast',
-    phase: 'dinner',
-    title: 'Name the absent guest',
-    trigger: 'After the first wine is poured',
-    operator: 'Give Jacques the ribboned cigar box and let his toast force the Bellande case into the open. Use only the prepared blunt prop paper knife.',
-    actionIds: ['jacques-toast'],
-    dependsOn: [],
-    essential: true,
-  },
-  {
-    id: 'false-message',
-    phase: 'dinner',
-    title: 'Pass the west-drawer note',
-    trigger: 'Before the notebook is displayed',
-    operator: 'Give Hélène a quiet moment to pass her sealed note to Pierre.',
+    id: 'private-note',
+    phase: 'opening',
+    title: 'Seat the suspects',
+    trigger: 'As the last guest takes their place',
+    operator: 'Give everyone one quiet minute to settle into character. If Hélène wants to pass her sealed note, let her do it now. Do not begin bargaining or clue sales until the body is discovered.',
     actionIds: ['madame-message'],
     dependsOn: [],
     essential: false,
   },
   {
-    id: 'jacket-switch',
-    phase: 'dinner',
-    title: 'Open the Bellande case',
-    trigger: 'When Armand asks whether anyone still believes Luc was innocent',
-    operator: 'Let François produce the prison letter and forged telegram. Place Le Carnet Bleu where everyone can see it, open at the replica of page forty-seven.',
-    actionIds: ['francois-switch-action'],
+    id: 'coded-toast',
+    phase: 'opening',
+    title: 'Reveal the reckoning',
+    trigger: 'Once everyone has arrived',
+    operator: 'Tell the table: “Each of you was promised something different. Before midnight, Le Carnet Bleu will leave this house and the complete truth will go with it.” Do not reveal the private promises. Let Jacques’s toast name Luc Bellande, using only the prepared blue notebook and blunt prop paper knife.',
+    actionIds: ['jacques-toast'],
     dependsOn: [],
     essential: true,
   },
   {
-    id: 'terrace-route',
-    phase: 'dinner',
+    id: 'jacket-switch',
+    phase: 'opening',
+    title: 'Open the Bellande case',
+    trigger: 'When Armand asks whether anyone still believes Luc was innocent',
+    operator: 'Let François produce the prison letter and forged telegram. Place Le Carnet Bleu where everyone can see it, open at the replica of page forty-seven.',
+    actionIds: ['francois-switch-action'],
+    dependsOn: ['coded-toast'],
+    essential: true,
+  },
+  {
+    id: 'verified-route',
+    phase: 'opening',
     title: 'Recreate the old room',
     trigger: 'After the notebook and prison letter are on the table',
-    operator: 'Announce the reconstruction and say, “Let us give the past the same doors it had before,” cueing Pierre to open the terrace.',
+    operator: 'Announce the reconstruction and say, “Let us give the past the same route it had before,” cueing Pierre to trace the verified passage.',
     actionIds: ['pierre-door-action'],
     dependsOn: ['jacket-switch'],
     essential: true,
   },
   {
     id: 'blackout-signal',
-    phase: 'dinner',
+    phase: 'opening',
     title: 'Recreate the lost minute',
-    trigger: 'After the terrace is open and Jacques has named Luc Bellande',
+    trigger: 'After the passage is verified and Jacques has named Luc Bellande',
     operator: 'Announce that the original theft occurred during one minute of darkness. Wait for Amélie’s handkerchief signal; do not cut the lights before both prerequisite beats are complete.',
     actionIds: ['amelie-blackout-action'],
-    dependsOn: ['coded-toast', 'terrace-route'],
+    dependsOn: ['verified-route'],
     essential: true,
   },
   {
     id: 'stage-murder',
-    phase: 'blackout',
+    phase: 'opening',
     title: 'Stage the murder in the study',
     trigger: 'Immediately after Amélie’s signal',
     operator: 'Cut the lights. Quietly call Jacques by the safe route, perform the confrontation, stage the no-contact murder, leave the blunt prop at the scene, and let Jacques remove the replica page and depart.',
@@ -452,7 +580,7 @@ export const runPlan: RunBeat[] = [
   },
   {
     id: 'stage-false-culprit',
-    phase: 'blackout',
+    phase: 'opening',
     title: 'Place Hélène beside the body',
     trigger: 'After Jacques has left the study',
     operator: 'Call Hélène into the study to retrieve the replica letters. Restore the lights only when she is in place, then cue Pierre to report exactly what he sees.',

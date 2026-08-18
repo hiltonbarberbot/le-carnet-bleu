@@ -20,7 +20,7 @@ function requireArray(record: Record<string, unknown>, key: string) {
 
 function restoreStateObject(definition: GameDefinition, value: unknown): GameState {
   if (!isRecord(value)) throw new Error('Stored game state is not an object.')
-  if (value.schemaVersion !== 2) throw new Error(`Unsupported stored game schema ${String(value.schemaVersion)}.`)
+  if (value.schemaVersion !== 3) throw new Error(`Unsupported stored game schema ${String(value.schemaVersion)}.`)
   if (value.definitionFingerprint !== definition.fingerprint) throw new Error('Stored game state belongs to a different game definition.')
   if (value.storyId !== definition.story.id || value.seed !== definition.story.seed) throw new Error('Stored game state belongs to a different story or seed.')
 
@@ -74,16 +74,40 @@ function restoreStateObject(definition: GameDefinition, value: unknown): GameSta
   if (!allowedPlayPhases.has(String(value.playPhase))) throw new Error(`Stored game state has unknown play phase ${String(value.playPhase)}.`)
   requireArray(value, 'completedBeatIds')
   requireArray(value, 'revealedEvidenceIds')
-  requireRecord(value, 'accusation')
+  requireRecord(value, 'tokenBalances')
+  requireRecord(value, 'ownedClueIds')
+  requireRecord(value, 'clueDecks')
+  requireRecord(value, 'completedObjectiveIds')
+  requireArray(value, 'hearingHistory')
+  requireRecord(value, 'awards')
+  if (value.hearing !== null && !isRecord(value.hearing)) throw new Error('Stored game state has invalid hearing.')
+  if (value.outcome !== null && !isRecord(value.outcome)) throw new Error('Stored game state has invalid outcome.')
+  if (!Number.isInteger(value.cluePrice) || Number(value.cluePrice) < 0) throw new Error('Stored game state has invalid cluePrice.')
+  if (typeof value.duplicateClues !== 'boolean') throw new Error('Stored game state has invalid duplicateClues flag.')
+  const tokenBalances = value.tokenBalances as Record<string, unknown>
+  const ownedClueIds = value.ownedClueIds as Record<string, unknown>
+  const completedObjectiveIds = value.completedObjectiveIds as Record<string, unknown>
+  for (const character of definition.story.characters) {
+    if (!Number.isInteger(tokenBalances[character.id]) || Number(tokenBalances[character.id]) < 0) throw new Error(`Stored token balance for ${character.id} is invalid.`)
+    if (!Array.isArray(ownedClueIds[character.id])) throw new Error(`Stored clues are missing ${character.id}.`)
+    if (!Array.isArray(completedObjectiveIds[character.id])) throw new Error(`Stored objective results are missing ${character.id}.`)
+  }
+  const clueDecks = value.clueDecks as Record<string, unknown>
+  for (const deck of definition.clueDecks) {
+    if (!isRecord(clueDecks[deck.id])) throw new Error(`Stored clue deck is missing ${deck.id}.`)
+  }
   requireRecord(value, 'aiPerformances')
   if (typeof value.paused !== 'boolean') throw new Error('Stored game state has invalid paused flag.')
-  if (phase === 'completed') requireString(value, 'completedAt')
+  if (phase === 'completed') {
+    requireString(value, 'completedAt')
+    requireRecord(value, 'finalScores')
+  }
   return value as GameState
 }
 
 export function serializeGameState(definition: GameDefinition, state: GameState): string {
   if (state.definitionFingerprint !== definition.fingerprint) throw new Error('Cannot serialize state with a different game definition.')
-  return JSON.stringify({ formatVersion: 1, definition, state })
+  return JSON.stringify({ formatVersion: 2, definition, state })
 }
 
 export function restoreGameSession(serialized: string): { definition: GameDefinition; state: GameState } {
@@ -93,7 +117,7 @@ export function restoreGameSession(serialized: string): { definition: GameDefini
   } catch {
     throw new Error('Stored game session is not valid JSON.')
   }
-  if (!isRecord(value) || value.formatVersion !== 1 || !isRecord(value.definition)) {
+  if (!isRecord(value) || value.formatVersion !== 2 || !isRecord(value.definition)) {
     throw new Error('Stored game session has an unsupported envelope.')
   }
   const definition = createGameDefinition(value.definition as unknown as GameDefinitionInput)

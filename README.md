@@ -1,4 +1,4 @@
-# Le Carnet Bleu
+# Setting-aware live mystery engine
 
 A setting-aware, six-person live dinner-party murder mystery system: one host performs the victim and becomes Game Master after the staged murder; five guest seats play the suspects.
 
@@ -8,10 +8,11 @@ The repository includes one Maison Bleue demo story, but it is not universal can
 
 ```ts
 import {
-  createGameDefinition,
-  createLeCarnetBleuRuntime,
+  createGame,
+  createGameRuntime,
   createSettingBrief,
   createStoryAuthoringBrief,
+  createStorylineDefinition,
 } from 'le-carnet-bleu/game'
 
 const setting = createSettingBrief({
@@ -27,25 +28,38 @@ const setting = createSettingBrief({
 })
 
 const agentBrief = createStoryAuthoringBrief(setting)
-// A human or generative agent drafts a GameDefinitionInput from agentBrief.
-const game = createGameDefinition(draftedDefinition)
-const runtime = createLeCarnetBleuRuntime(game)
+// A human or generative agent drafts a StorylineDefinitionInput from agentBrief.
+const storyline = createStorylineDefinition(draftedStoryline)
+
+// Reuse the immutable storyline for as many independent games as needed.
+const firstGame = createGame(storyline)
+const secondGame = createGame(storyline)
+const runtime = createGameRuntime(storyline)
 ```
 
-`createLeCarnetBleuRuntime` has no silent default. Tests and product demonstrations must opt into `createDemoGame()` explicitly.
+Storyline creation and game creation are separate lifecycle concepts. A storyline contains the validated mystery and setting; a game contains one evening's host, players, assignments, progress, and outcome. The browser persists a storyline library and can keep several games linked to the same storyline fingerprint.
 
-The game is built around one rule: **memories describe what a character knows, actions create what happens tonight, and the canonical timeline connects both**.
+Spoiler-rich God view and private dossier previews are game-scoped host tools. The storyline library exposes only safe metadata, game creation, rules, import, and export; it cannot open God view without a concrete game bound to that exact storyline fingerprint.
+
+`createGameRuntime` has no silent default. Tests and product demonstrations must opt into `createDemoStoryline()` explicitly. Product naming is sourced from `game.manifest.json` and exposed through `src/product/naming.ts`.
+
+The game opens with one short authored incident, then gets out of the players’ way. From the moment the body is discovered, it is built around one continuous loop: **objectives create demand for information, secrets and clues supply it, tokens make it scarce, bargaining forms coalitions, and a public accusation hearing tests them**.
 
 ## What is actually implemented
 
-- Five private dossiers with identities, secrets, evidence, live instructions, and distinct human or AI controllers
-- One explicit host/victim role and a complete God-mode truth view
-- A validated evidence graph and dependency-aware sequence of setting-specific authored acts
+- Five private dossiers with traits, variable relationships, secrets, three scored objectives, live instructions, and distinct human or AI controllers
+- One explicit host/victim role and a complete host-only truth and clue-inventory view
+- A validated, connected social and evidence graph plus one dependency-aware, setting-specific cold open before free play
+- Two setting-derived clue decks with five deterministic private clues, ten starting tokens per player, trades, and host pacing controls
+- Player-called accusation hearings with a case, defense, open statements, a public vote, and a strict-majority conviction threshold
+- Objective, token, accusation, vote, and culprit-escape scoring with separate overall, performance, and costume awards
 - One persisted lifecycle: `idle → enrolling → prepared → active → completed | aborted`
 - A delivery state machine: `not_requested → queued → sending → delivered | failed`
-- Hard gates for definition fingerprint, roster identity, private addresses, setting-derived setup, confirmed dossier delivery, causal beats, surfaced evidence, and the final accusation
+- Hard gates for definition fingerprint, roster identity, private addresses, setting-derived setup, confirmed dossier delivery, causal beats, fair-play evidence, and accusation outcomes
 - Explicit, confirmed reset back to true idle; constructors and reloads never fabricate assignments, deliveries, feed entries, or timestamps
 - Optional, fail-closed Vercel AI Gateway controllers assigned only at `prepare`, after humans have had the entire enrolment window
+
+The intended table rhythm follows the durable party-game architecture: private packets first, a brief murder setup, then one to three hours of player-led conversation. There are no guided acts after the body is discovered. The host keeps time, sells clues, arbitrates subjective objectives, and runs a hearing only when a player calls one.
 
 AI output is restricted to a short line for an authored role action. It cannot invent actions or perform physical staging. A named human proxy owns every physical beat. The generated line is persisted in game state, and the domain refuses to confirm that beat until the line exists.
 
@@ -56,9 +70,9 @@ AI output is restricted to a short line for an authored role action. It cannot i
 The `./game` package export provides a functional runtime:
 
 ```ts
-import { createDemoGame, createLeCarnetBleuRuntime, discoverGames } from 'le-carnet-bleu/game'
+import { createDemoStoryline, createGameRuntime, discoverGames } from 'le-carnet-bleu/game'
 
-const runtime = createLeCarnetBleuRuntime(createDemoGame())
+const runtime = createGameRuntime(createDemoStoryline())
 const installed = discoverGames([runtime])
 const created = runtime.createSession({
   host: { id: 'host', displayName: 'Host', privateAddress: 'local:host' },
@@ -70,11 +84,11 @@ const created = runtime.createSession({
 }, { capabilities: { aiControllers: true } })
 ```
 
-The same interface owns input handling, event output, definition-plus-state serialization, and strict restoration. `src/game/runtime/le-carnet-bleu.test.ts` advances a two-human/three-AI session through this public contract. The browser can import and export the same fingerprinted definition JSON.
+The same interface owns input handling, event output, storyline-plus-state serialization, and strict restoration. `src/game/runtime/game.test.ts` advances a two-human/three-AI session through this public contract. The browser shows existing storylines, imports and exports the same fingerprinted storyline JSON, and lists every saved game beneath its source storyline.
 
 ## OpenClaw adapter
 
-The `./openclaw` export is a generic adapter over any `PortableGameRuntime`; it contains no Le Carnet Bleu execution branches. It:
+The `./openclaw` export is a generic adapter over any `PortableGameRuntime`; it contains no product-specific execution branches. It:
 
 - enumerates installed manifests;
 - resolves explicit selection or a channel/conversation binding;
@@ -102,16 +116,17 @@ npm test
 npm run build
 ```
 
-Coverage includes story compilation, definition-level setting checks, a complete non-blackout gallery scenario, illegal lifecycle transitions, idle and partial enrolment UI, unsent and failed delivery UI, active/reset UI, exact definition persistence, the portable two-human runtime, the generic OpenClaw bound/unbound paths, and the fail-closed exact-definition AI endpoint.
+Coverage includes story and social-graph compilation, setting-backed clue and physical-action checks, deterministic private clue draws, token trading, hearing outcomes, exact scoring, dossier privacy, a complete non-blackout gallery scenario, illegal lifecycle transitions, exact definition persistence, the portable runtime, OpenClaw routing, and fail-closed AI endpoints.
 
 ## Structure
 
 - `src/game/setting/` — setting questions, normalization, and the mandatory authoring gate
-- `src/game/definition/` — authored acts, setting-backed setup requirements, validation, and fingerprints
+- `src/game/definition/` — reusable storyline contracts, setting-backed setup requirements, validation, and fingerprints
 - `src/game/scenario.ts` — Maison Bleue demo characters, evidence, actions, timeline, and run plan
 - `src/game/story/` — agent authoring handoff and story graph validation
 - `src/game/session/` — lifecycle transitions and exact persisted-state validation
-- `src/game/runtime/` — host-agnostic contract, registry, and Le Carnet Bleu implementation
+- `src/game/runtime/` — host-agnostic contract, registry, and functional runtime implementation
+- `src/product/` — product naming derived from the portable manifest
 - `src/integrations/openclaw/` — generic chat discovery, routing, persistence, and output adapter
 - `src/game/ai/` and `api/ai/` — bounded Vercel AI Gateway client/server integration
-- `src/ui/App.tsx` — God mode and player dossiers projected from domain state
+- `src/ui/App.tsx` — storyline library, individual game dashboards, and player dossiers projected from domain state

@@ -2,7 +2,9 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { createDemoGame } from '../game/demo'
 import {
+  advanceAct,
   beginDelivery,
+  confirmRunBeat,
   createGame,
   createIdleState,
   prepareGame,
@@ -12,8 +14,10 @@ import {
   startGame,
   updateEnrolment,
 } from '../game/session/lifecycle'
-import type { GameState, PreparedGameState } from '../game/types'
-import { getHostScreen, HostWorkspace } from './App'
+import type { ExistingGameState, GameState, PreparedGameState } from '../game/types'
+import { bindGameToStoryline } from './library/storage'
+import { ActiveGameBar, getHostScreen, HostWorkspace, PlayerProfile, StartScreen } from './App'
+import { GodView } from './story/reader'
 
 const definition = createDemoGame('ui')
 const story = definition.story
@@ -51,24 +55,24 @@ function deliverAll(state: PreparedGameState) {
   return next
 }
 
-describe('God mode lifecycle projection', () => {
+describe('host lifecycle projection', () => {
   it('renders first load as idle with create but no reset action', () => {
     const html = render(createIdleState(definition))
-    expect(html).toContain('IDLE · AUTHORED FOR')
-    expect(html).toContain('Create game and begin enrolment')
+    expect(html).toContain('READY FOR MAISON BLEUE DEMO HOUSE')
+    expect(html).toContain('Set up this game')
     expect(html).not.toContain('Reset game')
   })
 
   it('renders partial enrolment as blocked', () => {
     const html = render(createGame(definition, new Date('2026-08-18T10:00:00Z'), 'partial'))
-    expect(html).toContain('ENROLLING')
-    expect(html).toContain('PREPARATION FAILED')
+    expect(html).toContain('SETUP')
+    expect(html).toContain('things left before roles are ready')
     expect(html).toContain('disabled')
   })
 
   it('renders prepared-but-unsent and failed delivery distinctly', () => {
     let prepared = prepareGame(definition, enrolling(), noAi)
-    expect(render(prepared)).toContain('not requested')
+    expect(render(prepared)).toContain('waiting')
     const roleId = story.characters[0].id
     prepared = requestDelivery(prepared, roleId)
     prepared = beginDelivery(prepared, roleId)
@@ -81,11 +85,11 @@ describe('God mode lifecycle projection', () => {
 
   it('renders active play and reset-to-idle as separate states', () => {
     const active = startGame(definition, deliverAll(prepareGame(definition, enrolling(), noAi)))
-    expect(getHostScreen(active)).toBe('active:dinner')
-    expect(render(active)).toContain('Dinner and the old accusation')
+    expect(getHostScreen(active)).toBe('active:opening')
+    expect(render(active)).toContain('The murder at Maison Bleue')
     const idle = resetGame(definition, active, true)
     expect(getHostScreen(idle)).toBe('idle')
-    expect(render(idle)).toContain('IDLE · AUTHORED FOR')
+    expect(render(idle)).toContain('READY FOR MAISON BLEUE DEMO HOUSE')
   })
 
   it('exposes Gateway performances for an active AI seat', () => {
@@ -101,5 +105,87 @@ describe('God mode lifecycle projection', () => {
     const html = render(active, { aiControllers: true })
     expect(html).toContain('Generate AI line')
     expect(html).toContain('AI performance required')
+  })
+
+  it('turns investigation into three visible social steps without private ballots', () => {
+    let active = startGame(definition, deliverAll(prepareGame(definition, enrolling(), noAi)))
+    for (const act of definition.acts) {
+      for (const beat of story.runPlan.filter(item => item.phase === act.id && item.essential)) active = confirmRunBeat(definition, active, beat.id)
+      active = advanceAct(definition, active)
+    }
+    const html = render(active)
+    expect(html).toContain('Talk, trade, accuse')
+    expect(html).toContain('PRIVATE CLUE DESK')
+    expect(html).toContain('Nobody else dies or leaves play')
+    expect(html).toContain('Begin the public hearing')
+    expect(html).not.toContain('PRIVATE BALLOT')
+  })
+})
+
+describe('private player card', () => {
+  it('shows traits, relationships, secrets, and three scored objectives', () => {
+    const character = story.characters[0]
+    const html = renderToStaticMarkup(<PlayerProfile character={character} />)
+    expect(html).toContain('Your three objectives')
+    expect(html).toContain(character.traits[0])
+    expect(html).toContain(character.relationships[0].text)
+    expect(html).toContain(character.secrets[0].text)
+    expect(html).not.toContain(story.characters[1].privateSecret)
+    expect(html).not.toContain(story.solution)
+    expect(html).not.toContain('THE SOLUTION')
+    expect(html).not.toContain('Use each ability')
+  })
+})
+
+describe('start screen', () => {
+  const renderStart = (states: ExistingGameState[] = []) => renderToStaticMarkup(<StartScreen
+    storylines={[definition]}
+    games={states.map(state => bindGameToStoryline(definition, state))}
+    importError=""
+    onCreateStoryline={() => undefined}
+    onCreateGame={() => undefined}
+    onContinueGame={() => undefined}
+    onRules={() => undefined}
+    onImport={() => undefined}
+    onExport={() => undefined}
+  />)
+
+  it('shows storyline creation and game creation as separate actions', () => {
+    const html = renderStart()
+    expect(html).toContain('Your storylines')
+    expect(html).toContain('EXISTING STORYLINES')
+    expect(html).toContain('Create storyline')
+    expect(html).toContain('Create game from this storyline')
+    expect(html).toContain(story.title)
+    expect(html).not.toContain('God mode')
+    expect(html).not.toContain('Read (spoilers)')
+    expect(html).not.toContain('Preview player card')
+    expect(html).toContain('Full story and private dossiers become available to the host after creating a game')
+  })
+
+  it('lists several games created from the same storyline', () => {
+    const html = renderStart([
+      createGame(definition, new Date('2026-08-18T10:00:00Z'), 'first-game'),
+      createGame(definition, new Date('2026-08-19T10:00:00Z'), 'second-game'),
+    ])
+    expect(html).toContain('2 GAMES')
+    expect(html).toContain('Game first-ga')
+    expect(html).toContain('Game second-g')
+    expect(html.match(/Continue →/g)).toHaveLength(2)
+  })
+})
+
+describe('privileged game views', () => {
+  it('exposes god view only from a concrete game bound to its storyline', () => {
+    const state = createGame(definition, new Date('2026-08-18T10:00:00Z'), 'god-view-game')
+    const game = bindGameToStoryline(definition, state)
+    const bar = renderToStaticMarkup(<ActiveGameBar game={game} onGodView={() => undefined} onExit={() => undefined} />)
+    const view = renderToStaticMarkup(<GodView game={game} onExit={() => undefined} />)
+
+    expect(bar).toContain('God view · spoilers')
+    expect(bar).toContain('Maison Bleue demo')
+    expect(bar).toContain('enrolling')
+    expect(view).toContain('EDITORIAL VIEW · COMPLETE SPOILERS')
+    expect(view).toContain('Finished reading — return to the game')
   })
 })

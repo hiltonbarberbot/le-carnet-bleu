@@ -1,6 +1,6 @@
 {
   "id": "le-carnet-bleu",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "name": "Le Carnet Bleu",
   "description": "A setting-aware six-person live murder mystery with one host and five suspect seats.",
   "aliases": ["carnet bleu", "the blue notebook", "blue notebook"],
@@ -49,10 +49,17 @@
     { "name": "start", "description": "Start play after every human dossier is confirmed delivered.", "allowedPhases": ["prepared"], "payload": {} },
     { "name": "record_ai_performance", "description": "Persist the bounded output produced for one AI-controlled authored action.", "allowedPhases": ["active"], "payload": { "roleId": "string", "actionId": "string", "text": "string" } },
     { "name": "confirm_beat", "description": "Confirm an authored live beat.", "allowedPhases": ["active"], "payload": { "beatId": "string" } },
-    { "name": "advance_act", "description": "Advance to the next authored act or begin investigation after completing the current act.", "allowedPhases": ["active"], "payload": {} },
-    { "name": "toggle_evidence", "description": "Mark evidence as surfaced or withdrawn.", "allowedPhases": ["active"], "payload": { "evidenceId": "string" } },
-    { "name": "accuse", "description": "Record the table accusation.", "allowedPhases": ["active"], "payload": { "culprit": "string", "motive": "string", "chain": "string" } },
-    { "name": "reveal", "description": "Lock the accusation and enter the canonical reveal.", "allowedPhases": ["active"], "payload": {} },
+    { "name": "advance_act", "description": "Finish the single authored cold open and release the room into continuous investigation.", "allowedPhases": ["active"], "payload": {} },
+    { "name": "buy_clue", "description": "Spend the current clue price for one private random clue from a chosen deck.", "allowedPhases": ["active"], "payload": { "roleId": "string", "deckId": "string" } },
+    { "name": "transfer_tokens", "description": "Move tradable tokens between two suspect roles.", "allowedPhases": ["active"], "payload": { "fromRoleId": "string", "toRoleId": "string", "amount": "number" } },
+    { "name": "lower_clue_price", "description": "Lower the host-controlled clue price.", "allowedPhases": ["active"], "payload": { "price": "number" } },
+    { "name": "enable_duplicate_clues", "description": "Allow exhausted decks to issue duplicate clues for pacing.", "allowedPhases": ["active"], "payload": {} },
+    { "name": "call_accusation", "description": "Start a public accusation hearing with an accuser, accused suspect, and stated case.", "allowedPhases": ["active"], "payload": { "accuserRoleId": "string", "accusedRoleId": "string", "caseText": "string" } },
+    { "name": "advance_hearing", "description": "Advance the hearing through case, defense, statements, and voting.", "allowedPhases": ["active"], "payload": {} },
+    { "name": "cast_vote", "description": "Record one suspect's public conviction vote.", "allowedPhases": ["active"], "payload": { "roleId": "string", "vote": "convict|acquit" } },
+    { "name": "end_investigation", "description": "End investigation when the time limit expires and begin the reveal.", "allowedPhases": ["active"], "payload": {} },
+    { "name": "set_objective_completed", "description": "Record whether one scored character objective was completed.", "allowedPhases": ["active"], "payload": { "roleId": "string", "objectiveId": "string", "completed": "boolean" } },
+    { "name": "record_award", "description": "Record the table-voted performance or costume award.", "allowedPhases": ["active"], "payload": { "award": "performance|costume", "roleId": "string" } },
     { "name": "complete", "description": "Complete the revealed game.", "allowedPhases": ["active"], "payload": {} }
   ]
 }

@@ -1,17 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import { generateGame } from '../generate'
 import type { EnrollingGameState, GameState } from '../types'
-import { createLeCarnetBleuRuntime } from './le-carnet-bleu'
-import { discoverGames, resolveGame } from './registry'
+import { createGameRuntime } from './game'
+import { gameManifest } from '../../product/naming'
+import { discoverGames, findMatchingGames, resolveGame } from './registry'
 import { createDemoGame } from '../demo'
 import { createGameDefinition } from '../definition/create'
 
 describe('portable game runtime', () => {
   it('declares discoverable identity, player constraints, capabilities, and lifecycle commands', () => {
-    const runtime = createLeCarnetBleuRuntime(createDemoGame('discovery'))
+    const runtime = createGameRuntime(createDemoGame('discovery'))
     const [discovered] = discoverGames([runtime])
     expect(discovered.manifest).toMatchObject({
-      id: 'le-carnet-bleu',
+      id: gameManifest.id,
       players: { minHumans: 2, maxHumans: 5, gameSeats: 5, hostRequired: true },
       requiredHostCapabilities: ['state_persistence'],
       authoring: { mode: 'setting_first', requiredBeforeStory: true },
@@ -24,14 +25,15 @@ describe('portable game runtime', () => {
     const first = createDemoGame('first-definition')
     const secondBase = createDemoGame('second-definition')
     const second = createGameDefinition({ ...secondBase, id: 'second-setting', fingerprint: undefined })
-    const runtimes = [createLeCarnetBleuRuntime(first), createLeCarnetBleuRuntime(second)]
+    const runtimes = [createGameRuntime(first), createGameRuntime(second)]
     expect(discoverGames(runtimes)).toHaveLength(2)
     expect(resolveGame(runtimes, 'second-setting')?.authoredGame.definitionFingerprint).toBe(second.fingerprint)
-    expect(resolveGame(runtimes, 'le-carnet-bleu')).toBeNull()
+    expect(findMatchingGames(runtimes, gameManifest.aliases[0])).toEqual(runtimes)
+    expect(resolveGame(runtimes, gameManifest.id)).toBeNull()
   })
 
   it('creates a two-human session, assigns AI only at prepare, persists it, and advances via the published interface', () => {
-    const runtime = createLeCarnetBleuRuntime(createDemoGame('portable'))
+    const runtime = createGameRuntime(createDemoGame('portable'))
     const definition = createDemoGame('portable')
     const context = { capabilities: { aiControllers: true }, now: new Date('2026-08-18T10:00:00Z'), createId: () => 'portable-1' }
     let result = runtime.createSession({
@@ -63,13 +65,25 @@ describe('portable game runtime', () => {
       result = runtime.handleInput(result.state, { name: 'record_delivery', payload: { roleId, ok: true, receipt: `wa:${roleId}` } }, context)
     }
     result = runtime.handleInput(result.state, { name: 'start' }, context)
-    expect(result.state).toMatchObject({ phase: 'active', playPhase: 'dinner' })
+    expect(result.state).toMatchObject({ phase: 'active', playPhase: 'opening' })
     if (result.state.phase !== 'active') throw new Error('Expected active')
     const story = generateGame(result.state.seed)
-    const aiBeat = story.runPlan.find(beat => beat.phase === 'dinner' && beat.dependsOn.length === 0 && beat.actionIds.some(actionId => {
-      const owner = story.characters.find(character => character.actions.some(action => action.id === actionId))
-      return owner && result.state.phase === 'active' && result.state.roster[owner.id].kind === 'ai'
-    }))
+    function availableAiBeat(state: GameState) {
+      if (state.phase !== 'active') return undefined
+      return story.runPlan.find(beat => beat.phase === state.playPhase && beat.dependsOn.every(id => state.completedBeatIds.includes(id)) && beat.actionIds.some(actionId => {
+        const owner = story.characters.find(character => character.actions.some(action => action.id === actionId))
+        return owner && state.roster[owner.id].kind === 'ai'
+      }))
+    }
+    let aiBeat = availableAiBeat(result.state)
+    while (!aiBeat) {
+      const activeState = result.state
+      if (activeState.phase !== 'active' || !definition.acts.some(act => act.id === activeState.playPhase)) break
+      const eligible = story.runPlan.find(beat => beat.phase === activeState.playPhase && beat.dependsOn.every(id => activeState.completedBeatIds.includes(id)) && !activeState.completedBeatIds.includes(beat.id))
+      if (eligible) result = runtime.handleInput(activeState, { name: 'confirm_beat', payload: { beatId: eligible.id } }, context)
+      else result = runtime.handleInput(activeState, { name: 'advance_act' }, context)
+      aiBeat = availableAiBeat(result.state)
+    }
     expect(aiBeat).toBeDefined()
     expect(() => runtime.handleInput(result.state, { name: 'confirm_beat', payload: { beatId: aiBeat!.id } }, context)).toThrow(/waiting for AI performance/)
     const aiActionId = aiBeat!.actionIds.find(actionId => {
@@ -85,7 +99,7 @@ describe('portable game runtime', () => {
   })
 
   it('rejects duplicate participant identities and unknown commands precisely', () => {
-    const runtime = createLeCarnetBleuRuntime(createDemoGame('rejections'))
+    const runtime = createGameRuntime(createDemoGame('rejections'))
     const context = { capabilities: { aiControllers: true }, createId: () => 'portable-2' }
     expect(() => runtime.createSession({
       host: { id: 'host', displayName: 'Host', privateAddress: 'wa:host' },

@@ -1,4 +1,4 @@
-import type { GameDefinition } from '../definition/contract'
+import type { StorylineDefinition } from '../definition/contract'
 
 export type AiGatewayStatus = {
   available: boolean
@@ -6,7 +6,7 @@ export type AiGatewayStatus = {
 }
 
 export type AiPerformanceRequest = {
-  definition: GameDefinition
+  definition: StorylineDefinition
   sessionId: string
   roleId: string
   actionId: string
