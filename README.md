@@ -34,16 +34,19 @@ const runtime = createLeCarnetBleuRuntime(game)
 
 `createLeCarnetBleuRuntime` has no silent default. Tests and product demonstrations must opt into `createDemoGame()` explicitly.
 
-The game is built around one rule: **memories describe what a character knows, actions create what happens tonight, and the canonical timeline connects both**.
+The game is built around one loop: **objectives create demand for information, secrets and clues supply it, tokens make it scarce, bargaining forms coalitions, and a public accusation hearing tests them**.
 
 ## What is actually implemented
 
-- Five private dossiers with identities, secrets, evidence, live instructions, and distinct human or AI controllers
-- One explicit host/victim role and a complete God-mode truth view
-- A validated evidence graph and dependency-aware sequence of setting-specific authored acts
+- Five private dossiers with traits, variable relationships, secrets, three scored objectives, live instructions, and distinct human or AI controllers
+- One explicit host/victim role and a complete host-only truth and clue-inventory view
+- A validated, connected social and evidence graph plus a dependency-aware sequence of setting-specific authored acts
+- Two setting-derived clue decks with five deterministic private clues, ten starting tokens per player, trades, and host pacing controls
+- Player-called accusation hearings with a case, defense, open statements, a five-player vote, and a 3-of-5 conviction threshold
+- Objective, token, accusation, vote, and culprit-escape scoring with separate overall, performance, and costume awards
 - One persisted lifecycle: `idle → enrolling → prepared → active → completed | aborted`
 - A delivery state machine: `not_requested → queued → sending → delivered | failed`
-- Hard gates for definition fingerprint, roster identity, private addresses, setting-derived setup, confirmed dossier delivery, causal beats, surfaced evidence, and the final accusation
+- Hard gates for definition fingerprint, roster identity, private addresses, setting-derived setup, confirmed dossier delivery, causal beats, fair-play evidence, and accusation outcomes
 - Explicit, confirmed reset back to true idle; constructors and reloads never fabricate assignments, deliveries, feed entries, or timestamps
 - Optional, fail-closed Vercel AI Gateway controllers assigned only at `prepare`, after humans have had the entire enrolment window
 
@@ -102,7 +105,7 @@ npm test
 npm run build
 ```
 
-Coverage includes story compilation, definition-level setting checks, a complete non-blackout gallery scenario, illegal lifecycle transitions, idle and partial enrolment UI, unsent and failed delivery UI, active/reset UI, exact definition persistence, the portable two-human runtime, the generic OpenClaw bound/unbound paths, and the fail-closed exact-definition AI endpoint.
+Coverage includes story and social-graph compilation, setting-backed clue and physical-action checks, deterministic private clue draws, token trading, hearing outcomes, exact scoring, dossier privacy, a complete non-blackout gallery scenario, illegal lifecycle transitions, exact definition persistence, the portable runtime, OpenClaw routing, and fail-closed AI endpoints.
 
 ## Structure
 

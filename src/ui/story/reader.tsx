@@ -26,10 +26,10 @@ function indexEvidence(story: Story) {
       text: item.text,
       source: 'Public scene evidence',
     }] as const),
-    ...story.characters.flatMap(character => character.memories.map(memory => [memory.id, {
-      text: memory.text,
-      source: `${character.name} · ${memory.kind}`,
-      availableAfter: memory.availableAfter,
+    ...story.characters.flatMap(character => character.secrets.map(secret => [secret.id, {
+      text: secret.text,
+      source: `${character.name} · ${secret.kind}`,
+      availableAfter: secret.availableAfter,
     }] as const)),
   ]
   return new Map(threads)
@@ -38,9 +38,9 @@ function indexEvidence(story: Story) {
 function StoryCast({ story }: { story: Story }) {
   return <section className="story-section">
     <div className="story-section-heading">
-      <span>01 · DRAMATIS PERSONAE</span>
+      <span>02 · DRAMATIS PERSONAE</span>
       <h2>What everyone wants</h2>
-      <p>Public identities, private pressure, and the actions each suspect brings into the plot.</p>
+      <p>Public identities, three playable goals, and the actions each suspect brings into the plot.</p>
     </div>
     <div className="story-cast">
       {story.characters.map(character => <article key={character.id}>
@@ -48,12 +48,20 @@ function StoryCast({ story }: { story: Story }) {
         <p>{character.publicFace}</p>
         <dl className="story-motive">
           <div><dt>WHY THEY CAME</dt><dd>{character.invitationPretext}</dd></div>
-          <div><dt>WHAT THEY NEED</dt><dd>{character.privateObjective}</dd></div>
+          <div><dt>WHAT THEY NEED</dt><dd>{character.objectives.map(objective => objective.title).join(' · ')}</dd></div>
         </dl>
         <div className="story-secret"><b>PRIVATE TRUTH</b><p>{character.privateSecret}</p></div>
         <div className="story-contributions"><b>WHAT THEY MAKE HAPPEN</b>{character.actions.map(action => <p key={action.id}><strong>{action.cue}:</strong> {action.text}</p>)}</div>
       </article>)}
     </div>
+  </section>
+}
+
+function StoryEvening({ story }: { story: Story }) {
+  const total = story.evening.reduce((minutes, stage) => minutes + stage.durationMinutes, 0)
+  return <section className="story-section">
+    <div className="story-section-heading"><span>01 · THE EVENING</span><h2>{total} minutes, start to finish</h2><p>This is the player-facing shape of the night. The host can move on early whenever the room is ready.</p></div>
+    <ol className="story-evening">{story.evening.map((stage, index) => <li key={stage.id}><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{stage.title}</h3><p>{stage.description}</p></div><b>{stage.durationMinutes} min</b></li>)}</ol>
   </section>
 }
 
@@ -71,7 +79,7 @@ function StoryRun({ definition }: { definition: GameDefinition }) {
 
   return <section className="story-section">
     <div className="story-section-heading">
-      <span>02 · THE NIGHT AS PLAYED</span>
+      <span>03 · THE NIGHT AS PLAYED</span>
       <h2>Cause before effect</h2>
       <p>The live sequence in dependency order. Every numbered card is a host-confirmed event, not backstory.</p>
     </div>
@@ -102,7 +110,7 @@ function StoryTruth({ story }: { story: Story }) {
   const evidence = indexEvidence(story)
   return <section className="story-section story-truth">
     <div className="story-section-heading">
-      <span>03 · CANONICAL RECONSTRUCTION</span>
+      <span>05 · CANONICAL RECONSTRUCTION</span>
       <h2>What actually happened</h2>
       <p>Read top to bottom as the solution. The indented notes are the independent routes by which players can establish each claim.</p>
     </div>
@@ -117,6 +125,13 @@ function StoryTruth({ story }: { story: Story }) {
         </div>
       </article>)}
     </div>
+  </section>
+}
+
+function StoryClues({ definition }: { definition: GameDefinition }) {
+  return <section className="story-section">
+    <div className="story-section-heading"><span>04 · PURCHASABLE CLUES</span><h2>The complete clue-desk inventory</h2><p>Players draw these privately and without replacement. They corroborate the case; the canonical solution never depends on an unsold clue alone.</p></div>
+    <div className="story-decks">{definition.clueDecks.map(deck => <article key={deck.id}><header><span>DECK</span><h3>{deck.label}</h3><small>{deck.settingValue}</small></header><ol>{deck.clues.map(clue => <li key={clue.id}><span>BEAT {clue.beat}</span><p>{clue.text}</p></li>)}</ol></article>)}</div>
   </section>
 }
 
@@ -140,8 +155,10 @@ export function StoryReader({ definition, onExit }: StoryReaderProps) {
         </div>
         <section className="story-synopsis"><span>THE SOLUTION IN ONE PASS</span><p>{story.solution}</p></section>
       </header>
+      <StoryEvening story={story} />
       <StoryCast story={story} />
       <StoryRun definition={definition} />
+      <StoryClues definition={definition} />
       <StoryTruth story={story} />
       <button className="story-reader-finish" onClick={onExit}>Finished reading — return to the game →</button>
     </main>

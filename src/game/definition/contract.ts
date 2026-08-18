@@ -26,13 +26,28 @@ export type SetupRequirement = {
   settingValue: string
 }
 
+export type ClueCard = {
+  id: string
+  text: string
+  beat: number
+}
+
+export type ClueDeck = {
+  id: string
+  label: string
+  settingField: SettingListField
+  settingValue: string
+  clues: ClueCard[]
+}
+
 export type GameDefinition = {
-  schemaVersion: 1
+  schemaVersion: 2
   id: string
   title: string
   fingerprint: string
   setting: SettingBrief
   story: Story
+  clueDecks: ClueDeck[]
   acts: ActDefinition[]
   setupRequirements: SetupRequirement[]
 }
@@ -43,6 +58,7 @@ export type GameDefinitionInput = {
   fingerprint?: string
   setting: SettingBrief
   story: Story
+  clueDecks: ClueDeck[]
   acts: ActDefinition[]
   setupRequirements: SetupRequirement[]
 }

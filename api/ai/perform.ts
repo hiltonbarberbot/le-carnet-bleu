@@ -1,5 +1,5 @@
 import { generateText } from 'ai'
-import { getMemoriesBeforeAction } from '../../src/game/dossier/knowledge.js'
+import { getSecretsBeforeAction } from '../../src/game/dossier/knowledge.js'
 import { createGameDefinition } from '../../src/game/definition/create.js'
 import type { GameDefinitionInput } from '../../src/game/definition/contract.js'
 
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
   const character = story.characters.find(item => item.id === input.roleId)
   const action = character?.actions.find(item => item.id === input.actionId)
   if (!character || !action) return json({ error: 'That role or action does not exist in this case.' }, 404)
-  const memories = getMemoriesBeforeAction(story, character, action.id)
+  const secrets = getSecretsBeforeAction(story, character, action.id)
 
   try {
     const result = await generateText({
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
         `Private identity: ${character.privateIdentity}`,
         `Private objective tonight: ${character.privateObjective}`,
         `Private secret: ${character.privateSecret}`,
-        `Your memories: ${memories.map(memory => memory.text).join(' | ')}`,
+        `Your secrets and evidence: ${secrets.map(secret => secret.text).join(' | ')}`,
         'Stay inside this dossier. Never reveal facts the character does not know or explain the canonical solution.',
         'Write only one short line the character says aloud. Do not add labels, quotation marks, narration, or stage directions.',
       ].join('\n'),

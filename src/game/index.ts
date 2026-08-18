@@ -15,7 +15,7 @@ export type {
   RuntimeEvent,
   RuntimeResult,
 } from './runtime/contract'
-export type { GameState, Story } from './types'
+export type { ActiveGameState, GameState, ScoreCard, Story } from './types'
 export type { SettingBrief, SettingBriefInput, SettingQuestion } from './setting/contract'
 export type { AuthoredGame } from './story/authoring'
-export type { ActDefinition, GameDefinition, GameDefinitionInput, SetupRequirement } from './definition/contract'
+export type { ActDefinition, ClueCard, ClueDeck, GameDefinition, GameDefinitionInput, SetupRequirement } from './definition/contract'

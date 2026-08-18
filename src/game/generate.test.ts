@@ -3,7 +3,10 @@ import { generateGame } from './generate'
 import { createDemoGame } from './demo'
 import {
   advanceAct,
+  advanceHearing,
   beginDelivery,
+  callAccusation,
+  castVote,
   completeGame,
   confirmRunBeat,
   createGame,
@@ -13,10 +16,8 @@ import {
   recordDeliveryOutcome,
   requestDelivery,
   resetGame,
-  revealToTable,
   startGame,
   toggleEvidence,
-  updateAccusation,
   updateEnrolment,
 } from './session/lifecycle'
 import { restoreGameState, serializeGameState } from './session/storage'
@@ -70,6 +71,19 @@ describe('story compilation', () => {
     expect(essential.every(action => planned.has(action.id))).toBe(true)
   })
 
+  it('rejects an isolated suspect in the combined secrets-and-relationships graph', () => {
+    const story = structuredClone(generateGame('isolated-suspect'))
+    const isolatedId = story.characters[0].id
+    for (const character of story.characters) {
+      character.relationships = character.id === isolatedId ? [] : character.relationships.filter(relationship => relationship.roleId !== isolatedId)
+      character.secrets = character.secrets.map(secret => ({
+        ...secret,
+        aboutRoleIds: character.id === isolatedId ? [] : (secret.aboutRoleIds ?? []).filter(roleId => roleId !== isolatedId),
+      }))
+    }
+    expect(validateStory(story)).toContain('character secrets and relationships must form one connected social graph')
+  })
+
   it('gives every guest a private invitation, identity, and objective without making them canonical evidence', () => {
     const story = generateGame('private-promises')
     for (const character of story.characters) {
@@ -88,10 +102,16 @@ describe('story compilation', () => {
     expect(validateStory(story)).toContain('timeline beat 1 references missing evidence missing-proof')
   })
 
-  it('rejects memories gated by a missing run-plan beat', () => {
+  it('requires two distinct non-purchasable evidence routes per truth beat', () => {
+    const story = structuredClone(generateGame('duplicate-route'))
+    story.timeline[0].evidence = [story.timeline[0].evidence[0], story.timeline[0].evidence[0]]
+    expect(validateStory(story)).toContain('timeline beat 1 needs at least two non-purchasable evidence routes')
+  })
+
+  it('rejects secrets gated by a missing run-plan beat', () => {
     const story = structuredClone(generateGame('broken-unlock'))
-    story.characters[0].memories[0].availableAfter = 'missing-beat'
-    expect(validateStory(story)).toContain(`memory ${story.characters[0].memories[0].id} unlocks after missing run-plan beat missing-beat`)
+    story.characters[0].secrets[0].availableAfter = 'missing-beat'
+    expect(validateStory(story)).toContain(`secret ${story.characters[0].secrets[0].id} unlocks after missing run-plan beat missing-beat`)
   })
 })
 
@@ -99,7 +119,7 @@ describe('truthful game lifecycle', () => {
   it('starts at idle with no game identity, assignments, deliveries, or timestamps', () => {
     const definition = createDemoGame('idle')
     const idle = createIdleState(definition)
-    expect(idle).toEqual({ schemaVersion: 2, definitionFingerprint: definition.fingerprint, storyId: 'le-carnet-bleu', seed: 'idle', phase: 'idle' })
+    expect(idle).toEqual({ schemaVersion: 3, definitionFingerprint: definition.fingerprint, storyId: 'le-carnet-bleu', seed: 'idle', phase: 'idle' })
     expect('id' in idle).toBe(false)
   })
 
@@ -157,9 +177,12 @@ describe('truthful game lifecycle', () => {
     for (const beat of story.runPlan.filter(beat => beat.phase === 'murder' && beat.essential)) active = confirmRunBeat(definition, active, beat.id)
     active = advanceAct(definition, active)
     for (const evidenceId of new Set(story.timeline.flatMap(beat => beat.evidence))) if (!active.revealedEvidenceIds.includes(evidenceId)) active = toggleEvidence(active, evidenceId)
-    for (const character of story.characters) active = updateAccusation(active, character.id, { culprit: 'Jacques', motive: 'He believed he was framed.', chain: 'Jackets, terrace, blackout, confrontation.' })
-    active = revealToTable(definition, active)
-    const completed = completeGame(active, new Date('2026-08-17T21:00:00Z'))
+    active = callAccusation(active, 'francois', 'jacques', 'The jacket switch, garden route, and missing page form one chain.')
+    active = advanceHearing(active)
+    active = advanceHearing(active)
+    active = advanceHearing(active)
+    for (const character of story.characters) active = castVote(definition, active, character.id, 'convict')
+    const completed = completeGame(definition, active, new Date('2026-08-17T21:00:00Z'))
     expect(completed.phase).toBe('completed')
   })
 

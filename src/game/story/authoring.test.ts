@@ -32,6 +32,7 @@ describe('setting-first story authoring', () => {
       title: demo.title,
       setting: demo.setting,
       story: demo.story,
+      clueDecks: demo.clueDecks,
       acts: demo.acts,
       setupRequirements: demo.setupRequirements,
     })

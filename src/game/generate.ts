@@ -1,4 +1,4 @@
-import { cast, publicEvidence, runPlan, timeline } from './scenario.js'
+import { cast, clueDecks, publicEvidence, runPlan, timeline } from './scenario.js'
 import { compileStory } from './story/compile.js'
 import type { Character, Story } from './types.js'
 import { hashString } from './random/hash.js'
@@ -26,13 +26,13 @@ function shuffle<T>(items: T[], seed: string): T[] {
   return result
 }
 
-export function instantiateStory(story: Story, seed: string): Story {
+export function instantiateStory(story: Story, seed: string, purchasableEvidenceIds: ReadonlySet<string> = new Set()): Story {
   const cleanSeed = seed.trim() || story.seed
   const characters: Character[] = shuffle(story.characters, `${cleanSeed}:cast`).map(character => ({
     ...character,
-    memories: shuffle(character.memories, `${cleanSeed}:${character.id}:memories`),
+    secrets: shuffle(character.secrets, `${cleanSeed}:${character.id}:secrets`),
   }))
-  return compileStory({ ...structuredClone(story), seed: cleanSeed, characters })
+  return compileStory({ ...structuredClone(story), seed: cleanSeed, characters }, purchasableEvidenceIds)
 }
 
 export function generateGame(seed: string): Story {
@@ -51,15 +51,15 @@ export function generateGame(seed: string): Story {
     publicEvidence,
     evening: [
       { id: 'arrival', title: 'Arrival', description: 'Hand out roles, introduce the characters, and explain the three rules.', durationMinutes: 10, phase: 'schemes' },
-      { id: 'schemes', title: 'First schemes', description: 'Everyone approaches the two people on their card and attempts a private goal.', durationMinutes: 20, phase: 'schemes' },
+      { id: 'schemes', title: 'First schemes', description: 'Everyone follows a relationship, attempts an objective, and starts trading information.', durationMinutes: 20, phase: 'schemes' },
       { id: 'reckoning', title: 'The reckoning', description: 'Armand opens the old case; bargains and accusations become public.', durationMinutes: 25, phase: 'reckoning' },
       { id: 'murder', title: 'The reconstructed minute', description: 'The host runs one short, rehearsed incident. Everyone else listens.', durationMinutes: 5, phase: 'murder' },
-      { id: 'investigation', title: 'Investigation', description: 'Question everyone, trade clues, and finish personal goals.', durationMinutes: 35, phase: 'investigation' },
-      { id: 'accusations', title: 'Private accusations', description: 'Each player commits to a culprit, motive, and strongest clue.', durationMinutes: 10, phase: 'investigation' },
-      { id: 'reveal', title: 'Reveal and awards', description: 'Read the solution, score personal goals, and award the room.', durationMinutes: 10, phase: 'reveal' },
+      { id: 'investigation', title: 'Investigation', description: 'Question everyone, trade clues, and finish personal objectives.', durationMinutes: 35, phase: 'investigation' },
+      { id: 'hearing', title: 'Accusation hearing', description: 'An accuser presents a case, the accused responds, the room speaks, and all five suspects vote.', durationMinutes: 10, phase: 'investigation' },
+      { id: 'reveal', title: 'Reveal and awards', description: 'Read the solution, score personal objectives, and award the room.', durationMinutes: 10, phase: 'reveal' },
     ],
     timeline,
     runPlan,
-    solution: 'Armand lured every guest to Maison Bleue with a different private promise, then revealed that the supposed settlements were one shared reckoning. Jacques Vallon deliberately murdered him during the reconstructed blackout. Sixteen years earlier, Jacques had stolen the Saint-Auban sapphire and allowed Luc Bellande to die in prison for it. Armand recorded the truth on page forty-seven of Le Carnet Bleu and blackmailed everyone who helped suppress it. Jacques borrowed Hélène’s silver paper knife in advance, used the open terrace to reach the study, killed Armand, tore out the page naming him, and left the weapon to frame Hélène. She was found beside the body only because she had entered moments later to recover Luc’s love letters.',
-  }, cleanSeed)
+    solution: 'Armand lured every guest to Maison Bleue with a different private promise, then revealed that the supposed settlements were one shared reckoning. Jacques Vallon deliberately murdered him during the reconstructed blackout. Sixteen years earlier, Jacques had stolen the Saint-Auban sapphire and allowed Luc Bellande to die in prison for it. Armand recorded the truth on page forty-seven of Le Carnet Bleu and blackmailed everyone who helped suppress it. Jacques borrowed Hélène’s silver paper knife in advance, used the host-verified passage to reach the staged study, killed Armand, tore out the page naming him, and left the weapon to frame Hélène. She was found beside the body only because she had entered moments later to recover Luc’s love letters.',
+  }, cleanSeed, new Set(clueDecks.flatMap(deck => deck.clues.map(clue => clue.id))))
 }

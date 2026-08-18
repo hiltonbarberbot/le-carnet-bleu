@@ -6,6 +6,7 @@ import type { SettingBriefInput } from '../../src/game/setting/contract.js'
 import { createStoryAuthoringBrief } from '../../src/game/story/authoring.js'
 
 const model = process.env.AI_GATEWAY_MODEL || 'anthropic/claude-sonnet-4.6'
+export const maxDuration = 300
 
 function isConfigured() {
   return Boolean(process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || process.env.VERCEL)
@@ -39,18 +40,19 @@ const shape = `Return one JSON object with exactly this shape (never include fin
   "setting": { "venueName": "", "location": "", "occasion": "", "era": "", "playableSpaces": [""], "routes": [""], "usableFeatures": [""], "availableProps": [""], "tone": "", "safetyConstraints": [""], "accessibilityNeeds": [""], "contentBoundaries": [""] },
   "story": {
     "id": "lowercase-slug", "seed": "lowercase-slug", "title": "", "subtitle": "", "premise": "", "totalPeople": 6, "hostRole": "", "victim": "", "culprit": "exact name of one character",
-    "characters": [{ "id": "unique-slug", "name": "", "title": "", "costume": "", "publicFace": "", "invitationPretext": "", "invitationPromise": "", "privateIdentity": "", "privateObjective": "", "privateSecret": "", "goals": [{ "id": "unique-id", "title": "", "text": "", "phase": "declared-act-id|investigation|any", "points": 1 }], "abilities": [{ "id": "unique-id", "title": "", "text": "", "uses": 1 }], "item": { "title": "", "text": "" }, "relationships": [{ "roleId": "another-character-id", "kind": "approach|watch", "text": "" }], "dilemma": "", "memories": [{ "id": "unique-id", "text": "", "kind": "evidence|secret|colour", "beat": 1, "availableAfter": "optional-earlier-run-beat-id" }], "actions": [{ "id": "unique-id", "text": "", "cue": "", "consequence": "", "essential": true, "beat": 1, "phase": "declared-act-id", "physical": false, "requires": [] }] }],
+    "characters": [{ "id": "unique-slug", "name": "", "title": "", "costume": "", "publicFace": "", "invitationPretext": "", "invitationPromise": "", "privateIdentity": "", "privateObjective": "", "privateSecret": "", "traits": ["", ""], "objectives": [{ "id": "unique-id", "title": "", "text": "", "phase": "declared-act-id|investigation|any", "points": 1 }], "relationships": [{ "roleId": "another-character-id", "text": "" }], "secrets": [{ "id": "unique-id", "text": "", "kind": "evidence|secret|colour", "aboutRoleIds": ["another-character-id"], "beat": 1, "availableAfter": "optional-earlier-run-beat-id" }], "actions": [{ "id": "unique-id", "text": "", "cue": "", "consequence": "", "essential": true, "beat": 1, "phase": "declared-act-id", "physical": false, "requires": [] }] }],
     "publicEvidence": [{ "id": "unique-id", "text": "", "beat": 1 }],
     "evening": [{ "id": "stage-id", "title": "", "description": "what everyone does", "durationMinutes": 20, "phase": "declared-act-id|investigation|reveal" }],
     "timeline": [{ "beat": 1, "title": "", "truth": "", "evidence": ["existing-evidence-id-1", "existing-evidence-id-2"] }],
     "runPlan": [{ "id": "unique-id", "phase": "declared-act-id", "title": "", "trigger": "", "operator": "", "actionIds": ["existing-action-id"], "dependsOn": ["only-earlier-run-beat-id"], "essential": true }],
     "solution": ""
   },
+  "clueDecks": [{ "id": "deck-id", "label": "setting-specific source", "settingField": "playableSpaces|routes|usableFeatures|availableProps|safetyConstraints|accessibilityNeeds", "settingValue": "an exact string copied from that setting array", "clues": [{ "id": "unique-clue-id", "text": "", "beat": 1 }] }],
   "acts": [{ "id": "act-id", "title": "", "operatorGoal": "", "playerGoal": "", "durationMinutes": 20, "completionLabel": "" }],
   "setupRequirements": [{ "id": "requirement-id", "label": "", "settingField": "playableSpaces|routes|usableFeatures|availableProps|safetyConstraints|accessibilityNeeds", "settingValue": "an exact string copied from that setting array" }]
 }
 
-Hard structural rules: exactly five characters; every character has exactly three simple goals, exactly two one- or two-use abilities, one playable item, exactly two relationships to other character IDs, one dilemma, and at least one action; include a complete chronological evening agenda from arrival through reveal; every essential action has a canonical beat and appears in a runPlan actionIds list; timeline beat numbers are contiguous from 1; every timeline beat cites at least two existing evidence IDs; every action and run-plan phase matches an acts ID; every act has operator and player goals, a positive duration, and an essential run-plan beat; dependencies only point backward; every physical action has at least one valid setup requirement ID. Copy the validated setting exactly.`
+Hard structural rules: exactly five characters; every character has at least two playable traits, exactly three 1-3 point objectives, a variable non-empty relationship list, truthful secrets about other suspects, and at least one action; the union of relationships and secret targets must connect all five characters, and every character must both know and be the subject of another suspect's secret; include a complete chronological evening agenda from arrival through reveal; the staged incident is the only in-game death and no later event removes a player from play; create exactly two setting-backed clue decks containing exactly five clues total; purchasable clues can corroborate timeline claims, but every timeline beat still cites at least two non-purchasable evidence IDs; every essential action has a canonical beat and appears in a runPlan actionIds list; timeline beat numbers are contiguous from 1; every action and run-plan phase matches an acts ID; every act has operator and player goals, a positive duration, and an essential run-plan beat; dependencies only point backward; every physical action has at least one valid setup requirement ID. Copy the validated setting exactly.`
 
 export function GET() {
   const available = isConfigured()

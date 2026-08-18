@@ -1,21 +1,23 @@
 import { describe, expect, it } from 'vitest'
 import {
   advanceAct,
+  advanceHearing,
   beginDelivery,
+  callAccusation,
+  castVote,
   completeGame,
   confirmRunBeat,
   createGame,
   prepareGame,
   recordDeliveryOutcome,
   requestDelivery,
-  revealToTable,
   startGame,
   toggleEvidence,
-  updateAccusation,
   updateEnrolment,
 } from '../session/lifecycle'
 import { restoreGameSession, serializeGameState } from '../session/storage'
 import type { Character, Story } from '../types'
+import { createDemoGame } from '../demo'
 import { createGameDefinition } from './create'
 
 const names = ['Mara Vale', 'Jon Bell', 'Iris Chen', 'Noor Aziz', 'Theo March']
@@ -32,15 +34,14 @@ function galleryStory(): Story {
     privateIdentity: `You secretly witnessed part ${index + 1} of the forgery scandal.`,
     privateObjective: 'Learn who substituted the donated painting without exposing your own involvement.',
     privateSecret: index === 0 ? 'You replaced the original painting and caused the curator’s death.' : `You concealed part ${index + 1} of the forgery scandal.`,
-    goals: [1, 2, 3].map(goal => ({ id: `gallery-goal-${index + 1}-${goal}`, title: `Goal ${goal}`, text: `Complete gallery objective ${goal}.`, phase: 'any', points: 1 })),
-    abilities: [1, 2].map(ability => ({ id: `gallery-ability-${index + 1}-${ability}`, title: `Ability ${ability}`, text: `Use gallery ability ${ability} once.`, uses: 1 as const })),
-    item: { title: `Gallery item ${index + 1}`, text: 'A playable object connected to the disputed donation.' },
-    relationships: [1, 2].map(offset => ({ roleId: `guest-${((index + offset) % names.length) + 1}`, kind: offset === 1 ? 'approach' as const : 'watch' as const, text: 'A useful connection in the gallery circle.' })),
-    dilemma: 'Choose between protecting your reputation and telling the truth about the donation.',
-    memories: [{
+    traits: ['Composed in public', 'Attentive to detail'],
+    objectives: [1, 2, 3].map(objective => ({ id: `gallery-objective-${index + 1}-${objective}`, title: `Objective ${objective}`, text: `Complete gallery objective ${objective}.`, phase: 'any', points: objective })),
+    relationships: [1, 2].map(offset => ({ roleId: `guest-${((index + offset) % names.length) + 1}`, text: 'A useful connection in the gallery circle.' })),
+    secrets: [{
       id: `gallery-evidence-${index + 1}`,
       kind: 'evidence',
       beat: index < 2 ? 1 : 2,
+      aboutRoleIds: [`guest-${((index + 1) % names.length) + 1}`],
       text: `You observed gallery evidence ${index + 1}.`,
     }],
     actions: [{
@@ -70,7 +71,7 @@ function galleryStory(): Story {
     evening: [
       { id: 'gallery-arrival', title: 'Arrival', description: 'Meet the gallery circle.', durationMinutes: 15, phase: 'welcome' },
       { id: 'gallery-reveal', title: 'Unveiling', description: 'Read the catalogue and investigate.', durationMinutes: 30, phase: 'unveiling' },
-      { id: 'gallery-investigation', title: 'Investigation', description: 'Compare evidence and make private accusations.', durationMinutes: 35, phase: 'investigation' },
+      { id: 'gallery-investigation', title: 'Investigation', description: 'Trade information, bargain, and call a public accusation hearing.', durationMinutes: 35, phase: 'investigation' },
       { id: 'gallery-solution', title: 'Solution', description: 'Reveal the substitution and its consequences.', durationMinutes: 15, phase: 'reveal' },
     ],
     timeline: [
@@ -108,6 +109,22 @@ function galleryDefinition() {
       { id: 'welcome', title: 'The welcome', operatorGoal: 'Establish the relationships around the donation.', playerGoal: 'Meet the circle and share one fact.', durationMinutes: 15, completionLabel: 'Begin the unveiling →' },
       { id: 'unveiling', title: 'The unveiling', operatorGoal: 'Expose the catalogue discrepancy and stage the discovery.', playerGoal: 'Compare the catalogue with what you know.', durationMinutes: 30, completionLabel: 'Begin the investigation →' },
     ],
+    clueDecks: [
+      {
+        id: 'gallery-labels',
+        label: 'Gallery labels',
+        settingField: 'playableSpaces',
+        settingValue: 'Main gallery',
+        clues: [1, 2, 3].map(index => ({ id: `gallery-clue-${index}`, beat: index < 3 ? 1 : 2, text: `A label reveals discrepancy ${index}.` })),
+      },
+      {
+        id: 'supper-notes',
+        label: 'Supper notes',
+        settingField: 'playableSpaces',
+        settingValue: 'Seated supper area',
+        clues: [4, 5].map(index => ({ id: `gallery-clue-${index}`, beat: 2, text: `A supper note reveals discrepancy ${index}.` })),
+      },
+    ],
     setupRequirements: [
       { id: 'public-floor', label: 'Keep all play on the public gallery floor.', settingField: 'safetyConstraints', settingValue: 'No player leaves the public gallery floor' },
       { id: 'seated-actions', label: 'Confirm every essential action can be performed seated.', settingField: 'accessibilityNeeds', settingValue: 'All essential actions are playable while seated' },
@@ -116,6 +133,23 @@ function galleryDefinition() {
 }
 
 describe('setting-specific game definitions', () => {
+  it('binds every clue source and physical dependency to the validated setting', () => {
+    const definition = galleryDefinition()
+    expect(definition.clueDecks).toHaveLength(2)
+    expect(definition.clueDecks.flatMap(deck => deck.clues)).toHaveLength(5)
+    for (const deck of definition.clueDecks) expect(definition.setting[deck.settingField]).toContain(deck.settingValue)
+
+    const physicalDefinition = createDemoGame('setting-dependencies')
+    const requirements = new Map(physicalDefinition.setupRequirements.map(requirement => [requirement.id, requirement]))
+    for (const action of physicalDefinition.story.characters.flatMap(character => character.actions).filter(action => action.physical)) {
+      expect(action.requires.length).toBeGreaterThan(0)
+      for (const requirementId of action.requires) {
+        const requirement = requirements.get(requirementId)!
+        expect(physicalDefinition.setting[requirement.settingField]).toContain(requirement.settingValue)
+      }
+    }
+  })
+
   it('rejects undeclared acts and unverified physical requirements', () => {
     const input = galleryDefinition()
     const broken = structuredClone(input)
@@ -157,9 +191,12 @@ describe('setting-specific game definitions', () => {
     expect(active.playPhase).toBe('investigation')
     active = toggleEvidence(active, 'gallery-evidence-1')
     active = toggleEvidence(active, 'gallery-evidence-3')
-    for (const character of definition.story.characters) active = updateAccusation(active, character.id, { culprit: names[0], motive: 'Conceal the substitution.', chain: 'Donation, catalogue, exposure.' })
-    active = revealToTable(definition, active)
-    const completed = completeGame(active)
+    active = callAccusation(active, 'guest-2', 'guest-1', 'The catalogue and donation records expose the substitution.')
+    active = advanceHearing(active)
+    active = advanceHearing(active)
+    active = advanceHearing(active)
+    for (const character of definition.story.characters) active = castVote(definition, active, character.id, 'convict')
+    const completed = completeGame(definition, active)
     const restored = restoreGameSession(serializeGameState(definition, completed))
     expect(restored).toEqual({ definition, state: completed })
   })

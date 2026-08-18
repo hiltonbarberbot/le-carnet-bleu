@@ -23,12 +23,33 @@ function fingerprint(input: Omit<GameDefinition, 'fingerprint'>) {
 }
 
 export function validateGameDefinition(input: GameDefinitionInput): string[] {
-  const errors = validateStory(input.story)
+  const clueIds = new Set(input.clueDecks.flatMap(deck => deck.clues.map(clue => clue.id)))
+  const errors = validateStory(input.story, clueIds)
   if (!input.id.trim()) errors.push('definition id is required')
   if (!input.title.trim()) errors.push('definition title is required')
   if (input.story.characters.length !== 5 || input.story.totalPeople !== 6) {
     errors.push('definition requires exactly five suspects and one host')
   }
+
+  if (input.clueDecks.length !== 2) errors.push('definition requires exactly two setting-derived clue decks')
+  const deckIds = new Set<string>()
+  let clueCount = 0
+  for (const deck of input.clueDecks) {
+    if (!deck.id.trim() || !deck.label.trim()) errors.push('clue decks require id and label')
+    if (deckIds.has(deck.id)) errors.push(`duplicate clue deck ${deck.id}`)
+    deckIds.add(deck.id)
+    if (!input.setting[deck.settingField].includes(deck.settingValue)) {
+      errors.push(`clue deck ${deck.id} references missing ${deck.settingField} value “${deck.settingValue}”`)
+    }
+    if (!deck.clues.length) errors.push(`clue deck ${deck.id} is empty`)
+    for (const clue of deck.clues) {
+      clueCount += 1
+      if (!clue.id.trim() || !clue.text.trim()) errors.push(`clue deck ${deck.id} contains an incomplete clue`)
+      if (!Number.isInteger(clue.beat) || clue.beat < 1 || clue.beat > input.story.timeline.length) errors.push(`clue ${clue.id} references invalid timeline beat ${clue.beat}`)
+    }
+  }
+  if (clueIds.size !== clueCount) errors.push('purchasable clue ids must be unique')
+  if (clueCount !== input.story.characters.length) errors.push('definition requires exactly one unique purchasable clue per suspect')
 
   const actIds = new Set<string>()
   for (const act of input.acts) {
@@ -88,11 +109,12 @@ export function validateGameDefinition(input: GameDefinitionInput): string[] {
 
 export function createGameDefinition(input: GameDefinitionInput): GameDefinition {
   const normalized: Omit<GameDefinition, 'fingerprint'> = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     id: input.id.trim(),
     title: input.title.trim(),
     setting: createSettingBrief(input.setting),
-    story: compileStory(structuredClone(input.story)),
+    story: compileStory(structuredClone(input.story), new Set(input.clueDecks.flatMap(deck => deck.clues.map(clue => clue.id)))),
+    clueDecks: structuredClone(input.clueDecks),
     acts: structuredClone(input.acts),
     setupRequirements: structuredClone(input.setupRequirements),
   }

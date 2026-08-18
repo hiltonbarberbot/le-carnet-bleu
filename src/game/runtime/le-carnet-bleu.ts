@@ -1,18 +1,26 @@
 import manifest from '../../../game.manifest.json'
 import {
   advanceAct,
+  advanceHearing,
   beginDelivery,
+  buyClue,
+  callAccusation,
+  castVote,
   completeGame,
   confirmRunBeat,
   createGame,
+  enableDuplicateClues,
+  endInvestigation,
+  lowerCluePrice,
   prepareGame,
+  recordAward,
   recordAiPerformance,
   recordDeliveryOutcome,
   requestDelivery,
-  revealToTable,
+  setObjectiveCompleted,
   startGame,
   toggleEvidence,
-  updateAccusation,
+  transferTokens,
   updateEnrolment,
 } from '../session/lifecycle'
 import { restoreGameState, serializeGameState } from '../session/storage'
@@ -27,6 +35,18 @@ function payloadString(command: GameCommand, key: string) {
   const value = command.payload?.[key]
   if (typeof value !== 'string' || !value.trim()) throw new Error(`${command.name} requires ${key}.`)
   return value.trim()
+}
+
+function payloadNumber(command: GameCommand, key: string) {
+  const value = command.payload?.[key]
+  if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error(`${command.name} requires numeric ${key}.`)
+  return value
+}
+
+function payloadBoolean(command: GameCommand, key: string) {
+  const value = command.payload?.[key]
+  if (typeof value !== 'boolean') throw new Error(`${command.name} requires boolean ${key}.`)
+  return value
 }
 
 function expectPhase<T extends GameState['phase']>(state: GameState, phase: T): Extract<GameState, { phase: T }> {
@@ -115,18 +135,42 @@ export function createLeCarnetBleuRuntime(authoredGame: AuthoredGame): PortableG
         }
         case 'toggle_evidence':
           return changed(toggleEvidence(expectPhase(state, 'active'), payloadString(command, 'evidenceId')), 'Evidence tracking updated.')
-        case 'accuse': {
+        case 'buy_clue': {
           const active = expectPhase(state, 'active')
-          return changed(updateAccusation(active, payloadString(command, 'roleId'), {
-            culprit: payloadString(command, 'culprit'),
-            motive: payloadString(command, 'motive'),
-            chain: payloadString(command, 'chain'),
-          }), 'Accusation recorded.')
+          const roleId = payloadString(command, 'roleId')
+          const next = buyClue(definition, active, roleId, payloadString(command, 'deckId'))
+          const clueId = next.ownedClueIds[roleId].at(-1)!
+          const clue = definition.clueDecks.flatMap(deck => deck.clues).find(item => item.id === clueId)!
+          const controller = next.roster[roleId]
+          return changed(next, `Clue purchased for ${roleId}.`, { type: 'state_changed', message: clue.text, privateAddress: controller.kind === 'human' ? controller.privateAddress : undefined })
         }
-        case 'reveal':
-          return changed(revealToTable(definition, expectPhase(state, 'active')), 'Canonical reveal started.')
+        case 'transfer_tokens':
+          return changed(transferTokens(expectPhase(state, 'active'), payloadString(command, 'fromRoleId'), payloadString(command, 'toRoleId'), payloadNumber(command, 'amount')), 'Tokens transferred.')
+        case 'lower_clue_price':
+          return changed(lowerCluePrice(expectPhase(state, 'active'), payloadNumber(command, 'price')), 'Clue price lowered.')
+        case 'enable_duplicate_clues':
+          return changed(enableDuplicateClues(expectPhase(state, 'active')), 'Duplicate clues enabled.')
+        case 'call_accusation':
+          return changed(callAccusation(expectPhase(state, 'active'), payloadString(command, 'accuserRoleId'), payloadString(command, 'accusedRoleId'), payloadString(command, 'caseText')), 'Accusation hearing started.')
+        case 'advance_hearing':
+          return changed(advanceHearing(expectPhase(state, 'active')), 'Accusation hearing advanced.')
+        case 'cast_vote': {
+          const vote = payloadString(command, 'vote')
+          if (vote !== 'convict' && vote !== 'acquit') throw new Error('cast_vote requires vote to be convict or acquit.')
+          const next = castVote(definition, expectPhase(state, 'active'), payloadString(command, 'roleId'), vote)
+          return changed(next, next.playPhase === 'reveal' ? 'The vote convicted a suspect; reveal started.' : 'Vote recorded.')
+        }
+        case 'end_investigation':
+          return changed(endInvestigation(expectPhase(state, 'active')), 'Time expired; canonical reveal started.')
+        case 'set_objective_completed':
+          return changed(setObjectiveCompleted(definition, expectPhase(state, 'active'), payloadString(command, 'roleId'), payloadString(command, 'objectiveId'), payloadBoolean(command, 'completed')), 'Objective score updated.')
+        case 'record_award': {
+          const award = payloadString(command, 'award')
+          if (award !== 'performance' && award !== 'costume') throw new Error('record_award requires performance or costume.')
+          return changed(recordAward(definition, expectPhase(state, 'active'), award, payloadString(command, 'roleId')), 'Table award recorded.')
+        }
         case 'complete':
-          return changed(completeGame(expectPhase(state, 'active'), context.now), 'Game completed.')
+          return changed(completeGame(definition, expectPhase(state, 'active'), context.now), 'Game completed.')
         default:
           throw new Error(`Unknown game command ${command.name}.`)
       }

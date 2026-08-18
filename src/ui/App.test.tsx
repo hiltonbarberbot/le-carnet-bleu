@@ -2,7 +2,9 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { createDemoGame } from '../game/demo'
 import {
+  advanceAct,
   beginDelivery,
+  confirmRunBeat,
   createGame,
   createIdleState,
   prepareGame,
@@ -13,7 +15,7 @@ import {
   updateEnrolment,
 } from '../game/session/lifecycle'
 import type { GameState, PreparedGameState } from '../game/types'
-import { getHostScreen, HostWorkspace, StartScreen } from './App'
+import { getHostScreen, HostWorkspace, PlayerProfile, StartScreen } from './App'
 
 const definition = createDemoGame('ui')
 const story = definition.story
@@ -54,8 +56,8 @@ function deliverAll(state: PreparedGameState) {
 describe('host lifecycle projection', () => {
   it('renders first load as idle with create but no reset action', () => {
     const html = render(createIdleState(definition))
-    expect(html).toContain('IDLE · AUTHORED FOR')
-    expect(html).toContain('Create game and begin enrolment')
+    expect(html).toContain('READY FOR MAISON BLEUE DEMO HOUSE')
+    expect(html).toContain('Set up this game')
     expect(html).not.toContain('Reset game')
   })
 
@@ -85,7 +87,7 @@ describe('host lifecycle projection', () => {
     expect(render(active)).toContain('Arrival and first schemes')
     const idle = resetGame(definition, active, true)
     expect(getHostScreen(idle)).toBe('idle')
-    expect(render(idle)).toContain('IDLE · AUTHORED FOR')
+    expect(render(idle)).toContain('READY FOR MAISON BLEUE DEMO HOUSE')
   })
 
   it('exposes Gateway performances for an active AI seat', () => {
@@ -101,6 +103,35 @@ describe('host lifecycle projection', () => {
     const html = render(active, { aiControllers: true })
     expect(html).toContain('Generate AI line')
     expect(html).toContain('AI performance required')
+  })
+
+  it('turns investigation into three visible social steps without private ballots', () => {
+    let active = startGame(definition, deliverAll(prepareGame(definition, enrolling(), noAi)))
+    for (const act of definition.acts) {
+      for (const beat of story.runPlan.filter(item => item.phase === act.id && item.essential)) active = confirmRunBeat(definition, active, beat.id)
+      active = advanceAct(definition, active)
+    }
+    const html = render(active)
+    expect(html).toContain('Talk, trade, accuse')
+    expect(html).toContain('PRIVATE CLUE DESK')
+    expect(html).toContain('Nobody else dies or leaves play')
+    expect(html).toContain('Begin the public hearing')
+    expect(html).not.toContain('PRIVATE BALLOT')
+  })
+})
+
+describe('private player card', () => {
+  it('shows traits, relationships, secrets, and three scored objectives', () => {
+    const character = story.characters[0]
+    const html = renderToStaticMarkup(<PlayerProfile character={character} />)
+    expect(html).toContain('Your three objectives')
+    expect(html).toContain(character.traits[0])
+    expect(html).toContain(character.relationships[0].text)
+    expect(html).toContain(character.secrets[0].text)
+    expect(html).not.toContain(story.characters[1].privateSecret)
+    expect(html).not.toContain(story.solution)
+    expect(html).not.toContain('THE SOLUTION')
+    expect(html).not.toContain('Use each ability')
   })
 })
 

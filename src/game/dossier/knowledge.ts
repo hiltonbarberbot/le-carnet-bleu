@@ -1,13 +1,13 @@
 import type { Character, Story } from '../types.js'
 
-export function getKnownMemories(character: Character, completedBeatIds: readonly string[] = []) {
+export function getKnownSecrets(character: Character, completedBeatIds: readonly string[] = []) {
   const completed = new Set(completedBeatIds)
-  return character.memories.filter(memory => !memory.availableAfter || completed.has(memory.availableAfter))
+  return character.secrets.filter(secret => !secret.availableAfter || completed.has(secret.availableAfter))
 }
 
-export function getMemoriesBeforeAction(story: Story, character: Character, actionId: string) {
+export function getSecretsBeforeAction(story: Story, character: Character, actionId: string) {
   const actionBeat = story.runPlan.find(beat => beat.actionIds.includes(actionId))
-  if (!actionBeat) return getKnownMemories(character)
+  if (!actionBeat) return getKnownSecrets(character)
 
   const beatsById = new Map(story.runPlan.map(beat => [beat.id, beat]))
   const completed = new Set<string>()
@@ -19,5 +19,5 @@ export function getMemoriesBeforeAction(story: Story, character: Character, acti
     const beat = beatsById.get(beatId)
     if (beat) pending.push(...beat.dependsOn)
   }
-  return getKnownMemories(character, [...completed])
+  return getKnownSecrets(character, [...completed])
 }

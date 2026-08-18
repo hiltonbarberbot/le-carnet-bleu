@@ -1,5 +1,6 @@
 import { generateGame } from './generate.js'
 import { createAuthoredGame } from './story/authoring.js'
+import { clueDecks } from './scenario.js'
 
 export const demoSetting = {
   venueName: 'Maison Bleue demo house',
@@ -22,12 +23,13 @@ export function createDemoGame(seed = 'maison-bleue-demo') {
     title: 'Maison Bleue demo',
     setting: demoSetting,
     story: generateGame(seed),
+    clueDecks,
     acts: [
       {
         id: 'schemes',
         title: 'Arrival and first schemes',
-        operatorGoal: 'Welcome the characters, then let them pursue private goals without directing every conversation.',
-        playerGoal: 'Introduce yourself, approach the two people on your card, and attempt at least one goal.',
+        operatorGoal: 'Welcome the characters, then let them pursue private objectives without directing every conversation.',
+        playerGoal: 'Introduce yourself, begin with the people named on your card, and attempt at least one objective.',
         durationMinutes: 20,
         completionLabel: 'Call everyone to the reckoning →',
       },
@@ -53,6 +55,7 @@ export function createDemoGame(seed = 'maison-bleue-demo') {
       { id: 'paper-knife', label: 'Prepare only the blunt prop paper knife.', settingField: 'availableProps', settingValue: 'Blunt prop paper knife' },
       { id: 'replica-letters', label: 'Place the replica letters where the host can retrieve them.', settingField: 'availableProps', settingValue: 'Replica letters' },
       { id: 'paper-notes', label: 'Prepare the private note and envelope.', settingField: 'availableProps', settingValue: 'Paper notes and envelopes' },
+      { id: 'timer-track', label: 'Prepare the timer or gramophone track used for the reconstructed minute.', settingField: 'availableProps', settingValue: 'Timer or gramophone track' },
       { id: 'safe-route', label: 'Verify the route between the dining room and staged area.', settingField: 'routes', settingValue: 'A host-verified, step-free route connects the dining room and staged study' },
       { id: 'controlled-lights', label: 'Verify the host-controlled lighting and timer.', settingField: 'usableFeatures', settingValue: 'Controllable dining-room lights' },
       { id: 'staged-area', label: 'Clear the staged study area and desk.', settingField: 'playableSpaces', settingValue: 'Staged study' },

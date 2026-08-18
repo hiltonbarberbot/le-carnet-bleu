@@ -3,29 +3,36 @@ import { generateAiPerformance, readAiGatewayStatus } from '../game/ai/gateway'
 import { createDemoGame } from '../game/demo'
 import { createGameDefinition } from '../game/definition/create'
 import type { GameDefinition, GameDefinitionInput } from '../game/definition/contract'
-import { getKnownMemories } from '../game/dossier/knowledge'
+import { getKnownSecrets } from '../game/dossier/knowledge'
 import {
   abortGame,
   advanceAct,
+  advanceHearing,
   beginDelivery,
+  buyClue,
+  calculateScores,
+  callAccusation,
+  castVote,
   completeGame,
   confirmRunBeat,
   createGame,
   createIdleState,
-  getRevealBlockers,
+  enableDuplicateClues,
+  endInvestigation,
   getSetupBlockers,
   getStartBlockers,
+  lowerCluePrice,
   prepareGame,
+  recordAward,
   recordAiPerformance,
   recordDeliveryOutcome,
   requestDelivery,
   resetGame,
-  revealToTable,
+  setObjectiveCompleted,
   startGame,
-  toggleEvidence,
   togglePause,
+  transferTokens,
   undoRunBeat,
-  updateAccusation,
   updateEnrolment,
 } from '../game/session/lifecycle'
 import { restoreGameSession, serializeGameState } from '../game/session/storage'
@@ -37,7 +44,7 @@ type Mode = 'choose' | 'author' | 'rules' | 'story' | 'host' | 'player'
 type GatewayConnection = { state: 'checking' | 'available' | 'unavailable'; model?: string }
 type AiPerformance = { text?: string; pending?: boolean; error?: string }
 
-const GAME_KEY = 'le-carnet-bleu:game:v4'
+const GAME_KEY = 'le-carnet-bleu:game:v5'
 
 export function getHostScreen(state: GameState) {
   if (state.phase === 'active') return `active:${state.playPhase}` as const
@@ -114,29 +121,29 @@ function Rules({ definition, onExit }: { definition: GameDefinition; onExit: () 
     <header><span className="kicker">HOW TO PLAY</span><h1>A murder mystery authored for the place where it happens.</h1><p>Six people play: one host performs the victim and becomes Game Master after the staged incident; five guests each play one suspect.</p></header>
     <section className="rules-summary"><article><b>PEOPLE</b><strong>6 total</strong></article><article><b>TIME</b><strong>About 2 hours</strong></article><article><b>YOU NEED</b><strong>Your private card, the prepared props, and a willingness to ask questions</strong></article></section>
     <EveningTimeline definition={definition} />
-    <section className="rules-block"><span>THREE RULES</span><h2>Everything players need to remember</h2><ol><li>Pursue your three goals in any order.</li><li>You may dodge and misdirect, but never invent evidence.</li><li>Use each ability only once and follow physical cues exactly.</li></ol></section>
-    <section className="rules-block"><span>WHEN IN DOUBT</span><h2>Talk to the people on your card</h2><p>Show an item, ask a direct question, offer a bargain, or use an ability. The host moves the evening forward when the room is ready.</p></section>
+    <section className="rules-block"><span>THREE RULES</span><h2>Everything players need to remember</h2><ol><li>Pursue your three objectives in any order.</li><li>Bargain, bluff, and withhold—but never invent evidence or pressure the real person.</li><li>Any player may accuse. Three convict votes end the investigation.</li></ol></section>
+    <section className="rules-block"><span>THE SOCIAL LOOP</span><h2>Talk → trade → accuse → vote</h2><p>Each suspect starts with 10 tokens. A private clue costs 5. Trade tokens, clues, and truthful information freely; when someone is ready, they call a public accusation hearing.</p></section>
     <button className="rules-start" onClick={onExit}>Understood — return →</button>
   </main>
 }
 
 export function PlayerProfile({ character, completedBeatIds = [], onExit }: { character: Character; completedBeatIds?: readonly string[]; onExit?: () => void }) {
-  const memories = getKnownMemories(character, completedBeatIds)
+  const secrets = getKnownSecrets(character, completedBeatIds)
   return <>
     <div className="mode-bar player-mode"><div><span>PLAYER PROFILE</span><b>You are viewing only {character.name}’s information</b></div><div className="mode-actions"><button onClick={() => window.print()}>Print / save PDF</button>{onExit && <button className="quiet" onClick={onExit}>Exit profile</button>}</div></div>
     <article className="profile">
       <header><div><span className="label">YOUR CHARACTER</span><p>{character.title}</p><h1>{character.name}</h1></div><span className="stamp">PRIVATE</span></header>
       <section className="start-here"><span className="number">1</span><div><h2>Your role in thirty seconds</h2><p><b>Tell everyone:</b> {character.invitationPretext}</p><p><b>Armand promised you:</b> {character.invitationPromise}</p><p><b>Your private truth:</b> {character.privateIdentity}</p><p><b>Your secret:</b> {character.privateSecret}</p><p><b>Play them as:</b> {character.publicFace}</p></div></section>
-      <section><div className="profile-heading"><span className="number">2</span><div><h2>Your three goals</h2><p>Attempt them in any order. Tick them at the end; each is worth the shown points.</p></div></div><div className="goal-list">{character.goals.map(goal => <label key={goal.id}><input type="checkbox" /><span><b>{goal.title} · {goal.points} {goal.points === 1 ? 'point' : 'points'}</b><small>{goal.text}</small></span></label>)}</div></section>
-      <section><div className="profile-heading"><span className="number">3</span><div><h2>Your leverage</h2><p>Start with the item. Cross out each ability after using it.</p></div></div><div className="leverage-grid"><article><span>YOUR ITEM</span><h3>{character.item.title}</h3><p>{character.item.text}</p></article>{character.abilities.map(ability => <article key={ability.id}><span>USE ONCE</span><h3>□ {ability.title}</h3><p>{ability.text}</p></article>)}</div><div className="relationship-grid">{character.relationships.map(relationship => <article key={`${relationship.kind}-${relationship.roleId}`}><b>{relationship.kind === 'approach' ? 'APPROACH FIRST' : 'KEEP WATCH'}</b><p>{relationship.text}</p></article>)}</div><div className="dilemma"><b>YOUR CHOICE TONIGHT</b><p>{character.dilemma}</p></div></section>
-      <section><div className="profile-heading"><span className="number">4</span><div><h2>What you know now</h2><p>These are true from your point of view. New observations appear after the staged incident.</p></div></div><div className="plain-list">{memories.map(memory => <div key={memory.id}>{memory.text}</div>)}</div></section>
+      <section><div className="profile-heading"><span className="number">2</span><div><h2>Your three objectives</h2><p>Attempt them in any order. Tick them at the end; each is worth the shown points.</p></div></div><div className="goal-list">{character.objectives.map(objective => <label key={objective.id}><input type="checkbox" /><span><b>{objective.title} · {objective.points} {objective.points === 1 ? 'point' : 'points'}</b><small>{objective.text}</small></span></label>)}</div></section>
+      <section><div className="profile-heading"><span className="number">3</span><div><h2>How to play them</h2><p>Use these traits as prompts, then begin with the people named below.</p></div></div><div className="trait-list">{character.traits.map(trait => <span key={trait}>{trait}</span>)}</div><div className="relationship-grid">{character.relationships.map(relationship => <article key={relationship.roleId}><b>{relationship.roleId.toUpperCase()}</b><p>{relationship.text}</p></article>)}</div></section>
+      <section><div className="profile-heading"><span className="number">4</span><div><h2>Your secrets and evidence</h2><p>These are true from your point of view. New observations appear after the staged incident.</p></div></div><div className="plain-list">{secrets.map(secret => <div key={secret.id}>{secret.text}</div>)}</div></section>
       <section><div className="profile-heading"><span className="number red">5</span><div><h2>Only when the host cues you</h2><p>Do not memorize this. Follow the cue exactly; all physical conflict is mimed without contact.</p></div></div><div className="task-list">{character.actions.map(action => <article key={action.id}><b>WHEN: {action.cue}</b><p>{action.text}</p></article>)}</div></section>
     </article>
   </>
 }
 
 function CanonicalTruth({ story }: { story: Story }) {
-  return <details className="canonical-truth" open><summary><span>REVEAL · DO NOT SHOW EARLY</span><b>{story.culprit}</b></summary><h3>The premise</h3><p>{story.premise}</p><h3>The solution</h3><p>{story.solution}</p><div className="truth-grid">{story.timeline.map(beat => <article key={beat.beat}><span>{beat.beat}</span><div><b>{beat.title}</b><p>{beat.truth}</p></div></article>)}</div></details>
+  return <section className="canonical-truth"><header><span>THE SOLUTION</span><b>{story.culprit}</b></header><h3>The premise</h3><p>{story.premise}</p><h3>What happened</h3><p>{story.solution}</p><div className="truth-grid">{story.timeline.map(beat => <article key={beat.beat}><span>{beat.beat}</span><div><b>{beat.title}</b><p>{beat.truth}</p></div></article>)}</div></section>
 }
 
 function SetupPanel({ definition, setup, capabilities, gateway, onChange, onPrepare, onPreview }: {
@@ -212,14 +219,61 @@ function RunSheet({ story, state, performances, onPerform, onConfirm, onUndo }: 
   })}</div>
 }
 
-function Investigation({ definition, state, onState }: { definition: GameDefinition; state: ActiveGameState; onState: (state: ActiveGameState) => void }) {
+function Investigation({ definition, state, run }: { definition: GameDefinition; state: ActiveGameState; run: (command: () => ActiveGameState) => void }) {
   const { story } = definition
-  const evidence = [...story.publicEvidence.map(item => ({ ...item, owner: 'Crime scene' })), ...story.characters.flatMap(character => character.memories.filter(memory => memory.beat).map(memory => ({ id: memory.id, text: memory.text, beat: memory.beat!, owner: character.name })))].filter(item => story.timeline.some(beat => beat.evidence.includes(item.id)))
-  const blockers = getRevealBlockers(definition, state)
-  return <><div className="page-title"><div><span className="kicker">INVESTIGATION</span><h2>Track what has actually entered play.</h2></div><b>{state.revealedEvidenceIds.length}/{evidence.length} surfaced</b></div><div className="evidence-list">{evidence.sort((a, b) => a.beat - b.beat).map(item => <label key={item.id}><input type="checkbox" checked={state.revealedEvidenceIds.includes(item.id)} onChange={() => onState(toggleEvidence(state, item.id))} /><span><small>BEAT {item.beat} · {item.owner}</small><b>{item.text}</b></span></label>)}</div><div className="ballot-list">{story.characters.map(character => {
-    const ballot = state.accusations[character.id] ?? { culprit: '', motive: '', chain: '' }
-    return <section className="accusation" key={character.id}><span className="kicker">{character.name.toUpperCase()} · FINAL ACCUSATION</span><label className="field"><span>Who caused the death?</span><input value={ballot.culprit} onChange={event => onState(updateAccusation(state, character.id, { ...ballot, culprit: event.target.value }))} /></label><label className="field"><span>What was the motive?</span><textarea value={ballot.motive} onChange={event => onState(updateAccusation(state, character.id, { ...ballot, motive: event.target.value }))} /></label><label className="field"><span>What is your strongest clue?</span><textarea value={ballot.chain} onChange={event => onState(updateAccusation(state, character.id, { ...ballot, chain: event.target.value }))} /></label></section>
-  })}</div>{blockers.length > 0 && <section className="hard-errors compact"><span>REVEAL BLOCKED</span><ul>{blockers.map(blocker => <li key={blocker}>{blocker}</li>)}</ul></section>}<button className="primary-action" disabled={state.paused || blockers.length > 0} onClick={() => onState(revealToTable(definition, state))}>Lock accusations and reveal to table →</button></>
+  const [fromRoleId, setFromRoleId] = useState(story.characters[0].id)
+  const [toRoleId, setToRoleId] = useState(story.characters[1].id)
+  const [amount, setAmount] = useState(1)
+  const [accuserRoleId, setAccuserRoleId] = useState(story.characters[0].id)
+  const [accusedRoleId, setAccusedRoleId] = useState(story.characters[1].id)
+  const [caseText, setCaseText] = useState('')
+  const characterName = (roleId: string) => story.characters.find(character => character.id === roleId)?.name ?? roleId
+  const clues = new Map(definition.clueDecks.flatMap(deck => deck.clues.map(clue => [clue.id, clue] as const)))
+  const hearingCopy = state.hearing && {
+    case: `${characterName(state.hearing.accuserRoleId)} reads the accusation without interruption.`,
+    defense: `${characterName(state.hearing.accusedRoleId)} answers the case.`,
+    statements: 'Give each other suspect one brief statement.',
+    voting: 'Ask every suspect: convict or acquit?',
+  }[state.hearing.stage]
+
+  return <><div className="page-title"><div><span className="kicker">35 MINUTES · OPEN INVESTIGATION</span><h2>Talk, trade, accuse.</h2><p>Players run this part. The host keeps time, sells private clues, and guides a hearing when someone calls one.</p></div></div><aside className="host-note"><b>HOST RULE</b><span>The staged incident is the only death. Nobody else dies or leaves play.</span></aside>
+    <section className="social-steps"><article><b>1</b><div><h3>Talk freely</h3><p>Question everyone. Bargain with truthful clues, secrets, and tokens.</p></div></article><article><b>2</b><div><h3>Buy private clues</h3><p>Choose either deck. A random clue costs {state.cluePrice} tokens.</p></div></article><article><b>3</b><div><h3>Call an accusation</h3><p>A 3-of-5 conviction ends the investigation—even if the room is wrong.</p></div></article></section>
+
+    <section className="social-panel"><div className="social-heading"><div><span className="kicker">TOKEN TABLE</span><h3>Record a trade</h3></div><small>Each player began with 10</small></div><div className="trade-form"><select aria-label="Token sender" value={fromRoleId} onChange={event => setFromRoleId(event.target.value)}>{story.characters.map(character => <option key={character.id} value={character.id}>{character.name} · {state.tokenBalances[character.id]}</option>)}</select><span>gives</span><input aria-label="Token amount" type="number" min="1" value={amount} onChange={event => setAmount(Number(event.target.value))} /><span>to</span><select aria-label="Token recipient" value={toRoleId} onChange={event => setToRoleId(event.target.value)}>{story.characters.map(character => <option key={character.id} value={character.id}>{character.name} · {state.tokenBalances[character.id]}</option>)}</select><button disabled={fromRoleId === toRoleId || amount < 1} onClick={() => run(() => transferTokens(state, fromRoleId, toRoleId, amount))}>Record trade</button></div></section>
+
+    <section className="social-panel"><div className="social-heading"><div><span className="kicker">PRIVATE CLUE DESK</span><h3>Sell a clue, then show it only to that player</h3></div><small>{definition.clueDecks.reduce((total, deck) => total + state.clueDecks[deck.id].remainingClueIds.length, 0)} unique clues left</small></div><div className="clue-buyers">{story.characters.map(character => <details key={character.id}><summary><span><b>{character.name}</b><small>{state.tokenBalances[character.id]} tokens · {state.ownedClueIds[character.id].length} clues</small></span><strong>private handoff →</strong></summary><div className="clue-options">{definition.clueDecks.map(deck => <button key={deck.id} disabled={Boolean(state.hearing) || state.tokenBalances[character.id] < state.cluePrice || (!state.clueDecks[deck.id].remainingClueIds.length && !state.duplicateClues)} onClick={() => run(() => buyClue(definition, state, character.id, deck.id))}><b>{deck.label}</b><small>{state.cluePrice} tokens · {state.clueDecks[deck.id].remainingClueIds.length} unique left</small></button>)}</div>{state.ownedClueIds[character.id].map((clueId, index) => <article className="private-clue" key={`${clueId}-${index}`}><span>CLUE {index + 1}</span><p>{clues.get(clueId)?.text}</p></article>)}</details>)}</div><details className="pacing-tools"><summary>Host pacing help</summary><p>If information is moving too slowly, lower the price or allow repeats after a deck empties.</p><div><button disabled={state.cluePrice === 0} onClick={() => run(() => lowerCluePrice(state, state.cluePrice - 1))}>Lower price to {Math.max(0, state.cluePrice - 1)}</button><button disabled={state.duplicateClues} onClick={() => run(() => enableDuplicateClues(state))}>{state.duplicateClues ? 'Repeat clues enabled' : 'Allow repeat clues'}</button></div></details></section>
+
+    <section className="social-panel hearing-panel"><div className="social-heading"><div><span className="kicker">PUBLIC ACCUSATION</span><h3>{state.hearing ? `${characterName(state.hearing.accuserRoleId)} accuses ${characterName(state.hearing.accusedRoleId)}` : 'Call a hearing when someone is ready'}</h3></div>{state.hearing && <strong>{state.hearing.stage.toUpperCase()}</strong>}</div>{state.hearing ? <><aside className="hearing-now"><b>{hearingCopy}</b><p>{state.hearing.caseText}</p></aside>{state.hearing.stage !== 'voting' ? <button className="primary-action" onClick={() => run(() => advanceHearing(state))}>Next: {state.hearing.stage === 'case' ? 'the defense' : state.hearing.stage === 'defense' ? 'open statements' : 'the vote'} →</button> : <div className="vote-list">{story.characters.map(character => { const vote = state.hearing?.votes[character.id]; return <article key={character.id}><b>{character.name}</b>{vote ? <strong>{vote}</strong> : <div><button onClick={() => run(() => castVote(definition, state, character.id, 'convict'))}>Convict</button><button onClick={() => run(() => castVote(definition, state, character.id, 'acquit'))}>Acquit</button></div>}</article> })}</div>}</> : <><div className="accusation-form"><label className="field"><span>Accuser</span><select value={accuserRoleId} onChange={event => setAccuserRoleId(event.target.value)}>{story.characters.map(character => <option key={character.id} value={character.id}>{character.name}</option>)}</select></label><label className="field"><span>Accused</span><select value={accusedRoleId} onChange={event => setAccusedRoleId(event.target.value)}>{story.characters.map(character => <option key={character.id} value={character.id}>{character.name}</option>)}</select></label><label className="field case-field"><span>The case in one sentence</span><input value={caseText} onChange={event => setCaseText(event.target.value)} placeholder="I accuse… because…" /></label></div>{state.hearingHistory.at(-1)?.result === 'failed' && <p className="failed-hearing">The last vote failed. Investigation continues.</p>}<button className="primary-action" disabled={accuserRoleId === accusedRoleId || !caseText.trim()} onClick={() => run(() => callAccusation(state, accuserRoleId, accusedRoleId, caseText))}>Begin the public hearing →</button><button className="time-up" onClick={() => run(() => endInvestigation(state))}>Time is up — reveal without a conviction</button></>}</section>
+  </>
+}
+
+function AuthoredAct({ definition, state, performances, onPerform, onConfirm, onUndo, onAdvance }: {
+  definition: GameDefinition
+  state: ActiveGameState
+  performances: Record<string, AiPerformance>
+  onPerform: (roleId: string, actionId: string) => void
+  onConfirm: (beatId: string) => void
+  onUndo: (beatId: string) => void
+  onAdvance: () => void
+}) {
+  const act = definition.acts.find(item => item.id === state.playPhase)
+  if (!act) return null
+  const ready = definition.story.runPlan
+    .filter(beat => beat.phase === state.playPhase && beat.essential)
+    .every(beat => state.completedBeatIds.includes(beat.id))
+  return <section className="phase-panel">
+    <div className="page-title"><div><span className="kicker">{act.durationMinutes} MINUTES · {state.playPhase}</span><h2>{act.title}</h2><p><b>Tell the players:</b> {act.playerGoal}</p><p className="host-only"><b>Your job:</b> {act.operatorGoal}</p></div></div>
+    <RunSheet story={definition.story} state={state} performances={performances} onPerform={onPerform} onConfirm={onConfirm} onUndo={onUndo} />
+    <button className="primary-action" disabled={state.paused || !ready} onClick={onAdvance}>{act.completionLabel}</button>
+  </section>
+}
+
+function TableReveal({ definition, state, run }: { definition: GameDefinition; state: ActiveGameState; run: (command: () => ActiveGameState | GameState) => void }) {
+  const { story } = definition
+  const scores = calculateScores(definition, state)
+  const conviction = state.outcome?.kind === 'conviction' ? state.outcome : null
+  const accused = conviction ? story.characters.find(character => character.id === conviction.accusedRoleId)?.name : undefined
+  return <section className="phase-panel reveal-panel"><span className="kicker">10 MINUTES · TABLE REVEAL</span><h2>{accused ? `The room convicted ${accused}.` : 'Time expired without a conviction.'}</h2><p>Now read the real solution, score private objectives, and choose the two table awards.</p><CanonicalTruth story={story} /><section className="score-room"><div className="social-heading"><div><span className="kicker">FINAL SCORING</span><h3>Tick completed objectives</h3></div><small>Tokens and deduction points are automatic</small></div>{story.characters.map(character => <article key={character.id}><header><div><b>{character.name}</b><small>{state.tokenBalances[character.id]} tokens</small></div><strong>{scores[character.id].total} pts</strong></header><div>{character.objectives.map(objective => <label key={objective.id}><input type="checkbox" checked={state.completedObjectiveIds[character.id].includes(objective.id)} onChange={event => run(() => setObjectiveCompleted(definition, state, character.id, objective.id, event.target.checked))} /><span>{objective.title} · {objective.points}</span></label>)}</div><small>Objectives {scores[character.id].objectivePoints} · tokens {scores[character.id].tokenPoints} · deduction {scores[character.id].accuserPoints + scores[character.id].votePoints} · escape {scores[character.id].culpritEscapePoints}</small></article>)}</section><section className="awards"><h3>Two table-voted awards</h3><div className="award-fields"><label className="field"><span>Best performance</span><select value={state.awards.performanceRoleId ?? ''} onChange={event => event.target.value && run(() => recordAward(definition, state, 'performance', event.target.value))}><option value="">Choose together</option>{story.characters.map(character => <option key={character.id} value={character.id}>{character.name}</option>)}</select></label><label className="field"><span>Best costume</span><select value={state.awards.costumeRoleId ?? ''} onChange={event => event.target.value && run(() => recordAward(definition, state, 'costume', event.target.value))}><option value="">Choose together</option>{story.characters.map(character => <option key={character.id} value={character.id}>{character.name}</option>)}</select></label></div></section><button className="primary-action" disabled={state.paused} onClick={() => run(() => completeGame(definition, state))}>Close the case →</button></section>
 }
 
 export function HostWorkspace({ definition, state, setState, capabilities, gateway, onPreview }: {
@@ -249,18 +303,23 @@ export function HostWorkspace({ definition, state, setState, capabilities, gatew
     }
   }
 
-  if (state.phase === 'idle') return <main className="page host-page"><CanonicalTruth story={story} /><section className="setup-hero idle-hero"><span className="kicker">IDLE · AUTHORED FOR {definition.setting.venueName.toUpperCase()}</span><h1>Nothing has been created, assigned, sent, or started.</h1><p>This exact definition is locked by fingerprint {definition.fingerprint.slice(0, 12)}. Create a game to begin enrolment.</p><button className="primary-action" onClick={() => setState(createGame(definition))}>Create game and begin enrolment →</button></section></main>
+  if (state.phase === 'idle') return <main className="page host-page"><section className="setup-hero idle-hero"><span className="kicker">READY FOR {definition.setting.venueName.toUpperCase()}</span><h1>Set up one host and five players.</h1><p>The dashboard will walk you through private cards, the timed evening, accusations, and the reveal.</p><EveningTimeline definition={definition} /><button className="primary-action" onClick={() => setState(createGame(definition))}>Set up this game →</button></section></main>
 
   const active = state.phase === 'active' ? state : null
   const hostName = state.phase === 'enrolling' ? state.setup.hostName : state.hostName
   return <main className="page host-page">
     <section className="session-head"><div><span className="kicker">GAME {state.id.slice(0, 8)}</span><h1>{active ? `${active.paused ? 'paused · ' : ''}${active.playPhase}` : state.phase}</h1><p>{state.phase === 'enrolling' ? 'Assignments are still editable.' : `${'roster' in state ? Object.keys(state.roster).length : 0} guest seats · ${hostName} host`}</p></div><div className="session-actions">{active && <button onClick={() => setState(togglePause(active))}>{active.paused ? 'Resume' : 'Pause'}</button>}{state.phase !== 'completed' && state.phase !== 'aborted' && <button className="danger-button" onClick={() => run(() => abortGame(state))}>Abort</button>}<button className="danger-button" onClick={reset}>Reset game</button></div></section>
     {commandError && <section className="hard-errors compact"><span>COMMAND FAILED</span><pre>{commandError}</pre></section>}
-    <CanonicalTruth story={story} />
     {state.phase === 'enrolling' && <SetupPanel definition={definition} setup={state.setup} capabilities={capabilities} gateway={gateway} onChange={setup => setState(updateEnrolment(state, setup))} onPreview={onPreview} onPrepare={() => run(() => prepareGame(definition, state, capabilities))} />}
     {state.phase === 'prepared' && <><Roster story={story} state={state} onPreview={onPreview} /><DeliveryDesk definition={definition} state={state} onState={setState} run={run} /></>}
-    {active && <><Roster story={story} state={active} onPreview={onPreview} />{definition.acts.some(act => act.id === active.playPhase) && <section className="phase-panel"><div className="page-title"><div><span className="kicker">{active.playPhase}</span><h2>{definition.acts.find(act => act.id === active.playPhase)?.title}</h2><p>{definition.acts.find(act => act.id === active.playPhase)?.operatorGoal}</p></div></div><RunSheet story={story} state={active} performances={Object.fromEntries(Object.entries({ ...active.aiPerformances, ...performanceRequests }).map(([id, performance]) => [id, { ...performance, text: active.aiPerformances[id]?.text }]))} onPerform={perform} onConfirm={beatId => run(() => confirmRunBeat(definition, active, beatId))} onUndo={beatId => run(() => undoRunBeat(definition, active, beatId))} /><button className="primary-action" disabled={active.paused || !story.runPlan.filter(beat => beat.phase === active.playPhase && beat.essential).every(beat => active.completedBeatIds.includes(beat.id))} onClick={() => run(() => advanceAct(definition, active))}>{definition.acts.find(act => act.id === active.playPhase)?.completionLabel}</button></section>}{active.playPhase === 'investigation' && <section className="phase-panel"><Investigation definition={definition} state={active} onState={setState} /></section>}{active.playPhase === 'reveal' && <section className="phase-panel reveal-panel"><span className="kicker">TABLE REVEAL</span><h2>Read the canonical timeline aloud.</h2><div className="ballot-list">{story.characters.map(character => { const ballot = active.accusations[character.id]; return <div className="theory" key={character.id}><h3>{character.name} accused</h3><p><b>{ballot.culprit}</b></p><p>{ballot.motive}</p><p>{ballot.chain}</p></div> })}</div><CanonicalTruth story={story} /><button className="primary-action" disabled={active.paused} onClick={() => run(() => completeGame(active))}>Complete the game →</button></section>}</>}
-    {state.phase === 'completed' && <section className="phase-panel terminal"><span className="kicker">CASE CLOSED</span><h2>The game completed successfully.</h2><p>The exact roster, delivery receipts, performed beats, surfaced evidence and accusation remain stored.</p></section>}
+    {active && <>
+      <EveningTimeline definition={definition} phase={active.playPhase} />
+      <Roster story={story} state={active} onPreview={onPreview} />
+      <AuthoredAct definition={definition} state={active} performances={Object.fromEntries(Object.entries({ ...active.aiPerformances, ...performanceRequests }).map(([id, performance]) => [id, { ...performance, text: active.aiPerformances[id]?.text }]))} onPerform={perform} onConfirm={beatId => run(() => confirmRunBeat(definition, active, beatId))} onUndo={beatId => run(() => undoRunBeat(definition, active, beatId))} onAdvance={() => run(() => advanceAct(definition, active))} />
+      {active.playPhase === 'investigation' && <section className="phase-panel"><Investigation definition={definition} state={active} run={run} /></section>}
+      {active.playPhase === 'reveal' && <TableReveal definition={definition} state={active} run={run} />}
+    </>}
+    {state.phase === 'completed' && <section className="phase-panel terminal"><span className="kicker">CASE CLOSED</span><h2>That’s the evening.</h2><div className="final-score-grid">{Object.values(state.finalScores).sort((a, b) => b.total - a.total).map((score, index) => <article key={score.roleId}><span>{index + 1}</span><div><b>{story.characters.find(character => character.id === score.roleId)?.name}</b><small>{score.objectivePoints} objectives · {score.tokenPoints} tokens · {score.accuserPoints + score.votePoints} deduction</small></div><strong>{score.total}</strong></article>)}</div></section>}
     {state.phase === 'aborted' && <section className="phase-panel terminal"><span className="kicker danger">GAME ABORTED</span><h2>No further commands can run.</h2><p>Reset explicitly to return to idle.</p></section>}
   </main>
 }

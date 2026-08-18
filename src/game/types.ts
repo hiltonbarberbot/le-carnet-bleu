@@ -2,10 +2,11 @@ export type RunPhase = string
 export type PlayPhase = RunPhase | 'investigation' | 'reveal'
 export type GameLifecyclePhase = 'idle' | 'enrolling' | 'prepared' | 'active' | 'completed' | 'aborted'
 
-export type Memory = {
+export type CharacterSecret = {
   id: string
   text: string
   kind: 'evidence' | 'secret' | 'colour'
+  aboutRoleIds?: string[]
   beat?: number
   availableAfter?: string
 }
@@ -22,7 +23,7 @@ export type Action = {
   requires: string[]
 }
 
-export type CharacterGoal = {
+export type CharacterObjective = {
   id: string
   title: string
   text: string
@@ -30,21 +31,8 @@ export type CharacterGoal = {
   points: number
 }
 
-export type CharacterAbility = {
-  id: string
-  title: string
-  text: string
-  uses: 1 | 2
-}
-
-export type CharacterItem = {
-  title: string
-  text: string
-}
-
 export type CharacterRelationship = {
   roleId: string
-  kind: 'approach' | 'watch'
   text: string
 }
 
@@ -59,12 +47,10 @@ export type Character = {
   privateIdentity: string
   privateObjective: string
   privateSecret: string
-  goals: CharacterGoal[]
-  abilities: CharacterAbility[]
-  item: CharacterItem
+  traits: string[]
+  objectives: CharacterObjective[]
   relationships: CharacterRelationship[]
-  dilemma: string
-  memories: Memory[]
+  secrets: CharacterSecret[]
   actions: Action[]
 }
 
@@ -168,13 +154,47 @@ export type DeliveryRecord = {
   error?: string
 }
 
-export type Accusation = {
-  culprit: string
-  motive: string
-  chain: string
+export type ClueDeckState = {
+  remainingClueIds: string[]
+  drawnClueIds: string[]
 }
 
-export type AccusationBallots = Record<string, Accusation>
+export type AccusationVote = 'convict' | 'acquit'
+
+export type AccusationHearingStage = 'case' | 'defense' | 'statements' | 'voting'
+
+export type AccusationHearing = {
+  id: string
+  accuserRoleId: string
+  accusedRoleId: string
+  caseText: string
+  stage: AccusationHearingStage
+  votes: Record<string, AccusationVote>
+}
+
+export type AccusationHearingResult = AccusationHearing & {
+  result: 'convicted' | 'failed'
+  convictVotes: number
+}
+
+export type GameOutcome =
+  | { kind: 'conviction'; accusedRoleId: string; hearingId: string }
+  | { kind: 'time_expired' }
+
+export type ScoreCard = {
+  roleId: string
+  objectivePoints: number
+  tokenPoints: number
+  accuserPoints: number
+  votePoints: number
+  culpritEscapePoints: number
+  total: number
+}
+
+export type SocialAwards = {
+  performanceRoleId?: string
+  costumeRoleId?: string
+}
 
 export type AiPerformanceRecord = {
   roleId: string
@@ -184,7 +204,7 @@ export type AiPerformanceRecord = {
 }
 
 type StateIdentity = {
-  schemaVersion: 2
+  schemaVersion: 3
   definitionFingerprint: string
   storyId: string
   seed: string
@@ -224,7 +244,16 @@ export type ActiveGameState = StateIdentity & {
   paused: boolean
   completedBeatIds: string[]
   revealedEvidenceIds: string[]
-  accusations: AccusationBallots
+  tokenBalances: Record<string, number>
+  ownedClueIds: Record<string, string[]>
+  clueDecks: Record<string, ClueDeckState>
+  cluePrice: number
+  duplicateClues: boolean
+  completedObjectiveIds: Record<string, string[]>
+  hearing: AccusationHearing | null
+  hearingHistory: AccusationHearingResult[]
+  outcome: GameOutcome | null
+  awards: SocialAwards
   aiPerformances: Record<string, AiPerformanceRecord>
 }
 
@@ -232,6 +261,7 @@ export type CompletedGameState = Omit<ActiveGameState, 'phase' | 'paused'> & {
   phase: 'completed'
   paused: false
   completedAt: string
+  finalScores: Record<string, ScoreCard>
 }
 
 export type AbortedGameState = StateIdentity & {

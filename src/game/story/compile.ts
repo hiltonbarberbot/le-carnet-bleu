@@ -1,10 +1,11 @@
 import type { Story } from '../types.js'
 
-export function validateStory(story: Story): string[] {
+export function validateStory(story: Story, purchasableEvidenceIds: ReadonlySet<string> = new Set()): string[] {
   const errors: string[] = []
-  const characterIds = new Set<string>()
+  const characterIds = new Set(story.characters.map(character => character.id))
   const actionIds = new Set<string>()
-  const evidenceIds = new Set(story.publicEvidence.map(item => item.id))
+  const storyEvidenceIds = new Set(story.publicEvidence.map(item => item.id))
+  const evidenceIds = new Set([...storyEvidenceIds, ...purchasableEvidenceIds])
   const runBeatIds = new Set<string>()
   const declaredRunBeatIds = new Set(story.runPlan.map(beat => beat.id))
 
@@ -21,45 +22,54 @@ export function validateStory(story: Story): string[] {
   }
   if ((story.evening ?? []).length < 4) errors.push('story needs a simple evening timeline with at least four stages')
 
+  if (characterIds.size !== story.characters.length) errors.push('character ids must be unique')
+
+  const relationshipEdges = new Map<string, Set<string>>(story.characters.map(character => [character.id, new Set()]))
+  const charactersWithOutgoingKnowledge = new Set<string>()
+  const charactersWithIncomingKnowledge = new Set<string>()
+
   for (const character of story.characters) {
-    if (characterIds.has(character.id)) errors.push(`duplicate character id ${character.id}`)
-    characterIds.add(character.id)
 
     if (!character.invitationPretext?.trim()) errors.push(`character ${character.id} has no invitation pretext`)
     if (!character.invitationPromise?.trim()) errors.push(`character ${character.id} has no private invitation promise`)
     if (!character.privateIdentity?.trim()) errors.push(`character ${character.id} has no private identity`)
     if (!character.privateObjective?.trim()) errors.push(`character ${character.id} has no private objective`)
-    if (character.goals?.length !== 3) errors.push(`character ${character.id} needs exactly three simple goals`)
-    if (character.abilities?.length !== 2) errors.push(`character ${character.id} needs exactly two abilities`)
-    if (!character.item?.title?.trim() || !character.item?.text?.trim()) errors.push(`character ${character.id} needs one playable item`)
-    if (character.relationships?.length !== 2) errors.push(`character ${character.id} needs exactly two starting relationships`)
-    if (!character.dilemma?.trim()) errors.push(`character ${character.id} needs one dilemma`)
+    if ((character.traits ?? []).length < 2 || character.traits.some(trait => !trait.trim())) errors.push(`character ${character.id} needs at least two playable traits`)
+    if (character.objectives?.length !== 3) errors.push(`character ${character.id} needs exactly three scored objectives`)
+    if (!(character.relationships?.length > 0)) errors.push(`character ${character.id} needs at least one relationship`)
+    if (!(character.secrets?.length > 0)) errors.push(`character ${character.id} needs secrets or evidence`)
 
-    const goalIds = new Set<string>()
-    for (const goal of character.goals ?? []) {
-      if (!goal.id.trim() || !goal.title.trim() || !goal.text.trim()) errors.push(`character ${character.id} has an incomplete goal`)
-      if (goalIds.has(goal.id)) errors.push(`character ${character.id} has duplicate goal ${goal.id}`)
-      if (goal.points < 1) errors.push(`character ${character.id} goal ${goal.id} must be worth at least one point`)
-      goalIds.add(goal.id)
-    }
-
-    const abilityIds = new Set<string>()
-    for (const ability of character.abilities ?? []) {
-      if (!ability.id.trim() || !ability.title.trim() || !ability.text.trim()) errors.push(`character ${character.id} has an incomplete ability`)
-      if (abilityIds.has(ability.id)) errors.push(`character ${character.id} has duplicate ability ${ability.id}`)
-      abilityIds.add(ability.id)
+    const objectiveIds = new Set<string>()
+    for (const objective of character.objectives ?? []) {
+      if (!objective.id.trim() || !objective.title.trim() || !objective.text.trim()) errors.push(`character ${character.id} has an incomplete objective`)
+      if (objectiveIds.has(objective.id)) errors.push(`character ${character.id} has duplicate objective ${objective.id}`)
+      if (![1, 2, 3].includes(objective.points)) errors.push(`character ${character.id} objective ${objective.id} must be worth 1, 2, or 3 points`)
+      objectiveIds.add(objective.id)
     }
 
     for (const relationship of character.relationships ?? []) {
       if (!relationship.roleId.trim() || !relationship.text.trim()) errors.push(`character ${character.id} has an incomplete relationship`)
       if (relationship.roleId === character.id) errors.push(`character ${character.id} cannot have a relationship with themselves`)
+      if (!characterIds.has(relationship.roleId)) errors.push(`character ${character.id} references missing relationship ${relationship.roleId}`)
+      relationshipEdges.get(character.id)?.add(relationship.roleId)
+      relationshipEdges.get(relationship.roleId)?.add(character.id)
     }
 
-    for (const memory of character.memories) {
-      if (evidenceIds.has(memory.id)) errors.push(`duplicate evidence id ${memory.id}`)
-      evidenceIds.add(memory.id)
-      if (memory.availableAfter && !declaredRunBeatIds.has(memory.availableAfter)) {
-        errors.push(`memory ${memory.id} unlocks after missing run-plan beat ${memory.availableAfter}`)
+    for (const secret of character.secrets ?? []) {
+      if (evidenceIds.has(secret.id)) errors.push(`duplicate evidence id ${secret.id}`)
+      evidenceIds.add(secret.id)
+      storyEvidenceIds.add(secret.id)
+      if (secret.availableAfter && !declaredRunBeatIds.has(secret.availableAfter)) {
+        errors.push(`secret ${secret.id} unlocks after missing run-plan beat ${secret.availableAfter}`)
+      }
+      for (const roleId of secret.aboutRoleIds ?? []) {
+        if (!characterIds.has(roleId)) errors.push(`secret ${secret.id} references missing character ${roleId}`)
+        if (roleId !== character.id) {
+          charactersWithOutgoingKnowledge.add(character.id)
+          charactersWithIncomingKnowledge.add(roleId)
+          relationshipEdges.get(character.id)?.add(roleId)
+          relationshipEdges.get(roleId)?.add(character.id)
+        }
       }
     }
 
@@ -70,6 +80,22 @@ export function validateStory(story: Story): string[] {
     }
   }
 
+  for (const character of story.characters) {
+    if (!charactersWithOutgoingKnowledge.has(character.id)) errors.push(`character ${character.id} knows no secret about another suspect`)
+    if (!charactersWithIncomingKnowledge.has(character.id)) errors.push(`no other suspect holds a secret about character ${character.id}`)
+  }
+  if (story.characters.length) {
+    const visited = new Set<string>()
+    const pending = [story.characters[0].id]
+    while (pending.length) {
+      const id = pending.pop()!
+      if (visited.has(id)) continue
+      visited.add(id)
+      for (const neighbour of relationshipEdges.get(id) ?? []) pending.push(neighbour)
+    }
+    if (visited.size !== story.characters.length) errors.push('character secrets and relationships must form one connected social graph')
+  }
+
   const timelineNumbers = story.timeline.map(item => item.beat)
   const expectedNumbers = story.timeline.map((_, index) => index + 1)
   if (timelineNumbers.some((beat, index) => beat !== expectedNumbers[index])) {
@@ -77,7 +103,7 @@ export function validateStory(story: Story): string[] {
   }
 
   for (const beat of story.timeline) {
-    if (beat.evidence.length < 2) errors.push(`timeline beat ${beat.beat} needs at least two evidence routes`)
+    if (new Set(beat.evidence.filter(id => storyEvidenceIds.has(id))).size < 2) errors.push(`timeline beat ${beat.beat} needs at least two non-purchasable evidence routes`)
     for (const evidenceId of beat.evidence) {
       if (!evidenceIds.has(evidenceId)) errors.push(`timeline beat ${beat.beat} references missing evidence ${evidenceId}`)
     }
@@ -116,8 +142,8 @@ export function validateStory(story: Story): string[] {
   return errors
 }
 
-export function compileStory(story: Story): Story {
-  const errors = validateStory(story)
+export function compileStory(story: Story, purchasableEvidenceIds: ReadonlySet<string> = new Set()): Story {
+  const errors = validateStory(story, purchasableEvidenceIds)
   if (errors.length) throw new Error(`Invalid story:\n${errors.join('\n')}`)
   return story
 }
