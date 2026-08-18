@@ -5,6 +5,7 @@ import { createSettingBrief } from '../../src/game/setting/brief.js'
 import type { SettingBriefInput } from '../../src/game/setting/contract.js'
 import { productNaming } from '../../src/product/naming.js'
 import { createStoryAuthoringBrief } from '../../src/game/story/authoring.js'
+import { classifyAiProviderError, createProblemReference, problemResponse } from './problem.js'
 
 const model = process.env.AI_GATEWAY_MODEL || 'anthropic/claude-sonnet-4.6'
 export const maxDuration = 300
@@ -38,7 +39,7 @@ function readSetting(value: unknown): SettingBriefInput | null {
 const shape = `Return one JSON object with exactly this shape (never include fingerprint or schemaVersion):
 {
   "id": "lowercase-slug", "title": "Story title",
-  "setting": { "venueName": "", "location": "", "occasion": "", "era": "", "playableSpaces": [""], "routes": [""], "usableFeatures": [""], "availableProps": [""], "tone": "", "safetyConstraints": [""], "accessibilityNeeds": [""], "contentBoundaries": [""] },
+  "setting": { "venueName": "", "location": "", "era": "", "playableSpaces": [""], "routes": [""], "usableFeatures": [""], "availableProps": [""], "tone": "", "safetyConstraints": [""], "accessibilityNeeds": [""], "contentBoundaries": [""] },
   "story": {
     "id": "lowercase-slug", "seed": "lowercase-slug", "title": "", "subtitle": "", "premise": "", "totalPeople": 6, "hostRole": "", "victim": "", "culprit": "exact name of one character",
     "characters": [{ "id": "unique-slug", "name": "", "title": "", "costume": "", "publicFace": "", "invitationPretext": "", "invitationPromise": "", "privateIdentity": "", "privateObjective": "", "privateSecret": "", "traits": ["", ""], "objectives": [{ "id": "unique-id", "title": "", "text": "", "phase": "declared-act-id|investigation|any", "points": 1 }], "relationships": [{ "roleId": "another-character-id", "text": "" }], "secrets": [{ "id": "unique-id", "text": "", "kind": "evidence|secret|colour", "aboutRoleIds": ["another-character-id"], "beat": 1, "availableAfter": "optional-earlier-run-beat-id" }], "actions": [{ "id": "unique-id", "text": "", "cue": "", "consequence": "", "essential": true, "beat": 1, "phase": "declared-act-id", "physical": false, "requires": [] }] }],
@@ -53,7 +54,7 @@ const shape = `Return one JSON object with exactly this shape (never include fin
   "setupRequirements": [{ "id": "requirement-id", "label": "", "settingField": "playableSpaces|routes|usableFeatures|availableProps|safetyConstraints|accessibilityNeeds", "settingValue": "an exact string copied from that setting array" }]
 }
 
-Hard structural rules: exactly five characters; every character has at least two playable traits, exactly three 1-3 point objectives, a variable non-empty relationship list, truthful secrets about other suspects, and at least one action; the union of relationships and secret targets must connect all five characters, and every character must both know and be the subject of another suspect's secret; create exactly one authored opening act lasting no more than fifteen minutes; every authored action and run-plan beat belongs to that opening; the opening introduces the cast, stages the only in-game death, reveals the body, and hands control to the players; after it, include exactly one continuous 60-180 minute investigation stage with no scripted acts, where players talk, bargain, buy clues, pursue objectives, and may call a public accusation at any time; no later event removes a player from play; create exactly two setting-backed clue decks containing exactly five clues total; purchasable clues can corroborate timeline claims, but every timeline beat still cites at least two non-purchasable evidence IDs; every essential action has a canonical beat and appears in a runPlan actionIds list; timeline beat numbers are contiguous from 1; the opening has operator and player goals and an essential run-plan beat; dependencies only point backward; every physical action has at least one valid setup requirement ID. Copy the validated setting exactly.`
+Hard structural rules: invent the fictional gathering and why this host invited these five suspects; exactly five characters; every character has at least two playable traits, exactly three 1-3 point objectives, a variable non-empty relationship list, truthful secrets about other suspects, and at least one action; the union of relationships and secret targets must connect all five characters, and every character must both know and be the subject of another suspect's secret; create exactly one authored opening act lasting no more than fifteen minutes; every authored action and run-plan beat belongs to that opening; the opening introduces the cast, stages the only in-game death, reveals the body, and hands control to the players; after it, include exactly one continuous 60-180 minute investigation stage with no scripted acts, where players talk, bargain, buy clues, pursue objectives, and may call a public accusation at any time; no later event removes a player from play; create exactly two setting-backed clue decks containing exactly five clues total; purchasable clues can corroborate timeline claims, but every timeline beat still cites at least two non-purchasable evidence IDs; every essential action has a canonical beat and appears in a runPlan actionIds list; timeline beat numbers are contiguous from 1; the opening has operator and player goals and an essential run-plan beat; dependencies only point backward; every physical action has at least one valid setup requirement ID. Copy the validated setting exactly.`
 
 export function GET() {
   const available = isConfigured()
@@ -61,27 +62,31 @@ export function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!hasAllowedOrigin(request)) return json({ error: 'Cross-origin AI requests are not allowed.' }, 403)
-  if (!isConfigured()) return json({ error: 'AI story drafting is not configured.' }, 503)
+  if (!hasAllowedOrigin(request)) return problemResponse('invalid_request', { message: 'Cross-origin AI requests are not allowed.', status: 403 })
+  if (!isConfigured()) return problemResponse('not_configured')
 
   let settingInput: SettingBriefInput | null = null
   try {
     settingInput = readSetting(await request.json())
   } catch {
-    return json({ error: 'Request body must be valid JSON.' }, 400)
+    return problemResponse('invalid_request', { message: 'Request body must be valid JSON.' })
   }
-  if (!settingInput) return json({ error: 'A setting brief is required.' }, 400)
+  if (!settingInput) return problemResponse('invalid_request', { message: 'A setting brief is required.' })
 
   let setting
   try {
     setting = createSettingBrief(settingInput)
   } catch (error) {
-    return json({ error: error instanceof Error ? error.message : 'The setting brief is incomplete.' }, 400)
+    return problemResponse('invalid_request', {
+      message: error instanceof Error ? error.message : 'The setting brief is incomplete.',
+    })
   }
 
   const authoringBrief = createStoryAuthoringBrief(setting)
+  const reference = createProblemReference()
   let lastError = 'The generated story was invalid.'
   for (let attempt = 0; attempt < 2; attempt += 1) {
+    let output: unknown
     try {
       const result = await generateText({
         model,
@@ -92,13 +97,28 @@ export async function POST(request: Request) {
         temperature: 0.7,
         providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'story-authoring'] } },
       })
-      const definition = createGameDefinition(result.output as unknown as GameDefinitionInput)
+      output = result.output
+    } catch (error) {
+      const code = classifyAiProviderError(error)
+      if (code === 'invalid_output' && attempt === 0) {
+        lastError = 'The model did not return the requested story shape.'
+        continue
+      }
+      console.error('AI story provider request failed', { reference, code, error })
+      return problemResponse(code, { reference })
+    }
+
+    try {
+      const definition = createGameDefinition(output as GameDefinitionInput)
       return json({ definition, model })
     } catch (error) {
       lastError = error instanceof Error ? error.message : String(error)
     }
   }
 
-  console.error('AI story authoring failed validation', lastError)
-  return json({ error: `The AI draft did not pass the story checks. Please try again. ${lastError}` }, 502)
+  console.error('AI story authoring failed validation', { reference, error: lastError })
+  return problemResponse('invalid_output', {
+    message: 'The AI story did not pass the fairness and playability checks.',
+    reference,
+  })
 }

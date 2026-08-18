@@ -1,6 +1,7 @@
 import { createStorylineDefinition } from '../definition/create'
 import type { StorylineDefinition, StorylineDefinitionInput } from '../definition/contract'
 import type { SettingBrief } from '../setting/contract'
+import { AiRequestError, requestAiJson } from './problem'
 
 type AuthoringResponse = {
   definition?: StorylineDefinitionInput
@@ -8,15 +9,27 @@ type AuthoringResponse = {
 }
 
 export async function draftStorylineFromSetting(setting: SettingBrief): Promise<StorylineDefinition> {
-  const response = await fetch('/api/ai/author', {
+  const payload = await requestAiJson<AuthoringResponse>('/api/ai/author', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ setting }),
   })
-  const payload = await response.json() as AuthoringResponse
-  if (!response.ok) throw new Error(payload.error || `AI authoring failed (${response.status}).`)
-  if (!payload.definition) throw new Error('The AI author returned no game definition.')
-  return createStorylineDefinition(payload.definition)
+  if (!payload || typeof payload !== 'object' || !payload.definition) {
+    throw new AiRequestError({
+      error: 'The drafting service returned no story definition.',
+      code: 'bad_response',
+      retryable: true,
+    })
+  }
+  try {
+    return createStorylineDefinition(payload.definition)
+  } catch {
+    throw new AiRequestError({
+      error: 'The returned story did not pass the local game checks.',
+      code: 'invalid_output',
+      retryable: true,
+    })
+  }
 }
 
 /** @deprecated Use draftStorylineFromSetting. */

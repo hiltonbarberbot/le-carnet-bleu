@@ -60,8 +60,29 @@ describe('AI story authoring function', () => {
     process.env.AI_GATEWAY_API_KEY = 'test-key'
     vi.mocked(generateText).mockResolvedValue({ output: { id: 'broken' } } as never)
     const response = await POST(request(demoSetting))
+    const payload = await response.json()
 
     expect(response.status).toBe(502)
+    expect(payload).toEqual(expect.objectContaining({
+      code: 'invalid_output',
+      retryable: true,
+      reference: expect.stringMatching(/^[A-F0-9]{8}$/),
+    }))
+    expect(payload.error).not.toContain('Setting brief is incomplete')
     expect(generateText).toHaveBeenCalledTimes(2)
+  })
+
+  it('makes a busy provider distinguishable and retryable', async () => {
+    process.env.AI_GATEWAY_API_KEY = 'test-key'
+    vi.mocked(generateText).mockRejectedValue(Object.assign(new Error('provider details'), { statusCode: 429 }))
+
+    const response = await POST(request(demoSetting))
+
+    expect(response.status).toBe(429)
+    expect(await response.json()).toEqual(expect.objectContaining({
+      code: 'rate_limited',
+      retryable: true,
+    }))
+    expect(generateText).toHaveBeenCalledTimes(1)
   })
 })

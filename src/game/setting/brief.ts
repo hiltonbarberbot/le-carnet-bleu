@@ -14,12 +14,6 @@ export const settingQuestions: SettingQuestion[] = [
     required: true,
   },
   {
-    id: 'occasion',
-    prompt: 'Why are the players gathering, and what will really happen during the evening?',
-    why: 'The fictional invitation and live pacing must fit the actual occasion.',
-    required: true,
-  },
-  {
     id: 'era',
     prompt: 'Should the fiction be present-day, historical, timeless, or another specific era?',
     why: 'Technology, social rules, costumes, and evidence all depend on the era.',
@@ -102,7 +96,6 @@ export function createSettingBrief(input: SettingBriefInput): SettingBrief {
   return {
     venueName: cleanText(input.venueName),
     location: cleanText(input.location),
-    occasion: cleanText(input.occasion),
     era: cleanText(input.era),
     playableSpaces: cleanList(input.playableSpaces),
     routes: cleanList(input.routes),

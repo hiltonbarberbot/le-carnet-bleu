@@ -12,7 +12,7 @@ Before drafting or adapting a storyline, creating a runtime, assigning character
 4. Do not assume rooms, doors, terraces, lighting control, props, permissions, local history, mobility, privacy, or content boundaries.
 5. Validate the answers with `createSettingBrief` before story work begins.
 
-The minimum brief covers the real venue, location, occasion, fictional era, playable spaces, safe routes, tone, safety constraints, and content boundaries. Props, usable features, and accessibility needs must also be recorded when relevant.
+The minimum brief covers the real venue, location, fictional era, playable spaces, safe routes, tone, safety constraints, and content boundaries. Props, usable features, and accessibility needs must also be recorded when relevant. The in-fiction gathering and invitation are storyline facts generated after the real setting is validated; never ask for or store a separate real-world occasion.
 
 ## Authoring workflow
 

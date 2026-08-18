@@ -24,7 +24,6 @@ Draft a new, setting-specific six-person live murder mystery from the verified i
 
 - Venue: ${setting.venueName}
 - Location: ${setting.location}
-- Occasion: ${setting.occasion}
 - Fictional era: ${setting.era}
 - Tone: ${setting.tone}
 
@@ -51,9 +50,9 @@ ${list(setting.contentBoundaries)}
 
 ## Story contract
 
-1. Create one host role that becomes Game Master after the staged murder and exactly five suspect roles.
+1. Invent a compelling fictional gathering that fits the verified venue, location, era, and tone. Create one host role who credibly convenes it, becomes Game Master after the staged murder, and exactly five suspect roles.
 2. Begin with a human wound or consequential shared history, then derive culprit, motive, method, and cover-up from it.
-3. Give every suspect a respectable invitation pretext, a different private promise from the host, playable traits, exactly three scored objectives, a dense relationship web, truthful secrets about other suspects, a credible motive, and a reason to conceal evidence. Do not add universal powers, mandatory personal props, or private-ballot mechanics.
+3. Give every suspect a respectable invitation pretext grounded in the invented gathering, a different private promise from the host, playable traits, exactly three scored objectives, a dense relationship web, truthful secrets about other suspects, a credible motive, and a reason to conceal evidence. Do not add universal powers, mandatory personal props, or private-ballot mechanics.
 4. Make the canonical solution fair: every timeline beat needs at least two independent evidence routes.
 5. Separate prior memories from events created live. Gate future observations behind the run-plan beat that creates them.
 6. Define exactly one short authored opening, lasting no more than fifteen minutes. It introduces the cast, stages the incident, and ends with the body discovered. After that, the host becomes Game Master and the room enters continuous free play; do not add later scripted acts.

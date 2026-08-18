@@ -24,7 +24,13 @@ describe('setting-first story authoring', () => {
     expect(brief).toContain(`# ${productNaming.name} authoring brief`)
     expect(brief).toContain('Maison Bleue demo house')
     expect(brief).toContain('Do not invent rooms, routes, props')
+    expect(brief).toContain('Invent a compelling fictional gathering')
     expect(brief).toContain('No sharp objects')
+  })
+
+  it('keeps the fictional gathering out of the real setting brief', () => {
+    expect(settingQuestions.map(question => question.id)).not.toContain('occasion')
+    expect(createSettingBrief(demoSetting)).not.toHaveProperty('occasion')
   })
 
   it('packages a compiled story with the setting required by the runtime', () => {

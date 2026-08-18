@@ -19,7 +19,6 @@
     "settingQuestions": [
       { "id": "venueName", "prompt": "What is the real venue called, and what kind of place is it?", "required": true },
       { "id": "location", "prompt": "Where is the venue, and which local details should the story use?", "required": true },
-      { "id": "occasion", "prompt": "Why are the players gathering, and what will really happen during the evening?", "required": true },
       { "id": "era", "prompt": "Should the fiction be present-day, historical, timeless, or another specific era?", "required": true },
       { "id": "playableSpaces", "prompt": "Which rooms or outdoor areas may be used during play?", "required": true },
       { "id": "routes", "prompt": "How can players safely move between those spaces, and which routes are off-limits?", "required": true },

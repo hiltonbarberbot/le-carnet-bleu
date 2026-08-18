@@ -2,6 +2,7 @@ import { generateText } from 'ai'
 import { createSettingBrief } from '../../src/game/setting/brief.js'
 import type { SettingBriefInput } from '../../src/game/setting/contract.js'
 import { productNaming } from '../../src/product/naming.js'
+import { classifyAiProviderError, createProblemReference, problemResponse } from './problem.js'
 
 const model = process.env.AI_GATEWAY_MODEL || 'anthropic/claude-sonnet-4.6'
 export const maxDuration = 60
@@ -45,7 +46,6 @@ function cleanSetting(value: unknown): SettingBriefInput {
   return {
     venueName: cleanText(setting.venueName),
     location: cleanText(setting.location),
-    occasion: cleanText(setting.occasion),
     era: cleanText(setting.era),
     playableSpaces: cleanList(setting.playableSpaces),
     routes: cleanList(setting.routes),
@@ -58,7 +58,7 @@ function cleanSetting(value: unknown): SettingBriefInput {
   }
 }
 
-function completeSettingDraft(setting: SettingBriefInput, seed: string): SettingBriefInput {
+function completeSettingDraft(setting: SettingBriefInput): SettingBriefInput {
   const spaces = cleanList(setting.playableSpaces)
   const playableSpaces = spaces.length === 0
     ? ['Main host-approved gathering area', 'Clue station within the same gathering area']
@@ -70,7 +70,6 @@ function completeSettingDraft(setting: SettingBriefInput, seed: string): Setting
     ...setting,
     venueName: cleanText(setting.venueName) || "Host's venue",
     location: cleanText(setting.location) || 'Location unspecified; do not use local details',
-    occasion: cleanText(setting.occasion) || seed,
     era: cleanText(setting.era) || 'Present day',
     playableSpaces,
     routes: cleanList(setting.routes).length
@@ -91,32 +90,35 @@ function completeSettingDraft(setting: SettingBriefInput, seed: string): Setting
 
 const settingShape = `Return exactly one JSON object with this shape:
 {
-  "venueName": "", "location": "", "occasion": "", "era": "",
+  "venueName": "", "location": "", "era": "",
   "playableSpaces": [], "routes": [], "usableFeatures": [], "availableProps": [],
   "tone": "", "safetyConstraints": [], "accessibilityNeeds": [], "contentBoundaries": []
 }`
 
 export async function POST(request: Request) {
-  if (!hasAllowedOrigin(request)) return json({ error: 'Cross-origin AI requests are not allowed.' }, 403)
-  if (!isConfigured()) return json({ error: 'AI setting extraction is not configured.' }, 503)
+  if (!hasAllowedOrigin(request)) return problemResponse('invalid_request', { message: 'Cross-origin AI requests are not allowed.', status: 403 })
+  if (!isConfigured()) return problemResponse('not_configured')
 
   let prompt = ''
   try {
     const body = await request.json() as { prompt?: unknown }
     prompt = cleanText(body.prompt)
   } catch {
-    return json({ error: 'Request body must be valid JSON.' }, 400)
+    return problemResponse('invalid_request', { message: 'Request body must be valid JSON.' })
   }
-  if (!prompt) return json({ error: 'A description of the evening is required.' }, 400)
-  if (prompt.length > 10_000) return json({ error: 'Keep the opening description under 10,000 characters.' }, 400)
+  if (!prompt) return problemResponse('invalid_request', { message: 'A description of the evening is required.' })
+  if (prompt.length > 10_000) return problemResponse('invalid_request', { message: 'Keep the opening description under 10,000 characters.' })
 
+  const reference = createProblemReference()
   let lastError = 'The generated setting was incomplete.'
   for (let attempt = 0; attempt < 2; attempt += 1) {
+    let output: unknown
     try {
       const result = await generateText({
         model,
         system: `You turn a tiny seed into a complete, conservative setting brief for a live mystery.
-Use every fact the host supplied. Fill every missing required field so the host never has to complete a form.
+Use every fact the host supplied about the real place and play constraints. Fill every missing required field so the host never has to complete a form.
+Do not invent the fictional gathering, invitation, plot, or reason the characters are present. Those belong to story generation, not the real setting brief.
 Do not invent specific architecture, local history, permissions, or objects. When the seed omits venue facts, use honest neutral language such as "host's venue", "main host-approved gathering area", and "location unspecified; do not use local details".
 There must be at least two playable areas. If only one real room is known, define two functional zones within it and state that no relocation is required.
 Default to present day unless the seed implies another era. Supply safe defaults: no contact, running, darkness, inaccessible essential movement, or graphic violence; all physical beats are optional and host-cued. Keep inferred features and props generic, easy, and removable. Return only the requested JSON.`,
@@ -125,13 +127,28 @@ Default to present day unless the seed implies another era. Supply safe defaults
         temperature: 0.2,
         providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'setting-seeding'] } },
       })
-      const setting = createSettingBrief(completeSettingDraft(cleanSetting(parseJsonObject(result.text)), prompt))
+      output = parseJsonObject(result.text)
+    } catch (error) {
+      const code = classifyAiProviderError(error)
+      if (code === 'invalid_output' && attempt === 0) {
+        lastError = 'The model did not return the requested setting shape.'
+        continue
+      }
+      console.error('AI setting provider request failed', { reference, code, error })
+      return problemResponse(code, { reference })
+    }
+
+    try {
+      const setting = createSettingBrief(completeSettingDraft(cleanSetting(output)))
       return json({ setting, model })
     } catch (error) {
       lastError = error instanceof Error ? error.message : String(error)
     }
   }
 
-  console.error('AI setting seeding failed validation', lastError)
-  return json({ error: 'We could not turn that seed into a safe playable setting. Please try again.' }, 502)
+  console.error('AI setting seeding failed validation', { reference, error: lastError })
+  return problemResponse('invalid_output', {
+    message: 'The AI setting did not pass the safety and playability checks.',
+    reference,
+  })
 }

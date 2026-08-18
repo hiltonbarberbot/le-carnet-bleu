@@ -2,7 +2,7 @@
 
 A setting-aware, six-person live dinner-party murder mystery system: one host performs the victim and becomes Game Master after the staged murder; five guest seats play the suspects.
 
-The repository includes one Maison Bleue demo story, but it is not universal canon. A real run begins by learning the actual venue, occasion, usable spaces, safe routes, props, tone, accessibility needs, and content boundaries. Only then should a human or agent draft the mystery.
+The repository includes one Maison Bleue demo story, but it is not universal canon. A real run begins by learning the actual venue, usable spaces, safe routes, props, tone, accessibility needs, and content boundaries. The fictional gathering and invitations are generated with the story. Only then should a human or agent draft the mystery.
 
 ## Setting-first authoring
 
@@ -18,7 +18,6 @@ import {
 const setting = createSettingBrief({
   venueName: 'The actual venue',
   location: 'Town and locally useful details',
-  occasion: 'Why everyone is gathering',
   era: 'Present day',
   playableSpaces: ['Dining room', 'Library'],
   routes: ['Step-free hall between both rooms'],

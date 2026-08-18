@@ -93,7 +93,6 @@ function galleryDefinition() {
     setting: {
       venueName: 'North Room Gallery',
       location: 'A street-level contemporary gallery in Lyon',
-      occasion: 'A private exhibition opening with a seated supper',
       era: 'Present day',
       playableSpaces: ['Main gallery', 'Seated supper area'],
       routes: ['A level, public route connects both areas'],

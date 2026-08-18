@@ -8,7 +8,6 @@ export type SettingQuestion = {
 export type SettingBriefInput = {
   venueName?: string
   location?: string
-  occasion?: string
   era?: string
   playableSpaces?: string[]
   routes?: string[]
@@ -23,7 +22,6 @@ export type SettingBriefInput = {
 export type SettingBrief = {
   venueName: string
   location: string
-  occasion: string
   era: string
   playableSpaces: string[]
   routes: string[]

@@ -5,7 +5,6 @@ import { clueDecks } from './scenario.js'
 export const demoSetting = {
   venueName: 'Maison Bleue demo house',
   location: 'A fictional house on the Provençal coast',
-  occasion: 'A formal six-person dinner arranged to demonstrate the game runtime',
   era: 'Interwar-inspired, without strict historical simulation',
   playableSpaces: ['Dining room', 'Staged study'],
   routes: ['A host-verified, step-free route connects the dining room and staged study'],
