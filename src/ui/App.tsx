@@ -16,7 +16,6 @@ import {
   completeGame,
   confirmRunBeat,
   createGame,
-  createIdleState,
   enableDuplicateClues,
   endInvestigation,
   getConvictionThreshold,
@@ -38,11 +37,11 @@ import {
 } from '../game/session/lifecycle'
 import type { ActiveGameState, Character, GameState, PreparedGameState, RuntimeCapabilities, SetupDraft, Story } from '../game/types'
 import { AuthoringStudio } from './authoring/studio'
-import { clearGameLibrary, readGameLibrary, writeGameLibrary, type GameSessionEntry } from './library/storage'
-import { StoryReader } from './story/reader'
+import { bindGameToStoryline, clearGameLibrary, readGameLibrary, writeGameLibrary, type GameSessionEntry } from './library/storage'
+import { GodView } from './story/reader'
 import { productNaming } from '../product/naming'
 
-type Mode = 'choose' | 'author' | 'rules' | 'story' | 'host' | 'player'
+type Mode = 'choose' | 'author' | 'rules' | 'god' | 'host'
 type GatewayConnection = { state: 'checking' | 'available' | 'unavailable'; model?: string }
 type AiPerformance = { text?: string; pending?: boolean; error?: string }
 
@@ -51,7 +50,15 @@ export function getHostScreen(state: GameState) {
   return state.phase
 }
 
-export function StartScreen({ storylines, games, importError, libraryWarning = '', onCreateStoryline, onCreateGame, onContinueGame, onRules, onStory, onDossier, onImport, onExport }: {
+export function ActiveGameBar({ game, onGodView, onExit }: {
+  game: GameSessionEntry
+  onGodView: () => void
+  onExit: () => void
+}) {
+  return <header className="mode-bar host-mode"><div><span>HOST DASHBOARD · PRIVATE</span><b>{game.storyline.title} · {game.storyline.story.totalPeople} people · {getHostScreen(game.state)}</b></div><div className="mode-actions"><button onClick={onGodView}>God view · spoilers</button><button className="quiet" onClick={onExit}>Back to storylines</button></div></header>
+}
+
+export function StartScreen({ storylines, games, importError, libraryWarning = '', onCreateStoryline, onCreateGame, onContinueGame, onRules, onImport, onExport }: {
   storylines: StorylineDefinition[]
   games: GameSessionEntry[]
   importError: string
@@ -60,8 +67,6 @@ export function StartScreen({ storylines, games, importError, libraryWarning = '
   onCreateGame: (storyline: StorylineDefinition) => void
   onContinueGame: (game: GameSessionEntry) => void
   onRules: (storyline: StorylineDefinition) => void
-  onStory: (storyline: StorylineDefinition) => void
-  onDossier: (storyline: StorylineDefinition) => void
   onImport: (event: ChangeEvent<HTMLInputElement>) => void
   onExport: (storyline: StorylineDefinition) => void
 }) {
@@ -83,7 +88,7 @@ export function StartScreen({ storylines, games, importError, libraryWarning = '
           <div className="storyline-facts"><span>{storyline.setting.era}</span><span>{storyline.setting.tone}</span><span>{storyline.story.characters.length} suspects</span></div>
           <button className="storyline-game-action" onClick={() => onCreateGame(storyline)}>Create game from this storyline <strong aria-hidden="true">→</strong></button>
           {storylineGames.length > 0 && <section className="storyline-games"><b>Games from this storyline</b>{storylineGames.map(game => <button key={game.state.id} onClick={() => onContinueGame(game)}><span><strong>Game {game.state.id.slice(0, 8)}</strong><small>{new Date(game.state.createdAt).toLocaleDateString()} · {getHostScreen(game.state)}</small></span><i>Continue →</i></button>)}</section>}
-          <details className="storyline-tools"><summary>Storyline tools</summary><div><button onClick={() => onRules(storyline)}>How to play</button><button onClick={() => onStory(storyline)}>Read (spoilers)</button><button onClick={() => onDossier(storyline)}>Preview player card</button><button onClick={() => onExport(storyline)}>Export</button></div><small>storyline {storyline.fingerprint.slice(0, 12)}</small></details>
+          <details className="storyline-tools"><summary>Storyline tools</summary><div><button onClick={() => onRules(storyline)}>How to play</button><button onClick={() => onExport(storyline)}>Export</button></div><small>Full story and private dossiers become available to the host after creating a game.</small></details>
         </article>
       })}</div>
     </section>
@@ -322,15 +327,11 @@ export function App() {
   const [previewing, setPreviewing] = useState(false)
   const [selected, setSelected] = useState(initial.storylines[0].story.characters[0].id)
   const activeGame = games.find(game => game.state.id === activeGameId)
-  const definition = activeGame?.storyline ?? storylines.find(storyline => storyline.fingerprint === selectedStorylineFingerprint) ?? storylines[0]
-  const game = activeGame?.state ?? createIdleState(definition)
-  const story = definition.story
+  const selectedStoryline = storylines.find(storyline => storyline.fingerprint === selectedStorylineFingerprint) ?? storylines[0]
   const [storageError, setStorageError] = useState(initial.error)
   const [importError, setImportError] = useState('')
   const [gateway, setGateway] = useState<GatewayConnection>({ state: 'checking' })
   const capabilities = useMemo<RuntimeCapabilities>(() => ({ aiControllers: gateway.state === 'available' }), [gateway.state])
-  const player = story.characters.find(item => item.id === selected) || story.characters[0]
-  const completedBeatIds = 'completedBeatIds' in game ? game.completedBeatIds : []
 
   useEffect(() => {
     const controller = new AbortController()
@@ -349,12 +350,16 @@ export function App() {
     setActiveGameId(undefined)
     setStorageError('')
   }
-  function preview(roleId: string) { setSelected(roleId); setPreviewing(true) }
+  function preview(roleId: string) {
+    if (!activeGame) return
+    setSelected(roleId)
+    setPreviewing(true)
+  }
   function selectStoryline(next: StorylineDefinition) {
     setSelectedStorylineFingerprint(next.fingerprint)
     setSelected(next.story.characters[0].id)
   }
-  function showStoryline(next: StorylineDefinition, nextMode: Extract<Mode, 'rules' | 'story' | 'player'>) {
+  function showStoryline(next: StorylineDefinition, nextMode: Extract<Mode, 'rules'>) {
     selectStoryline(next)
     setMode(nextMode)
   }
@@ -387,7 +392,7 @@ export function App() {
   }
   function startGameFromStoryline(storyline: StorylineDefinition) {
     const state = createGame(storyline)
-    setGames(current => [...current, { storyline, state }])
+    setGames(current => [...current, bindGameToStoryline(storyline, state)])
     selectStoryline(storyline)
     setActiveGameId(state.id)
     setMode('host')
@@ -405,15 +410,23 @@ export function App() {
       setMode('choose')
       return
     }
-    setGames(current => current.map(entry => entry.state.id === activeGame.state.id ? { ...entry, state: next } : entry))
+    setGames(current => current.map(entry => entry.state.id === activeGame.state.id
+      ? bindGameToStoryline(entry.storyline, next)
+      : entry))
   }
 
   if (storageError) return <main className="fatal-screen"><span className="kicker danger">BOOT FAILED</span><h1>Stored game state is invalid.</h1><pre>{storageError}</pre><button onClick={discardInvalidState}>Discard invalid state</button></main>
   if (mode === 'author') return <AuthoringStudio gateway={gateway} onExit={() => setMode('choose')} onSave={saveStoryline} />
-  if (mode === 'rules') return <Rules definition={definition} onExit={() => setMode('choose')} />
-  if (mode === 'story') return <StoryReader definition={definition} onExit={() => setMode('choose')} />
-  if (mode === 'player') return <main className="page player-page"><div className="profile-picker"><label>Choose your character</label><select value={selected} onChange={event => setSelected(event.target.value)}>{story.characters.map(character => <option value={character.id} key={character.id}>{character.name}</option>)}</select></div><PlayerProfile character={player} completedBeatIds={completedBeatIds} onExit={() => setMode('choose')} /></main>
-  if (previewing) return <main className="page player-page host-preview"><div className="preview-parent"><button onClick={() => setPreviewing(false)}>← Back to host dashboard</button><span>HOST PREVIEW · {player.name}</span></div><PlayerProfile character={player} completedBeatIds={completedBeatIds} onExit={() => setPreviewing(false)} /></main>
-  if (mode === 'host' && activeGame) return <><header className="mode-bar host-mode"><div><span>HOST DASHBOARD · PRIVATE</span><b>{definition.title} · {story.totalPeople} people · {getHostScreen(game)}</b></div><div className="mode-actions"><button className="quiet" onClick={() => setMode('choose')}>Back to storylines</button></div></header><HostWorkspace definition={definition} state={game} setState={updateActiveGame} capabilities={capabilities} gateway={gateway} onPreview={preview} /></>
-  return <StartScreen storylines={storylines} games={games} importError={importError} libraryWarning={initial.warning} onCreateStoryline={() => setMode('author')} onCreateGame={startGameFromStoryline} onContinueGame={continueGame} onRules={storyline => showStoryline(storyline, 'rules')} onStory={storyline => showStoryline(storyline, 'story')} onDossier={storyline => showStoryline(storyline, 'player')} onImport={importStoryline} onExport={exportStoryline} />
+  if (mode === 'rules') return <Rules definition={selectedStoryline} onExit={() => setMode('choose')} />
+  if (mode === 'god' && activeGame) return <GodView game={activeGame} onExit={() => setMode('host')} />
+  if (previewing && activeGame) {
+    const player = activeGame.storyline.story.characters.find(item => item.id === selected) ?? activeGame.storyline.story.characters[0]
+    const completedBeatIds = 'completedBeatIds' in activeGame.state ? activeGame.state.completedBeatIds : []
+    return <main className="page player-page host-preview"><div className="preview-parent"><button onClick={() => setPreviewing(false)}>← Back to host dashboard</button><span>HOST PREVIEW · {player.name}</span></div><PlayerProfile character={player} completedBeatIds={completedBeatIds} onExit={() => setPreviewing(false)} /></main>
+  }
+  if (mode === 'host' && activeGame) {
+    const { storyline, state } = activeGame
+    return <><ActiveGameBar game={activeGame} onGodView={() => setMode('god')} onExit={() => setMode('choose')} /><HostWorkspace definition={storyline} state={state} setState={updateActiveGame} capabilities={capabilities} gateway={gateway} onPreview={preview} /></>
+  }
+  return <StartScreen storylines={storylines} games={games} importError={importError} libraryWarning={initial.warning} onCreateStoryline={() => setMode('author')} onCreateGame={startGameFromStoryline} onContinueGame={continueGame} onRules={storyline => showStoryline(storyline, 'rules')} onImport={importStoryline} onExport={exportStoryline} />
 }

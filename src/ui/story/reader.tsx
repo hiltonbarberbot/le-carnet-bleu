@@ -1,8 +1,9 @@
 import type { StorylineDefinition } from '../../game/definition/contract'
 import type { Action, Story } from '../../game/types'
+import type { GameSessionEntry } from '../library/storage'
 
-type StoryReaderProps = {
-  definition: StorylineDefinition
+type GodViewProps = {
+  game: GameSessionEntry
   onExit: () => void
 }
 
@@ -135,7 +136,8 @@ function StoryClues({ definition }: { definition: StorylineDefinition }) {
   </section>
 }
 
-export function StoryReader({ definition, onExit }: StoryReaderProps) {
+export function GodView({ game, onExit }: GodViewProps) {
+  const definition = game.storyline
   const { story } = definition
   return <>
     <header className="story-reader-bar">

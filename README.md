@@ -39,6 +39,8 @@ const runtime = createGameRuntime(storyline)
 
 Storyline creation and game creation are separate lifecycle concepts. A storyline contains the validated mystery and setting; a game contains one evening's host, players, assignments, progress, and outcome. The browser persists a storyline library and can keep several games linked to the same storyline fingerprint.
 
+Spoiler-rich God view and private dossier previews are game-scoped host tools. The storyline library exposes only safe metadata, game creation, rules, import, and export; it cannot open God view without a concrete game bound to that exact storyline fingerprint.
+
 `createGameRuntime` has no silent default. Tests and product demonstrations must opt into `createDemoStoryline()` explicitly. Product naming is sourced from `game.manifest.json` and exposed through `src/product/naming.ts`.
 
 The game opens with one short authored incident, then gets out of the players’ way. From the moment the body is discovered, it is built around one continuous loop: **objectives create demand for information, secrets and clues supply it, tokens make it scarce, bargaining forms coalitions, and a public accusation hearing tests them**.

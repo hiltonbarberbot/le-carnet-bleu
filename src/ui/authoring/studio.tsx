@@ -4,7 +4,6 @@ import { shapeSettingFromPrompt } from '../../game/ai/setting'
 import type { StorylineDefinition } from '../../game/definition/contract'
 import { createSettingBrief, getSettingBriefBlockers } from '../../game/setting/brief'
 import type { SettingBriefInput } from '../../game/setting/contract'
-import { StoryReader } from '../story/reader'
 import './studio.css'
 
 type ListField = 'playableSpaces' | 'routes' | 'usableFeatures' | 'availableProps' | 'safetyConstraints' | 'accessibilityNeeds' | 'contentBoundaries'
@@ -57,7 +56,6 @@ export function AuthoringStudio({ gateway, onExit, onSave }: AuthoringStudioProp
   const [promptWasShaped, setPromptWasShaped] = useState(false)
   const [drafting, setDrafting] = useState(false)
   const [draft, setDraft] = useState<StorylineDefinition>()
-  const [reviewing, setReviewing] = useState(false)
 
   function updateText(field: keyof SettingBriefInput, value: string) {
     setSetting(current => ({ ...current, [field]: value }))
@@ -116,8 +114,6 @@ export function AuthoringStudio({ gateway, onExit, onSave }: AuthoringStudioProp
     }
   }
 
-  if (reviewing && draft) return <StoryReader definition={draft} onExit={() => setReviewing(false)} />
-
   if (draft) return <main className="author-studio draft-ready">
     <button className="author-back" onClick={() => setDraft(undefined)}>← Change the setting</button>
     <section className="draft-card">
@@ -125,7 +121,7 @@ export function AuthoringStudio({ gateway, onExit, onSave }: AuthoringStudioProp
       <h1>{draft.title}</h1>
       <p>{draft.story.premise}</p>
       <div className="draft-facts"><span><b>{draft.story.characters.length}</b> suspects</span><span><b>{draft.story.runPlan.length}</b> live beats</span><span><b>{draft.story.timeline.length}</b> truth beats</span></div>
-      <div className="draft-actions"><button onClick={() => setReviewing(true)}>Review the full storyline</button><button className="use-draft" onClick={() => onSave(draft)}>Save storyline to library →</button></div>
+      <div className="draft-actions"><button className="use-draft" onClick={() => onSave(draft)}>Save storyline to library →</button></div>
     </section>
   </main>
 

@@ -15,7 +15,9 @@ import {
   updateEnrolment,
 } from '../game/session/lifecycle'
 import type { ExistingGameState, GameState, PreparedGameState } from '../game/types'
-import { getHostScreen, HostWorkspace, PlayerProfile, StartScreen } from './App'
+import { bindGameToStoryline } from './library/storage'
+import { ActiveGameBar, getHostScreen, HostWorkspace, PlayerProfile, StartScreen } from './App'
+import { GodView } from './story/reader'
 
 const definition = createDemoGame('ui')
 const story = definition.story
@@ -138,14 +140,12 @@ describe('private player card', () => {
 describe('start screen', () => {
   const renderStart = (states: ExistingGameState[] = []) => renderToStaticMarkup(<StartScreen
     storylines={[definition]}
-    games={states.map(state => ({ storyline: definition, state }))}
+    games={states.map(state => bindGameToStoryline(definition, state))}
     importError=""
     onCreateStoryline={() => undefined}
     onCreateGame={() => undefined}
     onContinueGame={() => undefined}
     onRules={() => undefined}
-    onStory={() => undefined}
-    onDossier={() => undefined}
     onImport={() => undefined}
     onExport={() => undefined}
   />)
@@ -158,6 +158,9 @@ describe('start screen', () => {
     expect(html).toContain('Create game from this storyline')
     expect(html).toContain(story.title)
     expect(html).not.toContain('God mode')
+    expect(html).not.toContain('Read (spoilers)')
+    expect(html).not.toContain('Preview player card')
+    expect(html).toContain('Full story and private dossiers become available to the host after creating a game')
   })
 
   it('lists several games created from the same storyline', () => {
@@ -169,5 +172,20 @@ describe('start screen', () => {
     expect(html).toContain('Game first-ga')
     expect(html).toContain('Game second-g')
     expect(html.match(/Continue →/g)).toHaveLength(2)
+  })
+})
+
+describe('privileged game views', () => {
+  it('exposes god view only from a concrete game bound to its storyline', () => {
+    const state = createGame(definition, new Date('2026-08-18T10:00:00Z'), 'god-view-game')
+    const game = bindGameToStoryline(definition, state)
+    const bar = renderToStaticMarkup(<ActiveGameBar game={game} onGodView={() => undefined} onExit={() => undefined} />)
+    const view = renderToStaticMarkup(<GodView game={game} onExit={() => undefined} />)
+
+    expect(bar).toContain('God view · spoilers')
+    expect(bar).toContain('Maison Bleue demo')
+    expect(bar).toContain('enrolling')
+    expect(view).toContain('EDITORIAL VIEW · COMPLETE SPOILERS')
+    expect(view).toContain('Finished reading — return to the game')
   })
 })

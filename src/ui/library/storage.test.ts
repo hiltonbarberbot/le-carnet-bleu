@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createDemoGame } from '../../game/demo'
 import { createGame } from '../../game/session/lifecycle'
 import { serializeGameState } from '../../game/session/storage'
-import { GAMES_KEY, LEGACY_GAME_KEY, readGameLibrary, STORYLINES_KEY, writeGameLibrary } from './storage'
+import { bindGameToStoryline, GAMES_KEY, LEGACY_GAME_KEY, readGameLibrary, STORYLINES_KEY, writeGameLibrary } from './storage'
 
 function memoryStorage(initial: Record<string, string> = {}) {
   const values = new Map(Object.entries(initial))
@@ -21,14 +21,22 @@ describe('storyline and game library storage', () => {
     const second = createGame(storyline, new Date('2026-08-19T18:00:00Z'), 'second-sitting')
 
     writeGameLibrary(storage, [storyline], [
-      { storyline, state: first },
-      { storyline, state: second },
+      bindGameToStoryline(storyline, first),
+      bindGameToStoryline(storyline, second),
     ])
     const restored = readGameLibrary(storage, storyline)
 
     expect(restored.storylines).toHaveLength(1)
     expect(restored.games.map(game => game.state.id)).toEqual(['blue-hour', 'second-sitting'])
     expect(restored.games.every(game => game.storyline.fingerprint === storyline.fingerprint)).toBe(true)
+  })
+
+  it('rejects a game paired with any other storyline', () => {
+    const firstStoryline = createDemoGame('first-storyline')
+    const otherStoryline = createDemoGame('other-storyline')
+    const game = createGame(firstStoryline, new Date('2026-08-18T18:00:00Z'), 'wrong-story')
+
+    expect(() => bindGameToStoryline(otherStoryline, game)).toThrow('fingerprints do not match')
   })
 
   it('migrates the previous single-game save into the libraries', () => {
