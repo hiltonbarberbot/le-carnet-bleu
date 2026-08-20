@@ -59,7 +59,7 @@ describe('generic OpenClaw game adapter', () => {
     expect(selected).toMatchObject({ ok: true, gameId: gameManifest.id })
   })
 
-  it('keeps only normalized display names in role assignments', () => {
+  it('normalizes stable identities and display names in role assignments', () => {
     const adapter = createOpenClawGameAdapter({
       runtimes: [demoRuntime('normalized-participants')],
       store: createMemoryChatSessionStore(),
@@ -75,7 +75,7 @@ describe('generic OpenClaw game adapter', () => {
     })
     expect(response.state?.phase).toBe('enrolling')
     if (response.state?.phase !== 'enrolling') throw new Error('Expected enrolling')
-    expect(response.state.setup.seats[0]).toEqual({ roleId: response.state.setup.seats[0].roleId, humanName: 'Alice' })
+    expect(response.state.setup.seats[0]).toEqual({ roleId: response.state.setup.seats[0].roleId, participantId: 'alice', humanName: 'Alice' })
   })
 
   it('returns precise installation and compatibility errors', () => {
