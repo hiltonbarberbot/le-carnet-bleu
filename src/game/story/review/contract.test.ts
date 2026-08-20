@@ -57,7 +57,8 @@ describe('story logic review contract', () => {
     expect(prompt).toContain(character.objectives[0].text)
     expect(prompt).toContain(character.relationships[0].text)
     expect(logicCheckIds).toEqual(expect.arrayContaining(['production_simplicity', 'objective_achievability', 'information_flow', 'endgame']))
-    expect(prompt).toContain('needless production burden')
+    expect(prompt).toContain('combined setup burden rather than failing on prop count')
+    expect(prompt).toContain('several ready-to-hand items may pass while one elaborate dependency must fail')
   })
 
   it('rejects culprit-owned facts before spending a reviewer call', () => {

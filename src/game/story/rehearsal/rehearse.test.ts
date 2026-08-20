@@ -117,7 +117,7 @@ describe('spoiler-isolated storyline rehearsal', () => {
       for (const secret of role.secrets) expect(serialized).not.toContain(secret.text)
     }
     expect(createHostRehearsalPrompt(definition)).toContain('without inventing')
-    expect(createHostRehearsalPrompt(definition)).toContain('needless fabrication')
+    expect(createHostRehearsalPrompt(definition)).toContain('combined preparation burden, not their count')
   })
 
   it('runs one independent call per suspect before one anonymized judge call', async () => {

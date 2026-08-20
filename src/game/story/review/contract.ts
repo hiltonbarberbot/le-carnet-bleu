@@ -161,8 +161,9 @@ Fail the review if the authored facts do not actually add up. In particular:
 - verify the accusation and reveal can actually conclude the game, score objectives, explain the complete causal chain, and resolve the authored evidence without an improvised repair;
 - fail missing or hand-waved murder mechanics, including an unexplained off-page collapse;
 - fail unsafe or setting-invented physical action;
-- fail needless production burden even when it fits the numeric ceiling: compound or bespoke props, fabrication, hidden compartments, locks, recordings, consumables, object swaps, and timed choreography must be replaced by dossier or public facts unless physically indispensable;
-- require the mystery to remain understandable and solvable if every decorative object is absent.
+- assess each prop and the combined setup burden rather than failing on prop count: several ready-to-hand items may pass while one elaborate dependency must fail;
+- fail unavailable or unsafe props, and fail setups that require substantial sourcing, fabrication, assembly, technical preparation, concealment mechanisms, synchronized swaps, precise timing, rehearsal, or difficult reset;
+- require an authored dossier, public-fact, or app fallback for essential evidence presented through a physical object.
 
 Return every required check exactly once. A warning is only for genuine polish that cannot change the deduction. Any unsupported causal claim, wrong link, missing means/opportunity, contradiction, or unfair proof is blocking. Set verdict to fail whenever any check fails or any blocking finding exists.
 
