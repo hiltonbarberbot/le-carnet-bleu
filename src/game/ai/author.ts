@@ -97,6 +97,3 @@ export async function draftStorylineFromSetting(
   onStarted?.(job.jobId)
   return resumeStorylineCertification(job.jobId, { signal: options.signal })
 }
-
-/** @deprecated Use draftStorylineFromSetting. */
-export const draftGameFromSetting = draftStorylineFromSetting

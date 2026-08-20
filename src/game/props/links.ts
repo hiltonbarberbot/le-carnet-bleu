@@ -10,9 +10,11 @@ export type PropBacklinks = {
 }
 
 export function getPropBacklinks(definition: StorylineDefinition): PropBacklinks[] {
-  return getSettingBacklinks(definition).filter(entry => entry.reference.kind === 'availableProps').map(entry => ({
-    prop: entry.resource as SettingProp,
-    setupRequirements: entry.setupRequirements,
-    openingSteps: entry.openingSteps,
-  }))
+  return getSettingBacklinks(definition)
+    .filter(entry => entry.reference.kind === 'availableProps' && (entry.setupRequirements.length > 0 || entry.openingSteps.length > 0))
+    .map(entry => ({
+      prop: entry.resource as SettingProp,
+      setupRequirements: entry.setupRequirements,
+      openingSteps: entry.openingSteps,
+    }))
 }

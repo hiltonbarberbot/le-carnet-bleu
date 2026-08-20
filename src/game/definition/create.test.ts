@@ -13,8 +13,8 @@ import {
   updateEnrolment,
 } from '../session/lifecycle'
 import { restoreGameSession, serializeGameState } from '../session/storage'
-import { createDemoGame } from '../demo'
-import { createGameDefinition } from './create'
+import { createDemoStoryline } from '../demo'
+import { createStorylineDefinition } from './create'
 
 const names = ['Mara Vale', 'Jon Bell', 'Iris Chen', 'Noor Aziz', 'Theo March']
 
@@ -92,7 +92,7 @@ function galleryInput() {
 
 describe('setting-specific game definitions', () => {
   it('uses objectives as the only player task model', () => {
-    const definition = createGameDefinition(galleryInput())
+    const definition = createStorylineDefinition(galleryInput())
     expect(definition.story.characters.every(character => character.objectives.length === 3)).toBe(true)
     expect(JSON.stringify(definition.story.characters)).not.toContain('"actions"')
     expect(JSON.stringify(definition.story.openingSteps)).not.toContain('actionIds')
@@ -100,7 +100,7 @@ describe('setting-specific game definitions', () => {
   })
 
   it('keeps physical setup links on host opening steps', () => {
-    const definition = createDemoGame('setting-dependencies')
+    const definition = createDemoStoryline('setting-dependencies')
     for (const step of definition.story.openingSteps.filter(step => step.execution.kind === 'physical')) {
       expect(step.setupRequirementIds.length).toBeGreaterThan(0)
       expect(step.settingRefs.length).toBeGreaterThan(0)
@@ -111,15 +111,15 @@ describe('setting-specific game definitions', () => {
     const legacy = structuredClone(galleryInput()) as any
     legacy.story.openingSteps[0] = { ...legacy.story.openingSteps[0], instruction: 'Tell Mara what to do.' }
     delete legacy.story.openingSteps[0].instructions
-    expect(() => createGameDefinition(legacy)).toThrow(/obsolete unaddressed instruction field/)
+    expect(() => createStorylineDefinition(legacy)).toThrow(/obsolete unaddressed instruction field/)
 
     const duplicate = structuredClone(galleryInput())
     duplicate.story.openingSteps[0].instructions.push({ recipientRoleId: 'host', text: 'A second voice for the same recipient.' })
-    expect(() => createGameDefinition(duplicate)).toThrow(/duplicate instructions for host/)
+    expect(() => createStorylineDefinition(duplicate)).toThrow(/duplicate instructions for host/)
 
     const unknown = structuredClone(galleryInput())
     unknown.story.openingSteps[0].instructions.push({ recipientRoleId: 'missing-role', text: 'Do something.' })
-    expect(() => createGameDefinition(unknown)).toThrow(/addresses unknown role missing-role/)
+    expect(() => createStorylineDefinition(unknown)).toThrow(/addresses unknown role missing-role/)
   })
 
   it('migrates an explicitly versioned v5 instruction only when its recipients can be separated', () => {
@@ -128,7 +128,7 @@ describe('setting-specific game definitions', () => {
     v5.story.openingSteps[0].instruction = 'Invite Mara Vale to speak. Mara Vale: State that the catalogue is false.'
     delete v5.story.openingSteps[0].instructions
 
-    const migrated = createGameDefinition(v5)
+    const migrated = createStorylineDefinition(v5)
     expect(migrated.schemaVersion).toBe(6)
     expect(migrated.story.openingSteps[0].instructions).toEqual([
       { recipientRoleId: 'host', text: 'Invite Mara Vale to speak.' },
@@ -137,20 +137,20 @@ describe('setting-specific game definitions', () => {
 
     const ambiguous = structuredClone(v5)
     ambiguous.story.openingSteps[0].instruction = 'Tell Mara Vale to state that the catalogue is false.'
-    expect(() => createGameDefinition(ambiguous)).toThrow(/does not separate that player's instruction/)
+    expect(() => createStorylineDefinition(ambiguous)).toThrow(/does not separate that player's instruction/)
   })
 
   it('rejects a guided second act or a shortened free-play window', () => {
-    const guided = structuredClone(createDemoGame('guided-after-body')) as any
+    const guided = structuredClone(createDemoStoryline('guided-after-body')) as any
     guided.acts.push({ id: 'interrogation', title: 'Guided interrogation', operatorGoal: 'Direct every conversation.', playerGoal: 'Wait.', durationMinutes: 10, completionLabel: 'Continue' })
-    expect(() => createGameDefinition(guided)).toThrow(/exactly one short authored opening/)
-    const rushed = structuredClone(createDemoGame('rushed-free-play'))
+    expect(() => createStorylineDefinition(guided)).toThrow(/exactly one short authored opening/)
+    const rushed = structuredClone(createDemoStoryline('rushed-free-play'))
     rushed.story.evening.find(stage => stage.phase === 'investigation')!.durationMinutes = 45
-    expect(() => createGameDefinition(rushed)).toThrow(/one to three hours/)
+    expect(() => createStorylineDefinition(rushed)).toThrow(/one to three hours/)
   })
 
   it('plays and restores a complete non-blackout definition', () => {
-    const definition = createGameDefinition(galleryInput())
+    const definition = createStorylineDefinition(galleryInput())
     let enrolling = createGame(definition, new Date('2026-08-18T17:00:00Z'), 'gallery-session')
     enrolling = updateEnrolment(enrolling, {
       hostName: 'Host',

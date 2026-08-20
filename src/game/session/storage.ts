@@ -1,5 +1,5 @@
-import { createGameDefinition } from '../definition/create'
-import type { GameDefinition, GameDefinitionInput } from '../definition/contract'
+import { createStorylineDefinition } from '../definition/create'
+import type { StorylineDefinition, StorylineDefinitionInput } from '../definition/contract'
 import type { GameState } from '../types'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -43,7 +43,7 @@ function frequency(ids: string[]) {
   return [...counts].sort(([left], [right]) => left.localeCompare(right))
 }
 
-function restoreStateObject(definition: GameDefinition, value: unknown): GameState {
+function restoreStateObject(definition: StorylineDefinition, value: unknown): GameState {
   if (!isRecord(value)) throw new Error('Stored game state is not an object.')
   if (value.schemaVersion !== 5) throw new Error(`Unsupported stored game schema ${String(value.schemaVersion)}.`)
   if (value.definitionFingerprint !== definition.fingerprint) throw new Error('Stored game state belongs to a different game definition.')
@@ -71,6 +71,7 @@ function restoreStateObject(definition: GameDefinition, value: unknown): GameSta
     for (const [index, seat] of seats.entries()) {
       const record = seat as Record<string, unknown>
       if (typeof record.humanName !== 'string') throw new Error(`Stored enrolment seat ${index} has an invalid humanName.`)
+      if (record.participantId !== undefined && (typeof record.participantId !== 'string' || !record.participantId.trim())) throw new Error(`Stored enrolment seat ${index} has an invalid participantId.`)
       if (record.allowAiFallback !== undefined && typeof record.allowAiFallback !== 'boolean') throw new Error(`Stored enrolment seat ${index} has an invalid allowAiFallback.`)
     }
     requireExactKeys(setup.venue as Record<string, unknown>, new Set(definition.setupRequirements.map(item => item.id)), 'venue checks')
@@ -93,7 +94,9 @@ function restoreStateObject(definition: GameDefinition, value: unknown): GameSta
   requireExactKeys(roster, roleIds, 'roster')
   for (const character of definition.story.characters) {
     if (!isRecord(roster[character.id])) throw new Error(`Stored roster is missing ${character.id}.`)
-    if (!['human', 'ai', 'unassigned'].includes(String((roster[character.id] as Record<string, unknown>).kind))) throw new Error(`Stored roster controller for ${character.id} is invalid.`)
+    const controller = roster[character.id] as Record<string, unknown>
+    if (!['human', 'ai', 'unassigned'].includes(String(controller.kind))) throw new Error(`Stored roster controller for ${character.id} is invalid.`)
+    if (controller.participantId !== undefined && (typeof controller.participantId !== 'string' || !controller.participantId.trim())) throw new Error(`Stored roster controller for ${character.id} has an invalid participantId.`)
   }
   if (phase === 'prepared') return value as GameState
 
@@ -169,12 +172,12 @@ function canonicalState(value: unknown) {
   return JSON.stringify(value)
 }
 
-export function serializeGameState(definition: GameDefinition, state: GameState): string {
+export function serializeGameState(definition: StorylineDefinition, state: GameState): string {
   if (state.definitionFingerprint !== definition.fingerprint) throw new Error('Cannot serialize state with a different game definition.')
   return JSON.stringify({ formatVersion: 3, definition, state })
 }
 
-export function restoreGameSession(serialized: string): { definition: GameDefinition; state: GameState } {
+export function restoreGameSession(serialized: string): { definition: StorylineDefinition; state: GameState } {
   let value: unknown
   try {
     value = JSON.parse(serialized)
@@ -185,7 +188,7 @@ export function restoreGameSession(serialized: string): { definition: GameDefini
     throw new Error('Stored game session has an unsupported envelope.')
   }
   const migratedAddressedInstructions = value.definition.schemaVersion === 5
-  const definition = createGameDefinition(value.definition as unknown as GameDefinitionInput)
+  const definition = createStorylineDefinition(value.definition as unknown as StorylineDefinitionInput)
   const state = structuredClone(value.state)
   if (isRecord(state) && ((value.formatVersion === 2 && state.schemaVersion === 4) || migratedAddressedInstructions)) {
     if (state.schemaVersion === 4) state.schemaVersion = 5
@@ -194,7 +197,7 @@ export function restoreGameSession(serialized: string): { definition: GameDefini
   return { definition, state: restoreStateObject(definition, state) }
 }
 
-export function restoreGameState(expectedDefinition: GameDefinition, serialized: string): GameState {
+export function restoreGameState(expectedDefinition: StorylineDefinition, serialized: string): GameState {
   const restored = restoreGameSession(serialized)
   if (restored.definition.fingerprint !== expectedDefinition.fingerprint) {
     throw new Error('Stored game session belongs to a different authored definition.')

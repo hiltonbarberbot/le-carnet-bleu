@@ -3,13 +3,13 @@ import type { EnrollingGameState, GameState } from '../types'
 import { createGameRuntime } from './game'
 import { gameManifest } from '../../product/naming'
 import { discoverGames, findMatchingGames, resolveGame } from './registry'
-import { createDemoGame } from '../demo'
-import { createGameDefinition } from '../definition/create'
+import { createDemoStoryline } from '../demo'
+import { createStorylineDefinition } from '../definition/create'
 import type { GameCommand } from '../application/commands'
 
 describe('portable game runtime', () => {
   it('declares discoverable identity, player constraints, capabilities, and lifecycle commands', () => {
-    const runtime = createGameRuntime(createDemoGame('discovery'))
+    const runtime = createGameRuntime(createDemoStoryline('discovery'))
     const [discovered] = discoverGames([runtime])
     expect(discovered.manifest).toMatchObject({
       id: gameManifest.id,
@@ -17,24 +17,24 @@ describe('portable game runtime', () => {
       requiredHostCapabilities: ['state_persistence'],
       authoring: { mode: 'setting_first', requiredBeforeStory: true },
     })
-    expect(discovered.runtime.authoredGame.setting.venueName).toBe('Maison Bleue demo house')
+    expect(discovered.runtime.storyline.setting.venueName).toBe('Maison Bleue demo house')
     expect(discovered.manifest.commands.map(command => command.name)).toContain('start')
   })
 
   it('distinguishes multiple authored definitions of the same game engine', () => {
-    const first = createDemoGame('first-definition')
-    const secondBase = createDemoGame('second-definition')
-    const second = createGameDefinition({ ...secondBase, id: 'second-setting', fingerprint: undefined })
+    const first = createDemoStoryline('first-definition')
+    const secondBase = createDemoStoryline('second-definition')
+    const second = createStorylineDefinition({ ...secondBase, id: 'second-setting', fingerprint: undefined })
     const runtimes = [createGameRuntime(first), createGameRuntime(second)]
     expect(discoverGames(runtimes)).toHaveLength(2)
-    expect(resolveGame(runtimes, 'second-setting')?.authoredGame.definitionFingerprint).toBe(second.fingerprint)
+    expect(resolveGame(runtimes, 'second-setting')?.storyline.fingerprint).toBe(second.fingerprint)
     expect(findMatchingGames(runtimes, gameManifest.aliases[0])).toEqual(runtimes)
     expect(resolveGame(runtimes, gameManifest.id)).toBeNull()
   })
 
   it('creates a two-human session, assigns AI only at prepare, persists it, and advances via the published interface', () => {
-    const runtime = createGameRuntime(createDemoGame('portable'))
-    const definition = createDemoGame('portable')
+    const runtime = createGameRuntime(createDemoStoryline('portable'))
+    const definition = createDemoStoryline('portable')
     const context = { capabilities: { aiControllers: true }, now: new Date('2026-08-18T10:00:00Z'), createId: () => 'portable-1' }
     let result = runtime.createSession({
       host: { displayName: 'Host' },
@@ -68,7 +68,7 @@ describe('portable game runtime', () => {
   })
 
   it('allows repeated assignees and rejects unknown commands precisely', () => {
-    const runtime = createGameRuntime(createDemoGame('rejections'))
+    const runtime = createGameRuntime(createDemoStoryline('rejections'))
     const context = { capabilities: { aiControllers: true }, createId: () => 'portable-2' }
     const repeated = runtime.createSession({
       host: { displayName: 'Host' },

@@ -12,6 +12,7 @@ export const logicCheckIds = [
   'clue_links',
   'opening_consistency',
   'setting_consistency',
+  'production_simplicity',
   'objective_achievability',
   'information_flow',
   'endgame',
@@ -32,7 +33,7 @@ export type StoryLogicReview = {
   }>
   findings: Array<{
     severity: 'blocking' | 'warning'
-    code: 'contradiction' | 'unsupported_claim' | 'culprit_only_proof' | 'mislinked_evidence' | 'mislinked_clue' | 'missing_means' | 'missing_opportunity' | 'opening_mismatch' | 'setting_mismatch' | 'impossible_objective' | 'information_dead_end' | 'broken_endgame' | 'other'
+    code: 'contradiction' | 'unsupported_claim' | 'culprit_only_proof' | 'mislinked_evidence' | 'mislinked_clue' | 'missing_means' | 'missing_opportunity' | 'opening_mismatch' | 'setting_mismatch' | 'excessive_production' | 'impossible_objective' | 'information_dead_end' | 'broken_endgame' | 'other'
     message: string
     relatedIds: string[]
   }>
@@ -71,7 +72,7 @@ export const storyLogicReviewJsonSchema = {
         required: ['severity', 'code', 'message', 'relatedIds'],
         properties: {
           severity: { enum: ['blocking', 'warning'] },
-          code: { enum: ['contradiction', 'unsupported_claim', 'culprit_only_proof', 'mislinked_evidence', 'mislinked_clue', 'missing_means', 'missing_opportunity', 'opening_mismatch', 'setting_mismatch', 'impossible_objective', 'information_dead_end', 'broken_endgame', 'other'] },
+          code: { enum: ['contradiction', 'unsupported_claim', 'culprit_only_proof', 'mislinked_evidence', 'mislinked_clue', 'missing_means', 'missing_opportunity', 'opening_mismatch', 'setting_mismatch', 'excessive_production', 'impossible_objective', 'information_dead_end', 'broken_endgame', 'other'] },
           message: { type: 'string', minLength: 1 },
           relatedIds: { type: 'array', items: { type: 'string' } },
         },
@@ -159,7 +160,9 @@ Fail the review if the authored facts do not actually add up. In particular:
 - trace information flow across the private dossiers and public evidence: each player must begin with actionable material, and no required deduction or objective may be trapped with one uncooperative player;
 - verify the accusation and reveal can actually conclude the game, score objectives, explain the complete causal chain, and resolve the authored evidence without an improvised repair;
 - fail missing or hand-waved murder mechanics, including an unexplained off-page collapse;
-- fail unsafe or setting-invented physical action.
+- fail unsafe or setting-invented physical action;
+- fail needless production burden even when it fits the numeric ceiling: compound or bespoke props, fabrication, hidden compartments, locks, recordings, consumables, object swaps, and timed choreography must be replaced by dossier or public facts unless physically indispensable;
+- require the mystery to remain understandable and solvable if every decorative object is absent.
 
 Return every required check exactly once. A warning is only for genuine polish that cannot change the deduction. Any unsupported causal claim, wrong link, missing means/opportunity, contradiction, or unfair proof is blocking. Set verdict to fail whenever any check fails or any blocking finding exists.
 

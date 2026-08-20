@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createDemoGame } from '../../demo'
+import { createDemoStoryline } from '../../demo'
 import {
   rehearsalJudgeCheckIds,
   validateStorylineRehearsalReport,
@@ -16,7 +16,7 @@ import {
 } from './packets'
 import { rehearseStoryline } from './rehearse'
 
-function readyRoleReport(definition: ReturnType<typeof createDemoGame>, roleIndex: number): RoleRehearsalReport {
+function readyRoleReport(definition: ReturnType<typeof createDemoStoryline>, roleIndex: number): RoleRehearsalReport {
   const role = definition.story.characters[roleIndex]
   return {
     schemaVersion: 1,
@@ -41,7 +41,7 @@ function readyRoleReport(definition: ReturnType<typeof createDemoGame>, roleInde
   }
 }
 
-function readyHostReport(definition: ReturnType<typeof createDemoGame>): HostRehearsalReport {
+function readyHostReport(definition: ReturnType<typeof createDemoStoryline>): HostRehearsalReport {
   return {
     schemaVersion: 1,
     definitionFingerprint: definition.fingerprint,
@@ -65,7 +65,7 @@ function readyHostReport(definition: ReturnType<typeof createDemoGame>): HostReh
   }
 }
 
-function passingJudge(definition: ReturnType<typeof createDemoGame>): RehearsalJudgeReview {
+function passingJudge(definition: ReturnType<typeof createDemoStoryline>): RehearsalJudgeReview {
   return {
     schemaVersion: 1,
     definitionFingerprint: definition.fingerprint,
@@ -83,7 +83,7 @@ function passingJudge(definition: ReturnType<typeof createDemoGame>): RehearsalJ
 
 describe('spoiler-isolated storyline rehearsal', () => {
   it('gives a role only public opening material and its own dossier', () => {
-    const definition = createDemoGame('isolated-packet')
+    const definition = createDemoStoryline('isolated-packet')
     const roleIndex = definition.story.characters.findIndex(role => role.id !== definition.story.culpritRoleId)
     const role = definition.story.characters[roleIndex]
     const packet = createRoleRehearsalPacket(definition, roleIndex)
@@ -105,7 +105,7 @@ describe('spoiler-isolated storyline rehearsal', () => {
   })
 
   it('gives the host executable truth without player-only dossier prose', () => {
-    const definition = createDemoGame('isolated-host-packet')
+    const definition = createDemoStoryline('isolated-host-packet')
     const serialized = JSON.stringify(createHostRehearsalPacket(definition))
 
     expect(serialized).toContain(definition.story.solutionSummary)
@@ -117,10 +117,11 @@ describe('spoiler-isolated storyline rehearsal', () => {
       for (const secret of role.secrets) expect(serialized).not.toContain(secret.text)
     }
     expect(createHostRehearsalPrompt(definition)).toContain('without inventing')
+    expect(createHostRehearsalPrompt(definition)).toContain('needless fabrication')
   })
 
   it('runs one independent call per suspect before one anonymized judge call', async () => {
-    const definition = createDemoGame('five-player-rehearsal')
+    const definition = createDemoStoryline('five-player-rehearsal')
     const roleRunner = vi.fn(async (candidate, roleIndex: number) => readyRoleReport(candidate, roleIndex))
     const hostRunner = vi.fn(async candidate => readyHostReport(candidate))
     const judge = vi.fn(async (candidate, reports: RoleRehearsalReport[], hostReport: HostRehearsalReport) => {
@@ -148,7 +149,7 @@ describe('spoiler-isolated storyline rehearsal', () => {
   })
 
   it('fails closed when an isolated player cannot complete an objective', async () => {
-    const definition = createDemoGame('blocked-player')
+    const definition = createDemoStoryline('blocked-player')
     const report = await rehearseStoryline(definition, {
       roleModel: 'role/model',
       judgeModel: 'judge/model',
@@ -171,7 +172,7 @@ describe('spoiler-isolated storyline rehearsal', () => {
   })
 
   it('rejects malformed role output before calling the judge', async () => {
-    const definition = createDemoGame('malformed-player')
+    const definition = createDemoStoryline('malformed-player')
     const judge = vi.fn()
 
     await expect(rehearseStoryline(definition, {
@@ -187,7 +188,7 @@ describe('spoiler-isolated storyline rehearsal', () => {
   })
 
   it('keeps a blocking judge verdict in the durable report', async () => {
-    const definition = createDemoGame('judge-rejection')
+    const definition = createDemoStoryline('judge-rejection')
     const report = await rehearseStoryline(definition, {
       rehearseRole: async (candidate, roleIndex) => readyRoleReport(candidate, roleIndex),
       rehearseHost: async candidate => readyHostReport(candidate),
@@ -211,7 +212,7 @@ describe('spoiler-isolated storyline rehearsal', () => {
   })
 
   it('treats an inconclusive host rehearsal as blocking', async () => {
-    const definition = createDemoGame('host-repair-risk')
+    const definition = createDemoStoryline('host-repair-risk')
     const report = await rehearseStoryline(definition, {
       rehearseRole: async (candidate, roleIndex) => readyRoleReport(candidate, roleIndex),
       rehearseHost: async candidate => {

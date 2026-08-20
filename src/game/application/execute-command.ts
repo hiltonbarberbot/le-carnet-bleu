@@ -72,6 +72,7 @@ function requiredSetupDraft(value: unknown): SetupDraft {
     return {
       roleId: seat.roleId,
       humanName: seat.humanName,
+      ...(typeof seat.participantId === 'string' && seat.participantId.trim() ? { participantId: seat.participantId.trim() } : {}),
       ...(seat.allowAiFallback === undefined ? {} : { allowAiFallback: seat.allowAiFallback }),
     }
   })

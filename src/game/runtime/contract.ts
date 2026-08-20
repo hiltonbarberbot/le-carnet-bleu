@@ -11,6 +11,7 @@ export type { GameCommand, GameCommandDescriptor } from '../application/commands
 export type { RuntimeCapabilities } from '../types'
 
 export type GameParticipant = {
+  id?: string
   displayName: string
 }
 
@@ -58,12 +59,12 @@ export type GameManifest = {
 
 export type PortableGameRuntime<State = GameState> = {
   manifest: GameManifest
-  authoredGame: {
+  storyline: {
     setting: SettingBrief
-    definitionId: string
-    definitionFingerprint: string
+    id: string
+    fingerprint: string
     storyId: string
-    storyTitle: string
+    title: string
   }
   createSession(request: CreateSessionRequest, context: RuntimeContext): RuntimeResult<State>
   handleInput(state: State, command: GameCommand, context: RuntimeContext): RuntimeResult<State>

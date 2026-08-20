@@ -25,7 +25,7 @@ import {
   readRemoteGames,
   readRemoteStorylines,
   runRemoteGameCommand,
-  saveRemoteStoryline,
+  certifyRemoteStoryline,
 } from './library/api'
 import { bindGameToStoryline, readGameLibrary, type GameSessionEntry } from './library/storage'
 import { GodView } from './story/reader'
@@ -117,7 +117,7 @@ function Rules({ definition, onExit }: { definition: StorylineDefinition; onExit
   return <main className="rules-page">
     <button className="rules-back" onClick={onExit}>← Back</button>
     <header><span className="kicker">HOW TO PLAY</span><h1>A murder mystery authored for the place where it happens.</h1><p>At setup, assign names only where useful, then open the private dossier for each role. The app does not infer how many real people are present.</p></header>
-    <section className="rules-summary"><article><b>ROLES</b><strong>1 host role + {definition.story.characters.length} suspect roles</strong></article><article><b>TIME</b><strong>1–3 hours</strong></article><article><b>YOU NEED</b><strong>Your private card, the prepared props, and a willingness to ask questions</strong></article></section>
+    <section className="rules-summary"><article><b>ROLES</b><strong>1 host role + {definition.story.characters.length} suspect roles</strong></article><article><b>TIME</b><strong>1–3 hours</strong></article><article><b>YOU NEED</b><strong>Your private card and a willingness to ask questions</strong></article></section>
     <EveningTimeline definition={definition} />
     <section className="rules-block"><span>THREE RULES</span><h2>Everything players need to remember</h2><ol><li>Once the body is discovered, pursue your three objectives in any order.</li><li>Bargain, bluff, and withhold—but never invent evidence or pressure the real person.</li><li>Any player may accuse. A strict majority ends the investigation.</li></ol></section>
     <section className="rules-block"><span>THE SOCIAL LOOP</span><h2>Talk → trade → accuse → vote</h2><p>After the short cold open, the room belongs to the players. Each suspect starts with 10 tokens and a private clue costs 5. Trade tokens, clues, and truthful information freely; when someone is ready, they call a public accusation hearing. Set an early time limit and extend it if the room is still alive.</p></section>
@@ -479,8 +479,13 @@ export function App() {
     const file = event.target.files?.[0]
     if (!file) return
     try {
-      await saveRemoteStoryline(createStorylineDefinition(JSON.parse(await file.text()) as StorylineDefinitionInput))
-      setLibraryWarning('The imported storyline is quarantined. It cannot create a game until it passes the same automatic validation as a generated storyline.')
+      const definition = createStorylineDefinition(JSON.parse(await file.text()) as StorylineDefinitionInput)
+      setLibraryWarning(`Reviewing ${definition.story.title}. It will appear only after the complete certification passes.`)
+      const certified = await certifyRemoteStoryline(definition)
+      const available = await readRemoteStorylines()
+      setStorylines(available)
+      selectStoryline(certified)
+      setLibraryWarning(`${certified.story.title} passed certification and is ready to play.`)
       setImportError('')
     } catch (error) {
       setImportError(error instanceof Error ? error.message : String(error))

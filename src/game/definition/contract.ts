@@ -67,9 +67,3 @@ export type StorylineDefinitionInput = {
   acts: ActDefinition[]
   setupRequirements: SetupRequirement[]
 }
-
-/** @deprecated Use StorylineDefinition. */
-export type GameDefinition = StorylineDefinition
-
-/** @deprecated Use StorylineDefinitionInput. */
-export type GameDefinitionInput = StorylineDefinitionInput

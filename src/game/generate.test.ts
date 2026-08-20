@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateGame } from './generate'
-import { createDemoGame } from './demo'
+import { createDemoStoryline } from './demo'
 import {
   advanceAct,
   advanceHearing,
@@ -24,7 +24,7 @@ import { validateStory } from './story/compile'
 const noAi = { aiControllers: false }
 
 function enrolledGame(seed = 'lifecycle') {
-  const definition = createDemoGame(seed)
+  const definition = createDemoStoryline(seed)
   const { story } = definition
   let state = createGame(definition, new Date('2026-08-17T17:00:00Z'), 'game-1')
   state = updateEnrolment(state, {
@@ -107,14 +107,14 @@ describe('story compilation', () => {
 
 describe('truthful game lifecycle', () => {
   it('starts at idle with no game identity, assignments, or timestamps', () => {
-    const definition = createDemoGame('idle')
+    const definition = createDemoStoryline('idle')
     const idle = createIdleState(definition)
     expect(idle).toEqual({ schemaVersion: 5, definitionFingerprint: definition.fingerprint, storyId: 'le-carnet-bleu', seed: 'idle', phase: 'idle' })
     expect('id' in idle).toBe(false)
   })
 
   it('keeps partial enrolment blocked and refuses unavailable AI fallback', () => {
-    const definition = createDemoGame('blocked')
+    const definition = createDemoStoryline('blocked')
     const { story } = definition
     let state = createGame(definition, new Date('2026-08-17T17:00:00Z'), 'game-blocked')
     state.setup.hostName = 'Host'

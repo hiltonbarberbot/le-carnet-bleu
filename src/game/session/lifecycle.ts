@@ -12,7 +12,7 @@ import type {
   SeatDraft,
   SetupDraft,
 } from '../types'
-import type { GameDefinition } from '../definition/contract'
+import type { StorylineDefinition } from '../definition/contract'
 import { hashString } from '../random/hash'
 
 export const SOCIAL_RULES = {
@@ -24,7 +24,7 @@ export const SOCIAL_RULES = {
   culpritEscapePoints: 10,
 } as const
 
-export function getConvictionThreshold(definition: GameDefinition) {
+export function getConvictionThreshold(definition: StorylineDefinition) {
   return Math.floor(definition.story.characters.length / 2) + 1
 }
 
@@ -32,7 +32,7 @@ export const browserCapabilities: RuntimeCapabilities = {
   aiControllers: false,
 }
 
-export function createSetupDraft(definition: GameDefinition): SetupDraft {
+export function createSetupDraft(definition: StorylineDefinition): SetupDraft {
   const { story } = definition
   return {
     hostName: '',
@@ -44,11 +44,11 @@ export function createSetupDraft(definition: GameDefinition): SetupDraft {
   }
 }
 
-export function createIdleState(definition: GameDefinition): IdleGameState {
+export function createIdleState(definition: StorylineDefinition): IdleGameState {
   return { schemaVersion: 5, definitionFingerprint: definition.fingerprint, storyId: definition.story.id, seed: definition.story.seed, phase: 'idle' }
 }
 
-export function createGame(definition: GameDefinition, now = new Date(), id: string = crypto.randomUUID()): EnrollingGameState {
+export function createGame(definition: StorylineDefinition, now = new Date(), id: string = crypto.randomUUID()): EnrollingGameState {
   return {
     ...createIdleState(definition),
     phase: 'enrolling',
@@ -62,7 +62,7 @@ export function updateEnrolment(state: EnrollingGameState, setup: SetupDraft): E
   return { ...state, setup }
 }
 
-export function getSetupBlockers(definition: GameDefinition, setup: SetupDraft, capabilities: RuntimeCapabilities): string[] {
+export function getSetupBlockers(definition: StorylineDefinition, setup: SetupDraft, capabilities: RuntimeCapabilities): string[] {
   const { story } = definition
   const blockers: string[] = []
   if (!setup.hostName.trim()) blockers.push(`The host for “${story.host.title}” has not been named.`)
@@ -90,7 +90,7 @@ export function getSetupBlockers(definition: GameDefinition, setup: SetupDraft, 
 }
 
 export function prepareGame(
-  definition: GameDefinition,
+  definition: StorylineDefinition,
   state: EnrollingGameState,
   capabilities: RuntimeCapabilities,
   now = new Date(),
@@ -111,6 +111,7 @@ export function prepareGame(
       ? {
           kind: 'human',
           displayName: seat.humanName.trim(),
+          ...(seat.participantId?.trim() ? { participantId: seat.participantId.trim() } : {}),
         }
       : (() => { throw new Error(`${character.name} needs a player or an AI controller.`) })()
     return [character.id, controller]
@@ -130,7 +131,7 @@ export function prepareGame(
   }
 }
 
-export function startGame(definition: GameDefinition, state: PreparedGameState, now = new Date()): ActiveGameState {
+export function startGame(definition: StorylineDefinition, state: PreparedGameState, now = new Date()): ActiveGameState {
   return {
     ...state,
     phase: 'active',
@@ -176,7 +177,7 @@ function assertActive(state: ActiveGameState) {
   if (state.paused) throw new Error('The game is paused.')
 }
 
-export function completeOpeningStep(definition: GameDefinition, state: ActiveGameState, stepId: string): ActiveGameState {
+export function completeOpeningStep(definition: StorylineDefinition, state: ActiveGameState, stepId: string): ActiveGameState {
   const { story } = definition
   assertActive(state)
   if (state.playPhase !== definition.acts[0]?.id) throw new Error('Opening steps can only be completed during the authored opening.')
@@ -187,14 +188,14 @@ export function completeOpeningStep(definition: GameDefinition, state: ActiveGam
   return { ...state, completedStepIds: [...state.completedStepIds, step.id] }
 }
 
-export function undoOpeningStep(definition: GameDefinition, state: ActiveGameState, stepId: string): ActiveGameState {
+export function undoOpeningStep(definition: StorylineDefinition, state: ActiveGameState, stepId: string): ActiveGameState {
   assertActive(state)
   const last = state.completedStepIds.at(-1)
   if (last !== stepId) throw new Error('Only the most recently completed opening step can be undone.')
   return { ...state, completedStepIds: state.completedStepIds.slice(0, -1) }
 }
 
-export function advanceAct(definition: GameDefinition, state: ActiveGameState): ActiveGameState {
+export function advanceAct(definition: StorylineDefinition, state: ActiveGameState): ActiveGameState {
   assertActive(state)
   const actIndex = definition.acts.findIndex(act => act.id === state.playPhase)
   if (actIndex < 0) throw new Error(`${state.playPhase} is not an authored act.`)
@@ -207,7 +208,7 @@ export function advanceAct(definition: GameDefinition, state: ActiveGameState): 
     : { ...state, playPhase: 'investigation', revealedEvidenceIds: definition.story.publicEvidence.map(item => item.id) }
 }
 
-export function toggleEvidence(definition: GameDefinition, state: ActiveGameState, evidenceId: string): ActiveGameState {
+export function toggleEvidence(definition: StorylineDefinition, state: ActiveGameState, evidenceId: string): ActiveGameState {
   assertActive(state)
   if (state.playPhase !== 'investigation') throw new Error('Evidence can be tracked only during investigation.')
   const evidenceIds = new Set([
@@ -245,7 +246,7 @@ export function transferTokens(state: ActiveGameState, fromRoleId: string, toRol
   }
 }
 
-export function buyClue(definition: GameDefinition, state: ActiveGameState, roleId: string, deckId: string): ActiveGameState {
+export function buyClue(definition: StorylineDefinition, state: ActiveGameState, roleId: string, deckId: string): ActiveGameState {
   assertInvestigation(state)
   assertRole(state, roleId)
   if (state.hearing) throw new Error('Clue buying pauses during an accusation hearing.')
@@ -313,7 +314,7 @@ export function advanceHearing(state: ActiveGameState): ActiveGameState {
   return { ...state, hearing: { ...state.hearing, stage: stages[index + 1] } }
 }
 
-export function castVote(definition: GameDefinition, state: ActiveGameState, roleId: string, vote: AccusationVote): ActiveGameState {
+export function castVote(definition: StorylineDefinition, state: ActiveGameState, roleId: string, vote: AccusationVote): ActiveGameState {
   assertInvestigation(state)
   assertRole(state, roleId)
   if (!state.hearing || state.hearing.stage !== 'voting') throw new Error('Votes can be cast only during the voting stage.')
@@ -340,11 +341,11 @@ export function endInvestigation(state: ActiveGameState): ActiveGameState {
   return { ...state, playPhase: 'reveal', outcome: { kind: 'time_expired' } }
 }
 
-export function revealToTable(_definition: GameDefinition, state: ActiveGameState): ActiveGameState {
+export function revealToTable(_definition: StorylineDefinition, state: ActiveGameState): ActiveGameState {
   return endInvestigation(state)
 }
 
-export function setObjectiveCompleted(definition: GameDefinition, state: ActiveGameState, roleId: string, objectiveId: string, completed: boolean): ActiveGameState {
+export function setObjectiveCompleted(definition: StorylineDefinition, state: ActiveGameState, roleId: string, objectiveId: string, completed: boolean): ActiveGameState {
   assertActive(state)
   if (!['investigation', 'reveal'].includes(state.playPhase)) throw new Error('Objectives are scored only after the staged incident.')
   const character = definition.story.characters.find(item => item.id === roleId)
@@ -359,14 +360,14 @@ export function setObjectiveCompleted(definition: GameDefinition, state: ActiveG
   }
 }
 
-export function recordAward(definition: GameDefinition, state: ActiveGameState, award: 'performance' | 'costume', roleId: string): ActiveGameState {
+export function recordAward(definition: StorylineDefinition, state: ActiveGameState, award: 'performance' | 'costume', roleId: string): ActiveGameState {
   assertActive(state)
   if (state.playPhase !== 'reveal') throw new Error('Table awards are recorded during the reveal.')
   if (!definition.story.characters.some(character => character.id === roleId)) throw new Error(`Unknown award recipient ${roleId}.`)
   return { ...state, awards: { ...state.awards, [award === 'performance' ? 'performanceRoleId' : 'costumeRoleId']: roleId } }
 }
 
-export function calculateScores(definition: GameDefinition, state: ActiveGameState): Record<string, ScoreCard> {
+export function calculateScores(definition: StorylineDefinition, state: ActiveGameState): Record<string, ScoreCard> {
   const culprit = definition.story.characters.find(character => character.id === definition.story.culpritRoleId)!
   const hearingId = state.outcome?.kind === 'conviction' ? state.outcome.hearingId : undefined
   const conviction = hearingId
@@ -385,12 +386,12 @@ export function calculateScores(definition: GameDefinition, state: ActiveGameSta
   }))
 }
 
-export function getRevealBlockers(_definition: GameDefinition, state: ActiveGameState): string[] {
+export function getRevealBlockers(_definition: StorylineDefinition, state: ActiveGameState): string[] {
   if (state.playPhase === 'reveal' && state.outcome) return []
   return ['Investigation must end through a majority conviction or the time limit.']
 }
 
-export function completeGame(definition: GameDefinition, state: ActiveGameState, now = new Date()) {
+export function completeGame(definition: StorylineDefinition, state: ActiveGameState, now = new Date()) {
   assertActive(state)
   if (state.playPhase !== 'reveal') throw new Error('The game can complete only after the table reveal.')
   if (!state.outcome) throw new Error('The game cannot complete without an investigation outcome.')
@@ -418,7 +419,7 @@ export function abortGame(state: ExistingGameState, now = new Date()) {
   }
 }
 
-export function resetGame(definition: GameDefinition, state: GameState, confirmed: boolean): IdleGameState {
+export function resetGame(definition: StorylineDefinition, state: GameState, confirmed: boolean): IdleGameState {
   if (state.phase === 'idle') throw new Error('There is no game to reset.')
   if (!confirmed) throw new Error('Reset requires explicit confirmation.')
   return createIdleState(definition)

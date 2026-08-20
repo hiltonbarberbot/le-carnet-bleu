@@ -52,6 +52,3 @@ export function createDemoStoryline(seed = 'maison-bleue-demo') {
     ],
   })
 }
-
-/** @deprecated Use createDemoStoryline. */
-export const createDemoGame = createDemoStoryline

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createDemoGame } from '../../demo'
+import { createDemoStoryline } from '../../demo'
 import { logicCheckIds, type StoryLogicReview } from './contract'
 import {
   rehearseStoryline,
@@ -25,7 +25,7 @@ function passingReview(fingerprint: string): StoryLogicReview {
   }
 }
 
-function readyRoleReport(definition: ReturnType<typeof createDemoGame>, roleIndex: number): RoleRehearsalReport {
+function readyRoleReport(definition: ReturnType<typeof createDemoStoryline>, roleIndex: number): RoleRehearsalReport {
   const role = definition.story.characters[roleIndex]
   return {
     schemaVersion: 1,
@@ -41,7 +41,7 @@ function readyRoleReport(definition: ReturnType<typeof createDemoGame>, roleInde
   }
 }
 
-function passingJudge(definition: ReturnType<typeof createDemoGame>): RehearsalJudgeReview {
+function passingJudge(definition: ReturnType<typeof createDemoStoryline>): RehearsalJudgeReview {
   return {
     schemaVersion: 1,
     definitionFingerprint: definition.fingerprint,
@@ -52,7 +52,7 @@ function passingJudge(definition: ReturnType<typeof createDemoGame>): RehearsalJ
   }
 }
 
-function readyHostReport(definition: ReturnType<typeof createDemoGame>): HostRehearsalReport {
+function readyHostReport(definition: ReturnType<typeof createDemoStoryline>): HostRehearsalReport {
   return {
     schemaVersion: 1,
     definitionFingerprint: definition.fingerprint,
@@ -71,7 +71,7 @@ function rehearsalOptions() {
     roleModel: 'role/model',
     hostModel: 'host/model',
     judgeModel: 'judge/model',
-    run: (definition: ReturnType<typeof createDemoGame>) => rehearseStoryline(definition, {
+    run: (definition: ReturnType<typeof createDemoStoryline>) => rehearseStoryline(definition, {
       roleModel: 'role/model',
       hostModel: 'host/model',
       judgeModel: 'judge/model',
@@ -86,7 +86,7 @@ const now = () => new Date('2026-08-20T12:00:00.000Z')
 
 describe('storyline readiness gate', () => {
   it('certifies a storyline only after deterministic and independent reviews pass', async () => {
-    const definition = createDemoGame('ready-story')
+    const definition = createDemoStoryline('ready-story')
     const review = vi.fn().mockResolvedValue(passingReview(definition.fingerprint))
 
     const { verdict } = await evaluateStorylineReadiness(definition, { model: 'review/model', review, rehearsal: rehearsalOptions(), now })
@@ -106,7 +106,7 @@ describe('storyline readiness gate', () => {
   })
 
   it('does not spend a reviewer call when deterministic validation fails', async () => {
-    const definition = structuredClone(createDemoGame('broken-story'))
+    const definition = structuredClone(createDemoStoryline('broken-story'))
     definition.story.solutionSteps[0].evidence = [definition.story.solutionSteps[0].evidence[0]]
     const review = vi.fn()
 
@@ -120,7 +120,7 @@ describe('storyline readiness gate', () => {
   })
 
   it('blocks a structurally valid story rejected by the independent reviewer', async () => {
-    const definition = createDemoGame('rejected-story')
+    const definition = createDemoStoryline('rejected-story')
     const rejected = passingReview(definition.fingerprint)
     rejected.verdict = 'fail'
     rejected.checks.find(check => check.id === 'endgame')!.verdict = 'fail'
@@ -139,7 +139,7 @@ describe('storyline readiness gate', () => {
   })
 
   it('blocks when the reviewer fails instead of treating the review as skipped', async () => {
-    const definition = createDemoGame('review-error-story')
+    const definition = createDemoStoryline('review-error-story')
     const providerError = new Error('provider unavailable')
 
     const result = await evaluateStorylineReadiness(definition, {
@@ -156,7 +156,7 @@ describe('storyline readiness gate', () => {
   })
 
   it('rejects a forged playable verdict whose independent review did not run', async () => {
-    const definition = structuredClone(createDemoGame('forged-story'))
+    const definition = structuredClone(createDemoStoryline('forged-story'))
     definition.fingerprint = 'tampered'
     const { verdict } = await evaluateStorylineReadiness(definition, {
       model: 'review/model',
@@ -173,7 +173,7 @@ describe('storyline readiness gate', () => {
   })
 
   it('rejects a persisted passport that omits the deterministic playthrough', async () => {
-    const definition = createDemoGame('missing-playthrough')
+    const definition = createDemoStoryline('missing-playthrough')
     const { verdict } = await evaluateStorylineReadiness(definition, {
       model: 'review/model',
       review: async () => passingReview(definition.fingerprint),
@@ -193,7 +193,7 @@ describe('storyline readiness gate', () => {
   })
 
   it('blocks when the play rehearsal fails instead of accepting the semantic review alone', async () => {
-    const definition = createDemoGame('rehearsal-error-story')
+    const definition = createDemoStoryline('rehearsal-error-story')
     const providerError = new Error('role model unavailable')
     const result = await evaluateStorylineReadiness(definition, {
       model: 'review/model',
@@ -214,7 +214,7 @@ describe('storyline readiness gate', () => {
   })
 
   it('rejects a persisted passport that omits the spoiler-isolated rehearsal', async () => {
-    const definition = createDemoGame('missing-rehearsal')
+    const definition = createDemoStoryline('missing-rehearsal')
     const { verdict } = await evaluateStorylineReadiness(definition, {
       model: 'review/model',
       review: async () => passingReview(definition.fingerprint),

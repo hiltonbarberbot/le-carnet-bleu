@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createDemoGame } from '../demo'
+import { createDemoStoryline } from '../demo'
 import type { ActiveGameState } from '../types'
 import {
   advanceAct,
@@ -24,7 +24,7 @@ import {
 } from './lifecycle'
 
 function openInvestigation(seed = 'social-loop') {
-  const definition = createDemoGame(seed)
+  const definition = createDemoStoryline(seed)
   let enrolling = createGame(definition, new Date('2026-08-18T17:00:00Z'), `game-${seed}`)
   enrolling = updateEnrolment(enrolling, {
     hostName: 'Host',
@@ -86,7 +86,7 @@ describe('social investigation economy', () => {
 
 describe('public accusation hearings and scoring', () => {
   it('derives a strict-majority threshold from the authored cast', () => {
-    expect(getConvictionThreshold(createDemoGame('majority'))).toBe(3)
+    expect(getConvictionThreshold(createDemoStoryline('majority'))).toBe(3)
   })
 
   it('returns to investigation after a failed five-player vote', () => {

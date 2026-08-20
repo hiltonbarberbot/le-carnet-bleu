@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { generateText, streamText } from 'ai'
 import { GET, POST } from './server/author'
-import { createDemoGame, demoSetting } from '../demo'
+import { createDemoStoryline, demoSetting } from '../demo'
 import { createSettingBrief } from '../setting/brief'
 import { logicCheckIds, type StoryLogicReview } from '../story/review/contract'
 import {
@@ -32,7 +32,7 @@ function request(setting: unknown) {
 }
 
 function generatedDefinition() {
-  const { fingerprint: _fingerprint, schemaVersion: _schemaVersion, ...definition } = createDemoGame('ai-authored')
+  const { fingerprint: _fingerprint, schemaVersion: _schemaVersion, ...definition } = createDemoStoryline('ai-authored')
   return definition
 }
 
@@ -52,7 +52,7 @@ function failedStructuredStream(text: string) {
 function passingReview(): StoryLogicReview {
   return {
     schemaVersion: 1,
-    definitionFingerprint: createDemoGame('ai-authored').fingerprint,
+    definitionFingerprint: createDemoStoryline('ai-authored').fingerprint,
     verdict: 'pass',
     summary: 'The case is coherent and fairly solvable.',
     checks: logicCheckIds.map(id => ({ id, verdict: 'pass', explanation: `${id} passes.`, relatedIds: [] })),
@@ -61,7 +61,7 @@ function passingReview(): StoryLogicReview {
 }
 
 function passingHostRehearsal(): HostRehearsalReport {
-  const definition = createDemoGame('ai-authored')
+  const definition = createDemoStoryline('ai-authored')
   return {
     schemaVersion: 1,
     definitionFingerprint: definition.fingerprint,
@@ -76,7 +76,7 @@ function passingHostRehearsal(): HostRehearsalReport {
 }
 
 function passingRoleRehearsal(roleIndex: number): RoleRehearsalReport {
-  const definition = createDemoGame('ai-authored')
+  const definition = createDemoStoryline('ai-authored')
   const role = definition.story.characters[roleIndex]
   return {
     schemaVersion: 1,
@@ -93,7 +93,7 @@ function passingRoleRehearsal(roleIndex: number): RoleRehearsalReport {
 }
 
 function passingRehearsalJudge(): RehearsalJudgeReview {
-  const definition = createDemoGame('ai-authored')
+  const definition = createDemoStoryline('ai-authored')
   return {
     schemaVersion: 1,
     definitionFingerprint: definition.fingerprint,

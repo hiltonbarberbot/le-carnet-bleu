@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { createDemoGame } from '../demo'
+import { createDemoStoryline } from '../demo'
 import { assertStorylinePlayable, simulateStorylinePlaythrough } from './simulate'
 
 describe('deterministic storyline playability', () => {
   it('exercises every authored asset and reaches completion through both resolution routes', () => {
-    const definition = createDemoGame('deterministic-playability')
+    const definition = createDemoStoryline('deterministic-playability')
     const report = simulateStorylinePlaythrough(definition)
 
     expect(report.verdict).toBe('pass')
@@ -21,7 +21,7 @@ describe('deterministic storyline playability', () => {
   })
 
   it('reports the exact unreachable transition without losing the successful trace', () => {
-    const definition = structuredClone(createDemoGame('broken-transition'))
+    const definition = structuredClone(createDemoStoryline('broken-transition'))
     definition.acts = []
 
     const report = simulateStorylinePlaythrough(definition)
@@ -39,7 +39,7 @@ describe('deterministic storyline playability', () => {
   })
 
   it('fails explicitly when a storyline has no opening to perform', () => {
-    const definition = structuredClone(createDemoGame('missing-opening'))
+    const definition = structuredClone(createDemoStoryline('missing-opening'))
     definition.story.openingSteps = []
 
     const report = simulateStorylinePlaythrough(definition)

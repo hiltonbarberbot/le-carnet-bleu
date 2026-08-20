@@ -21,9 +21,9 @@ Use the functional pipeline:
 `SettingBriefInput → createSettingBrief → createStoryAuthoringBrief → StorylineDefinitionInput → createStorylineDefinition → createGameRuntime`
 
 - `createStoryAuthoringBrief` is the handoff for a human or generative agent drafting the mystery.
-- `createGameDefinition` validates the evidence graph, authored acts, setting-backed setup requirements, physical-action dependencies, and content fingerprint.
+- `createStorylineDefinition` validates the evidence graph, authored acts, setting-backed setup requirements, physical-action dependencies, and content fingerprint.
 - `createGameRuntime` requires an `AuthoredStoryline`; it must never silently fall back to the demo.
-- `createDemoGame` exists only for development, tests, and product demonstration.
+- `createDemoStoryline` exists only for development, tests, and product demonstration.
 
 Every authored mystery must fit the verified setting, give all five suspects agency, use fair-play evidence, and keep physical actions no-contact and host-cued. Prefer functional composition and dependency injection over classes or hidden global configuration.
 

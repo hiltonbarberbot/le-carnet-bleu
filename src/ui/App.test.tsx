@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { createDemoGame } from '../game/demo'
+import { createDemoStoryline } from '../game/demo'
 import {
   advanceAct,
   completeOpeningStep,
@@ -17,7 +17,7 @@ import { bindGameToStoryline } from './library/storage'
 import { ActiveGameBar, getHostScreen, HostWorkspace, PlayerProfile, StartScreen } from './App'
 import { GodView } from './story/reader'
 
-const definition = createDemoGame('ui')
+const definition = createDemoStoryline('ui')
 const story = definition.story
 const noAi = { aiControllers: false }
 

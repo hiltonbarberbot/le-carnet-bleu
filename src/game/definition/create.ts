@@ -226,6 +226,3 @@ export function createStorylineDefinition(rawInput: StorylineDefinitionInput | a
   if (rawInput.schemaVersion === 6 && input.fingerprint && input.fingerprint !== expected) throw new Error('Storyline fingerprint does not match its content.')
   return { ...normalized, fingerprint: expected }
 }
-
-export const validateGameDefinition = validateStorylineDefinition
-export const createGameDefinition = createStorylineDefinition

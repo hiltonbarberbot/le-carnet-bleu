@@ -113,7 +113,7 @@ export const openingExecutionSchema = defineSchema<OpeningExecution>('opening ex
   return errors
 })
 
-/** One host-run beat with explicit physical and setting dependencies. */
+/** One host-run opening step with explicit physical and setting dependencies. */
 export const openingStepSchema = defineSchema<OpeningStep>('opening step', (value, path) => {
   const errors = requireRecord(value, path)
   if (!isRecord(value)) return errors
@@ -176,6 +176,3 @@ export const authoredStoryLeafSchemas = {
   openingStep: openingStepSchema,
   eveningStage: eveningStageSchema,
 } as const
-
-/** @deprecated Prefer the explicitly named authoredStoryLeafSchemas. */
-export const authoredStorySchemas = authoredStoryLeafSchemas

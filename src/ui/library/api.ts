@@ -2,6 +2,7 @@ import type { GameCommand, GameEvent } from '../../game/application/commands'
 import type { StorylineDefinition } from '../../game/definition/contract'
 import type { PersistedGame } from '../../game/persistence/repository'
 import type { ExistingGameState } from '../../game/types'
+import { resumeStorylineCertification } from '../../game/ai/author'
 
 type ApiErrorPayload = {
   error?: string
@@ -47,12 +48,17 @@ export async function readRemoteGames() {
   return payload.games
 }
 
-export async function saveRemoteStoryline(storyline: StorylineDefinition) {
-  const payload = await apiJson<{ storyline: StorylineDefinition }>('/api/storylines', {
+export async function readRemoteGame(gameId: string) {
+  const payload = await apiJson<{ game: PersistedGame }>(`/api/games/${encodeURIComponent(gameId)}`)
+  return payload.game
+}
+
+export async function certifyRemoteStoryline(storyline: StorylineDefinition) {
+  const payload = await apiJson<{ jobId: string; status: 'pending' }>('/api/storylines', {
     method: 'POST',
     body: JSON.stringify(storyline),
   })
-  return payload.storyline
+  return resumeStorylineCertification(payload.jobId)
 }
 
 export async function createRemoteGame(storylineFingerprint: string) {

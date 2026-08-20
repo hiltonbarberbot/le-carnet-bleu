@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createDemoGame } from '../../demo'
+import { createDemoStoryline } from '../../demo'
 import { validateStory } from '../compile'
 import {
   authoredStoryLeafSchemas,
@@ -105,7 +105,7 @@ describe('authored story data schemas', () => {
   })
 
   it('composes the schemas at the authored story boundary without throwing on bad leaf values', () => {
-    const story = structuredClone(createDemoGame('schema-boundary').story) as any
+    const story = structuredClone(createDemoStoryline('schema-boundary').story) as any
     story.characters[0].objectives[0].phase = 'opening'
     story.characters[0].secrets[0].provenance = { source: 42, independenceGroup: 42 }
     story.solutionSteps[0].evidence = 'not-a-list'

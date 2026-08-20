@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createDemoGame } from '../../demo'
+import { createDemoStoryline } from '../../demo'
 import {
   createStoryLogicReviewPrompt,
   formatLogicReviewFailure,
@@ -23,7 +23,7 @@ function passingReview(fingerprint: string): StoryLogicReview {
 
 describe('story logic review contract', () => {
   it('requires the final reviewer to address every semantic risk exactly once', () => {
-    const definition = createDemoGame('logic-review')
+    const definition = createDemoStoryline('logic-review')
     const review = passingReview(definition.fingerprint)
     review.checks = review.checks.filter(check => check.id !== 'means')
 
@@ -31,14 +31,14 @@ describe('story logic review contract', () => {
   })
 
   it('binds a review to the exact definition fingerprint', () => {
-    const definition = createDemoGame('logic-review')
+    const definition = createDemoStoryline('logic-review')
     const review = passingReview('stale-fingerprint')
 
     expect(validateStoryLogicReview(definition, review)).toContain('logic review fingerprint does not match the reviewed definition')
   })
 
   it('fails if a nominal pass contains a failed check or blocking finding', () => {
-    const definition = createDemoGame('logic-review')
+    const definition = createDemoStoryline('logic-review')
     const review = passingReview(definition.fingerprint)
     review.checks.find(check => check.id === 'opportunity')!.verdict = 'fail'
     review.findings.push({ severity: 'blocking', code: 'missing_opportunity', message: 'Nobody places the culprit at the scene.', relatedIds: [] })
@@ -49,18 +49,19 @@ describe('story logic review contract', () => {
   })
 
   it('sends private objectives and information paths to the independent reviewer', () => {
-    const definition = createDemoGame('logic-review-packet')
+    const definition = createDemoStoryline('logic-review-packet')
     const character = definition.story.characters[0]
     const prompt = createStoryLogicReviewPrompt(definition)
 
     expect(prompt).toContain(character.privateIdentity)
     expect(prompt).toContain(character.objectives[0].text)
     expect(prompt).toContain(character.relationships[0].text)
-    expect(logicCheckIds).toEqual(expect.arrayContaining(['objective_achievability', 'information_flow', 'endgame']))
+    expect(logicCheckIds).toEqual(expect.arrayContaining(['production_simplicity', 'objective_achievability', 'information_flow', 'endgame']))
+    expect(prompt).toContain('needless production burden')
   })
 
   it('rejects culprit-owned facts before spending a reviewer call', () => {
-    const definition = structuredClone(createDemoGame('logic-review'))
+    const definition = structuredClone(createDemoStoryline('logic-review'))
     const culprit = definition.story.characters.find(character => character.id === definition.story.culpritRoleId)!
     definition.story.solutionSteps[0].evidence = [culprit.secrets[0].id, definition.story.solutionSteps[0].evidence[0]]
 

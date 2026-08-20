@@ -1,4 +1,3 @@
-import { start } from 'workflow/api'
 import {
   GET,
   hasAllowedOrigin,
@@ -7,8 +6,7 @@ import {
   storyCertificationModels,
 } from '../../../../game/ai/server/author'
 import { createSettingBrief } from '../../../../game/setting/brief'
-import { getCertificationJobRepository } from '../../../../game/story/certification/postgres'
-import { certifyStorylineWorkflow } from '../../../../game/story/certification/storybook'
+import { launchStorylineCertification } from '../../../../game/story/certification/launch'
 import { apiError, json, resolveRequestOwner } from '../../_shared/http'
 
 export { GET }
@@ -43,24 +41,14 @@ export async function POST(request: Request) {
     }, 400)
   }
 
-  const jobId = crypto.randomUUID()
-  const jobs = getCertificationJobRepository()
   try {
-    await jobs.create(owner.scope, jobId)
-    const run = await start(certifyStorylineWorkflow, [{
-      jobId,
-      scope: owner.scope,
-      setting,
-      models: storyCertificationModels(),
-    }])
-    await jobs.bindWorkflowRun(owner.scope, jobId, run.runId)
-    return json(owner, { jobId, status: 'pending' }, 202)
+    const job = await launchStorylineCertification(
+      owner.scope,
+      { kind: 'setting', setting },
+      storyCertificationModels(),
+    )
+    return json(owner, job, 202)
   } catch (error) {
-    await jobs.markFailed(owner.scope, jobId, {
-      code: 'unknown',
-      message: 'The durable certification job could not be started.',
-      retryable: true,
-    }).catch(() => undefined)
     return apiError(owner, error, 500)
   }
 }

@@ -45,7 +45,7 @@ const runtime = createGameRuntime(storyline)
 
 Storyline creation and game creation are separate lifecycle concepts. A storyline contains the validated mystery and setting; a game contains one evening's host, players, assignments, progress, and outcome. The browser persists a storyline library and can keep several games linked to the same storyline fingerprint.
 
-All setting resources are first-class records with stable IDs: spaces, routes, features, props, safety constraints, accessibility needs, and content boundaries. Routes and features can name the spaces they depend on. Setup checks, clue sources, and opening steps use one `{ kind, id }` reference shape; prop links remain directly backlinkable through `getPropBacklinks(storyline)`. Every physical opening step also proves no contact, reversibility, a host cue, and who performs or proxies it. Imported legacy prose inventories are normalized, and all new exports persist schema v6.
+All setting resources are first-class records with stable IDs: spaces, routes, features, props, safety constraints, accessibility needs, and content boundaries. Routes and features can name the spaces they depend on. Setup checks, clue sources, and opening steps use one `{ kind, id }` reference shape; prop links remain directly backlinkable through `getPropBacklinks(storyline)`. Generated stories default to no props and may use at most one ordinary prop once. The independent editor rejects needless fabrication or choreography before certification. Every physical opening step also proves no contact, reversibility, a host cue, and who performs or proxies it. Imported legacy prose inventories are normalized, and all new exports persist schema v6.
 
 Roles and evidence are equally explicit. The host, victim, and culprit are linked by stable role IDs rather than display names. Each solution step has its own ID, every evidence item records provenance and an independence group, and purchasable clues declare which solution steps they support. A `caseTheory` must crosslink four distinct atomic steps for motive, concrete means, opportunity, and fatal act. Static review rejects culprit-owned proof and any step without two independent non-culprit sources. A deterministic command-level simulator then proves the runtime can traverse setup, opening, free investigation, clue economy, objectives, failed and successful accusations, reveal, scoring, and completion. An independent LLM review checks actual entailment and contradictions. Five spoiler-isolated player agents each rehearse from only their real dossier and public view; a separate host agent checks staging and operation; then a spoiler-aware judge checks the combined information flow, objectives, deducibility, clue independence, and reveal. The result is stored as a fingerprint-bound playability passport. Runtime restoration verifies IDs against the exact definition, including ordered opening progress, clue-deck partitions, objectives, roles, and revealed evidence.
 
@@ -67,7 +67,7 @@ The game opens with one short authored incident, then gets out of the players’
 - Direct role-specific dossier/PDF objectives with no fabricated account identity, address, receipt, or delivery claim
 - Hard gates for definition fingerprint, setting-derived setup, fair-play evidence, and accusation outcomes
 - A durable, fail-closed Workflow pipeline with bounded author/repair steps, static and executable checks, an independent logic review, and spoiler-isolated rehearsals
-- A structured setting-resource and physical-prop ledger with validated forward links and derived preparation/opening-step backlinks
+- A structured setting-resource ledger with minimal-prop authoring and optional prop backlinks
 - Explicit, confirmed reset back to true idle; constructors and reloads never fabricate assignments, feed entries, or timestamps
 - Five required human controllers at `prepare`; AI authoring credentials are never treated as proof that AI players exist
 - A Next.js App Router shell with owner-scoped storyline and game APIs backed by PostgreSQL
@@ -152,10 +152,10 @@ Certification runs through Vercel Workflow DevKit. Each expensive model boundary
 npm test
 npm run typecheck
 npm run build
-AI_GATEWAY_API_KEY=... npm run review:stories
+AI_GATEWAY_API_KEY=... npm run certify:stories
 ```
 
-`review:stories` accepts one or more `story.json` paths plus optional `--model` and `--json` flags. It exits immediately on deterministic failures and invokes the Gateway only for drafts that reach the final semantic backstop.
+`certify:stories` accepts one or more `story.json` paths and an optional `--write` flag that stores a fingerprint-bound `passport.json` only after every gate passes. It exits immediately on deterministic failures and invokes the Gateway only for drafts that reach the final semantic backstop.
 
 Coverage includes story and social-graph compilation, setting-backed clue and physical-staging checks, deterministic private clue draws, token trading, hearing outcomes, exact scoring, dossier privacy, a complete non-blackout gallery scenario, illegal lifecycle transitions, exact definition persistence, the portable runtime, OpenClaw routing, and fail-closed AI endpoints.
 

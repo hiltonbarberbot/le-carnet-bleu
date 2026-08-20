@@ -26,6 +26,8 @@ describe('setting-first story authoring', () => {
     expect(brief).toContain('Do not invent rooms, routes, props')
     expect(brief).toContain('Invent a compelling fictional gathering')
     expect(brief).toContain('No sharp objects')
+    expect(brief).toContain('Default to no physical props')
+    expect(brief).toContain('At most one ordinary, ready-to-hand prop')
   })
 
   it('keeps the fictional gathering out of the real setting brief', () => {

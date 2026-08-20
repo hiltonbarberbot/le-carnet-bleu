@@ -122,8 +122,9 @@ function StorySetting({ definition, assignments }: { definition: StorylineDefini
 
 function StoryProps({ definition, assignments }: { definition: StorylineDefinition; assignments?: LiveAssignments }) {
   const backlinks = getPropBacklinks(definition)
+  if (!backlinks.length) return null
   return <section className="story-section">
-    <div className="story-section-heading"><span>04 · PHYSICAL PROPS</span><h2>The object ledger</h2><p>Every object has one stable setting ID. Links below lead to each authored preparation and host step that uses it.</p></div>
+    <div className="story-section-heading"><span>04 · PHYSICAL PROPS</span><h2>The object ledger</h2><p>Only objects required by this story appear here. Links lead to each authored preparation and host step that uses them.</p></div>
     <div className="story-decks">{backlinks.map(({ prop, setupRequirements, openingSteps }) => <article id={`prop-${prop.id}`} key={prop.id}>
       <header><span>PROP · {prop.id}</span><h3>{storyText(definition.story, assignments, prop.label)}</h3><small>Quantity {prop.quantity}</small></header>
       {prop.description && <p>{storyText(definition.story, assignments, prop.description)}</p>}

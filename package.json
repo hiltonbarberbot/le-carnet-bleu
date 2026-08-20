@@ -19,7 +19,7 @@
     "start": "next start",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "review:stories": "tsx scripts/review-storylines.ts"
+    "certify:stories": "tsx scripts/story/certify.ts"
   },
   "dependencies": {
     "@workflow/world-postgres": "^4.3.4",

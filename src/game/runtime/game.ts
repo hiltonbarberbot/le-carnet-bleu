@@ -4,7 +4,7 @@ import { createIdleState } from '../session/lifecycle'
 import { restoreGameState, serializeGameState } from '../session/storage'
 import type { EnrollingGameState, SetupDraft } from '../types'
 import type { AuthoredStoryline } from '../story/authoring'
-import { createGameDefinition } from '../definition/create'
+import { createStorylineDefinition } from '../definition/create'
 import type { PortableGameRuntime } from './contract'
 
 function enrolParticipants(state: EnrollingGameState, participants: { displayName: string }[], allowAiFallback: boolean): SetupDraft {
@@ -18,22 +18,23 @@ function enrolParticipants(state: EnrollingGameState, participants: { displayNam
       ? {
           ...seat,
           humanName: participant.displayName.trim(),
+          ...(participant.id?.trim() ? { participantId: participant.id.trim() } : {}),
         }
       : { ...seat, allowAiFallback }
   })
   return { ...state.setup, seats }
 }
 
-export function createGameRuntime(authoredGame: AuthoredStoryline): PortableGameRuntime {
-  const definition = createGameDefinition(authoredGame)
+export function createGameRuntime(storyline: AuthoredStoryline): PortableGameRuntime {
+  const definition = createStorylineDefinition(storyline)
   return {
     manifest: gameManifest,
-    authoredGame: {
+    storyline: {
       setting: definition.setting,
-      definitionId: definition.id,
-      definitionFingerprint: definition.fingerprint,
+      id: definition.id,
+      fingerprint: definition.fingerprint,
       storyId: definition.story.id,
-      storyTitle: definition.story.title,
+      title: definition.story.title,
     },
     createSession(request, context) {
       const created = executeGameCommand({ storyline: definition, state: createIdleState(definition), command: { name: 'create' }, context })
@@ -58,9 +59,3 @@ export function createGameRuntime(authoredGame: AuthoredStoryline): PortableGame
     },
   }
 }
-
-/** @deprecated Use gameManifest. */
-export const leCarnetBleuManifest = gameManifest
-
-/** @deprecated Use createGameRuntime. */
-export const createLeCarnetBleuRuntime = createGameRuntime

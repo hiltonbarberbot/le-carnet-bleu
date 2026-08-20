@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { createGameRuntime } from '../../game/runtime/game'
-import { createDemoGame } from '../../game/demo'
+import { createDemoStoryline } from '../../game/demo'
 import { gameManifest, productNaming } from '../../product/naming'
 import { createMemoryChatSessionStore, createOpenClawGameAdapter } from './adapter'
 
 const capabilities = { aiControllers: true, privateMessaging: true, statePersistence: true }
 const sender = { id: 'host', displayName: 'Hilton' }
 const mentions = [{ id: 'alice', displayName: 'Alice' }, { id: 'bob', displayName: 'Bob' }]
-const demoRuntime = (seed: string) => createGameRuntime(createDemoGame(seed))
+const demoRuntime = (seed: string) => createGameRuntime(createDemoStoryline(seed))
 
 describe('generic OpenClaw game adapter', () => {
   it('enumerates installed portable games without game-specific adapter code', () => {
@@ -33,7 +33,7 @@ describe('generic OpenClaw game adapter', () => {
     const resumed = adapter.handle({ channel: 'whatsapp', conversationId: 'game-group', text: 'status', sender })
     expect(resumed).toMatchObject({ ok: true, sessionId: 'openclaw-1', state: { phase: 'enrolling' } })
 
-    const definition = createDemoGame('binding')
+    const definition = createDemoStoryline('binding')
     const setup = {
       ...response.state.setup,
       venue: Object.fromEntries(definition.setupRequirements.map(check => [check.id, true])),

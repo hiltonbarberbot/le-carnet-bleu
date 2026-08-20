@@ -8,17 +8,17 @@ export type DiscoveredGame = {
 export function discoverGames(runtimes: PortableGameRuntime[]): DiscoveredGame[] {
   const seen = new Set<string>()
   return runtimes.map(runtime => {
-    if (seen.has(runtime.authoredGame.definitionFingerprint)) throw new Error(`Duplicate game definition ${runtime.authoredGame.definitionId}.`)
-    seen.add(runtime.authoredGame.definitionFingerprint)
+    if (seen.has(runtime.storyline.fingerprint)) throw new Error(`Duplicate storyline ${runtime.storyline.id}.`)
+    seen.add(runtime.storyline.fingerprint)
     return { manifest: runtime.manifest, runtime }
   })
 }
 
 export function findMatchingGames(runtimes: PortableGameRuntime[], selector: string): PortableGameRuntime[] {
   const wanted = selector.trim().toLowerCase()
-  const exactDefinitions = runtimes.filter(runtime => runtime.authoredGame.definitionId.toLowerCase() === wanted
-    || runtime.authoredGame.definitionFingerprint.toLowerCase() === wanted)
-  if (exactDefinitions.length) return exactDefinitions
+  const exactStorylines = runtimes.filter(runtime => runtime.storyline.id.toLowerCase() === wanted
+    || runtime.storyline.fingerprint.toLowerCase() === wanted)
+  if (exactStorylines.length) return exactStorylines
   return runtimes.filter(runtime => runtime.manifest.id.toLowerCase() === wanted
     || runtime.manifest.name.toLowerCase() === wanted
     || runtime.manifest.aliases.some(alias => alias.toLowerCase() === wanted))

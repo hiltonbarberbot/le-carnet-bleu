@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import rawManifest from '../../../game.manifest.json' with { type: 'json' }
-import { createDemoGame } from '../demo'
+import { createDemoStoryline } from '../demo'
 import { createIdleState } from '../session/lifecycle'
 import type { GameState, SetupDraft } from '../types'
 import { gameCommandDescriptors, parseGameCommand, type GameCommand, type GameCommandContext } from './commands'
@@ -26,7 +26,7 @@ describe('game command application boundary', () => {
   })
 
   it('owns the full browser lifecycle and gameplay mutation surface', () => {
-    const storyline = createDemoGame('application-api')
+    const storyline = createDemoStoryline('application-api')
     const context: GameCommandContext = {
       capabilities: { aiControllers: false },
       now: new Date('2026-08-20T18:00:00Z'),
@@ -93,7 +93,7 @@ describe('game command application boundary', () => {
   })
 
   it('supports abort and requires an existing game for destructive lifecycle commands', () => {
-    const storyline = createDemoGame('application-abort')
+    const storyline = createDemoStoryline('application-abort')
     const context: GameCommandContext = {
       capabilities: { aiControllers: false },
       now: new Date('2026-08-20T19:00:00Z'),
@@ -108,7 +108,7 @@ describe('game command application boundary', () => {
   })
 
   it('rejects malformed external enrolment fields before they reach lifecycle code', () => {
-    const storyline = createDemoGame('application-invalid-setup')
+    const storyline = createDemoStoryline('application-invalid-setup')
     const context: GameCommandContext = { capabilities: { aiControllers: false } }
     const state = executeGameCommand({
       storyline,

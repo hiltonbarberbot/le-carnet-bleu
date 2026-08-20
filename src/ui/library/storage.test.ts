@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createDemoGame } from '../../game/demo'
+import { createDemoStoryline } from '../../game/demo'
 import { createGame } from '../../game/session/lifecycle'
 import { createGramboisCatalog } from '../../game/story/grambois/catalog'
 import { serializeGameState } from '../../game/session/storage'
@@ -16,8 +16,8 @@ function memoryStorage(initial: Record<string, string> = {}) {
 
 describe('storyline and game library storage', () => {
   it('includes every bundled storyline before local saves', () => {
-    const first = createDemoGame('bundled-first')
-    const second = createDemoGame('bundled-second')
+    const first = createDemoStoryline('bundled-first')
+    const second = createDemoStoryline('bundled-second')
 
     const restored = readGameLibrary(memoryStorage(), [first, second])
 
@@ -26,7 +26,7 @@ describe('storyline and game library storage', () => {
 
   it('keeps several games linked to one reusable storyline', () => {
     const storage = memoryStorage()
-    const storyline = createDemoGame('library')
+    const storyline = createDemoStoryline('library')
     const first = createGame(storyline, new Date('2026-08-18T18:00:00Z'), 'blue-hour')
     const second = createGame(storyline, new Date('2026-08-19T18:00:00Z'), 'second-sitting')
 
@@ -42,19 +42,19 @@ describe('storyline and game library storage', () => {
   })
 
   it('rejects a game paired with any other storyline', () => {
-    const firstStoryline = createDemoGame('first-storyline')
-    const otherStoryline = createDemoGame('other-storyline')
+    const firstStoryline = createDemoStoryline('first-storyline')
+    const otherStoryline = createDemoStoryline('other-storyline')
     const game = createGame(firstStoryline, new Date('2026-08-18T18:00:00Z'), 'wrong-story')
 
     expect(() => bindGameToStoryline(otherStoryline, game)).toThrow('fingerprints do not match')
   })
 
   it('migrates the previous single-game save into the libraries', () => {
-    const storyline = createDemoGame('legacy')
+    const storyline = createDemoStoryline('legacy')
     const game = createGame(storyline, new Date('2026-08-18T18:00:00Z'), 'legacy-game')
     const storage = memoryStorage({ [LEGACY_GAME_KEY]: serializeGameState(storyline, game) })
 
-    const restored = readGameLibrary(storage, [createDemoGame('browser-demo')])
+    const restored = readGameLibrary(storage, [createDemoStoryline('browser-demo')])
 
     expect(restored.storylines.some(item => item.fingerprint === storyline.fingerprint)).toBe(true)
     expect(restored.games[0].state.id).toBe('legacy-game')
@@ -67,7 +67,7 @@ describe('storyline and game library storage', () => {
   it('keeps an incompatible legacy save without blocking the storyline library', () => {
     const storage = memoryStorage({ [LEGACY_GAME_KEY]: '{"obsolete":true}' })
 
-    const restored = readGameLibrary(storage, [createDemoGame('browser-demo')])
+    const restored = readGameLibrary(storage, [createDemoStoryline('browser-demo')])
 
     expect(restored.error).toBe('')
     expect(restored.warning).toContain('left untouched')

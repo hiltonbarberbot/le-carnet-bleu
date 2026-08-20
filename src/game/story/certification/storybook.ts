@@ -1,4 +1,5 @@
 import type { SettingBrief } from '../../setting/contract'
+import type { StorylineDefinition } from '../../definition/contract'
 import { formatStorylineReadinessFailure, storylineReadinessPassed } from '../review/readiness'
 import { logicReviewPassed } from '../review/contract'
 import { classifyAiProviderError } from '../../ai/server/problem'
@@ -33,7 +34,9 @@ function providerFailure(error: unknown) {
 export type StorylineCertificationInput = {
   jobId: string
   scope: LibraryScope
-  setting: SettingBrief
+  source:
+    | { kind: 'setting'; setting: SettingBrief }
+    | { kind: 'storyline'; definition: StorylineDefinition }
   models: CertificationModels
 }
 
@@ -51,8 +54,11 @@ export async function certifyStorylineWorkflow(
   let priorFailure = 'The generated story was invalid.'
 
   try {
-    for (let attempt = 0; attempt < 2; attempt += 1) {
-      const authored = await draftStorylineStep(input.setting, attempt, priorFailure)
+    const attempts = input.source.kind === 'setting' ? 2 : 1
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      const authored = input.source.kind === 'setting'
+        ? await draftStorylineStep(input.source.setting, attempt, priorFailure)
+        : { status: 'authored' as const, definition: input.source.definition }
       if (authored.status === 'rejected') {
         priorFailure = authored.reason
         continue
@@ -104,8 +110,10 @@ export async function certifyStorylineWorkflow(
 
     await failCertificationStep(input.scope, input.jobId, {
       code: 'invalid_output',
-      message: 'The generated mystery did not pass the complete playability certification after automatic repair.',
-      retryable: true,
+      message: input.source.kind === 'setting'
+        ? 'The generated mystery did not pass the complete playability certification after automatic repair.'
+        : 'The imported mystery did not pass the complete playability certification.',
+      retryable: input.source.kind === 'setting',
     })
     return { status: 'failed', jobId: input.jobId }
   } catch (error) {

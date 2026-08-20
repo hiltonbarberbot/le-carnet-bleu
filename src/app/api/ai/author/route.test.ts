@@ -1,15 +1,17 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { start, getRun } from 'workflow/api'
+import { getRun } from 'workflow/api'
 import { createDemoStoryline, demoSetting } from '../../../../game/demo'
 import { findAvailableStoryline } from '../../../../game/persistence/library'
 import { getGameLibraryRepository } from '../../../../game/persistence/postgres'
 import { getCertificationJobRepository } from '../../../../game/story/certification/postgres'
+import { launchStorylineCertification } from '../../../../game/story/certification/launch'
 import { POST } from './route'
 import { GET as poll } from './[jobId]/route'
 
-vi.mock('workflow/api', () => ({ start: vi.fn(), getRun: vi.fn() }))
+vi.mock('workflow/api', () => ({ getRun: vi.fn() }))
 vi.mock('../../../../game/persistence/library', () => ({ findAvailableStoryline: vi.fn() }))
 vi.mock('../../../../game/story/certification/postgres', () => ({ getCertificationJobRepository: vi.fn() }))
+vi.mock('../../../../game/story/certification/launch', () => ({ launchStorylineCertification: vi.fn() }))
 vi.mock('../../../../game/persistence/postgres', () => ({ getGameLibraryRepository: vi.fn() }))
 
 const ownerId = '11111111-1111-4111-8111-111111111111'
@@ -46,22 +48,17 @@ afterEach(() => {
 describe('durable authoring routes', () => {
   it('starts an owner-bound workflow and returns immediately', async () => {
     process.env.AI_GATEWAY_API_KEY = 'test-key'
-    const repository = jobs()
-    vi.mocked(getCertificationJobRepository).mockReturnValue(repository as never)
-    vi.mocked(start).mockResolvedValue({ runId: 'wrun_test' } as never)
-    vi.spyOn(crypto, 'randomUUID').mockReturnValue(jobId)
+    vi.mocked(launchStorylineCertification).mockResolvedValue({ jobId, status: 'pending' })
 
     const response = await POST(request({ setting: demoSetting }))
 
     expect(response.status).toBe(202)
     expect(await response.json()).toEqual({ jobId, status: 'pending' })
-    expect(repository.create).toHaveBeenCalledWith({ ownerId }, jobId)
-    expect(start).toHaveBeenCalledWith(expect.any(Function), [expect.objectContaining({
-      jobId,
-      scope: { ownerId },
-      setting: expect.objectContaining({ venueName: demoSetting.venueName }),
-    })])
-    expect(repository.bindWorkflowRun).toHaveBeenCalledWith({ ownerId }, jobId, 'wrun_test')
+    expect(launchStorylineCertification).toHaveBeenCalledWith(
+      { ownerId },
+      { kind: 'setting', setting: expect.objectContaining({ venueName: demoSetting.venueName }) },
+      expect.objectContaining({ review: expect.any(String) }),
+    )
   })
 
   it('rejects incomplete settings before creating a workflow job', async () => {
@@ -72,8 +69,7 @@ describe('durable authoring routes', () => {
     const response = await POST(request({ setting: { venueName: 'Only a name' } }))
 
     expect(response.status).toBe(400)
-    expect(start).not.toHaveBeenCalled()
-    expect(repository.create).not.toHaveBeenCalled()
+    expect(launchStorylineCertification).not.toHaveBeenCalled()
   })
 
   it('does not reveal a job owned by another browser', async () => {
