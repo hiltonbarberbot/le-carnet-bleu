@@ -19,6 +19,7 @@ import {
   type StorylineReadinessVerdict,
 } from '../../story/review/readiness'
 import { classifyAiProviderError, createProblemReference, problemResponse } from './problem'
+import { createAiCallSignal } from './deadline'
 
 const model = process.env.AI_GATEWAY_AUTHOR_MODEL || 'openai/gpt-5.6-sol-fast'
 export const maxDuration = 800
@@ -132,6 +133,7 @@ async function enrichDraftCharacters(
       system: 'You are writing one private player dossier for a live fair-play mystery. Return only one complete JSON object with no markdown fences. Preserve the supplied mystery truth and never invent new evidence IDs.',
       prompt: `${authoringBrief}\n\nAuthored mystery core:\n${JSON.stringify(storyContext)}\n\nWrite the dossier fields for role ${roleIndex + 1}:\n${JSON.stringify(character)}\n\nReturn exactly this shape:\n{"costume":"","publicFace":"","invitationPretext":"","invitationPromise":"","privateIdentity":"","privateObjective":"","privateSecret":"","traits":["", ""],"objectives":[{"id":"unique-id","title":"","text":"","phase":"investigation|any","points":1}],"relationships":[{"roleId":"another-character-id","text":""}]}\n\nRules: make the role active and socially playable; exactly three distinct 1-3 point objectives; at least two traits; write a useful relationship to every other suspect; objectives must be feasible through voluntary conversation, bargaining, clue purchase, evidence sharing, or the public accusation system; do not require contact, coercion, private rooms, absent props, scripted investigation events, or knowledge outside this role's supplied starting secrets and public context.`,
       maxOutputTokens: 5000,
+      abortSignal: createAiCallSignal(),
       providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'character-authoring'] } },
     })
     const details = parseJsonObject(await result.text)
@@ -200,6 +202,7 @@ export async function authorStorylineAttempt(
       system: 'You are a meticulous live-mystery designer. Return only the requested JSON object with no markdown fences. Build a playable, fair mystery from the verified setting; never reuse Maison Bleue demo canon.',
       prompt: [authoringBrief, shape, attempt ? `A prior draft failed validation. Correct these issues in a fresh complete draft:\n${priorFailure ?? 'The prior draft did not pass.'}` : 'Draft the complete game now.'].join('\n\n'),
       maxOutputTokens: 24000,
+      abortSignal: createAiCallSignal(),
       providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'story-authoring'] } },
     })
     output = await enrichDraftCharacters(parseJsonObject(await result.text), authoringBrief)

@@ -1,4 +1,5 @@
 import { generateText, jsonSchema, Output } from 'ai'
+import { createAiCallSignal } from '../../ai/server/deadline'
 import type { StorylineDefinition } from '../../definition/contract'
 import {
   createStoryLogicReviewPrompt,
@@ -18,6 +19,7 @@ export async function reviewStorylineLogic(
     system: 'You are the final independent fair-play editor. Be severe, specific, and internally consistent. Return only the requested structured review.',
     prompt: createStoryLogicReviewPrompt(definition),
     output: Output.object({ schema: jsonSchema<StoryLogicReview>(storyLogicReviewJsonSchema) }),
+    abortSignal: createAiCallSignal(),
     temperature: 0,
     providerOptions: { gateway: { tags: ['le-carnet-bleu', 'story-logic-review'] } },
   })
