@@ -1,11 +1,17 @@
 import { getGameLibraryRepository } from '../../../game/persistence/postgres'
-import { listAvailableStorylines, saveValidatedStoryline } from '../../../game/persistence/library'
+import {
+  listAvailableStorylines,
+  publishBundledStorylines,
+  saveValidatedStoryline,
+} from '../../../game/persistence/library'
 import { apiError, json, jsonObject, resolveRequestOwner } from '../_shared/http'
 
 export async function GET(request: Request) {
   const owner = resolveRequestOwner(request)
   try {
-    const storylines = await listAvailableStorylines(getGameLibraryRepository(), owner.scope)
+    const repository = getGameLibraryRepository()
+    await publishBundledStorylines(repository, owner.scope)
+    const storylines = await listAvailableStorylines(repository, owner.scope)
     return json(owner, { storylines })
   } catch (error) {
     return apiError(owner, error, 500)

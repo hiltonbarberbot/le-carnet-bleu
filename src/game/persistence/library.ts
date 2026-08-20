@@ -2,10 +2,14 @@ import { executeGameCommand } from '../application/execute-command'
 import { createGameRuntime } from '../runtime/game'
 import type { CreateSessionRequest, GameCommand, RuntimeCapabilities, RuntimeEvent } from '../runtime/contract'
 import {
-  storylineReadinessPassed,
-  validateStorylineReadinessVerdict,
   type StorylineReadinessVerdict,
 } from '../story/review/readiness'
+import { createGramboisCatalog } from '../story/grambois/catalog'
+import {
+  createBundledStorylinePassport,
+  storylinePlayabilityPassportPassed,
+  validateStorylinePlayabilityPassport,
+} from '../story/grambois/passport'
 import type { StorylineDefinition } from '../definition/contract'
 import type {
   GameLibraryRepository,
@@ -68,9 +72,9 @@ async function requirePlayableStoryline(
 ) {
   const readiness = await repository.findStorylineReadiness(scope, storyline.fingerprint)
   const errors = readiness
-    ? validateStorylineReadinessVerdict(storyline, readiness)
+    ? validateStorylinePlayabilityPassport(storyline, readiness)
     : ['playability passport is missing']
-  if (!readiness || errors.length || !storylineReadinessPassed(readiness)) {
+  if (!readiness || errors.length || !storylinePlayabilityPassportPassed(storyline, readiness)) {
     throw new StorylineNotPlayableError(
       `This storyline cannot be played: ${errors.join('; ') || 'one or more playability gates did not pass'}`,
     )
@@ -95,14 +99,30 @@ export async function certifyValidatedStoryline(
   readiness: StorylineReadinessVerdict,
 ) {
   const storyline = validatePersistedStoryline(input)
-  const errors = validateStorylineReadinessVerdict(storyline, readiness)
-  if (errors.length || !storylineReadinessPassed(readiness)) {
+  const errors = validateStorylinePlayabilityPassport(storyline, readiness)
+  if (errors.length || !storylinePlayabilityPassportPassed(storyline, readiness)) {
     throw new StorylineNotPlayableError(
       `The playability passport is invalid: ${errors.join('; ') || 'one or more gates did not pass'}`,
     )
   }
   await repository.certifyStoryline(scope, storyline, readiness)
   return storyline
+}
+
+/** Restores the version-controlled mysteries that shipped with the original browser library. */
+export async function publishBundledStorylines(
+  repository: GameLibraryRepository,
+  scope: LibraryScope,
+) {
+  for (const storyline of createGramboisCatalog()) {
+    const existing = await repository.findStorylineReadiness(scope, storyline.fingerprint)
+    if (existing && storylinePlayabilityPassportPassed(storyline, existing)) continue
+    await repository.certifyStoryline(
+      scope,
+      storyline,
+      createBundledStorylinePassport(storyline),
+    )
+  }
 }
 
 export async function createPersistedGame(

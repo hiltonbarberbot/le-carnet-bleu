@@ -11,10 +11,11 @@ import type {
 } from './repository'
 import { validatePersistedGameState } from './validate'
 import {
-  storylineReadinessPassed,
-  validateStorylineReadinessVerdict,
-  type StorylineReadinessVerdict,
-} from '../story/review/readiness'
+  storylinePlayabilityPassportPassed,
+  storylinePassportIssuedAt,
+  validateStorylinePlayabilityPassport,
+  type StorylinePlayabilityPassport,
+} from '../story/grambois/passport'
 
 type QueryRow = Record<string, unknown>
 
@@ -51,9 +52,9 @@ function readStoryline(row: StorylineRow) {
 
 function readReadiness(row: ReadinessRow) {
   const storyline = readStoryline(row)
-  const passport = row.passport as StorylineReadinessVerdict
-  const errors = validateStorylineReadinessVerdict(storyline, passport)
-  if (errors.length || !storylineReadinessPassed(passport)) {
+  const passport = row.passport as StorylinePlayabilityPassport
+  const errors = validateStorylinePlayabilityPassport(storyline, passport)
+  if (errors.length || !storylinePlayabilityPassportPassed(storyline, passport)) {
     throw new Error(`Stored playability passport is invalid: ${errors.join('; ') || 'required checks did not pass'}`)
   }
   return passport
@@ -145,8 +146,8 @@ export function createPostgresGameLibraryRepository(sql: PostgresQuery): GameLib
     },
 
     async certifyStoryline(scope, storyline, readiness) {
-      const errors = validateStorylineReadinessVerdict(storyline, readiness)
-      if (errors.length || !storylineReadinessPassed(readiness)) {
+      const errors = validateStorylinePlayabilityPassport(storyline, readiness)
+      if (errors.length || !storylinePlayabilityPassportPassed(storyline, readiness)) {
         throw new Error(`A storyline cannot be certified: ${errors.join('; ') || 'the readiness gate did not pass'}`)
       }
       await sql.query(
@@ -171,7 +172,7 @@ export function createPostgresGameLibraryRepository(sql: PostgresQuery): GameLib
           storyline.fingerprint,
           JSON.stringify(storyline),
           JSON.stringify(readiness),
-          readiness.evaluatedAt,
+          storylinePassportIssuedAt(readiness),
         ],
       )
     },

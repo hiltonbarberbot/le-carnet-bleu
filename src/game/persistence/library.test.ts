@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { createDemoStoryline } from '../demo'
 import { createGameRuntime } from '../runtime/game'
 import { logicCheckIds, type StoryLogicReview } from '../story/review/contract'
-import { evaluateStorylineReadiness, type StorylineReadinessVerdict } from '../story/review/readiness'
+import { evaluateStorylineReadiness } from '../story/review/readiness'
+import type { StorylinePlayabilityPassport } from '../story/grambois/passport'
 import {
   rehearseStoryline,
   rehearsalJudgeCheckIds,
@@ -23,6 +24,7 @@ import {
   executePersistedGameCommand,
   importPersistedLibrary,
   listAvailableStorylines,
+  publishBundledStorylines,
   StorylineNotPlayableError,
 } from './library'
 
@@ -30,7 +32,7 @@ const scope: LibraryScope = { ownerId: 'test-owner' }
 
 function createFakeRepository() {
   const storylines = new Map<string, Awaited<ReturnType<GameLibraryRepository['findStoryline']>>>()
-  const readiness = new Map<string, StorylineReadinessVerdict>()
+  const readiness = new Map<string, StorylinePlayabilityPassport>()
   const games = new Map<string, PersistedGame>()
   let importCalls = 0
   const now = '2026-08-20T12:00:00.000Z'
@@ -191,6 +193,27 @@ describe('persisted game library', () => {
     expect(available.map(storyline => storyline.fingerprint)).toEqual([certified.fingerprint])
   })
 
+  it('restores every bundled classic with a deterministic release passport', async () => {
+    const fake = createFakeRepository()
+
+    await publishBundledStorylines(fake.repository, scope)
+    const available = await listAvailableStorylines(fake.repository, scope)
+
+    expect(available.map(storyline => storyline.story.title)).toEqual([
+      'La Colombe',
+      'The Glass Embassy',
+      'Operation Blue Cicada',
+      'The Velvet Consul',
+      'The Mistral Cipher',
+      'The Saint-Tropez Double',
+      'The Cottage at Midnight',
+      'The Last Summer of Orphée',
+    ])
+    expect([...fake.readiness.values()].every(passport => (
+      'kind' in passport && passport.kind === 'bundled_classic'
+    ))).toBe(true)
+  })
+
   it('creates a game only from a certified storyline and updates it optimistically', async () => {
     const fake = createFakeRepository()
     const storyline = createDemoStoryline('certified-game')
@@ -207,7 +230,8 @@ describe('persisted game library', () => {
 
     expect(created?.version).toBe(1)
     expect(created?.state.phase).toBe('enrolling')
-    expect(fake.readiness.get(storyline.fingerprint)?.status).toBe('playable')
+    const passport = fake.readiness.get(storyline.fingerprint)
+    expect(passport && !('kind' in passport) ? passport.status : undefined).toBe('playable')
 
     const result = await executePersistedGameCommand(fake.repository, scope, {
       game: created!,
