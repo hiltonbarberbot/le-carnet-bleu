@@ -129,8 +129,6 @@ npm run dev
 
 The default `DATABASE_URL` in `.env.example` targets a standard local PostgreSQL database. `workflow:bootstrap` idempotently adds Workflow DevKit and Graphile Worker tables to that database, and the Next instrumentation worker drains the durable local queue. In production, set `DATABASE_URL` to the pooled Neon connection string and omit the three local `WORKFLOW_*` variables so Vercel selects Vercel World automatically. Run `npm run db:migrate` against each application database before starting it.
 
-Vercel production builds run the same idempotent migrations before compiling Next.js. Preview builds skip database migration, so an immutable production-target deployment can be verified before its domains are promoted without exposing Neon credentials locally.
-
 For local setting extraction, story generation, independent review, and isolated player/host rehearsal, set `AI_GATEWAY_API_KEY` in `.env.local`. Vercel deployments can authenticate to AI Gateway with OIDC. The `AI_GATEWAY_*_MODEL` variables in `.env.example` are optional model overrides.
 
 The web library is currently scoped by a server-issued, HttpOnly browser-owner cookie. It is suitable for the host-only product and local development, but it is not a user login. Neon Auth can replace that owner boundary when multi-device accounts or player-specific server views are introduced.

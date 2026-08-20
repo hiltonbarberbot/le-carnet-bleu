@@ -15,7 +15,6 @@
     "dev": "next dev",
     "build": "next build",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/database/migrate.mjs",
-    "vercel-build": "node scripts/database/vercel-build.mjs",
     "workflow:bootstrap": "node --env-file-if-exists=.env.local node_modules/@workflow/world-postgres/bin/setup.js",
     "start": "next start",
     "test": "vitest run",
