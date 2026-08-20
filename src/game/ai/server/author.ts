@@ -1,23 +1,23 @@
 import { streamText } from 'ai'
-import { createGameDefinition } from '../../src/game/definition/create'
-import type { GameDefinitionInput } from '../../src/game/definition/contract'
-import { createSettingBrief } from '../../src/game/setting/brief'
-import type { SettingBrief, SettingBriefInput } from '../../src/game/setting/contract'
-import { productNaming } from '../../src/product/naming'
-import { createStoryAuthoringBrief } from '../../src/game/story/authoring'
-import { defaultLogicReviewModel, reviewStorylineLogic } from '../../src/game/story/review/gateway'
+import { createGameDefinition } from '../../definition/create'
+import type { GameDefinitionInput } from '../../definition/contract'
+import { createSettingBrief } from '../../setting/brief'
+import type { SettingBrief, SettingBriefInput } from '../../setting/contract'
+import { productNaming } from '../../../product/naming'
+import { createStoryAuthoringBrief } from '../../story/authoring'
+import { defaultLogicReviewModel, reviewStorylineLogic } from '../../story/review/gateway'
 import {
   defaultRehearsalJudgeModel,
   defaultHostRehearsalModel,
   defaultRoleRehearsalModel,
-} from '../../src/game/story/rehearsal/gateway'
-import { rehearseStoryline } from '../../src/game/story/rehearsal/rehearse'
+} from '../../story/rehearsal/gateway'
+import { rehearseStoryline } from '../../story/rehearsal/rehearse'
 import {
   evaluateStorylineReadiness,
   formatStorylineReadinessFailure,
   storylineReadinessPassed,
   type StorylineReadinessVerdict,
-} from '../../src/game/story/review/readiness'
+} from '../../story/review/readiness'
 import { classifyAiProviderError, createProblemReference, problemResponse } from './problem'
 
 const model = process.env.AI_GATEWAY_AUTHOR_MODEL || 'openai/gpt-5.6-sol-fast'

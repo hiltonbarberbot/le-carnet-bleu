@@ -1,4 +1,4 @@
-import type { AiProblemCode, AiProblemPayload } from '../../src/game/ai/problem'
+import type { AiProblemCode, AiProblemPayload } from '../problem'
 
 type ProblemOptions = {
   message?: string

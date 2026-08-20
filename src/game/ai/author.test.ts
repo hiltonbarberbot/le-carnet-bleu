@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { generateText, streamText } from 'ai'
-import { GET, POST } from '../../../api/ai/author'
+import { GET, POST } from './server/author'
 import { createDemoGame, demoSetting } from '../demo'
 import { createSettingBrief } from '../setting/brief'
 import { logicCheckIds, type StoryLogicReview } from '../story/review/contract'

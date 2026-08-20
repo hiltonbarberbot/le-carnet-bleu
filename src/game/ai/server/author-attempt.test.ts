@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { streamText } from 'ai'
-import { demoSetting } from '../../src/game/demo'
-import { createSettingBrief } from '../../src/game/setting/brief'
+import { demoSetting } from '../../demo'
+import { createSettingBrief } from '../../setting/brief'
 import { authorStorylineAttempt } from './author'
 
 vi.mock('ai', () => ({ streamText: vi.fn() }))

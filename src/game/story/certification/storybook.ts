@@ -1,7 +1,7 @@
 import type { SettingBrief } from '../../setting/contract'
 import { formatStorylineReadinessFailure, storylineReadinessPassed } from '../review/readiness'
 import { logicReviewPassed } from '../review/contract'
-import { classifyAiProviderError } from '../../../../api/ai/problem'
+import { classifyAiProviderError } from '../../ai/server/problem'
 import type { LibraryScope } from '../../persistence/repository'
 import {
   assembleReadinessStep,

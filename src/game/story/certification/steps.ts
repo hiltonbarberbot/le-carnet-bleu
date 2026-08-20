@@ -2,7 +2,7 @@ import { FatalError, RetryableError } from 'workflow'
 import {
   authorStorylineAttempt,
   type StorylineAuthoringAttempt,
-} from '../../../../api/ai/author'
+} from '../../ai/server/author'
 import type { StorylineDefinition } from '../../definition/contract'
 import { certifyValidatedStoryline } from '../../persistence/library'
 import type { LibraryScope } from '../../persistence/repository'

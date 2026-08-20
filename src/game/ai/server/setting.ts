@@ -1,6 +1,6 @@
 import { generateText, NoObjectGeneratedError, Output } from 'ai'
-import type { SettingBriefInput } from '../../src/game/setting/contract'
-import { productNaming } from '../../src/product/naming'
+import type { SettingBriefInput } from '../../setting/contract'
+import { productNaming } from '../../../product/naming'
 import { classifyAiProviderError, createProblemReference, problemResponse } from './problem'
 
 const model = process.env.AI_GATEWAY_MODEL || 'google/gemini-3.7-flash'

@@ -1,3 +1,3 @@
-export { POST } from '../../../../../api/ai/setting'
+export { POST } from '../../../../game/ai/server/setting'
 
 export const maxDuration = 300

@@ -1,1 +1,1 @@
-export { GET } from '../../../../../api/ai/perform'
+export { GET } from '../../../../game/ai/server/perform'

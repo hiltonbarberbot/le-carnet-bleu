@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { RetryableError } from 'workflow'
-import { authorStorylineAttempt } from '../../../../api/ai/author'
+import { authorStorylineAttempt } from '../../ai/server/author'
 import { createDemoStoryline, demoSetting } from '../../demo'
 import { createSettingBrief } from '../../setting/brief'
 import { draftStorylineStep } from './steps'
 
-vi.mock('../../../../api/ai/author', () => ({ authorStorylineAttempt: vi.fn() }))
+vi.mock('../../ai/server/author', () => ({ authorStorylineAttempt: vi.fn() }))
 
 const setting = createSettingBrief(demoSetting)
 

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { generateText } from 'ai'
-import { POST } from '../../../api/ai/setting'
+import { POST } from './server/setting'
 import { demoSetting } from '../demo'
 
 vi.mock('ai', async importOriginal => {

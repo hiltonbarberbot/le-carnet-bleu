@@ -5,7 +5,7 @@ import {
   isConfigured,
   readSetting,
   storyCertificationModels,
-} from '../../../../../api/ai/author'
+} from '../../../../game/ai/server/author'
 import { createSettingBrief } from '../../../../game/setting/brief'
 import { getCertificationJobRepository } from '../../../../game/story/certification/postgres'
 import { certifyStorylineWorkflow } from '../../../../game/story/certification/storybook'
