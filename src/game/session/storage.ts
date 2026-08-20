@@ -71,7 +71,6 @@ function restoreStateObject(definition: StorylineDefinition, value: unknown): Ga
     for (const [index, seat] of seats.entries()) {
       const record = seat as Record<string, unknown>
       if (typeof record.humanName !== 'string') throw new Error(`Stored enrolment seat ${index} has an invalid humanName.`)
-      if (record.participantId !== undefined && (typeof record.participantId !== 'string' || !record.participantId.trim())) throw new Error(`Stored enrolment seat ${index} has an invalid participantId.`)
       if (record.allowAiFallback !== undefined && typeof record.allowAiFallback !== 'boolean') throw new Error(`Stored enrolment seat ${index} has an invalid allowAiFallback.`)
     }
     requireExactKeys(setup.venue as Record<string, unknown>, new Set(definition.setupRequirements.map(item => item.id)), 'venue checks')
@@ -94,9 +93,7 @@ function restoreStateObject(definition: StorylineDefinition, value: unknown): Ga
   requireExactKeys(roster, roleIds, 'roster')
   for (const character of definition.story.characters) {
     if (!isRecord(roster[character.id])) throw new Error(`Stored roster is missing ${character.id}.`)
-    const controller = roster[character.id] as Record<string, unknown>
-    if (!['human', 'ai', 'unassigned'].includes(String(controller.kind))) throw new Error(`Stored roster controller for ${character.id} is invalid.`)
-    if (controller.participantId !== undefined && (typeof controller.participantId !== 'string' || !controller.participantId.trim())) throw new Error(`Stored roster controller for ${character.id} has an invalid participantId.`)
+    if (!['human', 'ai', 'unassigned'].includes(String((roster[character.id] as Record<string, unknown>).kind))) throw new Error(`Stored roster controller for ${character.id} is invalid.`)
   }
   if (phase === 'prepared') return value as GameState
 

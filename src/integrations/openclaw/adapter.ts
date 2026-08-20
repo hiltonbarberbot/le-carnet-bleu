@@ -66,7 +66,7 @@ function mentionedParticipants(participants: ChatParticipant[]): GameParticipant
     const id = participant.id.trim()
     const displayName = participant.displayName.trim()
     if (!id || !displayName) throw new Error('Every mentioned participant needs a stable id and display name.')
-    return { id, displayName }
+    return { displayName }
   })
 }
 

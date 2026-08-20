@@ -111,7 +111,6 @@ export function prepareGame(
       ? {
           kind: 'human',
           displayName: seat.humanName.trim(),
-          ...(seat.participantId?.trim() ? { participantId: seat.participantId.trim() } : {}),
         }
       : (() => { throw new Error(`${character.name} needs a player or an AI controller.`) })()
     return [character.id, controller]

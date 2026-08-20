@@ -11,7 +11,6 @@ export type { GameCommand, GameCommandDescriptor } from '../application/commands
 export type { RuntimeCapabilities } from '../types'
 
 export type GameParticipant = {
-  id?: string
   displayName: string
 }
 

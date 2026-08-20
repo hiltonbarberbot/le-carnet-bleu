@@ -18,7 +18,6 @@ function enrolParticipants(state: EnrollingGameState, participants: { displayNam
       ? {
           ...seat,
           humanName: participant.displayName.trim(),
-          ...(participant.id?.trim() ? { participantId: participant.id.trim() } : {}),
         }
       : { ...seat, allowAiFallback }
   })
