@@ -51,7 +51,18 @@ export function ActiveGameBar({ game, onGodView, onExit }: {
   onGodView: () => void
   onExit: () => void
 }) {
-  return <header className="mode-bar host-mode"><div><span>HOST DASHBOARD · PRIVATE</span><b>{game.storyline.title} · {game.storyline.story.characters.length} suspect roles · {getHostScreen(game.state)}</b></div><div className="mode-actions"><button onClick={onGodView}>God view · spoilers</button><button className="quiet" onClick={onExit}>Back to storylines</button></div></header>
+  const activeState = game.state.phase === 'active' ? game.state : undefined
+  const activeAct = activeState
+    ? game.storyline.acts.find(act => act.id === activeState.playPhase)
+    : undefined
+  const stage = activeAct?.title ?? (game.state.phase === 'enrolling'
+    ? 'Assign roles'
+    : game.state.phase === 'prepared'
+      ? 'Share dossiers'
+      : game.state.phase === 'completed'
+        ? 'Case closed'
+        : game.state.phase)
+  return <header className="mode-bar host-mode"><div><span>HOST VIEW · KEEP PRIVATE</span><b>{game.storyline.title} · {stage}</b></div><div className="mode-actions"><button onClick={onGodView}>Full story · spoilers</button><button className="quiet" onClick={onExit}>Exit game</button></div></header>
 }
 
 export function StartScreen({ storylines, games, importError, libraryWarning = '', onCreateStoryline, onCreateGame, onContinueGame, onRules, onImport, onExport }: {
@@ -240,18 +251,41 @@ function RunSheet({ story, state, performances, onPerform, onConfirm, onUndo }: 
   onUndo: (beatId: string) => void
 }) {
   const beats = story.runPlan.filter(beat => beat.phase === state.playPhase)
-  return <div className="run-sheet">{beats.map(beat => {
+  const entries = beats.map(beat => {
     const done = state.completedBeatIds.includes(beat.id)
     const blockedBy = beat.dependsOn.filter(id => !state.completedBeatIds.includes(id))
     const actions = beat.actionIds.map(id => story.characters.flatMap(character => character.actions.map(action => ({ ...action, owner: character.name, roleId: character.id }))).find(action => action.id === id)!)
     const missingAiLines = actions.filter(action => state.roster[action.roleId]?.kind === 'ai' && !performances[action.id]?.text)
-    return <article key={beat.id} className={`${done ? 'done' : ''} ${beat.essential ? 'essential' : ''}`}><header><div><small>{beat.trigger}</small><h3>{beat.title}</h3></div><b>{beat.essential ? 'REQUIRED' : 'OPTIONAL'}</b></header><p className="operator-copy">{beat.operator}</p>{actions.map(action => {
+    return { beat, done, blockedBy, actions, missingAiLines }
+  })
+  const current = entries.find(entry => !entry.done && entry.blockedBy.length === 0)
+  const completed = entries.filter(entry => entry.done)
+  const upcoming = entries.filter(entry => !entry.done && entry.beat.id !== current?.beat.id)
+
+  return <div className="live-run-sheet">
+    {current ? <article className="now-step" aria-current="step">
+      <header className="now-step-head"><div><span><i aria-hidden="true">{completed.length + 1}</i>{state.paused ? 'PAUSED' : 'DO THIS NOW'}</span><h3>{current.beat.title}</h3></div><b>{current.beat.essential ? 'REQUIRED' : 'OPTIONAL'}</b></header>
+      <p className="now-trigger"><b>Wait for</b><span>{current.beat.trigger}</span></p>
+      <section className="host-instruction"><span>YOU, THE HOST</span><p>{current.beat.operator}</p></section>
+      {current.actions.map(action => {
       const controller = state.roster[action.roleId]
       const proxy = controller?.kind === 'ai' && action.physical ? ` · Physical proxy: ${controller.physicalProxy}` : ''
       const performance = performances[action.id]
-      return <div className={`beat-action ${controller?.kind === 'ai' ? 'ai-action' : ''}`} key={action.id}><b>{action.owner}</b><p>{action.text}</p><small>{action.consequence}{proxy}</small>{controller?.kind === 'ai' && <div className="ai-performance">{performance?.text && <blockquote>{performance.text}</blockquote>}{performance?.error && <p>{performance.error}</p>}<button disabled={state.paused || performance?.pending} onClick={() => onPerform(action.roleId, action.id)}>{performance?.pending ? 'Asking Gateway…' : performance?.text ? 'Regenerate AI line' : 'Generate AI line'}</button></div>}</div>
-    })}{blockedBy.length > 0 && <p className="blocked-copy">Blocked by: {blockedBy.map(id => story.runPlan.find(item => item.id === id)?.title).join(', ')}</p>}{!done && missingAiLines.length > 0 && <p className="blocked-copy">AI performance required for: {missingAiLines.map(action => action.owner).join(', ')}.</p>}<button disabled={state.paused || blockedBy.length > 0 || (!done && missingAiLines.length > 0)} onClick={() => done ? onUndo(beat.id) : onConfirm(beat.id)}>{done ? 'Undo confirmation' : 'Confirm this beat happened'}</button></article>
-  })}</div>
+      const assignedName = controller?.displayName && controller.displayName !== action.owner ? controller.displayName : ''
+      return <section className={`player-cue ${controller?.kind === 'ai' ? 'ai-action' : ''}`} key={action.id}>
+        <header><span>EXPECT FROM</span><b>{assignedName || action.owner}</b>{assignedName && <small>playing {action.owner}</small>}</header>
+        <p>{action.text}</p>
+        <details><summary>Why this beat matters</summary><small>{action.consequence}{proxy}</small></details>
+        {controller?.kind === 'ai' && <div className="ai-performance">{performance?.text && <blockquote>{performance.text}</blockquote>}{performance?.error && <p>{performance.error}</p>}<button disabled={state.paused || performance?.pending} onClick={() => onPerform(action.roleId, action.id)}>{performance?.pending ? 'Preparing the line…' : performance?.text ? 'Prepare a different line' : `Prepare ${action.owner}’s line`}</button></div>}
+      </section>
+    })}
+      {current.missingAiLines.length > 0 && <p className="needs-attention">Prepare the AI line above before continuing.</p>}
+      <button className="step-done" disabled={state.paused || current.missingAiLines.length > 0} onClick={() => onConfirm(current.beat.id)}>Done — show me the next step →</button>
+    </article> : <section className="run-complete"><span>ACT COMPLETE</span><h3>You’ve finished every step in this act.</h3></section>}
+
+    {upcoming.length > 0 && <details className="later-steps"><summary><span>Coming up</span><b>{upcoming.length} {upcoming.length === 1 ? 'later step' : 'later steps'} <i aria-hidden="true">＋</i></b></summary><ol>{upcoming.map(({ beat }) => <li key={beat.id}><span>{beat.title}</span><small>{beat.trigger}</small></li>)}</ol></details>}
+    {completed.length > 0 && <details className="completed-steps"><summary><span>Completed</span><b>{completed.length} {completed.length === 1 ? 'step' : 'steps'} <i aria-hidden="true">＋</i></b></summary><ol>{completed.map(({ beat }) => <li key={beat.id}><span><b>✓</b>{beat.title}</span><button onClick={() => onUndo(beat.id)}>Undo</button></li>)}</ol></details>}
+  </div>
 }
 
 function Investigation({ definition, state, run }: { definition: StorylineDefinition; state: ActiveGameState; run: (command: () => ActiveGameState) => void }) {
@@ -298,10 +332,10 @@ function AuthoredAct({ definition, state, performances, onPerform, onConfirm, on
   const ready = definition.story.runPlan
     .filter(beat => beat.phase === state.playPhase && beat.essential)
     .every(beat => state.completedBeatIds.includes(beat.id))
-  return <section className="phase-panel">
-    <div className="page-title"><div><span className="kicker">{act.durationMinutes} MINUTES · {state.playPhase}</span><h2>{act.title}</h2><p><b>Tell the players:</b> {act.playerGoal}</p><p className="host-only"><b>Your job:</b> {act.operatorGoal}</p></div></div>
+  return <section className="phase-panel live-act">
+    <header className="live-act-head"><span className="kicker">LIVE HOST GUIDE · ABOUT {act.durationMinutes} MINUTES</span><h2>Guide the room one step at a time.</h2><p>Only the current card needs your attention. The app will reveal the next instruction when you finish it.</p><details><summary>What should I tell the players first?</summary><p>{act.playerGoal}</p></details></header>
     <RunSheet story={definition.story} state={state} performances={performances} onPerform={onPerform} onConfirm={onConfirm} onUndo={onUndo} />
-    <button className="primary-action" disabled={state.paused || !ready} onClick={onAdvance}>{act.completionLabel}</button>
+    {ready && <section className="act-finish"><div><span>READY FOR THE NEXT PART</span><h3>{act.operatorGoal}</h3></div><button disabled={state.paused} onClick={onAdvance}>{act.completionLabel}</button></section>}
   </section>
 }
 
@@ -344,17 +378,17 @@ export function HostWorkspace({ definition, state, setState, capabilities, gatew
 
   const active = state.phase === 'active' ? state : null
   const hostName = state.phase === 'enrolling' ? state.setup.hostName : state.hostName
+  const activeAct = active ? definition.acts.find(act => act.id === active.playPhase) : undefined
   return <main className="page host-page">
-    <section className="session-head"><div><span className="kicker">GAME {state.id.slice(0, 8)}</span><h1>{active ? `${active.paused ? 'paused · ' : ''}${active.playPhase}` : state.phase}</h1><p>{state.phase === 'enrolling' ? 'Assignments are still editable.' : `${'roster' in state ? Object.keys(state.roster).length : 0} suspect roles · ${hostName} host`}</p></div><div className="session-actions">{active && <button onClick={() => setState(togglePause(active))}>{active.paused ? 'Resume' : 'Pause'}</button>}{state.phase !== 'completed' && state.phase !== 'aborted' && <button className="danger-button" onClick={() => run(() => abortGame(state))}>Abort</button>}<button className="danger-button" onClick={reset}>Reset game</button></div></section>
+    <section className="session-head"><div><span className="kicker">{active ? 'YOU ARE HOSTING' : `GAME ${state.id.slice(0, 8)}`}</span><h1>{active ? `${active.paused ? 'Paused · ' : ''}${activeAct?.title ?? active.playPhase}` : state.phase}</h1><p>{state.phase === 'enrolling' ? 'Assignments are still editable.' : `Host: ${hostName} · ${'roster' in state ? Object.keys(state.roster).length : 0} players`}</p></div><div className="session-actions">{active && <button className="pause-button" onClick={() => setState(togglePause(active))}>{active.paused ? 'Resume game' : 'Pause game'}</button>}<details><summary>Game controls</summary><div>{state.phase !== 'completed' && state.phase !== 'aborted' && <button className="danger-button" onClick={() => run(() => abortGame(state))}>Abort</button>}<button className="danger-button" onClick={reset}>Reset game</button></div></details></div></section>
     {commandError && <section className="hard-errors compact"><span>COMMAND FAILED</span><pre>{commandError}</pre></section>}
     {state.phase === 'enrolling' && <SetupPanel definition={definition} setup={state.setup} capabilities={capabilities} onChange={setup => setState(updateEnrolment(state, setup))} onPreview={onPreview} onPrepare={() => run(() => prepareGame(definition, state, capabilities))} />}
     {state.phase === 'prepared' && <><Roster story={story} state={state} onPreview={onPreview} /><DossierDesk definition={definition} state={state} onState={setState} onPreview={onPreview} /></>}
     {active && <>
-      <EveningTimeline definition={definition} phase={active.playPhase} />
-      <Roster story={story} state={active} onPreview={onPreview} />
       <AuthoredAct definition={definition} state={active} performances={Object.fromEntries(Object.entries({ ...active.aiPerformances, ...performanceRequests }).map(([id, performance]) => [id, { ...performance, text: active.aiPerformances[id]?.text }]))} onPerform={perform} onConfirm={beatId => run(() => confirmRunBeat(definition, active, beatId))} onUndo={beatId => run(() => undoRunBeat(definition, active, beatId))} onAdvance={() => run(() => advanceAct(definition, active))} />
       {active.playPhase === 'investigation' && <section className="phase-panel"><Investigation definition={definition} state={active} run={run} /></section>}
       {active.playPhase === 'reveal' && <TableReveal definition={definition} state={active} run={run} />}
+      <details className="host-reference"><summary><span>Need to look something up?</span><b>Players, dossiers &amp; full evening <i aria-hidden="true">＋</i></b></summary><EveningTimeline definition={definition} phase={active.playPhase} /><Roster story={story} state={active} onPreview={onPreview} /></details>
     </>}
     {state.phase === 'completed' && <section className="phase-panel terminal"><span className="kicker">CASE CLOSED</span><h2>That’s the evening.</h2><div className="final-score-grid">{Object.values(state.finalScores).sort((a, b) => b.total - a.total).map((score, index) => <article key={score.roleId}><span>{index + 1}</span><div><b>{story.characters.find(character => character.id === score.roleId)?.name}</b><small>{score.objectivePoints} objectives · {score.tokenPoints} tokens · {score.accuserPoints + score.votePoints} deduction</small></div><strong>{score.total}</strong></article>)}</div></section>}
     {state.phase === 'aborted' && <section className="phase-panel terminal"><span className="kicker danger">GAME ABORTED</span><h2>No further commands can run.</h2><p>Reset explicitly to return to idle.</p></section>}

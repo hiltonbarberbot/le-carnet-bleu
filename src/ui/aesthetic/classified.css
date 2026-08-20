@@ -1406,3 +1406,71 @@ h4,
     margin: 0 -16mm;
   }
 }
+
+/* The live host guide keeps the dossier palette, with stronger operational contrast. */
+.live-act-head h2 {
+  color: var(--ink-red);
+  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+}
+
+.live-act-head > p,
+.live-act-head summary {
+  color: var(--ink-soft);
+}
+
+.live-act-head details p {
+  border-left-color: var(--ink-red);
+  background: rgba(255, 224, 226, .28);
+  color: var(--ink);
+}
+
+.session-head {
+  border-color: rgba(75, 42, 99, .34);
+}
+
+.session-actions summary {
+  color: var(--ink);
+}
+
+.later-steps,
+.completed-steps,
+.host-reference {
+  border-color: rgba(75, 42, 99, .56);
+  background: rgba(75, 42, 99, .88);
+}
+
+.later-steps > summary span,
+.completed-steps > summary span,
+.host-reference > summary span,
+.later-steps > summary b,
+.completed-steps > summary b,
+.host-reference > summary b,
+.later-steps summary i,
+.completed-steps summary i,
+.host-reference summary i {
+  color: #f7d9d8;
+}
+
+.later-steps li,
+.completed-steps li {
+  border-color: rgba(255, 225, 227, .2);
+}
+
+.later-steps li span,
+.later-steps li small,
+.completed-steps li span,
+.completed-steps li button {
+  color: #f7d9d8;
+}
+
+.now-trigger b,
+.host-instruction span,
+.player-cue header span {
+  color: #1c5197;
+}
+
+.player-cue > header small,
+.player-cue details summary {
+  color: #495a6d;
+}

@@ -71,10 +71,32 @@ describe('host lifecycle projection', () => {
   it('renders active play and reset-to-idle as separate states', () => {
     const active = startGame(definition, prepareGame(definition, enrolling(), noAi))
     expect(getHostScreen(active)).toBe('active:opening')
-    expect(render(active)).toContain('The last recording')
+    const html = render(active)
+    expect(html).toContain('The last recording')
+    expect(html).toContain('LIVE HOST GUIDE')
+    expect(html).toContain('DO THIS NOW')
+    expect(html).toContain('Done — show me the next step →')
+    expect(html).not.toContain('Confirm this beat happened')
     const idle = resetGame(definition, active, true)
     expect(getHostScreen(idle)).toBe('idle')
     expect(render(idle)).toContain('READY FOR MAISON BLEUE DEMO HOUSE')
+  })
+
+  it('shows one actionable beat and advances the host to the next one', () => {
+    const openingBeats = story.runPlan.filter(beat => beat.phase === 'opening')
+    let active = startGame(definition, prepareGame(definition, enrolling(), noAi))
+    const firstHtml = render(active)
+    expect(firstHtml).toContain('aria-current="step"')
+    expect(firstHtml).toContain(`${openingBeats.length - 1} later steps`)
+    expect(firstHtml.indexOf(openingBeats[0].title)).toBeLessThan(firstHtml.indexOf(openingBeats[1].title))
+
+    active = confirmRunBeat(definition, active, openingBeats[0].id)
+    const secondHtml = render(active)
+    const currentCard = secondHtml.slice(secondHtml.indexOf('aria-current="step"'), secondHtml.indexOf('</article>'))
+    expect(currentCard).toContain(openingBeats[1].title)
+    expect(currentCard).not.toContain(openingBeats[0].title)
+    expect(secondHtml).toContain('1 step')
+    expect(secondHtml).toContain('Undo')
   })
 
   it('exposes Gateway performances for an active AI seat', () => {
@@ -86,10 +108,13 @@ describe('host lifecycle projection', () => {
         ? { ...seat, humanName: '', allowAiFallback: true }
         : seat),
     })
-    const active = startGame(definition, prepareGame(definition, withVacancy, { aiControllers: true }))
+    let active = startGame(definition, prepareGame(definition, withVacancy, { aiControllers: true }))
+    const aiActionIds = new Set(story.characters[0].actions.map(action => action.id))
+    const aiBeatIndex = story.runPlan.findIndex(beat => beat.actionIds.some(actionId => aiActionIds.has(actionId)))
+    for (const beat of story.runPlan.slice(0, aiBeatIndex)) active = confirmRunBeat(definition, active, beat.id)
     const html = render(active, { aiControllers: true })
-    expect(html).toContain('Generate AI line')
-    expect(html).toContain('AI performance required')
+    expect(html).toContain(`Prepare ${story.characters[0].name}’s line`)
+    expect(html).toContain('Prepare the AI line above before continuing')
   })
 
   it('turns investigation into three visible social steps without private ballots', () => {
@@ -167,9 +192,9 @@ describe('privileged game views', () => {
     const bar = renderToStaticMarkup(<ActiveGameBar game={game} onGodView={() => undefined} onExit={() => undefined} />)
     const view = renderToStaticMarkup(<GodView game={game} onExit={() => undefined} />)
 
-    expect(bar).toContain('God view · spoilers')
+    expect(bar).toContain('Full story · spoilers')
     expect(bar).toContain('Maison Bleue demo')
-    expect(bar).toContain('enrolling')
+    expect(bar).toContain('Assign roles')
     expect(view).toContain('EDITORIAL VIEW · COMPLETE SPOILERS')
     expect(view).toContain('Finished reading — return to the game')
   })
