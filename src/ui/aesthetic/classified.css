@@ -1,33 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Caveat:wght@600&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-
 :root {
-  color: #f2d8d9;
-  background: #e49ba4;
+  color: var(--photo-paper);
+  background: var(--paper);
   font-family: 'Courier Prime', 'Courier New', Courier, monospace;
   font-synthesis: none;
-  --paper: #e49ba4;
-  --paper-warm: #eaa8ad;
-  --paper-cool: #db8f97;
-  --paper-pale: #efb6bb;
-  --ink: #4b2a63;
-  --ink-soft: #5f3c75;
-  --ink-red: #a5140f;
-  --ink-red-dark: #8c1a0b;
-  --ink-black: #1b1410;
-  --desk: #651f25;
-  --desk-deep: #2d0d11;
-  --desk-line: rgba(232, 172, 178, .24);
-  --success: #315f4d;
-  --warning: #7b4b16;
-  --shadow-paper: 0 1px 0 rgba(255, 255, 255, .28) inset,
-    0 0 38px rgba(120, 60, 64, .2) inset,
-    0 24px 46px -20px rgba(0, 0, 0, .7),
-    0 2px 0 rgba(0, 0, 0, .24);
+  --paper-pale: var(--paper-warm);
+  --ink: var(--text-strong);
+  --ink-soft: var(--ink-type);
+  --ink-red-dark: var(--ink-red-2);
+  --desk: var(--table);
+  --desk-deep: var(--ink-black);
+  --desk-line: color-mix(in srgb, var(--paper-warm) 24%, transparent);
+  --success: var(--table-lamp);
+  --warning: var(--ink-red-2);
+  --shadow-paper: 0 1px 0 color-mix(in srgb, var(--punch-white) 28%, transparent) inset,
+    0 0 38px color-mix(in srgb, var(--table-lamp) 20%, transparent) inset,
+    0 24px 46px -20px color-mix(in srgb, var(--plate-dark) 70%, transparent),
+    0 2px 0 color-mix(in srgb, var(--plate-dark) 24%, transparent);
   --paper-image:
-    radial-gradient(48% 34% at 18% 12%, rgba(255, 226, 228, .42), transparent 70%),
-    radial-gradient(42% 30% at 84% 30%, rgba(255, 214, 218, .3), transparent 72%),
-    radial-gradient(60% 40% at 26% 78%, rgba(186, 120, 128, .3), transparent 74%),
-    radial-gradient(38% 26% at 72% 92%, rgba(196, 128, 136, .26), transparent 70%),
+    radial-gradient(48% 34% at 18% 12%, color-mix(in srgb, var(--punch-white) 42%, transparent), transparent 70%),
+    radial-gradient(42% 30% at 84% 30%, color-mix(in srgb, var(--photo-paper) 30%, transparent), transparent 72%),
+    radial-gradient(60% 40% at 26% 78%, color-mix(in srgb, var(--paper-cool) 30%, transparent), transparent 74%),
+    radial-gradient(38% 26% at 72% 92%, color-mix(in srgb, var(--paper-cool) 26%, transparent), transparent 70%),
     linear-gradient(168deg, var(--paper-warm) 0%, var(--paper) 46%, var(--paper-cool) 100%);
 }
 
@@ -73,7 +66,7 @@ body::after {
 }
 
 ::selection {
-  background: rgba(165, 20, 15, .28);
+  background: color-mix(in srgb, var(--ink-red) 28%, transparent);
 }
 
 button,
@@ -94,7 +87,7 @@ select:focus-visible,
 textarea:focus-visible,
 summary:focus-visible,
 label:has(input:focus-visible) {
-  outline: 3px solid rgba(239, 182, 187, .88);
+  outline: 3px solid color-mix(in srgb, var(--paper-warm) 88%, transparent);
   outline-offset: 3px;
 }
 
@@ -112,7 +105,7 @@ h4,
 .author-step-copy h2,
 .draft-card h1 {
   color: inherit;
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif !important;
+  font-family: 'Archivo', var(--font-plate) !important;
   font-weight: 700 !important;
   letter-spacing: .015em;
   text-wrap: balance;
@@ -144,7 +137,7 @@ h4,
 .author-field > span,
 .author-ai-status {
   color: var(--ink-red);
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif !important;
+  font-family: 'Archivo', var(--font-plate) !important;
   font-weight: 700;
   letter-spacing: .11em;
   text-transform: uppercase;
@@ -206,7 +199,7 @@ h4,
 .page-title h1,
 .page-title h2 {
   color: var(--ink-red);
-  text-shadow: .5px .5px 0 rgba(140, 26, 11, .35);
+  text-shadow: .5px .5px 0 color-mix(in srgb, var(--ink-red-2) 35%, transparent);
 }
 
 .library-title,
@@ -277,7 +270,7 @@ h4,
 .awards,
 .theory,
 .score-room > article {
-  border-color: rgba(75, 42, 99, .38);
+  border-color: color-mix(in srgb, var(--text-strong) 38%, transparent);
 }
 
 .storyline-card > p,
@@ -302,7 +295,7 @@ h4,
 .storyline-tools,
 .truth-grid,
 .canonical-truth > header {
-  border-color: rgba(75, 42, 99, .3);
+  border-color: color-mix(in srgb, var(--text-strong) 30%, transparent);
 }
 
 .storyline-card > header span,
@@ -326,21 +319,21 @@ h4,
 .author-next,
 .story-reader-finish,
 .vote-list button:first-child {
-  border: 1px solid rgba(98, 16, 11, .52);
+  border: 1px solid color-mix(in srgb, var(--ink-red-2) 52%, transparent);
   background: var(--ink-red);
   box-shadow: 1px 2px 0 var(--ink-red-dark);
-  color: #f7d9d8;
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  color: var(--photo-paper);
+  font-family: 'Archivo', var(--font-plate);
   text-transform: uppercase;
 }
 
 .create-storyline > span,
 .create-storyline > small {
-  color: #f7d9d8;
+  color: var(--photo-paper);
 }
 
 .create-storyline > b {
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Archivo', var(--font-plate);
 }
 
 .import-storyline span,
@@ -354,8 +347,8 @@ h4,
 .vote-list button,
 .author-secondary,
 .draft-actions button {
-  border: 1px solid rgba(75, 42, 99, .48);
-  background: rgba(255, 225, 227, .18);
+  border: 1px solid color-mix(in srgb, var(--text-strong) 48%, transparent);
+  background: color-mix(in srgb, var(--punch-white) 18%, transparent);
   color: var(--ink);
 }
 
@@ -372,8 +365,8 @@ h4,
 .failed-hearing,
 .host-note,
 .library-notice {
-  border-color: rgba(75, 42, 99, .38);
-  background: rgba(255, 224, 226, .22);
+  border-color: color-mix(in srgb, var(--text-strong) 38%, transparent);
+  background: color-mix(in srgb, var(--punch-white) 22%, transparent);
   color: var(--ink);
 }
 
@@ -382,7 +375,7 @@ h4,
 .roster-strip button {
   background-color: var(--paper-pale);
   background-image: var(--paper-image);
-  box-shadow: 0 12px 24px -18px #000;
+  box-shadow: 0 12px 24px -18px var(--plate-dark);
 }
 
 .storyline-games > button small,
@@ -407,8 +400,8 @@ h4,
 }
 
 .host-nav {
-  border-color: rgba(75, 42, 99, .3);
-  background: rgba(228, 155, 164, .82);
+  border-color: color-mix(in srgb, var(--text-strong) 30%, transparent);
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
   backdrop-filter: blur(18px) saturate(115%);
 }
 
@@ -423,40 +416,40 @@ h4,
 
 .mode-bar,
 .story-reader-bar {
-  background: rgba(116, 25, 24, .88);
-  border-color: rgba(255, 226, 228, .26);
-  color: #ffe8e8;
+  background: color-mix(in srgb, var(--ink-red-2) 88%, transparent);
+  border-color: color-mix(in srgb, var(--punch-white) 26%, transparent);
+  color: var(--punch-white);
   backdrop-filter: blur(18px) saturate(125%);
-  box-shadow: 0 8px 30px rgba(20, 12, 10, .22);
+  box-shadow: 0 8px 30px color-mix(in srgb, var(--plate-dark) 22%, transparent);
 }
 
 .mode-bar span,
 .story-reader-bar span {
-  color: #ffd5d6;
+  color: var(--photo-paper);
 }
 
 .mode-bar .mode-actions button {
-  border-color: rgba(255, 232, 232, .6);
-  background: #efb6bb;
+  border-color: color-mix(in srgb, var(--punch-white) 60%, transparent);
+  background: var(--paper-warm);
   color: var(--ink);
 }
 
 .mode-bar .mode-actions .quiet {
-  border-color: rgba(255, 232, 232, .52);
+  border-color: color-mix(in srgb, var(--punch-white) 52%, transparent);
   background: transparent;
-  color: #ffe8e8;
+  color: var(--punch-white);
 }
 
 .player-mode {
-  background: rgba(75, 42, 99, .9);
+  background: color-mix(in srgb, var(--text-strong) 90%, transparent);
 }
 
 .story-reader-bar span {
-  color: #ffe8e8;
+  color: var(--punch-white);
 }
 
 .story-reader-bar button {
-  color: #ffe8e8;
+  color: var(--punch-white);
 }
 
 .phase-marker b,
@@ -466,7 +459,7 @@ h4,
 .story-step > span {
   border-radius: 50%;
   background: var(--ink-red);
-  color: #f7d9d8;
+  color: var(--photo-paper);
   box-shadow: 1px 1px 0 var(--ink-red-dark);
 }
 
@@ -485,8 +478,8 @@ h4,
 .accusation-form input,
 .case-seed input,
 .profile-picker select {
-  border: 1px solid rgba(75, 42, 99, .46);
-  background: rgba(255, 225, 227, .24);
+  border: 1px solid color-mix(in srgb, var(--text-strong) 46%, transparent);
+  background: color-mix(in srgb, var(--punch-white) 24%, transparent);
   color: var(--ink);
   caret-color: var(--ink-red);
 }
@@ -497,28 +490,28 @@ h4,
 .author-field textarea::placeholder,
 .trade-form input::placeholder,
 .accusation-form input::placeholder {
-  color: rgba(75, 42, 99, .58);
+  color: color-mix(in srgb, var(--text-strong) 58%, transparent);
 }
 
 .author-prompt textarea {
-  border: 1px solid rgba(75, 42, 99, .55);
+  border: 1px solid color-mix(in srgb, var(--text-strong) 55%, transparent);
   background-color: var(--paper);
   background-image: var(--paper-image);
   box-shadow: var(--shadow-paper);
   color: var(--ink);
   font-family: 'Courier Prime', 'Courier New', Courier, monospace;
   font-weight: 700;
-  text-shadow: 0 0 .55px rgba(75, 42, 99, .45);
+  text-shadow: 0 0 .55px color-mix(in srgb, var(--text-strong) 45%, transparent);
   caret-color: var(--ink-red);
 }
 
 .author-prompt textarea::placeholder {
-  color: rgba(75, 42, 99, .56);
+  color: color-mix(in srgb, var(--text-strong) 56%, transparent);
 }
 
 .author-prompt textarea:focus {
   border-color: var(--ink-red);
-  box-shadow: var(--shadow-paper), 0 0 0 3px rgba(234, 168, 173, .25);
+  box-shadow: var(--shadow-paper), 0 0 0 3px color-mix(in srgb, var(--paper-warm) 25%, transparent);
 }
 
 .author-progress span,
@@ -531,7 +524,7 @@ h4,
 
 .author-seed-card > .kicker {
   color: var(--ink-red);
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Archivo', var(--font-plate);
 }
 
 .author-seed-card > p {
@@ -544,11 +537,11 @@ h4,
 }
 
 .author-ai-note.unavailable {
-  color: #ffaaa5;
+  color: var(--paper-warm);
 }
 
 .author-progress b {
-  border-color: rgba(239, 182, 187, .4);
+  border-color: color-mix(in srgb, var(--paper-warm) 40%, transparent);
 }
 
 .author-progress .active b,
@@ -559,16 +552,16 @@ h4,
 
 .author-ai-status,
 .gateway-status {
-  border-color: rgba(239, 182, 187, .42);
-  color: #d9bfc1;
+  border-color: color-mix(in srgb, var(--paper-warm) 42%, transparent);
+  color: var(--paper-warm);
 }
 
 .author-ai-status.available,
 .gateway-status.available,
 .theory.correct {
-  border-color: #76917e;
-  background: rgba(49, 95, 77, .2);
-  color: #b9d4c2;
+  border-color: var(--on-dark-soft);
+  background: color-mix(in srgb, var(--table-lamp) 20%, transparent);
+  color: var(--photo-paper);
 }
 
 .author-errors,
@@ -598,7 +591,7 @@ h4,
 .story-evening li,
 .story-facts,
 .story-facts div {
-  border-color: rgba(75, 42, 99, .36);
+  border-color: color-mix(in srgb, var(--text-strong) 36%, transparent);
 }
 
 .profile .label,
@@ -621,8 +614,8 @@ h4,
 .stamp {
   border-color: var(--ink-red);
   color: var(--ink-red);
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
-  box-shadow: 0 0 0 2px rgba(165, 20, 15, .08) inset;
+  font-family: 'Archivo', var(--font-plate);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ink-red) 8%, transparent) inset;
   transform: rotate(2.4deg);
 }
 
@@ -634,12 +627,12 @@ h4,
 .story-evidence > div,
 .story-action,
 .story-synopsis {
-  border-color: rgba(75, 42, 99, .32);
-  background: rgba(255, 223, 225, .24);
+  border-color: color-mix(in srgb, var(--text-strong) 32%, transparent);
+  background: color-mix(in srgb, var(--punch-white) 24%, transparent);
 }
 
 .trait-list span {
-  border: 1px solid rgba(75, 42, 99, .45);
+  border: 1px solid color-mix(in srgb, var(--text-strong) 45%, transparent);
   background: transparent;
   color: var(--ink);
 }
@@ -648,7 +641,7 @@ h4,
 .story-secret,
 .dilemma {
   border-color: var(--ink-red);
-  background: rgba(165, 20, 15, .08);
+  background: color-mix(in srgb, var(--ink-red) 8%, transparent);
 }
 
 .story-reader-hero h1,
@@ -691,7 +684,7 @@ h4,
 }
 
 .story-timeline::before {
-  background: rgba(75, 42, 99, .38);
+  background: color-mix(in srgb, var(--text-strong) 38%, transparent);
 }
 
 /* Host and social cards use lighter carbon-copy stock. */
@@ -704,16 +697,15 @@ h4,
 .theory,
 .score-room > article,
 .evening-timeline {
-  --paper: #d7b6a9;
-  --paper-warm: #e2c3b5;
-  --paper-cool: #cba697;
+  --paper: var(--paper-warm);
+  --paper-cool: var(--surface);
 }
 
 .run-sheet > article.done,
 .theory.correct {
-  --paper: #b3c4ab;
-  --paper-warm: #c4d3bc;
-  --paper-cool: #a1b399;
+  --paper: var(--on-dark-soft);
+  --paper-warm: var(--photo-paper);
+  --paper-cool: var(--on-dark-soft);
   opacity: .9;
 }
 
@@ -725,7 +717,7 @@ h4,
 .dossier-grid b,
 .roster-strip span {
   color: var(--ink);
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Archivo', var(--font-plate);
   font-weight: 700;
 }
 
@@ -751,8 +743,8 @@ h4,
 .evidence-list label,
 .accusation,
 .vote-list article {
-  border-color: rgba(75, 42, 99, .38);
-  background: rgba(255, 225, 227, .2);
+  border-color: color-mix(in srgb, var(--text-strong) 38%, transparent);
+  background: color-mix(in srgb, var(--punch-white) 20%, transparent);
   color: var(--ink);
 }
 
@@ -765,8 +757,8 @@ h4,
 }
 
 .private-clue {
-  background: #e3cfa4;
-  color: #47303f;
+  background: var(--paper-warm);
+  color: var(--table-lamp);
 }
 
 .blackout,
@@ -774,19 +766,19 @@ h4,
 .hearing-now {
   border-color: var(--ink-red);
   background: var(--ink-black);
-  color: #f6dfe0;
+  color: var(--photo-paper);
 }
 
 .blackout span,
 .truth-seal span,
 .hearing-panel .social-heading > strong {
-  color: #ed7772;
+  color: var(--paper-cool);
 }
 
 .danger-button {
-  border-color: #a9514d;
-  background: #3b211f;
-  color: #ffc0bc;
+  border-color: var(--ink-pencil);
+  background: var(--ink-plate);
+  color: var(--paper-warm);
 }
 
 /* Player dossier — a responsive facsimile of the supplied personal sheet. */
@@ -802,10 +794,10 @@ h4,
   background-color: var(--paper);
   background-image: var(--paper-image);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, .32) inset,
-    0 0 46px rgba(120, 60, 64, .32) inset,
-    0 26px 48px -18px rgba(0, 0, 0, .48),
-    0 2px 0 rgba(0, 0, 0, .26);
+    0 1px 0 color-mix(in srgb, var(--punch-white) 32%, transparent) inset,
+    0 0 46px color-mix(in srgb, var(--table-lamp) 32%, transparent) inset,
+    0 26px 48px -18px color-mix(in srgb, var(--plate-dark) 48%, transparent),
+    0 2px 0 color-mix(in srgb, var(--plate-dark) 26%, transparent);
   color: var(--ink);
   font-family: 'Courier Prime', 'Courier New', Courier, monospace;
   isolation: isolate;
@@ -842,11 +834,11 @@ h4,
   width: 19px;
   height: 19px;
   border-radius: 50%;
-  background: #f5f3ef;
+  background: var(--punch-white);
   box-shadow:
-    0 0 0 1px rgba(140, 80, 84, .5),
-    2px 3px 3px rgba(90, 40, 44, .42) inset,
-    -1px -1px 2px rgba(255, 255, 255, .55) inset;
+    0 0 0 1px color-mix(in srgb, var(--ink-pencil) 50%, transparent),
+    2px 3px 3px color-mix(in srgb, var(--table) 42%, transparent) inset,
+    -1px -1px 2px color-mix(in srgb, var(--punch-white) 55%, transparent) inset;
 }
 
 .classified-dossier .dossier-punch-left {
@@ -864,10 +856,10 @@ h4,
   left: 0;
   height: 26px;
   background: linear-gradient(to bottom,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(120, 60, 64, .075) 46%,
-    rgba(255, 255, 255, .11) 56%,
-    rgba(0, 0, 0, 0) 100%);
+    color-mix(in srgb, var(--plate-dark) 0%, transparent) 0%,
+    color-mix(in srgb, var(--table-lamp) 8%, transparent) 46%,
+    color-mix(in srgb, var(--punch-white) 11%, transparent) 56%,
+    color-mix(in srgb, var(--plate-dark) 0%, transparent) 100%);
   pointer-events: none;
 }
 
@@ -908,9 +900,9 @@ h4,
 .dossier-department,
 .profile.classified-dossier .dossier-kind {
   color: var(--ink-red);
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif !important;
+  font-family: 'Archivo', var(--font-plate) !important;
   font-weight: 700 !important;
-  text-shadow: .4px .4px 0 rgba(140, 26, 11, .5);
+  text-shadow: .4px .4px 0 color-mix(in srgb, var(--ink-red-2) 50%, transparent);
 }
 
 .dossier-classification {
@@ -940,7 +932,7 @@ h4,
   font-size: 11.7px;
   line-height: 1.36;
   letter-spacing: .004em;
-  text-shadow: 0 0 .55px rgba(75, 42, 99, .5);
+  text-shadow: 0 0 .55px color-mix(in srgb, var(--text-strong) 50%, transparent);
 }
 
 .dossier-wire p {
@@ -1048,8 +1040,8 @@ h4,
 .dossier-declassified > div {
   position: relative;
   display: inline-block;
-  color: #2b211c;
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  color: var(--ink-plate);
+  font-family: 'Archivo', var(--font-plate);
   font-size: 11.5px;
   font-weight: 700;
   letter-spacing: .1em;
@@ -1083,12 +1075,12 @@ h4,
 .dossier-declassified u {
   display: inline-block;
   width: 48px;
-  border-bottom: 1px solid #312723;
+  border-bottom: 1px solid var(--table-edge);
 }
 
 .dossier-declassified b {
   color: var(--ink-red);
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Archivo', var(--font-plate);
   font-size: 10.5px;
   letter-spacing: .01em;
   transform: rotate(-1.6deg) skewX(-4deg);
@@ -1107,7 +1099,7 @@ h4,
 
 .dossier-journal small {
   display: block;
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Archivo', var(--font-plate);
   font-size: 8px;
   letter-spacing: .06em;
 }
@@ -1119,7 +1111,7 @@ h4,
   padding: 5px 7px 3px;
   border: 2px solid var(--ink-red);
   color: var(--ink-red);
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Archivo', var(--font-plate);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: .05em;
@@ -1129,7 +1121,7 @@ h4,
 
 .dossier-pencil {
   position: absolute;
-  color: #6b5f5a;
+  color: var(--ink-pencil);
   font-family: 'Caveat', cursive;
   font-size: 22px;
   opacity: .9;
@@ -1152,7 +1144,7 @@ h4,
   bottom: 28px;
   left: 50%;
   color: var(--ink-red);
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Archivo', var(--font-plate);
   font-size: 18px;
   font-weight: 700;
   letter-spacing: .06em;
@@ -1176,8 +1168,8 @@ h4,
   position: absolute;
   right: 62px;
   bottom: 26px;
-  color: #7f1410;
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  color: var(--ink-red-2);
+  font-family: 'Archivo', var(--font-plate);
   font-size: 13.5px;
   font-weight: 700;
   letter-spacing: .03em;
@@ -1189,7 +1181,7 @@ h4,
   bottom: 8px;
   left: 0;
   color: var(--ink-red);
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Archivo', var(--font-plate);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .05em;
@@ -1274,13 +1266,13 @@ h4,
   .author-shape:hover,
   .author-next:hover,
   .story-reader-finish:hover {
-    background: #b51d17;
+    background: var(--ink-red);
     filter: none;
   }
 
   .storyline-card:hover {
-    border-color: rgba(255, 213, 215, .8);
-    box-shadow: var(--shadow-paper), 0 0 0 2px rgba(165, 20, 15, .16);
+    border-color: color-mix(in srgb, var(--photo-paper) 80%, transparent);
+    box-shadow: var(--shadow-paper), 0 0 0 2px color-mix(in srgb, var(--ink-red) 16%, transparent);
   }
 
   .storyline-games > button:hover,
@@ -1312,7 +1304,7 @@ h4,
   .profile,
   .storyline-card,
   .draft-card {
-    box-shadow: 0 16px 35px -20px rgba(0, 0, 0, .7);
+    box-shadow: 0 16px 35px -20px color-mix(in srgb, var(--plate-dark) 70%, transparent);
   }
 
   .library-head::after,
@@ -1328,7 +1320,7 @@ h4,
   .mode-bar,
   .story-reader-bar,
   .host-nav {
-    background: #3a2827;
+    background: var(--table-mid);
     backdrop-filter: none;
   }
 }
@@ -1369,11 +1361,11 @@ h4,
 
   :root {
     color: var(--ink);
-    background: white;
+    background: var(--punch-white);
   }
 
   body {
-    background: white;
+    background: var(--punch-white);
   }
 
   body::before,
@@ -1410,7 +1402,7 @@ h4,
 /* The live host guide keeps the dossier palette, with stronger operational contrast. */
 .live-act-head h2 {
   color: var(--ink-red);
-  font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Archivo', var(--font-plate);
   font-weight: 700;
 }
 
@@ -1421,12 +1413,12 @@ h4,
 
 .live-act-head details p {
   border-left-color: var(--ink-red);
-  background: rgba(255, 224, 226, .28);
+  background: color-mix(in srgb, var(--punch-white) 28%, transparent);
   color: var(--ink);
 }
 
 .session-head {
-  border-color: rgba(75, 42, 99, .34);
+  border-color: color-mix(in srgb, var(--text-strong) 34%, transparent);
 }
 
 .session-actions summary {
@@ -1436,8 +1428,8 @@ h4,
 .later-steps,
 .completed-steps,
 .host-reference {
-  border-color: rgba(75, 42, 99, .56);
-  background: rgba(75, 42, 99, .88);
+  border-color: color-mix(in srgb, var(--text-strong) 56%, transparent);
+  background: color-mix(in srgb, var(--text-strong) 88%, transparent);
 }
 
 .later-steps > summary span,
@@ -1449,28 +1441,28 @@ h4,
 .later-steps summary i,
 .completed-steps summary i,
 .host-reference summary i {
-  color: #f7d9d8;
+  color: var(--photo-paper);
 }
 
 .later-steps li,
 .completed-steps li {
-  border-color: rgba(255, 225, 227, .2);
+  border-color: color-mix(in srgb, var(--punch-white) 20%, transparent);
 }
 
 .later-steps li span,
 .later-steps li small,
 .completed-steps li span,
 .completed-steps li button {
-  color: #f7d9d8;
+  color: var(--photo-paper);
 }
 
 .now-trigger b,
 .host-instruction span,
 .player-cue header span {
-  color: #1c5197;
+  color: var(--accent);
 }
 
 .player-cue > header small,
 .player-cue details summary {
-  color: #495a6d;
+  color: var(--ink-pencil);
 }

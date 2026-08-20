@@ -1,0 +1,62 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LA COLOMBE — brand theme
+   Single source of truth for every color and typeface in the product UI.
+
+   The values are the designer's, lifted from src/ui/issue/interface.css
+   (the /issue dossier sheet — Villa Mirabelle, Cap d'Antibes, August 1962).
+   That file is the design reference and stays untouched; a brand test keeps
+   this file in sync with its :root. Everything else in src/ui and src/app
+   must draw color and type from these tokens — raw hex/rgb/hsl values and
+   foreign font families fail the brand test.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root{
+  /* ── paper (from interface.css) ── */
+  --paper:      #dfa79f;
+  --paper-warm: #e9b3a9;
+  --paper-cool: #d0938c;
+
+  /* ── inks (from interface.css) ── */
+  --ink-red:    #b32017;
+  --ink-red-2:  #9a2412;
+  --ink-type:   #573a70;
+  --ink-type-2: #6b4b80;
+  --ink-black:  #1b1410;
+  --ink-pencil: #6b5f5a;
+  --ink-hand:   #b0231c;
+  --ink-stamp:  #bf2137;
+  --ink-plate:  #2a2220;
+
+  /* ── the table the sheets lie on (from interface.css body/html) ── */
+  --table:      #332f2c;
+  --table-lamp: #4a4541;
+  --table-mid:  #302c29;
+  --table-deep: #221e1c;
+  --table-edge: #2a2622;
+
+  /* ── supporting surfaces seen on the sheet ── */
+  --photo-paper: #efe6da;   /* the print window mat */
+  --punch-white: #f5f3ef;   /* the file punch holes */
+  --plate-dark:  #0d0b0b;   /* inside the film gate */
+
+  /* ── semantic aliases — use these in app chrome ── */
+  --surface:        var(--paper);
+  --surface-raised: var(--paper-warm);
+  --surface-sunken: var(--paper-cool);
+  --backdrop:       var(--table);
+  --text:           var(--ink-type);
+  --text-strong:    #3d1f55;              /* pressed-harder typewriter ink */
+  --text-soft:      var(--ink-type-2);
+  --text-faint:     var(--ink-pencil);
+  --accent:         var(--ink-red);
+  --accent-strong:  var(--ink-red-2);
+  --stamp:          var(--ink-stamp);
+  --danger:         var(--ink-stamp);
+  --on-dark:        var(--photo-paper);   /* type sitting on the table felt */
+  --on-dark-soft:   #a99e93;              /* hostbar label grey */
+
+  /* ── type — the only three families in the product ── */
+  --font-typewriter: "Courier Prime","Courier New",Courier,monospace;
+  --font-plate:      "Archivo",Helvetica,Arial,sans-serif;
+  --font-hand:       "Caveat","Bradley Hand",cursive;
+}

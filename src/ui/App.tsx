@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, type ChangeEvent } from 'react'
+import './aesthetic/theme.css'
 import './style.css'
 import './aesthetic/classified.css'
 import { readAiGatewayStatus } from '../game/ai/gateway'
