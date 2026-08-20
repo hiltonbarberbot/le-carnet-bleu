@@ -65,7 +65,7 @@ export function AuthoringStudio({ gateway, onExit, onSave }: AuthoringStudioProp
       <span className="kicker">STORYLINE DRAFT · READY TO REVIEW</span>
       <h1>{draft.title}</h1>
       <p>{draft.story.premise}</p>
-      <div className="draft-facts"><span><b>{draft.story.characters.length}</b> suspects</span><span><b>{draft.story.runPlan.length}</b> live beats</span><span><b>{draft.story.timeline.length}</b> truth beats</span></div>
+      <div className="draft-facts"><span><b>{draft.story.characters.length}</b> suspects</span><span><b>{draft.story.openingSteps.length}</b> opening steps</span><span><b>{draft.story.solutionSteps.length}</b> solution steps</span></div>
       <div className="draft-actions"><button className="use-draft" onClick={() => onSave(draft)}>Save storyline to library →</button></div>
     </section>
   </main>

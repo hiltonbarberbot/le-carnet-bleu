@@ -366,7 +366,7 @@ h4,
 .vote-list article,
 .setup-left,
 .host-only,
-.beat-action,
+.opening-action,
 .ai-performance blockquote,
 .private-clue,
 .failed-hearing,
@@ -463,7 +463,7 @@ h4,
 .setup-heading > span,
 .social-steps article > b,
 .number,
-.story-beat > span {
+.story-step > span {
   border-radius: 50%;
   background: var(--ink-red);
   color: #f7d9d8;
@@ -657,7 +657,7 @@ h4,
 .story-cast h3,
 .story-evening h3,
 .story-run-title h4,
-.story-beat h3,
+.story-step h3,
 .story-decks h3,
 .story-synopsis p {
   color: var(--ink);

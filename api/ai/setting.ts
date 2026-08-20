@@ -36,6 +36,49 @@ function cleanList(value: unknown) {
   return Array.isArray(value) ? value.map(cleanText).filter(Boolean) : []
 }
 
+function cleanProps(value: unknown): NonNullable<SettingBriefInput['availableProps']> {
+  if (!Array.isArray(value)) return []
+  const result: NonNullable<SettingBriefInput['availableProps']> = []
+  for (const item of value) {
+    if (typeof item === 'string') {
+      if (item.trim()) result.push(item.trim())
+      continue
+    }
+    if (!item || typeof item !== 'object') continue
+    const prop = item as Record<string, unknown>
+    const label = cleanText(prop.label)
+    if (!label) continue
+    result.push({
+      id: cleanText(prop.id) || undefined,
+      label,
+      description: cleanText(prop.description),
+      quantity: typeof prop.quantity === 'number' ? prop.quantity : 1,
+      safetyNotes: cleanList(prop.safetyNotes),
+    })
+  }
+  return result
+}
+
+function cleanResources(value: unknown): NonNullable<SettingBriefInput['playableSpaces']> {
+  if (!Array.isArray(value)) return []
+  const result: NonNullable<SettingBriefInput['playableSpaces']> = []
+  for (const item of value) {
+    if (typeof item === 'string') {
+      if (item.trim()) result.push(item.trim())
+      continue
+    }
+    if (!item || typeof item !== 'object') continue
+    const resource = item as Record<string, unknown>
+    const label = cleanText(resource.label)
+    if (label) result.push({ id: cleanText(resource.id) || undefined, label, description: cleanText(resource.description) })
+  }
+  return result
+}
+
+function resourceLabel(item: NonNullable<SettingBriefInput['playableSpaces']>[number]) {
+  return typeof item === 'string' ? item : item.label
+}
+
 function parseJsonObject(value: string) {
   const text = value.trim()
   const fenced = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i)
@@ -58,23 +101,23 @@ function cleanSetting(value: unknown): SettingBriefInput {
     venueName: cleanText(setting.venueName),
     location: cleanText(setting.location),
     era: cleanText(setting.era),
-    playableSpaces: cleanList(setting.playableSpaces),
-    routes: cleanList(setting.routes),
-    usableFeatures: cleanList(setting.usableFeatures),
-    availableProps: cleanList(setting.availableProps),
+    playableSpaces: cleanResources(setting.playableSpaces),
+    routes: cleanResources(setting.routes),
+    usableFeatures: cleanResources(setting.usableFeatures),
+    availableProps: cleanProps(setting.availableProps),
     tone: cleanText(setting.tone),
-    safetyConstraints: cleanList(setting.safetyConstraints),
-    accessibilityNeeds: cleanList(setting.accessibilityNeeds),
-    contentBoundaries: cleanList(setting.contentBoundaries),
+    safetyConstraints: cleanResources(setting.safetyConstraints),
+    accessibilityNeeds: cleanResources(setting.accessibilityNeeds),
+    contentBoundaries: cleanResources(setting.contentBoundaries),
   }
 }
 
 function completeSettingDraft(setting: SettingBriefInput): SettingBriefInput {
-  const spaces = cleanList(setting.playableSpaces)
+  const spaces = cleanResources(setting.playableSpaces)
   const playableSpaces = spaces.length === 0
     ? ['Main host-approved gathering area', 'Clue station within the same gathering area']
     : spaces.length === 1
-      ? [spaces[0], `Clue station within ${spaces[0]}`]
+      ? [spaces[0], `Clue station within ${resourceLabel(spaces[0])}`]
       : spaces
 
   return {
@@ -83,18 +126,18 @@ function completeSettingDraft(setting: SettingBriefInput): SettingBriefInput {
     location: cleanText(setting.location) || 'Location unspecified; do not use local details',
     era: cleanText(setting.era) || 'Present day',
     playableSpaces,
-    routes: cleanList(setting.routes).length
-      ? cleanList(setting.routes)
+    routes: cleanResources(setting.routes).length
+      ? cleanResources(setting.routes)
       : ['Both play zones remain within the same host-approved gathering area; no relocation is required'],
     tone: cleanText(setting.tone) || 'Elegant, playful suspense',
-    safetyConstraints: cleanList(setting.safetyConstraints).length
-      ? cleanList(setting.safetyConstraints)
-      : ['No physical contact', 'No running or darkness', 'All physical actions are optional and host-cued'],
-    accessibilityNeeds: cleanList(setting.accessibilityNeeds).length
-      ? cleanList(setting.accessibilityNeeds)
+    safetyConstraints: cleanResources(setting.safetyConstraints).length
+      ? cleanResources(setting.safetyConstraints)
+      : ['No physical contact', 'No running or darkness', 'All physical staging is optional and host-cued'],
+    accessibilityNeeds: cleanResources(setting.accessibilityNeeds).length
+      ? cleanResources(setting.accessibilityNeeds)
       : ['All essential play works seated and without movement'],
-    contentBoundaries: cleanList(setting.contentBoundaries).length
-      ? cleanList(setting.contentBoundaries)
+    contentBoundaries: cleanResources(setting.contentBoundaries).length
+      ? cleanResources(setting.contentBoundaries)
       : ['Keep violence non-graphic', 'No sexual violence or harm to children', 'Do not use real personal or family secrets'],
   }
 }
@@ -102,8 +145,11 @@ function completeSettingDraft(setting: SettingBriefInput): SettingBriefInput {
 const settingShape = `Return exactly one JSON object with this shape:
 {
   "venueName": "", "location": "", "era": "",
-  "playableSpaces": [], "routes": [], "usableFeatures": [], "availableProps": [],
-  "tone": "", "safetyConstraints": [], "accessibilityNeeds": [], "contentBoundaries": []
+  "playableSpaces": [{ "id": "stable-space-id", "label": "", "description": "" }],
+  "routes": [{ "id": "stable-route-id", "label": "", "description": "", "spaceIds": ["stable-space-id"], "accessibilityNotes": [] }],
+  "usableFeatures": [{ "id": "stable-feature-id", "label": "", "description": "", "spaceIds": ["stable-space-id"] }],
+  "availableProps": [{ "id": "stable-lowercase-slug", "label": "", "description": "", "quantity": 1, "safetyNotes": [] }],
+  "tone": "", "safetyConstraints": [{ "id": "stable-constraint-id", "label": "", "description": "" }], "accessibilityNeeds": [{ "id": "stable-need-id", "label": "", "description": "" }], "contentBoundaries": [{ "id": "stable-boundary-id", "label": "", "description": "" }]
 }`
 
 type SettingRepair = {
@@ -149,7 +195,7 @@ Use every fact the host supplied about the real place and play constraints. Fill
 Do not invent the fictional gathering, invitation, plot, or reason the characters are present. Those belong to story generation, not the real setting brief.
 Do not invent specific architecture, local history, permissions, or objects. When the seed omits venue facts, use honest neutral language such as "host's venue", "main host-approved gathering area", and "location unspecified; do not use local details".
 There must be at least two playable areas. If only one real room is known, define two functional zones within it and state that no relocation is required.
-Default to present day unless the seed implies another era. Supply safe defaults: no contact, running, darkness, inaccessible essential movement, or graphic violence; all physical beats are optional and host-cued. Keep inferred features and props generic, easy, and removable. Return only the requested JSON.`,
+Default to present day unless the seed implies another era. Supply safe defaults: no contact, running, darkness, inaccessible required movement, or graphic violence; all physical staging is optional and host-cued. Keep inferred features and props generic, easy, and removable. Give every prop a stable unique id, positive quantity, description, and any object-specific safety notes. Return only the requested JSON.`,
         prompt: [settingShape, `Mystery seed:\n${prompt}`, repair ? repairInstruction(repair) : 'Complete the setting brief now.'].join('\n\n'),
         output: Output.json({ name: 'setting_brief', description: 'A complete, safe setting brief for a live mystery.' }),
         maxOutputTokens: 1800,

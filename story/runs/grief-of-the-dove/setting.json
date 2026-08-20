@@ -3,54 +3,250 @@
   "location": "Grambois, France",
   "era": "August 1962",
   "playableSpaces": [
-    "Terrace",
-    "Dining room",
-    "Kitchen",
-    "Poolside parlor",
-    "Salon",
-    "Entrance hall",
-    "Staircase to the bedrooms",
-    "Master bedroom",
-    "Basement",
-    "Basement room marked private",
-    "Swimming pool area",
-    "Cottage"
+    {
+      "id": "terrace",
+      "label": "Terrace",
+      "description": ""
+    },
+    {
+      "id": "dining-room",
+      "label": "Dining room",
+      "description": ""
+    },
+    {
+      "id": "kitchen",
+      "label": "Kitchen",
+      "description": ""
+    },
+    {
+      "id": "poolside-parlor",
+      "label": "Poolside parlor",
+      "description": ""
+    },
+    {
+      "id": "salon",
+      "label": "Salon",
+      "description": ""
+    },
+    {
+      "id": "entrance-hall",
+      "label": "Entrance hall",
+      "description": ""
+    },
+    {
+      "id": "staircase-to-the-bedrooms",
+      "label": "Staircase to the bedrooms",
+      "description": ""
+    },
+    {
+      "id": "master-bedroom",
+      "label": "Master bedroom",
+      "description": ""
+    },
+    {
+      "id": "basement",
+      "label": "Basement",
+      "description": ""
+    },
+    {
+      "id": "basement-room-marked-private",
+      "label": "Basement room marked private",
+      "description": ""
+    },
+    {
+      "id": "swimming-pool-area",
+      "label": "Swimming pool area",
+      "description": ""
+    },
+    {
+      "id": "cottage",
+      "label": "Cottage",
+      "description": ""
+    }
   ],
   "routes": [
-    "All named spaces are accessible through the house's ordinary connected layout",
-    "The staircase connects the entrance level with the bedrooms",
-    "The basement and its room marked private are accessible by the ordinary basement route",
-    "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
-    "The cottage is accessible from the house and is farther from the kitchen than the dining room is"
+    {
+      "id": "all-named-spaces-are-accessible-through-the-house-s-ordinary-connected-layout",
+      "label": "All named spaces are accessible through the house's ordinary connected layout",
+      "description": "",
+      "spaceIds": [],
+      "accessibilityNotes": []
+    },
+    {
+      "id": "the-staircase-connects-the-entrance-level-with-the-bedrooms",
+      "label": "The staircase connects the entrance level with the bedrooms",
+      "description": "",
+      "spaceIds": [],
+      "accessibilityNotes": []
+    },
+    {
+      "id": "the-basement-and-its-room-marked-private-are-accessible-by-the-ordinary-basement-route",
+      "label": "The basement and its room marked private are accessible by the ordinary basement route",
+      "description": "",
+      "spaceIds": [
+        "basement"
+      ],
+      "accessibilityNotes": []
+    },
+    {
+      "id": "the-terrace-poolside-parlor-and-swimming-pool-area-connect-through-the-ordinary-outdoor-circulation",
+      "label": "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+      "description": "",
+      "spaceIds": [
+        "terrace",
+        "poolside-parlor",
+        "swimming-pool-area"
+      ],
+      "accessibilityNotes": []
+    },
+    {
+      "id": "the-cottage-is-accessible-from-the-house-and-is-farther-from-the-kitchen-than-the-dining-room-is",
+      "label": "The cottage is accessible from the house and is farther from the kitchen than the dining room is",
+      "description": "",
+      "spaceIds": [
+        "dining-room",
+        "kitchen",
+        "cottage"
+      ],
+      "accessibilityNotes": []
+    }
   ],
   "usableFeatures": [
-    "Salon mantelpiece or equivalent display surface",
-    "Lockable study cabinet or equivalent secure document case",
-    "Framed picture on the staircase landing",
-    "Poolside chair kept outside the swimming pool",
-    "Ordinary terrace route between the house and cottage"
+    {
+      "id": "salon-mantelpiece-or-equivalent-display-surface",
+      "label": "Salon mantelpiece or equivalent display surface",
+      "description": "",
+      "spaceIds": [
+        "salon"
+      ]
+    },
+    {
+      "id": "lockable-study-cabinet-or-equivalent-secure-document-case",
+      "label": "Lockable study cabinet or equivalent secure document case",
+      "description": "",
+      "spaceIds": []
+    },
+    {
+      "id": "framed-picture-on-the-staircase-landing",
+      "label": "Framed picture on the staircase landing",
+      "description": "",
+      "spaceIds": []
+    },
+    {
+      "id": "poolside-chair-kept-outside-the-swimming-pool",
+      "label": "Poolside chair kept outside the swimming pool",
+      "description": "",
+      "spaceIds": []
+    },
+    {
+      "id": "ordinary-terrace-route-between-the-house-and-cottage",
+      "label": "Ordinary terrace route between the house and cottage",
+      "description": "",
+      "spaceIds": [
+        "terrace",
+        "cottage"
+      ]
+    }
   ],
   "availableProps": [
-    "Replica blue diamond and glass display dome",
-    "Linen jacket and prop key ring",
-    "Sealed inheritance letter and lockable document case",
-    "Hollow art book",
-    "Framed photograph",
-    "Hollow bronze dove and empty prop pill bottle",
-    "Paper envelopes and lacquer cigarette box",
-    "Safe cognac glass containing no medicine or substance"
+    {
+      "id": "diamond-display",
+      "label": "Replica blue diamond and glass display dome",
+      "description": "One inert replica blue diamond with a stable glass display dome.",
+      "quantity": 1,
+      "safetyNotes": [
+        "Use only the inert, host-approved version described here."
+      ]
+    },
+    {
+      "id": "jacket-keys",
+      "label": "Linen jacket and prop key ring",
+      "description": "One linen jacket and one inert prop key ring prepared as a single action kit.",
+      "quantity": 1,
+      "safetyNotes": []
+    },
+    {
+      "id": "document-case",
+      "label": "Sealed inheritance letter and lockable document case",
+      "description": "One sealed paper inheritance letter and one host-approved lockable document case.",
+      "quantity": 1,
+      "safetyNotes": []
+    },
+    {
+      "id": "hollow-book",
+      "label": "Hollow art book",
+      "description": "One prepared hollow art book capable of holding the replica diamond.",
+      "quantity": 1,
+      "safetyNotes": []
+    },
+    {
+      "id": "framed-photograph",
+      "label": "Framed photograph",
+      "description": "One harmless framed replica photograph.",
+      "quantity": 1,
+      "safetyNotes": []
+    },
+    {
+      "id": "bronze-dove",
+      "label": "Hollow bronze dove and empty prop pill bottle",
+      "description": "One hollow bronze dove and one empty inert prop pill bottle.",
+      "quantity": 1,
+      "safetyNotes": [
+        "Use only the inert, host-approved version described here."
+      ]
+    },
+    {
+      "id": "paper-envelopes",
+      "label": "Paper envelopes and lacquer cigarette box",
+      "description": "One prepared set of paper invitations and packets with one lacquer cigarette box.",
+      "quantity": 1,
+      "safetyNotes": []
+    },
+    {
+      "id": "safe-glass",
+      "label": "Safe cognac glass containing no medicine or substance",
+      "description": "One inert cognac glass containing no medicine, substance, or required drink.",
+      "quantity": 1,
+      "safetyNotes": [
+        "Use only the inert, host-approved version described here."
+      ]
+    }
   ],
   "tone": "Hard-edged August 1962 Riviera noir: elegance, blackmail, inheritance, and family betrayal",
   "safetyConstraints": [
-    "No physical contact",
-    "All physical beats are reversible and host-cued",
-    "No running or entering the swimming pool during play",
-    "Use only inert props; no real medicine, sharps, forced consumption, or uncontrolled darkness"
+    {
+      "id": "no-physical-contact",
+      "label": "No physical contact",
+      "description": ""
+    },
+    {
+      "id": "all-physical-actions-are-reversible-and-host-cued",
+      "label": "All physical staging is reversible and host-cued",
+      "description": ""
+    },
+    {
+      "id": "no-running-or-entering-the-swimming-pool-during-play",
+      "label": "No running or entering the swimming pool during play",
+      "description": ""
+    },
+    {
+      "id": "use-only-inert-props-no-real-medicine-sharps-forced-consumption-or-uncontrolled-darkness",
+      "label": "Use only inert props; no real medicine, sharps, forced consumption, or uncontrolled darkness",
+      "description": ""
+    }
   ],
   "accessibilityNeeds": [
-    "All essential actions can be performed seated or by the host as named human proxy"
+    {
+      "id": "all-essential-actions-can-be-performed-seated-or-by-the-host-as-named-human-proxy",
+      "label": "All essential actions can be performed seated or by the host as named human proxy",
+      "description": ""
+    }
   ],
   "contentBoundaries": [
-    "No fictional content exclusions: murder, blackmail, infidelity, concealed sexuality, secret parentage, and class conflict may be treated without softening"
+    {
+      "id": "no-fictional-content-exclusions-murder-blackmail-infidelity-concealed-sexuality-secret-parentage-and-class-conflict-may-be-treated-without-softening",
+      "label": "No fictional content exclusions: murder, blackmail, infidelity, concealed sexuality, secret parentage, and class conflict may be treated without softening",
+      "description": ""
+    }
   ]
 }

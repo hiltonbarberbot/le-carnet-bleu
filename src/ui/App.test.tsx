@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { createDemoGame } from '../game/demo'
 import {
   advanceAct,
-  confirmRunBeat,
+  completeOpeningStep,
   createGame,
   createIdleState,
   prepareGame,
@@ -76,30 +76,36 @@ describe('host lifecycle projection', () => {
     expect(html).toContain('LIVE HOST GUIDE')
     expect(html).toContain('DO THIS NOW')
     expect(html).toContain('Done — show me the next step →')
-    expect(html).not.toContain('Confirm this beat happened')
+    for (const [index, character] of story.characters.entries()) {
+      expect(html).toContain(`${character.name} (Player ${index})`)
+    }
+    const currentCard = html.slice(html.indexOf('aria-current="step"'), html.indexOf('</article>'))
+    expect(currentCard).toContain(`${story.host.name} (Host)`)
+    expect(currentCard).not.toContain(story.openingSteps[0].instruction)
+    expect(html).not.toContain('dependency')
     const idle = resetGame(definition, active, true)
     expect(getHostScreen(idle)).toBe('idle')
     expect(render(idle)).toContain('READY FOR MAISON BLEUE DEMO HOUSE')
   })
 
-  it('shows one actionable beat and advances the host to the next one', () => {
-    const openingBeats = story.runPlan.filter(beat => beat.phase === 'opening')
+  it('shows one actionable step and advances the host to the next one', () => {
+    const openingSteps = story.openingSteps
     let active = startGame(definition, prepareGame(definition, enrolling(), noAi))
     const firstHtml = render(active)
     expect(firstHtml).toContain('aria-current="step"')
-    expect(firstHtml).toContain(`${openingBeats.length - 1} later steps`)
-    expect(firstHtml.indexOf(openingBeats[0].title)).toBeLessThan(firstHtml.indexOf(openingBeats[1].title))
+    expect(firstHtml).toContain(`${openingSteps.length - 1} later steps`)
+    expect(firstHtml.indexOf(openingSteps[0].title)).toBeLessThan(firstHtml.indexOf(openingSteps[1].title))
 
-    active = confirmRunBeat(definition, active, openingBeats[0].id)
+    active = completeOpeningStep(definition, active, openingSteps[0].id)
     const secondHtml = render(active)
     const currentCard = secondHtml.slice(secondHtml.indexOf('aria-current="step"'), secondHtml.indexOf('</article>'))
-    expect(currentCard).toContain(openingBeats[1].title)
-    expect(currentCard).not.toContain(openingBeats[0].title)
+    expect(currentCard).toContain(openingSteps[1].title)
+    expect(currentCard).not.toContain(openingSteps[0].title)
     expect(secondHtml).toContain('1 step')
     expect(secondHtml).toContain('Undo')
   })
 
-  it('exposes Gateway performances for an active AI seat', () => {
+  it('does not create a second task system for an active AI seat', () => {
     const state = enrolling()
     const aiRole = story.characters[0].id
     const withVacancy = updateEnrolment(state, {
@@ -109,20 +115,16 @@ describe('host lifecycle projection', () => {
         : seat),
     })
     let active = startGame(definition, prepareGame(definition, withVacancy, { aiControllers: true }))
-    const aiActionIds = new Set(story.characters[0].actions.map(action => action.id))
-    const aiBeatIndex = story.runPlan.findIndex(beat => beat.actionIds.some(actionId => aiActionIds.has(actionId)))
-    for (const beat of story.runPlan.slice(0, aiBeatIndex)) active = confirmRunBeat(definition, active, beat.id)
     const html = render(active, { aiControllers: true })
-    expect(html).toContain(`Prepare ${story.characters[0].name}’s line`)
-    expect(html).toContain('Prepare the AI line above before continuing')
+    expect(html).toContain('DO THIS NOW')
+    expect(html).not.toContain('Prepare line for')
+    expect(html).not.toContain('YOUR CUE')
   })
 
   it('turns investigation into three visible social steps without private ballots', () => {
     let active = startGame(definition, prepareGame(definition, enrolling(), noAi))
-    for (const act of definition.acts) {
-      for (const beat of story.runPlan.filter(item => item.phase === act.id && item.essential)) active = confirmRunBeat(definition, active, beat.id)
-      active = advanceAct(definition, active)
-    }
+    for (const step of story.openingSteps) active = completeOpeningStep(definition, active, step.id)
+    active = advanceAct(definition, active)
     const html = render(active)
     expect(html).toContain('Talk, trade, accuse')
     expect(html).toContain('PRIVATE CLUE DESK')
@@ -139,9 +141,9 @@ describe('private player card', () => {
     expect(html).toContain('Your three objectives')
     expect(html).toContain(character.traits[0])
     expect(html).toContain(character.relationships[0].text)
-    expect(html).toContain(character.secrets.find(secret => !secret.availableAfter)!.text)
+    expect(html).toContain(character.secrets[0].text)
     expect(html).not.toContain(story.characters[1].privateSecret)
-    expect(html).not.toContain(story.solution)
+    expect(html).not.toContain(story.solutionSummary)
     expect(html).not.toContain('THE SOLUTION')
     expect(html).not.toContain('Use each ability')
   })

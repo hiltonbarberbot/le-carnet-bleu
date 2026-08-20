@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 5,
   "id": "last-orphic-summer",
   "title": "The Last Summer of Orphée",
   "setting": {
@@ -7,39 +7,147 @@
     "location": "Grambois, France",
     "era": "1960s",
     "playableSpaces": [
-      "Terrace",
-      "Dining room",
-      "Kitchen",
-      "Poolside parlor",
-      "Salon",
-      "Entrance hall",
-      "Staircase to the bedrooms",
-      "Master bedroom",
-      "Basement",
-      "Basement room marked private",
-      "Swimming pool area",
-      "Cottage"
+      {
+        "id": "terrace",
+        "label": "Terrace",
+        "description": ""
+      },
+      {
+        "id": "dining-room",
+        "label": "Dining room",
+        "description": ""
+      },
+      {
+        "id": "kitchen",
+        "label": "Kitchen",
+        "description": ""
+      },
+      {
+        "id": "poolside-parlor",
+        "label": "Poolside parlor",
+        "description": ""
+      },
+      {
+        "id": "salon",
+        "label": "Salon",
+        "description": ""
+      },
+      {
+        "id": "entrance-hall",
+        "label": "Entrance hall",
+        "description": ""
+      },
+      {
+        "id": "staircase-to-the-bedrooms",
+        "label": "Staircase to the bedrooms",
+        "description": ""
+      },
+      {
+        "id": "master-bedroom",
+        "label": "Master bedroom",
+        "description": ""
+      },
+      {
+        "id": "basement",
+        "label": "Basement",
+        "description": ""
+      },
+      {
+        "id": "basement-room-marked-private",
+        "label": "Basement room marked private",
+        "description": ""
+      },
+      {
+        "id": "swimming-pool-area",
+        "label": "Swimming pool area",
+        "description": ""
+      },
+      {
+        "id": "cottage",
+        "label": "Cottage",
+        "description": ""
+      }
     ],
     "routes": [
-      "All named spaces are accessible through the house's ordinary connected layout",
-      "The staircase connects the entrance level with the bedrooms",
-      "The basement and its room marked private are accessible by the ordinary basement route",
-      "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
-      "The cottage is accessible from the house and is farther from the kitchen than the dining room is"
+      {
+        "id": "all-named-spaces-are-accessible-through-the-house-s-ordinary-connected-layout",
+        "label": "All named spaces are accessible through the house's ordinary connected layout",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-staircase-connects-the-entrance-level-with-the-bedrooms",
+        "label": "The staircase connects the entrance level with the bedrooms",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-basement-and-its-room-marked-private-are-accessible-by-the-ordinary-basement-route",
+        "label": "The basement and its room marked private are accessible by the ordinary basement route",
+        "description": "",
+        "spaceIds": [
+          "basement"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-terrace-poolside-parlor-and-swimming-pool-area-connect-through-the-ordinary-outdoor-circulation",
+        "label": "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+        "description": "",
+        "spaceIds": [
+          "terrace",
+          "poolside-parlor",
+          "swimming-pool-area"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-cottage-is-accessible-from-the-house-and-is-farther-from-the-kitchen-than-the-dining-room-is",
+        "label": "The cottage is accessible from the house and is farther from the kitchen than the dining room is",
+        "description": "",
+        "spaceIds": [
+          "dining-room",
+          "kitchen",
+          "cottage"
+        ],
+        "accessibilityNotes": []
+      }
     ],
     "usableFeatures": [],
     "availableProps": [],
     "tone": "Glamorous 1960s French Riviera spy mystery",
     "safetyConstraints": [
-      "No physical contact",
-      "All physical beats are reversible and host-cued",
-      "No running or entering the swimming pool during play"
+      {
+        "id": "no-physical-contact",
+        "label": "No physical contact",
+        "description": ""
+      },
+      {
+        "id": "all-physical-actions-are-reversible-and-host-cued",
+        "label": "All physical staging is reversible and host-cued",
+        "description": ""
+      },
+      {
+        "id": "no-running-or-entering-the-swimming-pool-during-play",
+        "label": "No running or entering the swimming pool during play",
+        "description": ""
+      }
     ],
     "accessibilityNeeds": [
-      "All named spaces are accessible to the group and no additional mobility needs were supplied"
+      {
+        "id": "all-named-spaces-are-accessible-to-the-group-and-no-additional-mobility-needs-were-supplied",
+        "label": "All named spaces are accessible to the group and no additional mobility needs were supplied",
+        "description": ""
+      }
     ],
     "contentBoundaries": [
-      "No additional content boundaries were supplied"
+      {
+        "id": "no-additional-content-boundaries-were-supplied",
+        "label": "No additional content boundaries were supplied",
+        "description": ""
+      }
     ]
   },
   "story": {
@@ -49,9 +157,6 @@
     "subtitle": "A composer’s listening party hides the extraction signal for a defecting cryptographer.",
     "premise": "composer Laurent Orphée's private first performance of his final suite, The Last Summer brings five accomplished strangers to a house in Grambois. Each accepted a different private promise from Laurent Orphée; one came to make sure that promise could never be kept.",
     "totalPeople": 6,
-    "hostRole": "Laurent Orphée, celebrated composer and clandestine signal writer; then Game Master",
-    "victim": "Laurent Orphée",
-    "culprit": "Victor Salvi",
     "characters": [
       {
         "id": "last-orphic-summer-guest-1",
@@ -109,20 +214,13 @@
             "aboutRoleIds": [
               "last-orphic-summer-guest-2"
             ],
-            "beat": 1
-          }
-        ],
-        "actions": [
-          {
-            "id": "last-orphic-summer-guest-1-opening",
-            "text": "Play the rhythm verbally and announce that Laurent changed the ending after Victor arrived.",
-            "cue": "When the host calls on Camille Duret during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 1,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "last-orphic-summer-guest-1"
+              },
+              "independenceGroup": "role:last-orphic-summer-guest-1"
+            }
           }
         ]
       },
@@ -182,20 +280,13 @@
             "aboutRoleIds": [
               "last-orphic-summer-guest-3"
             ],
-            "beat": 1
-          }
-        ],
-        "actions": [
-          {
-            "id": "last-orphic-summer-guest-2-opening",
-            "text": "State that the score contains two kinds of notation: music and instructions.",
-            "cue": "When the host calls on Éva Horák during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 1,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "last-orphic-summer-guest-2"
+              },
+              "independenceGroup": "role:last-orphic-summer-guest-2"
+            }
           }
         ]
       },
@@ -255,20 +346,13 @@
             "aboutRoleIds": [
               "last-orphic-summer-guest-4"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "last-orphic-summer-guest-3-opening",
-            "text": "Announce that the suite was commissioned privately and that its true beneficiary is absent.",
-            "cue": "When the host calls on Sofia Alvar during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "last-orphic-summer-guest-3"
+              },
+              "independenceGroup": "role:last-orphic-summer-guest-3"
+            }
           }
         ]
       },
@@ -328,20 +412,13 @@
             "aboutRoleIds": [
               "last-orphic-summer-guest-5"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "last-orphic-summer-guest-4-opening",
-            "text": "Demand the suite be heard without its final cadence and call the disputed bars unperformable.",
-            "cue": "When the host calls on Victor Salvi during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "last-orphic-summer-guest-4"
+              },
+              "independenceGroup": "role:last-orphic-summer-guest-4"
+            }
           }
         ]
       },
@@ -401,20 +478,13 @@
             "aboutRoleIds": [
               "last-orphic-summer-guest-1"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "last-orphic-summer-guest-5-opening",
-            "text": "Read the harmless rights clause, then reveal that one movement legally belongs to an unnamed foreign listener.",
-            "cue": "When the host calls on Luc Moreau during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "last-orphic-summer-guest-5"
+              },
+              "independenceGroup": "role:last-orphic-summer-guest-5"
+            }
           }
         ]
       }
@@ -450,138 +520,162 @@
         "phase": "reveal"
       }
     ],
-    "timeline": [
+    "solutionSteps": [
       {
-        "beat": 1,
         "title": "Music for one listener",
         "truth": "Laurent’s suite contains an extraction time and route intended for a defecting cryptographer.",
         "evidence": [
           "last-orphic-summer-guest-1-evidence",
           "last-orphic-summer-guest-2-evidence"
-        ]
+        ],
+        "id": "last-orphic-summer-solution-1"
       },
       {
-        "beat": 2,
         "title": "The unresolved cadence",
         "truth": "Conductor Victor Salvi killed Laurent because the final cadence identified Victor as the officer sent to stop the defection.",
         "evidence": [
           "last-orphic-summer-guest-3-evidence",
           "last-orphic-summer-guest-4-evidence",
           "last-orphic-summer-guest-5-evidence"
-        ]
+        ],
+        "id": "last-orphic-summer-solution-2"
       }
     ],
-    "runPlan": [
+    "openingSteps": [
       {
         "id": "last-orphic-summer-opening-1",
-        "phase": "opening",
         "title": "Receive Camille Duret",
         "trigger": "When every player is seated",
-        "operator": "Invite Camille Duret to deliver only the prepared opening fact.",
-        "actionIds": [
-          "last-orphic-summer-guest-1-opening"
-        ],
-        "dependsOn": [],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Camille Duret to deliver only the prepared opening fact. Camille Duret: Play the rhythm verbally and announce that Laurent changed the ending after Victor arrived.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "last-orphic-summer-opening-2",
-        "phase": "opening",
         "title": "Receive Éva Horák",
         "trigger": "After Camille Duret completes their cue",
-        "operator": "Invite Éva Horák to deliver only the prepared opening fact.",
-        "actionIds": [
-          "last-orphic-summer-guest-2-opening"
-        ],
-        "dependsOn": [
-          "last-orphic-summer-opening-1"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Éva Horák to deliver only the prepared opening fact. Éva Horák: State that the score contains two kinds of notation: music and instructions.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "last-orphic-summer-opening-3",
-        "phase": "opening",
         "title": "Receive Sofia Alvar",
         "trigger": "After Éva Horák completes their cue",
-        "operator": "Invite Sofia Alvar to deliver only the prepared opening fact.",
-        "actionIds": [
-          "last-orphic-summer-guest-3-opening"
-        ],
-        "dependsOn": [
-          "last-orphic-summer-opening-2"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Sofia Alvar to deliver only the prepared opening fact. Sofia Alvar: Announce that the suite was commissioned privately and that its true beneficiary is absent.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "last-orphic-summer-opening-4",
-        "phase": "opening",
         "title": "Receive Victor Salvi",
         "trigger": "After Sofia Alvar completes their cue",
-        "operator": "Invite Victor Salvi to deliver only the prepared opening fact.",
-        "actionIds": [
-          "last-orphic-summer-guest-4-opening"
-        ],
-        "dependsOn": [
-          "last-orphic-summer-opening-3"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Victor Salvi to deliver only the prepared opening fact. Victor Salvi: Demand the suite be heard without its final cadence and call the disputed bars unperformable.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "last-orphic-summer-opening-5",
-        "phase": "opening",
         "title": "Discover the host",
         "trigger": "After Victor Salvi completes their cue",
-        "operator": "Cue Luc Moreau, stage Laurent Orphée's off-page collapse without contact, announce the discovery, and become Game Master.",
-        "actionIds": [
-          "last-orphic-summer-guest-5-opening"
+        "propIds": [],
+        "instruction": "Cue Luc Moreau, stage Laurent Orphée's off-page collapse without contact, announce the discovery, and become Game Master. Luc Moreau: Read the harmless rights clause, then reveal that one movement legally belongs to an unnamed foreign listener.",
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "last-orphic-summer-no-contact"
         ],
-        "dependsOn": [
-          "last-orphic-summer-opening-4"
-        ],
-        "essential": true
+        "settingRefs": [
+          {
+            "kind": "safetyConstraints",
+            "id": "no-physical-contact"
+          }
+        ]
       }
     ],
-    "solution": "Victor was the counter-intelligence officer embedded in Laurent’s musical circle. He recognized the extraction code during rehearsal and killed Laurent before the complete suite could be heard. He then blamed a rights dispute. Separate musical, financial, and personal memories prove Victor understood both route and target too early."
+    "host": {
+      "id": "host",
+      "name": "Laurent Orphée",
+      "title": "Laurent Orphée, celebrated composer and clandestine signal writer; then Game Master"
+    },
+    "victimRoleId": "host",
+    "culpritRoleId": "last-orphic-summer-guest-4",
+    "solutionSummary": "Victor was the counter-intelligence officer embedded in Laurent’s musical circle. He recognized the extraction code during rehearsal and killed Laurent before the complete suite could be heard. He then blamed a rights dispute. Separate musical, financial, and personal memories prove Victor understood both route and target too early."
   },
   "clueDecks": [
     {
       "id": "last-orphic-summer-salon-file",
       "label": "Salon intelligence file",
-      "settingField": "playableSpaces",
-      "settingValue": "Salon",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "salon"
+      },
       "clues": [
         {
           "id": "last-orphic-summer-clue-1",
           "text": "The movement lengths encode a time shortly after midnight.",
-          "beat": 1
+          "supportsSolutionStepIds": [
+            "last-orphic-summer-solution-1"
+          ]
         },
         {
           "id": "last-orphic-summer-clue-2",
           "text": "Victor requested the cottage passage be cut before its meaning was explained.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "last-orphic-summer-solution-2"
+          ]
         },
         {
           "id": "last-orphic-summer-clue-3",
           "text": "Each private promise gave one guest a reason to preserve a different movement.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "last-orphic-summer-solution-2"
+          ]
         }
       ]
     },
     {
       "id": "last-orphic-summer-cottage-file",
       "label": "Cottage intelligence file",
-      "settingField": "playableSpaces",
-      "settingValue": "Cottage",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "cottage"
+      },
       "clues": [
         {
           "id": "last-orphic-summer-clue-4",
           "text": "The route hidden in the orchestration ends at the real cottage.",
-          "beat": 1
+          "supportsSolutionStepIds": [
+            "last-orphic-summer-solution-1"
+          ]
         },
         {
           "id": "last-orphic-summer-clue-5",
           "text": "Victor knew the intended listener was a cryptographer, not a musician.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "last-orphic-summer-solution-2"
+          ]
         }
       ]
     }
@@ -600,9 +694,10 @@
     {
       "id": "last-orphic-summer-no-contact",
       "label": "Confirm that the entire opening is spoken and staged without contact.",
-      "settingField": "safetyConstraints",
-      "settingValue": "No physical contact"
+      "settingRef": {
+        "kind": "safetyConstraints",
+        "id": "no-physical-contact"
+      }
     }
-  ],
-  "fingerprint": "19a63d0c062f24b309ccfe164ff7174d"
+  ]
 }

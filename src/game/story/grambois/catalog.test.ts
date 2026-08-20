@@ -9,7 +9,7 @@ describe('Grambois storyline catalog', () => {
     expect(catalog).toHaveLength(8)
     expect(catalog[0].story.title).toBe('La Colombe')
     expect(new Set(catalog.map(storyline => storyline.fingerprint)).size).toBe(8)
-    expect(new Set(catalog.map(storyline => storyline.story.culprit)).size).toBe(8)
+    expect(new Set(catalog.map(storyline => storyline.story.culpritRoleId)).size).toBe(8)
     for (const storyline of catalog) {
       expect(storyline.setting.venueName).toBe(gramboisSetting.venueName)
       expect(storyline.setting.location).toBe(gramboisSetting.location)

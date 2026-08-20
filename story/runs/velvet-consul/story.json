@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 5,
   "id": "velvet-consul",
   "title": "The Velvet Consul",
   "setting": {
@@ -7,39 +7,147 @@
     "location": "Grambois, France",
     "era": "1960s",
     "playableSpaces": [
-      "Terrace",
-      "Dining room",
-      "Kitchen",
-      "Poolside parlor",
-      "Salon",
-      "Entrance hall",
-      "Staircase to the bedrooms",
-      "Master bedroom",
-      "Basement",
-      "Basement room marked private",
-      "Swimming pool area",
-      "Cottage"
+      {
+        "id": "terrace",
+        "label": "Terrace",
+        "description": ""
+      },
+      {
+        "id": "dining-room",
+        "label": "Dining room",
+        "description": ""
+      },
+      {
+        "id": "kitchen",
+        "label": "Kitchen",
+        "description": ""
+      },
+      {
+        "id": "poolside-parlor",
+        "label": "Poolside parlor",
+        "description": ""
+      },
+      {
+        "id": "salon",
+        "label": "Salon",
+        "description": ""
+      },
+      {
+        "id": "entrance-hall",
+        "label": "Entrance hall",
+        "description": ""
+      },
+      {
+        "id": "staircase-to-the-bedrooms",
+        "label": "Staircase to the bedrooms",
+        "description": ""
+      },
+      {
+        "id": "master-bedroom",
+        "label": "Master bedroom",
+        "description": ""
+      },
+      {
+        "id": "basement",
+        "label": "Basement",
+        "description": ""
+      },
+      {
+        "id": "basement-room-marked-private",
+        "label": "Basement room marked private",
+        "description": ""
+      },
+      {
+        "id": "swimming-pool-area",
+        "label": "Swimming pool area",
+        "description": ""
+      },
+      {
+        "id": "cottage",
+        "label": "Cottage",
+        "description": ""
+      }
     ],
     "routes": [
-      "All named spaces are accessible through the house's ordinary connected layout",
-      "The staircase connects the entrance level with the bedrooms",
-      "The basement and its room marked private are accessible by the ordinary basement route",
-      "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
-      "The cottage is accessible from the house and is farther from the kitchen than the dining room is"
+      {
+        "id": "all-named-spaces-are-accessible-through-the-house-s-ordinary-connected-layout",
+        "label": "All named spaces are accessible through the house's ordinary connected layout",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-staircase-connects-the-entrance-level-with-the-bedrooms",
+        "label": "The staircase connects the entrance level with the bedrooms",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-basement-and-its-room-marked-private-are-accessible-by-the-ordinary-basement-route",
+        "label": "The basement and its room marked private are accessible by the ordinary basement route",
+        "description": "",
+        "spaceIds": [
+          "basement"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-terrace-poolside-parlor-and-swimming-pool-area-connect-through-the-ordinary-outdoor-circulation",
+        "label": "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+        "description": "",
+        "spaceIds": [
+          "terrace",
+          "poolside-parlor",
+          "swimming-pool-area"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-cottage-is-accessible-from-the-house-and-is-farther-from-the-kitchen-than-the-dining-room-is",
+        "label": "The cottage is accessible from the house and is farther from the kitchen than the dining room is",
+        "description": "",
+        "spaceIds": [
+          "dining-room",
+          "kitchen",
+          "cottage"
+        ],
+        "accessibilityNotes": []
+      }
     ],
     "usableFeatures": [],
     "availableProps": [],
     "tone": "Glamorous 1960s French Riviera spy mystery",
     "safetyConstraints": [
-      "No physical contact",
-      "All physical beats are reversible and host-cued",
-      "No running or entering the swimming pool during play"
+      {
+        "id": "no-physical-contact",
+        "label": "No physical contact",
+        "description": ""
+      },
+      {
+        "id": "all-physical-actions-are-reversible-and-host-cued",
+        "label": "All physical staging is reversible and host-cued",
+        "description": ""
+      },
+      {
+        "id": "no-running-or-entering-the-swimming-pool-during-play",
+        "label": "No running or entering the swimming pool during play",
+        "description": ""
+      }
     ],
     "accessibilityNeeds": [
-      "All named spaces are accessible to the group and no additional mobility needs were supplied"
+      {
+        "id": "all-named-spaces-are-accessible-to-the-group-and-no-additional-mobility-needs-were-supplied",
+        "label": "All named spaces are accessible to the group and no additional mobility needs were supplied",
+        "description": ""
+      }
     ],
     "contentBoundaries": [
-      "No additional content boundaries were supplied"
+      {
+        "id": "no-additional-content-boundaries-were-supplied",
+        "label": "No additional content boundaries were supplied",
+        "description": ""
+      }
     ]
   },
   "story": {
@@ -49,9 +157,6 @@
     "subtitle": "A farewell portrait session becomes a contest over a forged diplomatic identity.",
     "premise": "honorary consul Alain Rochefort's farewell portrait sitting before his supposed retirement brings five accomplished strangers to a house in Grambois. Each accepted a different private promise from Alain Rochefort; one came to make sure that promise could never be kept.",
     "totalPeople": 6,
-    "hostRole": "Alain Rochefort, honorary consul and keeper of unofficial passports; then Game Master",
-    "victim": "Alain Rochefort",
-    "culprit": "Sylvie Caron",
     "characters": [
       {
         "id": "velvet-consul-guest-1",
@@ -109,20 +214,13 @@
             "aboutRoleIds": [
               "velvet-consul-guest-2"
             ],
-            "beat": 1
-          }
-        ],
-        "actions": [
-          {
-            "id": "velvet-consul-guest-1-opening",
-            "text": "Inspect Alain’s public seal and declare that someone has recently copied it badly.",
-            "cue": "When the host calls on Sylvie Caron during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 1,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "velvet-consul-guest-1"
+              },
+              "independenceGroup": "role:velvet-consul-guest-1"
+            }
           }
         ]
       },
@@ -182,20 +280,13 @@
             "aboutRoleIds": [
               "velvet-consul-guest-3"
             ],
-            "beat": 1
-          }
-        ],
-        "actions": [
-          {
-            "id": "velvet-consul-guest-2-opening",
-            "text": "Announce that the sitting requires each guest to say how they first met the consul.",
-            "cue": "When the host calls on Jonas Fèvre during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 1,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "velvet-consul-guest-2"
+              },
+              "independenceGroup": "role:velvet-consul-guest-2"
+            }
           }
         ]
       },
@@ -255,20 +346,13 @@
             "aboutRoleIds": [
               "velvet-consul-guest-4"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "velvet-consul-guest-3-opening",
-            "text": "Challenge Alain’s retirement story and say that someone here is still waiting for a passport.",
-            "cue": "When the host calls on Leila Haddad during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "velvet-consul-guest-3"
+              },
+              "independenceGroup": "role:velvet-consul-guest-3"
+            }
           }
         ]
       },
@@ -328,20 +412,13 @@
             "aboutRoleIds": [
               "velvet-consul-guest-5"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "velvet-consul-guest-4-opening",
-            "text": "State that the farewell is not ceremonial: Alain’s credentials are under review tonight.",
-            "cue": "When the host calls on Colonel Arthur Ward during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "velvet-consul-guest-4"
+              },
+              "independenceGroup": "role:velvet-consul-guest-4"
+            }
           }
         ]
       },
@@ -401,20 +478,13 @@
             "aboutRoleIds": [
               "velvet-consul-guest-1"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "velvet-consul-guest-5-opening",
-            "text": "Unveil your sketch: Alain’s face layered over another man’s, and ask which identity is retiring.",
-            "cue": "When the host calls on Béatrice Lenoir during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "velvet-consul-guest-5"
+              },
+              "independenceGroup": "role:velvet-consul-guest-5"
+            }
           }
         ]
       }
@@ -450,138 +520,162 @@
         "phase": "reveal"
       }
     ],
-    "timeline": [
+    "solutionSteps": [
       {
-        "beat": 1,
         "title": "The consul who never was",
         "truth": "Alain’s title was a long-running intelligence cover built on the identity of a dead diplomat.",
         "evidence": [
           "velvet-consul-guest-1-evidence",
           "velvet-consul-guest-2-evidence"
-        ]
+        ],
+        "id": "velvet-consul-solution-1"
       },
       {
-        "beat": 2,
         "title": "The portrait’s final sitter",
         "truth": "Sylvie Caron killed Alain because his farewell portrait would expose her as the forger who created the cover.",
         "evidence": [
           "velvet-consul-guest-3-evidence",
           "velvet-consul-guest-4-evidence",
           "velvet-consul-guest-5-evidence"
-        ]
+        ],
+        "id": "velvet-consul-solution-2"
       }
     ],
-    "runPlan": [
+    "openingSteps": [
       {
         "id": "velvet-consul-opening-1",
-        "phase": "opening",
         "title": "Receive Sylvie Caron",
         "trigger": "When every player is seated",
-        "operator": "Invite Sylvie Caron to deliver only the prepared opening fact.",
-        "actionIds": [
-          "velvet-consul-guest-1-opening"
-        ],
-        "dependsOn": [],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Sylvie Caron to deliver only the prepared opening fact. Sylvie Caron: Inspect Alain’s public seal and declare that someone has recently copied it badly.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "velvet-consul-opening-2",
-        "phase": "opening",
         "title": "Receive Jonas Fèvre",
         "trigger": "After Sylvie Caron completes their cue",
-        "operator": "Invite Jonas Fèvre to deliver only the prepared opening fact.",
-        "actionIds": [
-          "velvet-consul-guest-2-opening"
-        ],
-        "dependsOn": [
-          "velvet-consul-opening-1"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Jonas Fèvre to deliver only the prepared opening fact. Jonas Fèvre: Announce that the sitting requires each guest to say how they first met the consul.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "velvet-consul-opening-3",
-        "phase": "opening",
         "title": "Receive Leila Haddad",
         "trigger": "After Jonas Fèvre completes their cue",
-        "operator": "Invite Leila Haddad to deliver only the prepared opening fact.",
-        "actionIds": [
-          "velvet-consul-guest-3-opening"
-        ],
-        "dependsOn": [
-          "velvet-consul-opening-2"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Leila Haddad to deliver only the prepared opening fact. Leila Haddad: Challenge Alain’s retirement story and say that someone here is still waiting for a passport.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "velvet-consul-opening-4",
-        "phase": "opening",
         "title": "Receive Colonel Arthur Ward",
         "trigger": "After Leila Haddad completes their cue",
-        "operator": "Invite Colonel Arthur Ward to deliver only the prepared opening fact.",
-        "actionIds": [
-          "velvet-consul-guest-4-opening"
-        ],
-        "dependsOn": [
-          "velvet-consul-opening-3"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Colonel Arthur Ward to deliver only the prepared opening fact. Colonel Arthur Ward: State that the farewell is not ceremonial: Alain’s credentials are under review tonight.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "velvet-consul-opening-5",
-        "phase": "opening",
         "title": "Discover the host",
         "trigger": "After Colonel Arthur Ward completes their cue",
-        "operator": "Cue Béatrice Lenoir, stage Alain Rochefort's off-page collapse without contact, announce the discovery, and become Game Master.",
-        "actionIds": [
-          "velvet-consul-guest-5-opening"
+        "propIds": [],
+        "instruction": "Cue Béatrice Lenoir, stage Alain Rochefort's off-page collapse without contact, announce the discovery, and become Game Master. Béatrice Lenoir: Unveil your sketch: Alain’s face layered over another man’s, and ask which identity is retiring.",
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "velvet-consul-no-contact"
         ],
-        "dependsOn": [
-          "velvet-consul-opening-4"
-        ],
-        "essential": true
+        "settingRefs": [
+          {
+            "kind": "safetyConstraints",
+            "id": "no-physical-contact"
+          }
+        ]
       }
     ],
-    "solution": "Sylvie built Alain’s false diplomatic identity and feared the portrait archive would connect her to every passport it enabled. She poisoned him before the sitting and steered suspicion toward the photographer. The others independently place her at the origin of the forged seal and prove she knew the portrait’s hidden purpose."
+    "host": {
+      "id": "host",
+      "name": "Alain Rochefort",
+      "title": "Alain Rochefort, honorary consul and keeper of unofficial passports; then Game Master"
+    },
+    "victimRoleId": "host",
+    "culpritRoleId": "velvet-consul-guest-1",
+    "solutionSummary": "Sylvie built Alain’s false diplomatic identity and feared the portrait archive would connect her to every passport it enabled. She poisoned him before the sitting and steered suspicion toward the photographer. The others independently place her at the origin of the forged seal and prove she knew the portrait’s hidden purpose."
   },
   "clueDecks": [
     {
       "id": "velvet-consul-salon-file",
       "label": "Salon intelligence file",
-      "settingField": "playableSpaces",
-      "settingValue": "Salon",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "salon"
+      },
       "clues": [
         {
           "id": "velvet-consul-clue-1",
           "text": "The consular seal predates Alain’s appointment by two years.",
-          "beat": 1
+          "supportsSolutionStepIds": [
+            "velvet-consul-solution-1"
+          ]
         },
         {
           "id": "velvet-consul-clue-2",
           "text": "Sylvie recognized a deliberately reversed seal impression without being shown it.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "velvet-consul-solution-2"
+          ]
         },
         {
           "id": "velvet-consul-clue-3",
           "text": "The farewell portrait was intended as evidence for an internal inquiry.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "velvet-consul-solution-2"
+          ]
         }
       ]
     },
     {
       "id": "velvet-consul-cottage-file",
       "label": "Cottage intelligence file",
-      "settingField": "playableSpaces",
-      "settingValue": "Cottage",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "cottage"
+      },
       "clues": [
         {
           "id": "velvet-consul-clue-4",
           "text": "A cottage guest register links the dead diplomat’s name to Sylvie’s old studio.",
-          "beat": 1
+          "supportsSolutionStepIds": [
+            "velvet-consul-solution-1"
+          ]
         },
         {
           "id": "velvet-consul-clue-5",
           "text": "Alain was poisoned after announcing the portrait, not before the guests arrived.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "velvet-consul-solution-2"
+          ]
         }
       ]
     }
@@ -600,9 +694,10 @@
     {
       "id": "velvet-consul-no-contact",
       "label": "Confirm that the entire opening is spoken and staged without contact.",
-      "settingField": "safetyConstraints",
-      "settingValue": "No physical contact"
+      "settingRef": {
+        "kind": "safetyConstraints",
+        "id": "no-physical-contact"
+      }
     }
-  ],
-  "fingerprint": "8ed2b49d0b00b486c5ed11bb25bb3fe4"
+  ]
 }

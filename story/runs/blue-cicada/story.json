@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 5,
   "id": "blue-cicada",
   "title": "Operation Blue Cicada",
   "setting": {
@@ -7,39 +7,147 @@
     "location": "Grambois, France",
     "era": "1960s",
     "playableSpaces": [
-      "Terrace",
-      "Dining room",
-      "Kitchen",
-      "Poolside parlor",
-      "Salon",
-      "Entrance hall",
-      "Staircase to the bedrooms",
-      "Master bedroom",
-      "Basement",
-      "Basement room marked private",
-      "Swimming pool area",
-      "Cottage"
+      {
+        "id": "terrace",
+        "label": "Terrace",
+        "description": ""
+      },
+      {
+        "id": "dining-room",
+        "label": "Dining room",
+        "description": ""
+      },
+      {
+        "id": "kitchen",
+        "label": "Kitchen",
+        "description": ""
+      },
+      {
+        "id": "poolside-parlor",
+        "label": "Poolside parlor",
+        "description": ""
+      },
+      {
+        "id": "salon",
+        "label": "Salon",
+        "description": ""
+      },
+      {
+        "id": "entrance-hall",
+        "label": "Entrance hall",
+        "description": ""
+      },
+      {
+        "id": "staircase-to-the-bedrooms",
+        "label": "Staircase to the bedrooms",
+        "description": ""
+      },
+      {
+        "id": "master-bedroom",
+        "label": "Master bedroom",
+        "description": ""
+      },
+      {
+        "id": "basement",
+        "label": "Basement",
+        "description": ""
+      },
+      {
+        "id": "basement-room-marked-private",
+        "label": "Basement room marked private",
+        "description": ""
+      },
+      {
+        "id": "swimming-pool-area",
+        "label": "Swimming pool area",
+        "description": ""
+      },
+      {
+        "id": "cottage",
+        "label": "Cottage",
+        "description": ""
+      }
     ],
     "routes": [
-      "All named spaces are accessible through the house's ordinary connected layout",
-      "The staircase connects the entrance level with the bedrooms",
-      "The basement and its room marked private are accessible by the ordinary basement route",
-      "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
-      "The cottage is accessible from the house and is farther from the kitchen than the dining room is"
+      {
+        "id": "all-named-spaces-are-accessible-through-the-house-s-ordinary-connected-layout",
+        "label": "All named spaces are accessible through the house's ordinary connected layout",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-staircase-connects-the-entrance-level-with-the-bedrooms",
+        "label": "The staircase connects the entrance level with the bedrooms",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-basement-and-its-room-marked-private-are-accessible-by-the-ordinary-basement-route",
+        "label": "The basement and its room marked private are accessible by the ordinary basement route",
+        "description": "",
+        "spaceIds": [
+          "basement"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-terrace-poolside-parlor-and-swimming-pool-area-connect-through-the-ordinary-outdoor-circulation",
+        "label": "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+        "description": "",
+        "spaceIds": [
+          "terrace",
+          "poolside-parlor",
+          "swimming-pool-area"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-cottage-is-accessible-from-the-house-and-is-farther-from-the-kitchen-than-the-dining-room-is",
+        "label": "The cottage is accessible from the house and is farther from the kitchen than the dining room is",
+        "description": "",
+        "spaceIds": [
+          "dining-room",
+          "kitchen",
+          "cottage"
+        ],
+        "accessibilityNotes": []
+      }
     ],
     "usableFeatures": [],
     "availableProps": [],
     "tone": "Glamorous 1960s French Riviera spy mystery",
     "safetyConstraints": [
-      "No physical contact",
-      "All physical beats are reversible and host-cued",
-      "No running or entering the swimming pool during play"
+      {
+        "id": "no-physical-contact",
+        "label": "No physical contact",
+        "description": ""
+      },
+      {
+        "id": "all-physical-actions-are-reversible-and-host-cued",
+        "label": "All physical staging is reversible and host-cued",
+        "description": ""
+      },
+      {
+        "id": "no-running-or-entering-the-swimming-pool-during-play",
+        "label": "No running or entering the swimming pool during play",
+        "description": ""
+      }
     ],
     "accessibilityNeeds": [
-      "All named spaces are accessible to the group and no additional mobility needs were supplied"
+      {
+        "id": "all-named-spaces-are-accessible-to-the-group-and-no-additional-mobility-needs-were-supplied",
+        "label": "All named spaces are accessible to the group and no additional mobility needs were supplied",
+        "description": ""
+      }
     ],
     "contentBoundaries": [
-      "No additional content boundaries were supplied"
+      {
+        "id": "no-additional-content-boundaries-were-supplied",
+        "label": "No additional content boundaries were supplied",
+        "description": ""
+      }
     ]
   },
   "story": {
@@ -49,9 +157,6 @@
     "subtitle": "A radio serial’s lost final episode contains orders for a sleeper agent.",
     "premise": "radio producer Armand Célier's private listening party for the final episode of The Blue Cicada brings five accomplished strangers to a house in Grambois. Each accepted a different private promise from Armand Célier; one came to make sure that promise could never be kept.",
     "totalPeople": 6,
-    "hostRole": "Armand Célier, radio producer and former resistance broadcaster; then Game Master",
-    "victim": "Armand Célier",
-    "culprit": "Hugo Bellac",
     "characters": [
       {
         "id": "blue-cicada-guest-1",
@@ -109,20 +214,13 @@
             "aboutRoleIds": [
               "blue-cicada-guest-2"
             ],
-            "beat": 1
-          }
-        ],
-        "actions": [
-          {
-            "id": "blue-cicada-guest-1-opening",
-            "text": "Perform the harmless opening sentence of the serial and ask who remembers hearing it before.",
-            "cue": "When the host calls on Mireille Sanz during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 1,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "blue-cicada-guest-1"
+              },
+              "independenceGroup": "role:blue-cicada-guest-1"
+            }
           }
         ]
       },
@@ -182,20 +280,13 @@
             "aboutRoleIds": [
               "blue-cicada-guest-3"
             ],
-            "beat": 1
-          }
-        ],
-        "actions": [
-          {
-            "id": "blue-cicada-guest-2-opening",
-            "text": "State that the recording has been altered since rehearsal and that the final minute is new.",
-            "cue": "When the host calls on Paul Veyrier during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 1,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "blue-cicada-guest-2"
+              },
+              "independenceGroup": "role:blue-cicada-guest-2"
+            }
           }
         ]
       },
@@ -255,20 +346,13 @@
             "aboutRoleIds": [
               "blue-cicada-guest-4"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "blue-cicada-guest-3-opening",
-            "text": "Announce that the episode’s scene numbers are not dramatic notation but a frequency.",
-            "cue": "When the host calls on Delphine Kassar during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "blue-cicada-guest-3"
+              },
+              "independenceGroup": "role:blue-cicada-guest-3"
+            }
           }
         ]
       },
@@ -328,20 +412,13 @@
             "aboutRoleIds": [
               "blue-cicada-guest-5"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "blue-cicada-guest-4-opening",
-            "text": "Laugh off the cipher and repeat a line that appears only in the missing final minute.",
-            "cue": "When the host calls on Hugo Bellac during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "blue-cicada-guest-4"
+              },
+              "independenceGroup": "role:blue-cicada-guest-4"
+            }
           }
         ]
       },
@@ -401,20 +478,13 @@
             "aboutRoleIds": [
               "blue-cicada-guest-1"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "blue-cicada-guest-5-opening",
-            "text": "Reveal that your late husband financed more than entertainment and demand the final episode be played.",
-            "cue": "When the host calls on Odette Blanc during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "blue-cicada-guest-5"
+              },
+              "independenceGroup": "role:blue-cicada-guest-5"
+            }
           }
         ]
       }
@@ -450,138 +520,162 @@
         "phase": "reveal"
       }
     ],
-    "timeline": [
+    "solutionSteps": [
       {
-        "beat": 1,
         "title": "The broadcast beneath the broadcast",
         "truth": "Armand built a real activation code into the radio script and invited everyone who might understand it.",
         "evidence": [
           "blue-cicada-guest-1-evidence",
           "blue-cicada-guest-2-evidence"
-        ]
+        ],
+        "id": "blue-cicada-solution-1"
       },
       {
-        "beat": 2,
         "title": "Dead air",
         "truth": "Hugo Bellac disabled Armand before the final line could identify him as the sleeper agent CICADA.",
         "evidence": [
           "blue-cicada-guest-3-evidence",
           "blue-cicada-guest-4-evidence",
           "blue-cicada-guest-5-evidence"
-        ]
+        ],
+        "id": "blue-cicada-solution-2"
       }
     ],
-    "runPlan": [
+    "openingSteps": [
       {
         "id": "blue-cicada-opening-1",
-        "phase": "opening",
         "title": "Receive Mireille Sanz",
         "trigger": "When every player is seated",
-        "operator": "Invite Mireille Sanz to deliver only the prepared opening fact.",
-        "actionIds": [
-          "blue-cicada-guest-1-opening"
-        ],
-        "dependsOn": [],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Mireille Sanz to deliver only the prepared opening fact. Mireille Sanz: Perform the harmless opening sentence of the serial and ask who remembers hearing it before.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "blue-cicada-opening-2",
-        "phase": "opening",
         "title": "Receive Paul Veyrier",
         "trigger": "After Mireille Sanz completes their cue",
-        "operator": "Invite Paul Veyrier to deliver only the prepared opening fact.",
-        "actionIds": [
-          "blue-cicada-guest-2-opening"
-        ],
-        "dependsOn": [
-          "blue-cicada-opening-1"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Paul Veyrier to deliver only the prepared opening fact. Paul Veyrier: State that the recording has been altered since rehearsal and that the final minute is new.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "blue-cicada-opening-3",
-        "phase": "opening",
         "title": "Receive Delphine Kassar",
         "trigger": "After Paul Veyrier completes their cue",
-        "operator": "Invite Delphine Kassar to deliver only the prepared opening fact.",
-        "actionIds": [
-          "blue-cicada-guest-3-opening"
-        ],
-        "dependsOn": [
-          "blue-cicada-opening-2"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Delphine Kassar to deliver only the prepared opening fact. Delphine Kassar: Announce that the episode’s scene numbers are not dramatic notation but a frequency.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "blue-cicada-opening-4",
-        "phase": "opening",
         "title": "Receive Hugo Bellac",
         "trigger": "After Delphine Kassar completes their cue",
-        "operator": "Invite Hugo Bellac to deliver only the prepared opening fact.",
-        "actionIds": [
-          "blue-cicada-guest-4-opening"
-        ],
-        "dependsOn": [
-          "blue-cicada-opening-3"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Hugo Bellac to deliver only the prepared opening fact. Hugo Bellac: Laugh off the cipher and repeat a line that appears only in the missing final minute.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "blue-cicada-opening-5",
-        "phase": "opening",
         "title": "Discover the host",
         "trigger": "After Hugo Bellac completes their cue",
-        "operator": "Cue Odette Blanc, stage Armand Célier's off-page collapse without contact, announce the discovery, and become Game Master.",
-        "actionIds": [
-          "blue-cicada-guest-5-opening"
+        "propIds": [],
+        "instruction": "Cue Odette Blanc, stage Armand Célier's off-page collapse without contact, announce the discovery, and become Game Master. Odette Blanc: Reveal that your late husband financed more than entertainment and demand the final episode be played.",
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "blue-cicada-no-contact"
         ],
-        "dependsOn": [
-          "blue-cicada-opening-4"
-        ],
-        "essential": true
+        "settingRefs": [
+          {
+            "kind": "safetyConstraints",
+            "id": "no-physical-contact"
+          }
+        ]
       }
     ],
-    "solution": "Hugo was the dormant agent. He understood the rehearsal line, silenced Armand during the listening break, and blamed the missing ending on professional sabotage. The guests’ independent memories show the script was a trap and that Hugo reacted to details no innocent actor had heard."
+    "host": {
+      "id": "host",
+      "name": "Armand Célier",
+      "title": "Armand Célier, radio producer and former resistance broadcaster; then Game Master"
+    },
+    "victimRoleId": "host",
+    "culpritRoleId": "blue-cicada-guest-4",
+    "solutionSummary": "Hugo was the dormant agent. He understood the rehearsal line, silenced Armand during the listening break, and blamed the missing ending on professional sabotage. The guests’ independent memories show the script was a trap and that Hugo reacted to details no innocent actor had heard."
   },
   "clueDecks": [
     {
       "id": "blue-cicada-salon-file",
       "label": "Salon intelligence file",
-      "settingField": "playableSpaces",
-      "settingValue": "Salon",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "salon"
+      },
       "clues": [
         {
           "id": "blue-cicada-clue-1",
           "text": "The script’s scene numbers form a shortwave frequency.",
-          "beat": 1
+          "supportsSolutionStepIds": [
+            "blue-cicada-solution-1"
+          ]
         },
         {
           "id": "blue-cicada-clue-2",
           "text": "Only Hugo received the unrevised rehearsal line containing the word CICADA.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "blue-cicada-solution-2"
+          ]
         },
         {
           "id": "blue-cicada-clue-3",
           "text": "Armand’s private promises were designed to make every guest listen for a different layer of the episode.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "blue-cicada-solution-2"
+          ]
         }
       ]
     },
     {
       "id": "blue-cicada-cottage-file",
       "label": "Cottage intelligence file",
-      "settingField": "playableSpaces",
-      "settingValue": "Cottage",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "cottage"
+      },
       "clues": [
         {
           "id": "blue-cicada-clue-4",
           "text": "The cottage was used for an earlier clandestine recording, not for the killing.",
-          "beat": 1
+          "supportsSolutionStepIds": [
+            "blue-cicada-solution-1"
+          ]
         },
         {
           "id": "blue-cicada-clue-5",
           "text": "Hugo knew the final line had been cut before the producer announced it.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "blue-cicada-solution-2"
+          ]
         }
       ]
     }
@@ -600,9 +694,10 @@
     {
       "id": "blue-cicada-no-contact",
       "label": "Confirm that the entire opening is spoken and staged without contact.",
-      "settingField": "safetyConstraints",
-      "settingValue": "No physical contact"
+      "settingRef": {
+        "kind": "safetyConstraints",
+        "id": "no-physical-contact"
+      }
     }
-  ],
-  "fingerprint": "737f6d787c20e333fd5ebdea85e3f49d"
+  ]
 }

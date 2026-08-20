@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 5,
   "id": "mistral-cipher",
   "title": "The Mistral Cipher",
   "setting": {
@@ -7,39 +7,147 @@
     "location": "Grambois, France",
     "era": "1960s",
     "playableSpaces": [
-      "Terrace",
-      "Dining room",
-      "Kitchen",
-      "Poolside parlor",
-      "Salon",
-      "Entrance hall",
-      "Staircase to the bedrooms",
-      "Master bedroom",
-      "Basement",
-      "Basement room marked private",
-      "Swimming pool area",
-      "Cottage"
+      {
+        "id": "terrace",
+        "label": "Terrace",
+        "description": ""
+      },
+      {
+        "id": "dining-room",
+        "label": "Dining room",
+        "description": ""
+      },
+      {
+        "id": "kitchen",
+        "label": "Kitchen",
+        "description": ""
+      },
+      {
+        "id": "poolside-parlor",
+        "label": "Poolside parlor",
+        "description": ""
+      },
+      {
+        "id": "salon",
+        "label": "Salon",
+        "description": ""
+      },
+      {
+        "id": "entrance-hall",
+        "label": "Entrance hall",
+        "description": ""
+      },
+      {
+        "id": "staircase-to-the-bedrooms",
+        "label": "Staircase to the bedrooms",
+        "description": ""
+      },
+      {
+        "id": "master-bedroom",
+        "label": "Master bedroom",
+        "description": ""
+      },
+      {
+        "id": "basement",
+        "label": "Basement",
+        "description": ""
+      },
+      {
+        "id": "basement-room-marked-private",
+        "label": "Basement room marked private",
+        "description": ""
+      },
+      {
+        "id": "swimming-pool-area",
+        "label": "Swimming pool area",
+        "description": ""
+      },
+      {
+        "id": "cottage",
+        "label": "Cottage",
+        "description": ""
+      }
     ],
     "routes": [
-      "All named spaces are accessible through the house's ordinary connected layout",
-      "The staircase connects the entrance level with the bedrooms",
-      "The basement and its room marked private are accessible by the ordinary basement route",
-      "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
-      "The cottage is accessible from the house and is farther from the kitchen than the dining room is"
+      {
+        "id": "all-named-spaces-are-accessible-through-the-house-s-ordinary-connected-layout",
+        "label": "All named spaces are accessible through the house's ordinary connected layout",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-staircase-connects-the-entrance-level-with-the-bedrooms",
+        "label": "The staircase connects the entrance level with the bedrooms",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-basement-and-its-room-marked-private-are-accessible-by-the-ordinary-basement-route",
+        "label": "The basement and its room marked private are accessible by the ordinary basement route",
+        "description": "",
+        "spaceIds": [
+          "basement"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-terrace-poolside-parlor-and-swimming-pool-area-connect-through-the-ordinary-outdoor-circulation",
+        "label": "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+        "description": "",
+        "spaceIds": [
+          "terrace",
+          "poolside-parlor",
+          "swimming-pool-area"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-cottage-is-accessible-from-the-house-and-is-farther-from-the-kitchen-than-the-dining-room-is",
+        "label": "The cottage is accessible from the house and is farther from the kitchen than the dining room is",
+        "description": "",
+        "spaceIds": [
+          "dining-room",
+          "kitchen",
+          "cottage"
+        ],
+        "accessibilityNotes": []
+      }
     ],
     "usableFeatures": [],
     "availableProps": [],
     "tone": "Glamorous 1960s French Riviera spy mystery",
     "safetyConstraints": [
-      "No physical contact",
-      "All physical beats are reversible and host-cued",
-      "No running or entering the swimming pool during play"
+      {
+        "id": "no-physical-contact",
+        "label": "No physical contact",
+        "description": ""
+      },
+      {
+        "id": "all-physical-actions-are-reversible-and-host-cued",
+        "label": "All physical staging is reversible and host-cued",
+        "description": ""
+      },
+      {
+        "id": "no-running-or-entering-the-swimming-pool-during-play",
+        "label": "No running or entering the swimming pool during play",
+        "description": ""
+      }
     ],
     "accessibilityNeeds": [
-      "All named spaces are accessible to the group and no additional mobility needs were supplied"
+      {
+        "id": "all-named-spaces-are-accessible-to-the-group-and-no-additional-mobility-needs-were-supplied",
+        "label": "All named spaces are accessible to the group and no additional mobility needs were supplied",
+        "description": ""
+      }
     ],
     "contentBoundaries": [
-      "No additional content boundaries were supplied"
+      {
+        "id": "no-additional-content-boundaries-were-supplied",
+        "label": "No additional content boundaries were supplied",
+        "description": ""
+      }
     ]
   },
   "story": {
@@ -49,9 +157,6 @@
     "subtitle": "An aviator’s memorial dinner hides the route of a missing reconnaissance flight.",
     "premise": "test pilot Émile Vauban's memorial dinner for the tenth anniversary of the vanished Mistral flight brings five accomplished strangers to a house in Grambois. Each accepted a different private promise from Émile Vauban; one came to make sure that promise could never be kept.",
     "totalPeople": 6,
-    "hostRole": "Émile Vauban, celebrated test pilot and sole public survivor; then Game Master",
-    "victim": "Émile Vauban",
-    "culprit": "René Cassin",
     "characters": [
       {
         "id": "mistral-cipher-guest-1",
@@ -109,20 +214,13 @@
             "aboutRoleIds": [
               "mistral-cipher-guest-2"
             ],
-            "beat": 1
-          }
-        ],
-        "actions": [
-          {
-            "id": "mistral-cipher-guest-1-opening",
-            "text": "Read the official crash time, then reveal that the fuel figures make it impossible.",
-            "cue": "When the host calls on Thérèse Vidal during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 1,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "mistral-cipher-guest-1"
+              },
+              "independenceGroup": "role:mistral-cipher-guest-1"
+            }
           }
         ]
       },
@@ -182,20 +280,13 @@
             "aboutRoleIds": [
               "mistral-cipher-guest-3"
             ],
-            "beat": 1
-          }
-        ],
-        "actions": [
-          {
-            "id": "mistral-cipher-guest-2-opening",
-            "text": "State that the Mistral left in perfect condition and accuse the official inquiry of lying.",
-            "cue": "When the host calls on André Masson during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 1,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "mistral-cipher-guest-2"
+              },
+              "independenceGroup": "role:mistral-cipher-guest-2"
+            }
           }
         ]
       },
@@ -255,20 +346,13 @@
             "aboutRoleIds": [
               "mistral-cipher-guest-4"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "mistral-cipher-guest-3-opening",
-            "text": "Correct the memorial date and say your father was alive three days after the supposed crash.",
-            "cue": "When the host calls on Isabelle Dumas during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "mistral-cipher-guest-3"
+              },
+              "independenceGroup": "role:mistral-cipher-guest-3"
+            }
           }
         ]
       },
@@ -328,20 +412,13 @@
             "aboutRoleIds": [
               "mistral-cipher-guest-5"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "mistral-cipher-guest-4-opening",
-            "text": "Call the flight an unfortunate reconnaissance accident and ask everyone to honour official history.",
-            "cue": "When the host calls on Miles Graham during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "mistral-cipher-guest-4"
+              },
+              "independenceGroup": "role:mistral-cipher-guest-4"
+            }
           }
         ]
       },
@@ -401,20 +478,13 @@
             "aboutRoleIds": [
               "mistral-cipher-guest-1"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "mistral-cipher-guest-5-opening",
-            "text": "Propose a toast to Émile as the only survivor and insist the crash story must remain untouched.",
-            "cue": "When the host calls on René Cassin during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "mistral-cipher-guest-5"
+              },
+              "independenceGroup": "role:mistral-cipher-guest-5"
+            }
           }
         ]
       }
@@ -450,138 +520,162 @@
         "phase": "reveal"
       }
     ],
-    "timeline": [
+    "solutionSteps": [
       {
-        "beat": 1,
         "title": "The flight that landed",
         "truth": "The Mistral aircraft did not crash; it landed secretly and delivered reconnaissance film to a foreign buyer.",
         "evidence": [
           "mistral-cipher-guest-1-evidence",
           "mistral-cipher-guest-2-evidence"
-        ]
+        ],
+        "id": "mistral-cipher-solution-1"
       },
       {
-        "beat": 2,
         "title": "The survivor’s last correction",
         "truth": "René Cassin killed Émile because Émile planned to reveal René as the buyer’s courier.",
         "evidence": [
           "mistral-cipher-guest-3-evidence",
           "mistral-cipher-guest-4-evidence",
           "mistral-cipher-guest-5-evidence"
-        ]
+        ],
+        "id": "mistral-cipher-solution-2"
       }
     ],
-    "runPlan": [
+    "openingSteps": [
       {
         "id": "mistral-cipher-opening-1",
-        "phase": "opening",
         "title": "Receive Thérèse Vidal",
         "trigger": "When every player is seated",
-        "operator": "Invite Thérèse Vidal to deliver only the prepared opening fact.",
-        "actionIds": [
-          "mistral-cipher-guest-1-opening"
-        ],
-        "dependsOn": [],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Thérèse Vidal to deliver only the prepared opening fact. Thérèse Vidal: Read the official crash time, then reveal that the fuel figures make it impossible.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "mistral-cipher-opening-2",
-        "phase": "opening",
         "title": "Receive André Masson",
         "trigger": "After Thérèse Vidal completes their cue",
-        "operator": "Invite André Masson to deliver only the prepared opening fact.",
-        "actionIds": [
-          "mistral-cipher-guest-2-opening"
-        ],
-        "dependsOn": [
-          "mistral-cipher-opening-1"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite André Masson to deliver only the prepared opening fact. André Masson: State that the Mistral left in perfect condition and accuse the official inquiry of lying.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "mistral-cipher-opening-3",
-        "phase": "opening",
         "title": "Receive Isabelle Dumas",
         "trigger": "After André Masson completes their cue",
-        "operator": "Invite Isabelle Dumas to deliver only the prepared opening fact.",
-        "actionIds": [
-          "mistral-cipher-guest-3-opening"
-        ],
-        "dependsOn": [
-          "mistral-cipher-opening-2"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Isabelle Dumas to deliver only the prepared opening fact. Isabelle Dumas: Correct the memorial date and say your father was alive three days after the supposed crash.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "mistral-cipher-opening-4",
-        "phase": "opening",
         "title": "Receive Miles Graham",
         "trigger": "After Isabelle Dumas completes their cue",
-        "operator": "Invite Miles Graham to deliver only the prepared opening fact.",
-        "actionIds": [
-          "mistral-cipher-guest-4-opening"
-        ],
-        "dependsOn": [
-          "mistral-cipher-opening-3"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Miles Graham to deliver only the prepared opening fact. Miles Graham: Call the flight an unfortunate reconnaissance accident and ask everyone to honour official history.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "mistral-cipher-opening-5",
-        "phase": "opening",
         "title": "Discover the host",
         "trigger": "After Miles Graham completes their cue",
-        "operator": "Cue René Cassin, stage Émile Vauban's off-page collapse without contact, announce the discovery, and become Game Master.",
-        "actionIds": [
-          "mistral-cipher-guest-5-opening"
+        "propIds": [],
+        "instruction": "Cue René Cassin, stage Émile Vauban's off-page collapse without contact, announce the discovery, and become Game Master. René Cassin: Propose a toast to Émile as the only survivor and insist the crash story must remain untouched.",
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "mistral-cipher-no-contact"
         ],
-        "dependsOn": [
-          "mistral-cipher-opening-4"
-        ],
-        "essential": true
+        "settingRefs": [
+          {
+            "kind": "safetyConstraints",
+            "id": "no-physical-contact"
+          }
+        ]
       }
     ],
-    "solution": "René brokered the secret landing and built his career on the myth of the crash. Émile convened the memorial to correct the record. René killed him during the commemorative toast and tried to make the dispute look like rivalry between pilot and mechanic. Five private accounts reconstruct the landing and René’s foreknowledge."
+    "host": {
+      "id": "host",
+      "name": "Émile Vauban",
+      "title": "Émile Vauban, celebrated test pilot and sole public survivor; then Game Master"
+    },
+    "victimRoleId": "host",
+    "culpritRoleId": "mistral-cipher-guest-5",
+    "solutionSummary": "René brokered the secret landing and built his career on the myth of the crash. Émile convened the memorial to correct the record. René killed him during the commemorative toast and tried to make the dispute look like rivalry between pilot and mechanic. Five private accounts reconstruct the landing and René’s foreknowledge."
   },
   "clueDecks": [
     {
       "id": "mistral-cipher-salon-file",
       "label": "Salon intelligence file",
-      "settingField": "playableSpaces",
-      "settingValue": "Salon",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "salon"
+      },
       "clues": [
         {
           "id": "mistral-cipher-clue-1",
           "text": "The logged fuel use is consistent with a landing, not a crash at sea.",
-          "beat": 1
+          "supportsSolutionStepIds": [
+            "mistral-cipher-solution-1"
+          ]
         },
         {
           "id": "mistral-cipher-clue-2",
           "text": "René possessed a weather code available only to the foreign buyer’s courier.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "mistral-cipher-solution-2"
+          ]
         },
         {
           "id": "mistral-cipher-clue-3",
           "text": "Émile invited each guest because each held one segment of the hidden flight path.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "mistral-cipher-solution-2"
+          ]
         }
       ]
     },
     {
       "id": "mistral-cipher-cottage-file",
       "label": "Cottage intelligence file",
-      "settingField": "playableSpaces",
-      "settingValue": "Cottage",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "cottage"
+      },
       "clues": [
         {
           "id": "mistral-cipher-clue-4",
           "text": "A cottage map marks an improvised landing strip rather than wreckage.",
-          "beat": 1
+          "supportsSolutionStepIds": [
+            "mistral-cipher-solution-1"
+          ]
         },
         {
           "id": "mistral-cipher-clue-5",
           "text": "René described the film canister before its existence was made public.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "mistral-cipher-solution-2"
+          ]
         }
       ]
     }
@@ -600,9 +694,10 @@
     {
       "id": "mistral-cipher-no-contact",
       "label": "Confirm that the entire opening is spoken and staged without contact.",
-      "settingField": "safetyConstraints",
-      "settingValue": "No physical contact"
+      "settingRef": {
+        "kind": "safetyConstraints",
+        "id": "no-physical-contact"
+      }
     }
-  ],
-  "fingerprint": "bd3d7620295a866bca073eda2115e0c5"
+  ]
 }

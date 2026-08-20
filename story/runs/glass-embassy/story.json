@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 5,
   "id": "glass-embassy",
   "title": "The Glass Embassy",
   "setting": {
@@ -7,39 +7,147 @@
     "location": "Grambois, France",
     "era": "1960s",
     "playableSpaces": [
-      "Terrace",
-      "Dining room",
-      "Kitchen",
-      "Poolside parlor",
-      "Salon",
-      "Entrance hall",
-      "Staircase to the bedrooms",
-      "Master bedroom",
-      "Basement",
-      "Basement room marked private",
-      "Swimming pool area",
-      "Cottage"
+      {
+        "id": "terrace",
+        "label": "Terrace",
+        "description": ""
+      },
+      {
+        "id": "dining-room",
+        "label": "Dining room",
+        "description": ""
+      },
+      {
+        "id": "kitchen",
+        "label": "Kitchen",
+        "description": ""
+      },
+      {
+        "id": "poolside-parlor",
+        "label": "Poolside parlor",
+        "description": ""
+      },
+      {
+        "id": "salon",
+        "label": "Salon",
+        "description": ""
+      },
+      {
+        "id": "entrance-hall",
+        "label": "Entrance hall",
+        "description": ""
+      },
+      {
+        "id": "staircase-to-the-bedrooms",
+        "label": "Staircase to the bedrooms",
+        "description": ""
+      },
+      {
+        "id": "master-bedroom",
+        "label": "Master bedroom",
+        "description": ""
+      },
+      {
+        "id": "basement",
+        "label": "Basement",
+        "description": ""
+      },
+      {
+        "id": "basement-room-marked-private",
+        "label": "Basement room marked private",
+        "description": ""
+      },
+      {
+        "id": "swimming-pool-area",
+        "label": "Swimming pool area",
+        "description": ""
+      },
+      {
+        "id": "cottage",
+        "label": "Cottage",
+        "description": ""
+      }
     ],
     "routes": [
-      "All named spaces are accessible through the house's ordinary connected layout",
-      "The staircase connects the entrance level with the bedrooms",
-      "The basement and its room marked private are accessible by the ordinary basement route",
-      "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
-      "The cottage is accessible from the house and is farther from the kitchen than the dining room is"
+      {
+        "id": "all-named-spaces-are-accessible-through-the-house-s-ordinary-connected-layout",
+        "label": "All named spaces are accessible through the house's ordinary connected layout",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-staircase-connects-the-entrance-level-with-the-bedrooms",
+        "label": "The staircase connects the entrance level with the bedrooms",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-basement-and-its-room-marked-private-are-accessible-by-the-ordinary-basement-route",
+        "label": "The basement and its room marked private are accessible by the ordinary basement route",
+        "description": "",
+        "spaceIds": [
+          "basement"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-terrace-poolside-parlor-and-swimming-pool-area-connect-through-the-ordinary-outdoor-circulation",
+        "label": "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+        "description": "",
+        "spaceIds": [
+          "terrace",
+          "poolside-parlor",
+          "swimming-pool-area"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-cottage-is-accessible-from-the-house-and-is-farther-from-the-kitchen-than-the-dining-room-is",
+        "label": "The cottage is accessible from the house and is farther from the kitchen than the dining room is",
+        "description": "",
+        "spaceIds": [
+          "dining-room",
+          "kitchen",
+          "cottage"
+        ],
+        "accessibilityNotes": []
+      }
     ],
     "usableFeatures": [],
     "availableProps": [],
     "tone": "Glamorous 1960s French Riviera spy mystery",
     "safetyConstraints": [
-      "No physical contact",
-      "All physical beats are reversible and host-cued",
-      "No running or entering the swimming pool during play"
+      {
+        "id": "no-physical-contact",
+        "label": "No physical contact",
+        "description": ""
+      },
+      {
+        "id": "all-physical-actions-are-reversible-and-host-cued",
+        "label": "All physical staging is reversible and host-cued",
+        "description": ""
+      },
+      {
+        "id": "no-running-or-entering-the-swimming-pool-during-play",
+        "label": "No running or entering the swimming pool during play",
+        "description": ""
+      }
     ],
     "accessibilityNeeds": [
-      "All named spaces are accessible to the group and no additional mobility needs were supplied"
+      {
+        "id": "all-named-spaces-are-accessible-to-the-group-and-no-additional-mobility-needs-were-supplied",
+        "label": "All named spaces are accessible to the group and no additional mobility needs were supplied",
+        "description": ""
+      }
     ],
     "contentBoundaries": [
-      "No additional content boundaries were supplied"
+      {
+        "id": "no-additional-content-boundaries-were-supplied",
+        "label": "No additional content boundaries were supplied",
+        "description": ""
+      }
     ]
   },
   "story": {
@@ -49,9 +157,6 @@
     "subtitle": "A perfume launch masks an auction for the identity of a vanished double agent.",
     "premise": "Madame Sabine Vautrin's private unveiling of a Riviera perfume called Ambassade de Verre brings five accomplished strangers to a house in Grambois. Each accepted a different private promise from Sabine Vautrin; one came to make sure that promise could never be kept.",
     "totalPeople": 6,
-    "hostRole": "Sabine Vautrin, perfumer and intelligence broker; then Game Master",
-    "victim": "Sabine Vautrin",
-    "culprit": "Étienne Marot",
     "characters": [
       {
         "id": "glass-embassy-guest-1",
@@ -109,20 +214,13 @@
             "aboutRoleIds": [
               "glass-embassy-guest-2"
             ],
-            "beat": 1
-          }
-        ],
-        "actions": [
-          {
-            "id": "glass-embassy-guest-1-opening",
-            "text": "State that Sabine invited the press for a perfume story, then ask why diplomats were included.",
-            "cue": "When the host calls on Colette Renaud during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 1,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "glass-embassy-guest-1"
+              },
+              "independenceGroup": "role:glass-embassy-guest-1"
+            }
           }
         ]
       },
@@ -182,20 +280,13 @@
             "aboutRoleIds": [
               "glass-embassy-guest-3"
             ],
-            "beat": 1
-          }
-        ],
-        "actions": [
-          {
-            "id": "glass-embassy-guest-2-opening",
-            "text": "Correct Colette: announce that you came only to discuss export licences, not diplomacy.",
-            "cue": "When the host calls on Étienne Marot during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 1,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "glass-embassy-guest-2"
+              },
+              "independenceGroup": "role:glass-embassy-guest-2"
+            }
           }
         ]
       },
@@ -255,20 +346,13 @@
             "aboutRoleIds": [
               "glass-embassy-guest-4"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "glass-embassy-guest-3-opening",
-            "text": "Reveal that Sabine privately promised a reunion, but refuse to name with whom.",
-            "cue": "When the host calls on Nadia Petrov during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "glass-embassy-guest-3"
+              },
+              "independenceGroup": "role:glass-embassy-guest-3"
+            }
           }
         ]
       },
@@ -328,20 +412,13 @@
             "aboutRoleIds": [
               "glass-embassy-guest-5"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "glass-embassy-guest-4-opening",
-            "text": "Announce that the celebrated formula is incomplete and only Sabine knows the missing line.",
-            "cue": "When the host calls on Marc Delon during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "glass-embassy-guest-4"
+              },
+              "independenceGroup": "role:glass-embassy-guest-4"
+            }
           }
         ]
       },
@@ -401,20 +478,13 @@
             "aboutRoleIds": [
               "glass-embassy-guest-1"
             ],
-            "beat": 2
-          }
-        ],
-        "actions": [
-          {
-            "id": "glass-embassy-guest-5-opening",
-            "text": "Offer a toast to old secrets and say that one of Sabine’s formulas is really a confession.",
-            "cue": "When the host calls on Lucien Arbaud during the opening",
-            "consequence": "Places one authored fact into the room before the body is discovered.",
-            "essential": true,
-            "beat": 2,
-            "phase": "opening",
-            "physical": false,
-            "requires": []
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "glass-embassy-guest-5"
+              },
+              "independenceGroup": "role:glass-embassy-guest-5"
+            }
           }
         ]
       }
@@ -450,138 +520,162 @@
         "phase": "reveal"
       }
     ],
-    "timeline": [
+    "solutionSteps": [
       {
-        "beat": 1,
         "title": "The formula with two meanings",
         "truth": "Sabine encoded the name of double agent SABLE in the perfume formula and promised five different people control of it.",
         "evidence": [
           "glass-embassy-guest-1-evidence",
           "glass-embassy-guest-2-evidence"
-        ]
+        ],
+        "id": "glass-embassy-solution-1"
       },
       {
-        "beat": 2,
         "title": "A toast that silenced the broker",
         "truth": "Étienne Marot recognized that SABLE was his own handler identity and poisoned Sabine before she could name him.",
         "evidence": [
           "glass-embassy-guest-3-evidence",
           "glass-embassy-guest-4-evidence",
           "glass-embassy-guest-5-evidence"
-        ]
+        ],
+        "id": "glass-embassy-solution-2"
       }
     ],
-    "runPlan": [
+    "openingSteps": [
       {
         "id": "glass-embassy-opening-1",
-        "phase": "opening",
         "title": "Receive Colette Renaud",
         "trigger": "When every player is seated",
-        "operator": "Invite Colette Renaud to deliver only the prepared opening fact.",
-        "actionIds": [
-          "glass-embassy-guest-1-opening"
-        ],
-        "dependsOn": [],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Colette Renaud to deliver only the prepared opening fact. Colette Renaud: State that Sabine invited the press for a perfume story, then ask why diplomats were included.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "glass-embassy-opening-2",
-        "phase": "opening",
         "title": "Receive Étienne Marot",
         "trigger": "After Colette Renaud completes their cue",
-        "operator": "Invite Étienne Marot to deliver only the prepared opening fact.",
-        "actionIds": [
-          "glass-embassy-guest-2-opening"
-        ],
-        "dependsOn": [
-          "glass-embassy-opening-1"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Étienne Marot to deliver only the prepared opening fact. Étienne Marot: Correct Colette: announce that you came only to discuss export licences, not diplomacy.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "glass-embassy-opening-3",
-        "phase": "opening",
         "title": "Receive Nadia Petrov",
         "trigger": "After Étienne Marot completes their cue",
-        "operator": "Invite Nadia Petrov to deliver only the prepared opening fact.",
-        "actionIds": [
-          "glass-embassy-guest-3-opening"
-        ],
-        "dependsOn": [
-          "glass-embassy-opening-2"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Nadia Petrov to deliver only the prepared opening fact. Nadia Petrov: Reveal that Sabine privately promised a reunion, but refuse to name with whom.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "glass-embassy-opening-4",
-        "phase": "opening",
         "title": "Receive Marc Delon",
         "trigger": "After Nadia Petrov completes their cue",
-        "operator": "Invite Marc Delon to deliver only the prepared opening fact.",
-        "actionIds": [
-          "glass-embassy-guest-4-opening"
-        ],
-        "dependsOn": [
-          "glass-embassy-opening-3"
-        ],
-        "essential": true
+        "propIds": [],
+        "instruction": "Invite Marc Delon to deliver only the prepared opening fact. Marc Delon: Announce that the celebrated formula is incomplete and only Sabine knows the missing line.",
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": []
       },
       {
         "id": "glass-embassy-opening-5",
-        "phase": "opening",
         "title": "Discover the host",
         "trigger": "After Marc Delon completes their cue",
-        "operator": "Cue Lucien Arbaud, stage Sabine Vautrin's off-page collapse without contact, announce the discovery, and become Game Master.",
-        "actionIds": [
-          "glass-embassy-guest-5-opening"
+        "propIds": [],
+        "instruction": "Cue Lucien Arbaud, stage Sabine Vautrin's off-page collapse without contact, announce the discovery, and become Game Master. Lucien Arbaud: Offer a toast to old secrets and say that one of Sabine’s formulas is really a confession.",
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "glass-embassy-no-contact"
         ],
-        "dependsOn": [
-          "glass-embassy-opening-4"
-        ],
-        "essential": true
+        "settingRefs": [
+          {
+            "kind": "safetyConstraints",
+            "id": "no-physical-contact"
+          }
+        ]
       }
     ],
-    "solution": "Étienne was SABLE. He altered Sabine’s drink during the perfume toast, then encouraged everyone to treat the coded formula as a commercial dispute. Sabine’s separate promises explain every suspect’s secrecy; the overlapping memories prove Étienne alone understood the code before her death."
+    "host": {
+      "id": "host",
+      "name": "Sabine Vautrin",
+      "title": "Sabine Vautrin, perfumer and intelligence broker; then Game Master"
+    },
+    "victimRoleId": "host",
+    "culpritRoleId": "glass-embassy-guest-2",
+    "solutionSummary": "Étienne was SABLE. He altered Sabine’s drink during the perfume toast, then encouraged everyone to treat the coded formula as a commercial dispute. Sabine’s separate promises explain every suspect’s secrecy; the overlapping memories prove Étienne alone understood the code before her death."
   },
   "clueDecks": [
     {
       "id": "glass-embassy-salon-file",
       "label": "Salon intelligence file",
-      "settingField": "playableSpaces",
-      "settingValue": "Salon",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "salon"
+      },
       "clues": [
         {
           "id": "glass-embassy-clue-1",
           "text": "Sabine scheduled a private conversation with each guest under a different commercial pretext.",
-          "beat": 1
+          "supportsSolutionStepIds": [
+            "glass-embassy-solution-1"
+          ]
         },
         {
           "id": "glass-embassy-clue-2",
           "text": "The initials in the disputed formula spell SABLE when read as intelligence call signs.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "glass-embassy-solution-2"
+          ]
         },
         {
           "id": "glass-embassy-clue-3",
           "text": "Étienne used the word “handler” before anyone publicly said the formula concerned espionage.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "glass-embassy-solution-2"
+          ]
         }
       ]
     },
     {
       "id": "glass-embassy-cottage-file",
       "label": "Cottage intelligence file",
-      "settingField": "playableSpaces",
-      "settingValue": "Cottage",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "cottage"
+      },
       "clues": [
         {
           "id": "glass-embassy-clue-4",
           "text": "A cottage appointment places Étienne close enough to learn Sabine planned to reveal SABLE that night.",
-          "beat": 1
+          "supportsSolutionStepIds": [
+            "glass-embassy-solution-1"
+          ]
         },
         {
           "id": "glass-embassy-clue-5",
           "text": "The fatal dose acted during the toast, not earlier in the evening.",
-          "beat": 2
+          "supportsSolutionStepIds": [
+            "glass-embassy-solution-2"
+          ]
         }
       ]
     }
@@ -600,9 +694,10 @@
     {
       "id": "glass-embassy-no-contact",
       "label": "Confirm that the entire opening is spoken and staged without contact.",
-      "settingField": "safetyConstraints",
-      "settingValue": "No physical contact"
+      "settingRef": {
+        "kind": "safetyConstraints",
+        "id": "no-physical-contact"
+      }
     }
-  ],
-  "fingerprint": "1df6d78480b8dbe7add182f61a000239"
+  ]
 }

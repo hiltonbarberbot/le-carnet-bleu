@@ -19,17 +19,26 @@ The murderer and the thief are not the same person.
 
 ## Prepare
 
-Use the app's setting checklist. In particular, prepare the replica diamond and dome, linen jacket and prop keys, sealed inheritance letter and document case, framed photograph, hollow art book, hollow bronze dove and empty prop bottle, Poppy's invitation, and an inert cognac glass.
+Use the app's setting checklist. The stable prop ledger is:
 
-The glass contains nothing. Nobody drinks anything as part of play. Rehearse Sacha's no-contact collapse, keep every poolside beat away from the water, and use the host as proxy for any movement a player cannot perform.
+- `diamond-display` — replica diamond and dome
+- `jacket-keys` — linen jacket and prop keys
+- `document-case` — sealed inheritance letter and document case
+- `framed-photograph` — harmless framed photograph
+- `hollow-book` — hollow art book
+- `bronze-dove` — hollow bronze dove and empty prop bottle
+- `paper-envelopes` — Poppy's invitation and the other paper packets
+- `safe-glass` — inert cognac glass
+
+The glass contains nothing. Nobody drinks anything as part of play. Rehearse Sacha's no-contact collapse, keep every poolside action away from the water, and use the host as proxy for any movement a player cannot perform.
 
 ## The fifteen-minute opening
 
-1. **Unveil La Colombe.** Sacha welcomes the guests and cues Poppy to read the Rouen invitation.
-2. **Bring in the rain.** Julien retrieves only the prepared jacket and prop keys from the verified poolside chair.
-3. **Name the blackmail.** Renato briefly lifts the prepared staircase photograph and challenges Sacha.
-4. **Put the promise in reach.** Odile opens the document case and places the sealed inheritance letter beside the diamond.
-5. **The last cognac.** Hélène places the inert glass. Sacha mimes a sip and performs the rehearsed collapse. The host secretly removes the replica diamond, reveals the empty dome, announces the death, and becomes Game Master.
+1. **Unveil La Colombe.** Sacha welcomes the guests, unveils `diamond-display`, and cues Poppy to read the `paper-envelopes` invitation.
+2. **Bring in the rain.** Julien retrieves only `jacket-keys` from the verified poolside chair.
+3. **Name the blackmail.** Renato briefly lifts `framed-photograph` and challenges Sacha.
+4. **Put the promise in reach.** Odile opens `document-case` and places its sealed inheritance letter beside `diamond-display`.
+5. **The last cognac.** Hélène places `safe-glass`. Sacha mimes a sip and performs the rehearsed collapse. The host secretly removes the replica diamond from `diamond-display`, reveals the empty dome, announces the death, and becomes Game Master.
 
 After this, stop directing scenes. Open two hours of free investigation: ten tokens per suspect, five-token clues, free bargaining, and public accusations at any time.
 
@@ -43,7 +52,7 @@ Odile committed the second crime. In the confusion after the collapse, she took 
 
 **Hélène killed Sacha. Odile stole the diamond.**
 
-## Reveal beats
+## Reveal steps
 
 1. Sacha's sealed letter and private promise identify Julien as his son and heir.
 2. Poppy and Odile prove Hélène read the inheritance before dinner.

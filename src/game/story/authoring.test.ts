@@ -33,6 +33,20 @@ describe('setting-first story authoring', () => {
     expect(createSettingBrief(demoSetting)).not.toHaveProperty('occasion')
   })
 
+  it('normalizes legacy prop strings into stable structured inventory records', () => {
+    const setting = createSettingBrief({
+      ...demoSetting,
+      availableProps: ['Blue ledger'],
+    })
+    expect(setting.availableProps).toEqual([{
+      id: 'blue-ledger',
+      label: 'Blue ledger',
+      description: '',
+      quantity: 1,
+      safetyNotes: [],
+    }])
+  })
+
   it('packages a compiled story with the setting required by the runtime', () => {
     const demo = createDemoStoryline('authored')
     const authored = createAuthoredStoryline({

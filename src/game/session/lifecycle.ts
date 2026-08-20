@@ -7,7 +7,6 @@ import type {
   GameState,
   IdleGameState,
   PreparedGameState,
-  RunBeat,
   RuntimeCapabilities,
   ScoreCard,
   SeatDraft,
@@ -46,7 +45,7 @@ export function createSetupDraft(definition: GameDefinition): SetupDraft {
 }
 
 export function createIdleState(definition: GameDefinition): IdleGameState {
-  return { schemaVersion: 3, definitionFingerprint: definition.fingerprint, storyId: definition.story.id, seed: definition.story.seed, phase: 'idle' }
+  return { schemaVersion: 5, definitionFingerprint: definition.fingerprint, storyId: definition.story.id, seed: definition.story.seed, phase: 'idle' }
 }
 
 export function createGame(definition: GameDefinition, now = new Date(), id: string = crypto.randomUUID()): EnrollingGameState {
@@ -66,7 +65,7 @@ export function updateEnrolment(state: EnrollingGameState, setup: SetupDraft): E
 export function getSetupBlockers(definition: GameDefinition, setup: SetupDraft, capabilities: RuntimeCapabilities): string[] {
   const { story } = definition
   const blockers: string[] = []
-  if (!setup.hostName.trim()) blockers.push(`The host for “${story.hostRole}” has not been named.`)
+  if (!setup.hostName.trim()) blockers.push(`The host for “${story.host.title}” has not been named.`)
 
   for (const character of story.characters) {
     const seat = setup.seats.find(item => item.roleId === character.id)
@@ -118,7 +117,7 @@ export function prepareGame(
   }))
 
   return {
-    schemaVersion: 3,
+    schemaVersion: 5,
     definitionFingerprint: state.definitionFingerprint,
     storyId: state.storyId,
     seed: state.seed,
@@ -137,7 +136,7 @@ export function startGame(definition: GameDefinition, state: PreparedGameState, 
     phase: 'active',
     playPhase: definition.acts[0].id,
     paused: false,
-    completedBeatIds: [],
+    completedStepIds: [],
     revealedEvidenceIds: [],
     tokenBalances: Object.fromEntries(definition.story.characters.map(character => [character.id, SOCIAL_RULES.startingTokens])),
     ownedClueIds: Object.fromEntries(definition.story.characters.map(character => [character.id, []])),
@@ -152,7 +151,6 @@ export function startGame(definition: GameDefinition, state: PreparedGameState, 
     hearingHistory: [],
     outcome: null,
     awards: {},
-    aiPerformances: {},
     startedAt: now.toISOString(),
   }
 }
@@ -178,58 +176,22 @@ function assertActive(state: ActiveGameState) {
   if (state.paused) throw new Error('The game is paused.')
 }
 
-function essentialBeats(definition: GameDefinition, phase: RunBeat['phase']) {
-  return definition.story.runPlan.filter(beat => beat.phase === phase && beat.essential)
-}
-
-export function confirmRunBeat(definition: GameDefinition, state: ActiveGameState, beatId: string): ActiveGameState {
+export function completeOpeningStep(definition: GameDefinition, state: ActiveGameState, stepId: string): ActiveGameState {
   const { story } = definition
   assertActive(state)
-  const beat = story.runPlan.find(item => item.id === beatId)
-  if (!beat) throw new Error(`Unknown run-plan beat ${beatId}.`)
-  if (beat.phase !== state.playPhase) throw new Error(`${beat.title} belongs to ${beat.phase}, not ${state.playPhase}.`)
-  const missingDependencies = beat.dependsOn.filter(id => !state.completedBeatIds.includes(id))
-  if (missingDependencies.length) throw new Error(`${beat.title} is blocked by ${missingDependencies.join(', ')}.`)
-  const missingAiPerformances = beat.actionIds.filter(actionId => {
-    const owner = story.characters.find(character => character.actions.some(action => action.id === actionId))
-    return owner && state.roster[owner.id]?.kind === 'ai' && !state.aiPerformances[actionId]
-  })
-  if (missingAiPerformances.length) throw new Error(`${beat.title} is waiting for AI performance: ${missingAiPerformances.join(', ')}.`)
-  if (state.completedBeatIds.includes(beat.id)) return state
-  return { ...state, completedBeatIds: [...state.completedBeatIds, beat.id] }
+  if (state.playPhase !== definition.acts[0]?.id) throw new Error('Opening steps can only be completed during the authored opening.')
+  const step = story.openingSteps.find(item => item.id === stepId)
+  if (!step) throw new Error(`Unknown opening step ${stepId}.`)
+  const next = story.openingSteps.find(item => !state.completedStepIds.includes(item.id))
+  if (next?.id !== step.id) throw new Error(`${step.title} is not the next opening step.`)
+  return { ...state, completedStepIds: [...state.completedStepIds, step.id] }
 }
 
-export function recordAiPerformance(
-  definition: GameDefinition,
-  state: ActiveGameState,
-  roleId: string,
-  actionId: string,
-  text: string,
-  now = new Date(),
-): ActiveGameState {
+export function undoOpeningStep(definition: GameDefinition, state: ActiveGameState, stepId: string): ActiveGameState {
   assertActive(state)
-  const { story } = definition
-  const character = story.characters.find(item => item.id === roleId)
-  const action = character?.actions.find(item => item.id === actionId)
-  if (!character || !action) throw new Error('That AI role or action does not exist in this story.')
-  if (state.roster[roleId]?.kind !== 'ai') throw new Error(`${character.name} is not controlled by AI in this game.`)
-  if (action.phase !== state.playPhase) throw new Error(`${action.id} belongs to ${action.phase}, not ${state.playPhase}.`)
-  if (!text.trim()) throw new Error('An AI performance cannot be empty.')
-  return {
-    ...state,
-    aiPerformances: {
-      ...state.aiPerformances,
-      [actionId]: { roleId, actionId, text: text.trim(), generatedAt: now.toISOString() },
-    },
-  }
-}
-
-export function undoRunBeat(definition: GameDefinition, state: ActiveGameState, beatId: string): ActiveGameState {
-  assertActive(state)
-  const { story } = definition
-  const dependants = story.runPlan.filter(beat => beat.dependsOn.includes(beatId) && state.completedBeatIds.includes(beat.id))
-  if (dependants.length) throw new Error(`Cannot undo while ${dependants.map(beat => beat.title).join(', ')} depends on it.`)
-  return { ...state, completedBeatIds: state.completedBeatIds.filter(id => id !== beatId) }
+  const last = state.completedStepIds.at(-1)
+  if (last !== stepId) throw new Error('Only the most recently completed opening step can be undone.')
+  return { ...state, completedStepIds: state.completedStepIds.slice(0, -1) }
 }
 
 export function advanceAct(definition: GameDefinition, state: ActiveGameState): ActiveGameState {
@@ -237,24 +199,29 @@ export function advanceAct(definition: GameDefinition, state: ActiveGameState): 
   const actIndex = definition.acts.findIndex(act => act.id === state.playPhase)
   if (actIndex < 0) throw new Error(`${state.playPhase} is not an authored act.`)
   const current = definition.acts[actIndex]
-  const missing = essentialBeats(definition, current.id).filter(beat => !state.completedBeatIds.includes(beat.id))
-  if (missing.length) throw new Error(`${current.title} is missing: ${missing.map(beat => beat.title).join(', ')}.`)
+  const missing = definition.story.openingSteps.filter(step => !state.completedStepIds.includes(step.id))
+  if (missing.length) throw new Error(`${current.title} is missing: ${missing.map(step => step.title).join(', ')}.`)
   const next = definition.acts[actIndex + 1]
   return next
     ? { ...state, playPhase: next.id }
     : { ...state, playPhase: 'investigation', revealedEvidenceIds: definition.story.publicEvidence.map(item => item.id) }
 }
 
-export function toggleEvidence(state: ActiveGameState, evidenceId: string): ActiveGameState {
+export function toggleEvidence(definition: GameDefinition, state: ActiveGameState, evidenceId: string): ActiveGameState {
   assertActive(state)
   if (state.playPhase !== 'investigation') throw new Error('Evidence can be tracked only during investigation.')
+  const evidenceIds = new Set([
+    ...definition.story.publicEvidence.map(item => item.id),
+    ...definition.story.characters.flatMap(character => character.secrets.map(secret => secret.id)),
+  ])
+  if (!evidenceIds.has(evidenceId)) throw new Error(`Unknown evidence ${evidenceId}.`)
   const exists = state.revealedEvidenceIds.includes(evidenceId)
   return { ...state, revealedEvidenceIds: exists ? state.revealedEvidenceIds.filter(id => id !== evidenceId) : [...state.revealedEvidenceIds, evidenceId] }
 }
 
 function assertInvestigation(state: ActiveGameState) {
   assertActive(state)
-  if (state.playPhase !== 'investigation' || state.outcome) throw new Error('That social action is available only during the open investigation.')
+  if (state.playPhase !== 'investigation' || state.outcome) throw new Error('That interaction is available only during the open investigation.')
 }
 
 function assertRole(state: ActiveGameState, roleId: string) {
@@ -400,7 +367,7 @@ export function recordAward(definition: GameDefinition, state: ActiveGameState, 
 }
 
 export function calculateScores(definition: GameDefinition, state: ActiveGameState): Record<string, ScoreCard> {
-  const culprit = definition.story.characters.find(character => character.name === definition.story.culprit)!
+  const culprit = definition.story.characters.find(character => character.id === definition.story.culpritRoleId)!
   const hearingId = state.outcome?.kind === 'conviction' ? state.outcome.hearingId : undefined
   const conviction = hearingId
     ? state.hearingHistory.find(hearing => hearing.id === hearingId)
@@ -438,7 +405,7 @@ export function abortGame(state: ExistingGameState, now = new Date()) {
   if (state.phase === 'completed') throw new Error('A completed game cannot be aborted.')
   if (state.phase === 'aborted') return state
   return {
-    schemaVersion: 3 as const,
+    schemaVersion: 5 as const,
     definitionFingerprint: state.definitionFingerprint,
     storyId: state.storyId,
     seed: state.seed,

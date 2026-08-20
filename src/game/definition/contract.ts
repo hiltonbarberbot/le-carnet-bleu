@@ -2,7 +2,7 @@ import type { SettingBrief } from '../setting/contract.js'
 import type { Story } from '../types.js'
 
 export type ActDefinition = {
-  id: string
+  id: 'opening'
   title: string
   operatorGoal: string
   playerGoal: string
@@ -10,39 +10,43 @@ export type ActDefinition = {
   completionLabel: string
 }
 
-export type SettingListField = keyof Pick<SettingBrief,
+export type SettingResourceKind = keyof Pick<SettingBrief,
   | 'playableSpaces'
   | 'routes'
   | 'usableFeatures'
   | 'availableProps'
   | 'safetyConstraints'
   | 'accessibilityNeeds'
+  | 'contentBoundaries'
 >
+
+export type SettingReference = {
+  kind: SettingResourceKind
+  id: string
+}
 
 export type SetupRequirement = {
   id: string
   label: string
-  settingField: SettingListField
-  settingValue: string
+  settingRef: SettingReference
 }
 
 export type ClueCard = {
   id: string
   text: string
-  beat: number
+  supportsSolutionStepIds: string[]
 }
 
 export type ClueDeck = {
   id: string
   label: string
-  settingField: SettingListField
-  settingValue: string
+  source: SettingReference
   clues: ClueCard[]
 }
 
 /** A validated, reusable mystery that can be instantiated as many games. */
 export type StorylineDefinition = {
-  schemaVersion: 2
+  schemaVersion: 5
   id: string
   title: string
   fingerprint: string

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { generateText } from 'ai'
 import { POST } from '../../../api/ai/setting'
 import { demoSetting } from '../demo'
+import { createSettingBrief } from '../setting/brief'
 
 vi.mock('ai', async importOriginal => {
   const actual = await importOriginal<typeof import('ai')>()
@@ -43,7 +44,7 @@ describe('AI setting function errors', () => {
     const payload = await response.json()
 
     expect(response.status).toBe(200)
-    expect(payload.setting).toEqual(demoSetting)
+    expect(payload.setting).toEqual(createSettingBrief(demoSetting))
   })
 
   it('feeds rejected output back to the model until it returns a valid setting', async () => {
@@ -56,7 +57,7 @@ describe('AI setting function errors', () => {
     const payload = await response.json()
 
     expect(response.status).toBe(200)
-    expect(payload.setting).toEqual(demoSetting)
+    expect(payload.setting).toEqual(createSettingBrief(demoSetting))
     expect(generateText).toHaveBeenCalledTimes(2)
     expect(vi.mocked(generateText).mock.calls[1]?.[0].prompt).toContain('The prior draft was rejected')
     expect(vi.mocked(generateText).mock.calls[1]?.[0].prompt).toContain('not valid JSON')
@@ -73,8 +74,8 @@ describe('AI setting function errors', () => {
     expect(payload.setting).toEqual(expect.objectContaining({
       venueName: "Host's venue",
       playableSpaces: expect.arrayContaining([
-        'Main host-approved gathering area',
-        'Clue station within the same gathering area',
+        expect.objectContaining({ label: 'Main host-approved gathering area' }),
+        expect.objectContaining({ label: 'Clue station within the same gathering area' }),
       ]),
     }))
     expect(generateText).toHaveBeenCalledTimes(4)

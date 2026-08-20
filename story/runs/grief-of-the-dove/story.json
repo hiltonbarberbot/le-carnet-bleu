@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 5,
   "id": "grief-of-the-dove",
   "title": "La Colombe",
   "setting": {
@@ -7,55 +7,251 @@
     "location": "Grambois, France",
     "era": "August 1962",
     "playableSpaces": [
-      "Terrace",
-      "Dining room",
-      "Kitchen",
-      "Poolside parlor",
-      "Salon",
-      "Entrance hall",
-      "Staircase to the bedrooms",
-      "Master bedroom",
-      "Basement",
-      "Basement room marked private",
-      "Swimming pool area",
-      "Cottage"
+      {
+        "id": "terrace",
+        "label": "Terrace",
+        "description": ""
+      },
+      {
+        "id": "dining-room",
+        "label": "Dining room",
+        "description": ""
+      },
+      {
+        "id": "kitchen",
+        "label": "Kitchen",
+        "description": ""
+      },
+      {
+        "id": "poolside-parlor",
+        "label": "Poolside parlor",
+        "description": ""
+      },
+      {
+        "id": "salon",
+        "label": "Salon",
+        "description": ""
+      },
+      {
+        "id": "entrance-hall",
+        "label": "Entrance hall",
+        "description": ""
+      },
+      {
+        "id": "staircase-to-the-bedrooms",
+        "label": "Staircase to the bedrooms",
+        "description": ""
+      },
+      {
+        "id": "master-bedroom",
+        "label": "Master bedroom",
+        "description": ""
+      },
+      {
+        "id": "basement",
+        "label": "Basement",
+        "description": ""
+      },
+      {
+        "id": "basement-room-marked-private",
+        "label": "Basement room marked private",
+        "description": ""
+      },
+      {
+        "id": "swimming-pool-area",
+        "label": "Swimming pool area",
+        "description": ""
+      },
+      {
+        "id": "cottage",
+        "label": "Cottage",
+        "description": ""
+      }
     ],
     "routes": [
-      "All named spaces are accessible through the house's ordinary connected layout",
-      "The staircase connects the entrance level with the bedrooms",
-      "The basement and its room marked private are accessible by the ordinary basement route",
-      "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
-      "The cottage is accessible from the house and is farther from the kitchen than the dining room is"
+      {
+        "id": "all-named-spaces-are-accessible-through-the-house-s-ordinary-connected-layout",
+        "label": "All named spaces are accessible through the house's ordinary connected layout",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-staircase-connects-the-entrance-level-with-the-bedrooms",
+        "label": "The staircase connects the entrance level with the bedrooms",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-basement-and-its-room-marked-private-are-accessible-by-the-ordinary-basement-route",
+        "label": "The basement and its room marked private are accessible by the ordinary basement route",
+        "description": "",
+        "spaceIds": [
+          "basement"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-terrace-poolside-parlor-and-swimming-pool-area-connect-through-the-ordinary-outdoor-circulation",
+        "label": "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+        "description": "",
+        "spaceIds": [
+          "terrace",
+          "poolside-parlor",
+          "swimming-pool-area"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-cottage-is-accessible-from-the-house-and-is-farther-from-the-kitchen-than-the-dining-room-is",
+        "label": "The cottage is accessible from the house and is farther from the kitchen than the dining room is",
+        "description": "",
+        "spaceIds": [
+          "dining-room",
+          "kitchen",
+          "cottage"
+        ],
+        "accessibilityNotes": []
+      }
     ],
     "usableFeatures": [
-      "Salon mantelpiece or equivalent display surface",
-      "Lockable study cabinet or equivalent secure document case",
-      "Framed picture on the staircase landing",
-      "Poolside chair kept outside the swimming pool",
-      "Ordinary terrace route between the house and cottage"
+      {
+        "id": "salon-mantelpiece-or-equivalent-display-surface",
+        "label": "Salon mantelpiece or equivalent display surface",
+        "description": "",
+        "spaceIds": [
+          "salon"
+        ]
+      },
+      {
+        "id": "lockable-study-cabinet-or-equivalent-secure-document-case",
+        "label": "Lockable study cabinet or equivalent secure document case",
+        "description": "",
+        "spaceIds": []
+      },
+      {
+        "id": "framed-picture-on-the-staircase-landing",
+        "label": "Framed picture on the staircase landing",
+        "description": "",
+        "spaceIds": []
+      },
+      {
+        "id": "poolside-chair-kept-outside-the-swimming-pool",
+        "label": "Poolside chair kept outside the swimming pool",
+        "description": "",
+        "spaceIds": []
+      },
+      {
+        "id": "ordinary-terrace-route-between-the-house-and-cottage",
+        "label": "Ordinary terrace route between the house and cottage",
+        "description": "",
+        "spaceIds": [
+          "terrace",
+          "cottage"
+        ]
+      }
     ],
     "availableProps": [
-      "Replica blue diamond and glass display dome",
-      "Linen jacket and prop key ring",
-      "Sealed inheritance letter and lockable document case",
-      "Hollow art book",
-      "Framed photograph",
-      "Hollow bronze dove and empty prop pill bottle",
-      "Paper envelopes and lacquer cigarette box",
-      "Safe cognac glass containing no medicine or substance"
+      {
+        "id": "diamond-display",
+        "label": "Replica blue diamond and glass display dome",
+        "description": "One inert replica blue diamond with a stable glass display dome.",
+        "quantity": 1,
+        "safetyNotes": [
+          "Use only the inert, host-approved version described here."
+        ]
+      },
+      {
+        "id": "jacket-keys",
+        "label": "Linen jacket and prop key ring",
+        "description": "One linen jacket and one inert prop key ring prepared as a single action kit.",
+        "quantity": 1,
+        "safetyNotes": []
+      },
+      {
+        "id": "document-case",
+        "label": "Sealed inheritance letter and lockable document case",
+        "description": "One sealed paper inheritance letter and one host-approved lockable document case.",
+        "quantity": 1,
+        "safetyNotes": []
+      },
+      {
+        "id": "hollow-book",
+        "label": "Hollow art book",
+        "description": "One prepared hollow art book capable of holding the replica diamond.",
+        "quantity": 1,
+        "safetyNotes": []
+      },
+      {
+        "id": "framed-photograph",
+        "label": "Framed photograph",
+        "description": "One harmless framed replica photograph.",
+        "quantity": 1,
+        "safetyNotes": []
+      },
+      {
+        "id": "bronze-dove",
+        "label": "Hollow bronze dove and empty prop pill bottle",
+        "description": "One hollow bronze dove and one empty inert prop pill bottle.",
+        "quantity": 1,
+        "safetyNotes": [
+          "Use only the inert, host-approved version described here."
+        ]
+      },
+      {
+        "id": "paper-envelopes",
+        "label": "Paper envelopes and lacquer cigarette box",
+        "description": "One prepared set of paper invitations and packets with one lacquer cigarette box.",
+        "quantity": 1,
+        "safetyNotes": []
+      },
+      {
+        "id": "safe-glass",
+        "label": "Safe cognac glass containing no medicine or substance",
+        "description": "One inert cognac glass containing no medicine, substance, or required drink.",
+        "quantity": 1,
+        "safetyNotes": [
+          "Use only the inert, host-approved version described here."
+        ]
+      }
     ],
     "tone": "Hard-edged August 1962 Riviera noir: elegance, blackmail, inheritance, and family betrayal",
     "safetyConstraints": [
-      "No physical contact",
-      "All physical beats are reversible and host-cued",
-      "No running or entering the swimming pool during play",
-      "Use only inert props; no real medicine, sharps, forced consumption, or uncontrolled darkness"
+      {
+        "id": "no-physical-contact",
+        "label": "No physical contact",
+        "description": ""
+      },
+      {
+        "id": "all-physical-actions-are-reversible-and-host-cued",
+        "label": "All physical staging is reversible and host-cued",
+        "description": ""
+      },
+      {
+        "id": "no-running-or-entering-the-swimming-pool-during-play",
+        "label": "No running or entering the swimming pool during play",
+        "description": ""
+      },
+      {
+        "id": "use-only-inert-props-no-real-medicine-sharps-forced-consumption-or-uncontrolled-darkness",
+        "label": "Use only inert props; no real medicine, sharps, forced consumption, or uncontrolled darkness",
+        "description": ""
+      }
     ],
     "accessibilityNeeds": [
-      "All essential actions can be performed seated or by the host as named human proxy"
+      {
+        "id": "all-essential-actions-can-be-performed-seated-or-by-the-host-as-named-human-proxy",
+        "label": "All essential actions can be performed seated or by the host as named human proxy",
+        "description": ""
+      }
     ],
     "contentBoundaries": [
-      "No fictional content exclusions: murder, blackmail, infidelity, concealed sexuality, secret parentage, and class conflict may be treated without softening"
+      {
+        "id": "no-fictional-content-exclusions-murder-blackmail-infidelity-concealed-sexuality-secret-parentage-and-class-conflict-may-be-treated-without-softening",
+        "label": "No fictional content exclusions: murder, blackmail, infidelity, concealed sexuality, secret parentage, and class conflict may be treated without softening",
+        "description": ""
+      }
     ]
   },
   "story": {
@@ -65,9 +261,6 @@
     "subtitle": "A blue diamond, one dead patriarch, and two crimes committed by different hands.",
     "premise": "In August 1962, Sacha de Vernay summons five people to the House in Grambois and places his family's blue diamond, La Colombe, beneath a glass dome. Each guest received a private promise. Before Sacha can explain why their lives meet in this house, he collapses over his cognac and the diamond disappears. The murderer and the thief are not the same person.",
     "totalPeople": 6,
-    "hostRole": "Sacha de Vernay, collector and patriarch; then Game Master",
-    "victim": "Sacha de Vernay",
-    "culprit": "Hélène de Vernay",
     "characters": [
       {
         "id": "helene-de-vernay",
@@ -130,8 +323,13 @@
             "aboutRoleIds": [
               "renato-sabbatini"
             ],
-            "beat": 4,
-            "availableAfter": "stage-collapse"
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "helene-de-vernay"
+              },
+              "independenceGroup": "role:helene-de-vernay"
+            }
           },
           {
             "id": "helene-odile-threat",
@@ -139,24 +337,14 @@
             "kind": "secret",
             "aboutRoleIds": [
               "odile-bassot"
-            ]
-          }
-        ],
-        "actions": [
-          {
-            "id": "helene-serve-cognac",
-            "text": "Place the inert prop glass beside Sacha without touching him. Say, 'Drink to the house you are so eager to give away.' The host mimes one sip, sets it down, and performs the rehearsed collapse.",
-            "cue": "After Odile places the sealed letter beside La Colombe",
-            "consequence": "Creates the only staged death and makes Hélène's delivery of the cognac public without revealing the fictional pills.",
-            "essential": true,
-            "beat": 3,
-            "phase": "opening",
-            "physical": true,
-            "requires": [
-              "safe-glass",
-              "no-contact",
-              "host-proxy"
-            ]
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "helene-de-vernay"
+              },
+              "independenceGroup": "role:helene-de-vernay"
+            }
           }
         ]
       },
@@ -221,7 +409,13 @@
             "aboutRoleIds": [
               "helene-de-vernay"
             ],
-            "beat": 3
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "renato-sabbatini"
+              },
+              "independenceGroup": "role:renato-sabbatini"
+            }
           },
           {
             "id": "renato-dove-rattle",
@@ -231,26 +425,13 @@
               "helene-de-vernay",
               "odile-bassot"
             ],
-            "beat": 6,
-            "availableAfter": "stage-collapse"
-          }
-        ],
-        "actions": [
-          {
-            "id": "renato-show-photograph",
-            "text": "Lift the prepared framed photograph from the staircase display, keep its image facing you, and tell Sacha that blackmail is not hospitality. Return it immediately when the host cues you.",
-            "cue": "After Julien places Sacha's wet jacket and keys by the display",
-            "consequence": "Establishes Renato's motive and the physical object he later enters the study to recover.",
-            "essential": true,
-            "beat": 4,
-            "phase": "opening",
-            "physical": true,
-            "requires": [
-              "staircase-picture",
-              "framed-photograph",
-              "no-contact",
-              "host-proxy"
-            ]
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "renato-sabbatini"
+              },
+              "independenceGroup": "role:renato-sabbatini"
+            }
           }
         ]
       },
@@ -317,7 +498,13 @@
               "odile-bassot",
               "julien-bassot"
             ],
-            "beat": 2
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "poppy-ashcombe"
+              },
+              "independenceGroup": "role:poppy-ashcombe"
+            }
           },
           {
             "id": "poppy-study-light",
@@ -327,8 +514,13 @@
               "renato-sabbatini",
               "helene-de-vernay"
             ],
-            "beat": 4,
-            "availableAfter": "stage-collapse"
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "poppy-ashcombe"
+              },
+              "independenceGroup": "role:poppy-ashcombe"
+            }
           },
           {
             "id": "poppy-rain-crossing",
@@ -337,24 +529,13 @@
             "aboutRoleIds": [
               "odile-bassot"
             ],
-            "beat": 5,
-            "availableAfter": "stage-collapse"
-          }
-        ],
-        "actions": [
-          {
-            "id": "poppy-read-letter",
-            "text": "Open your prepared invitation and read Sacha's promise aloud: 'I knew your mother in Rouen. Come to Grambois; there are things you are owed.' Ask him whether he was your father.",
-            "cue": "When Sacha unveils La Colombe beneath its glass dome",
-            "consequence": "Places secret parentage and Sacha's contradictory private promises at the centre of the gathering.",
-            "essential": true,
-            "beat": 1,
-            "phase": "opening",
-            "physical": true,
-            "requires": [
-              "paper-envelopes",
-              "no-contact"
-            ]
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "poppy-ashcombe"
+              },
+              "independenceGroup": "role:poppy-ashcombe"
+            }
           }
         ]
       },
@@ -420,7 +601,13 @@
               "odile-bassot",
               "helene-de-vernay"
             ],
-            "beat": 1
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "julien-bassot"
+              },
+              "independenceGroup": "role:julien-bassot"
+            }
           },
           {
             "id": "julien-pill-question",
@@ -430,7 +617,13 @@
               "helene-de-vernay",
               "odile-bassot"
             ],
-            "beat": 3
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "julien-bassot"
+              },
+              "independenceGroup": "role:julien-bassot"
+            }
           },
           {
             "id": "julien-hollow-book",
@@ -440,27 +633,13 @@
               "poppy-ashcombe",
               "odile-bassot"
             ],
-            "beat": 5,
-            "availableAfter": "stage-collapse"
-          }
-        ],
-        "actions": [
-          {
-            "id": "julien-bring-keys",
-            "text": "Walk by the ordinary outdoor route to the poolside chair, without approaching or entering the pool. Bring back the prepared linen jacket and prop keys, place them beside the dome, and tell Sacha you are done asking for what he owes you.",
-            "cue": "After Poppy asks Sacha about her father",
-            "consequence": "Makes the cabinet key available and publicly establishes Julien's explosive financial motive.",
-            "essential": true,
-            "beat": 1,
-            "phase": "opening",
-            "physical": true,
-            "requires": [
-              "poolside-chair",
-              "poolside-route",
-              "jacket-keys",
-              "no-running",
-              "host-proxy"
-            ]
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "julien-bassot"
+              },
+              "independenceGroup": "role:julien-bassot"
+            }
           }
         ]
       },
@@ -526,7 +705,13 @@
               "julien-bassot",
               "helene-de-vernay"
             ],
-            "beat": 1
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "odile-bassot"
+              },
+              "independenceGroup": "role:odile-bassot"
+            }
           },
           {
             "id": "odile-helenes-knowledge",
@@ -536,7 +721,13 @@
               "helene-de-vernay",
               "julien-bassot"
             ],
-            "beat": 2
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "odile-bassot"
+              },
+              "independenceGroup": "role:odile-bassot"
+            }
           },
           {
             "id": "odile-dove-silent",
@@ -545,25 +736,13 @@
             "aboutRoleIds": [
               "helene-de-vernay"
             ],
-            "beat": 6
-          }
-        ],
-        "actions": [
-          {
-            "id": "odile-place-letter",
-            "text": "Use the prepared prop key to open the lockable document case. Remove the sealed inheritance letter without opening it, place it beside La Colombe, and tell Sacha that paper is the only promise this house will believe.",
-            "cue": "After Renato returns the framed photograph",
-            "consequence": "Puts the inheritance within reach while keeping its contents secret until free investigation.",
-            "essential": true,
-            "beat": 1,
-            "phase": "opening",
-            "physical": true,
-            "requires": [
-              "document-case",
-              "paper-envelopes",
-              "no-contact",
-              "host-proxy"
-            ]
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "odile-bassot"
+              },
+              "independenceGroup": "role:odile-bassot"
+            }
           }
         ]
       }
@@ -572,12 +751,24 @@
       {
         "id": "scene-empty-dome",
         "text": "After Sacha's collapse, the host removes the replica diamond from beneath the glass dome while the table's attention is on the body. The empty dome becomes public evidence; no player handles the disappearance itself.",
-        "beat": 5
+        "provenance": {
+          "source": {
+            "kind": "public",
+            "openingStepId": "stage-collapse"
+          },
+          "independenceGroup": "opening:stage-collapse"
+        }
       },
       {
         "id": "scene-cognac-glass",
         "text": "The inert prop glass remains beside Sacha. Its host card states that the fiction treats the drink as containing a fatal excess of Sacha's own heart medicine; no real substance was ever used.",
-        "beat": 3
+        "provenance": {
+          "source": {
+            "kind": "public",
+            "openingStepId": "stage-collapse"
+          },
+          "independenceGroup": "opening:stage-collapse"
+        }
       }
     ],
     "evening": [
@@ -591,7 +782,7 @@
       {
         "id": "dove-incident",
         "title": "The last promise",
-        "description": "Follow the five short host-cued beats until Sacha collapses and the empty dome is revealed.",
+        "description": "Follow the five ordered host steps until Sacha collapses and the empty dome is revealed.",
         "durationMinutes": 15,
         "phase": "opening"
       },
@@ -610,175 +801,282 @@
         "phase": "reveal"
       }
     ],
-    "timeline": [
+    "solutionSteps": [
       {
-        "beat": 1,
         "title": "The unacknowledged heir",
         "truth": "Sacha was Julien's father and intended to leave him the House in Grambois and La Colombe that night.",
         "evidence": [
           "odile-sealed-letter",
           "julien-final-promise"
-        ]
+        ],
+        "id": "grief-of-the-dove-solution-1"
       },
       {
-        "beat": 2,
         "title": "The wife who read ahead",
         "truth": "Hélène read the inheritance letter before dinner and knew the fortune bought with her family's money would pass to Odile's son.",
         "evidence": [
           "poppy-cabinet-witness",
           "odile-helenes-knowledge"
-        ]
+        ],
+        "id": "grief-of-the-dove-solution-2"
       },
       {
-        "beat": 3,
         "title": "The fatal cognac",
         "truth": "Hélène fictionally crushed Sacha's heart medicine into his cognac and personally delivered the glass that killed him.",
         "evidence": [
           "renato-staircase-glass",
           "julien-pill-question",
           "scene-cognac-glass"
-        ]
+        ],
+        "id": "grief-of-the-dove-solution-3"
       },
       {
-        "beat": 4,
         "title": "The intruder after death",
         "truth": "Renato entered the study after Sacha was already dead, searching for blackmail photographs, and contaminated the glass without committing the murder.",
         "evidence": [
           "helene-renato-exit",
           "poppy-study-light"
-        ]
+        ],
+        "id": "grief-of-the-dove-solution-4"
       },
       {
-        "beat": 5,
         "title": "The second crime",
         "truth": "Odile took La Colombe after discovering the body and hid it in the cottage's hollow art book for Julien.",
         "evidence": [
           "poppy-rain-crossing",
           "julien-hollow-book",
           "scene-empty-dome"
-        ]
+        ],
+        "id": "grief-of-the-dove-solution-5"
       },
       {
-        "beat": 6,
         "title": "The bronze confession",
         "truth": "Hélène hid the empty pill bottle inside the hollow bronze dove after Odile had polished it, proving the murderer and diamond thief were different people.",
         "evidence": [
           "odile-dove-silent",
           "renato-dove-rattle"
-        ]
+        ],
+        "id": "grief-of-the-dove-solution-6"
       }
     ],
-    "runPlan": [
+    "openingSteps": [
       {
         "id": "open-the-dome",
-        "phase": "opening",
         "title": "Unveil La Colombe",
         "trigger": "When every player is seated and has read their dossier",
-        "operator": "Sacha welcomes the five guests, unveils the replica blue diamond, then cues Poppy to read her invitation.",
-        "actionIds": [
-          "poppy-read-letter"
+        "propIds": [
+          "paper-envelopes",
+          "diamond-display"
         ],
-        "dependsOn": [],
-        "essential": true
+        "instruction": "Sacha welcomes the five guests, unveils the replica blue diamond, then cues Poppy to read her invitation. Poppy Ashcombe: Open your prepared invitation and read Sacha's promise aloud: 'I knew your mother in Rouen. Come to Grambois; there are things you are owed.' Ask him whether he was your father.",
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "paper-envelopes",
+          "diamond-display"
+        ],
+        "settingRefs": [
+          {
+            "kind": "availableProps",
+            "id": "paper-envelopes"
+          },
+          {
+            "kind": "availableProps",
+            "id": "diamond-display"
+          }
+        ]
       },
       {
         "id": "bring-the-keys",
-        "phase": "opening",
         "title": "Bring in the rain",
         "trigger": "After Poppy asks whether Sacha was her father",
-        "operator": "Sacha refuses to answer and cues Julien to retrieve only the prepared jacket and prop keys by the verified poolside route.",
-        "actionIds": [
-          "julien-bring-keys"
+        "propIds": [
+          "jacket-keys"
         ],
-        "dependsOn": [
-          "open-the-dome"
+        "instruction": "Sacha refuses to answer and cues Julien to retrieve only the prepared jacket and prop keys by the verified poolside route. Julien Bassot: Walk by the ordinary outdoor route to the poolside chair, without approaching or entering the pool. Bring back the prepared linen jacket and prop keys, place them beside the dome, and tell Sacha you are done asking for what he owes you.",
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "jacket-keys"
         ],
-        "essential": true
+        "settingRefs": [
+          {
+            "kind": "availableProps",
+            "id": "jacket-keys"
+          }
+        ]
       },
       {
         "id": "show-the-photograph",
-        "phase": "opening",
         "title": "Name the blackmail",
         "trigger": "When Julien places the jacket beside the display",
-        "operator": "Sacha turns the insult toward Renato and cues the prepared framed photograph beat.",
-        "actionIds": [
-          "renato-show-photograph"
+        "propIds": [
+          "framed-photograph"
         ],
-        "dependsOn": [
-          "bring-the-keys"
+        "instruction": "Sacha turns the insult toward Renato and cues the prepared framed photograph action. Renato Sabbatini: Lift the prepared framed photograph from the staircase display, keep its image facing you, and tell Sacha that blackmail is not hospitality. Return it immediately when the host cues you.",
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "framed-photograph"
         ],
-        "essential": true
+        "settingRefs": [
+          {
+            "kind": "availableProps",
+            "id": "framed-photograph"
+          }
+        ]
       },
       {
         "id": "place-the-letter",
-        "phase": "opening",
         "title": "Put the promise in reach",
         "trigger": "After Renato returns the prepared photograph",
-        "operator": "Sacha gives Odile permission to open the prepared document case and place the sealed letter beside the diamond.",
-        "actionIds": [
-          "odile-place-letter"
+        "propIds": [
+          "document-case",
+          "paper-envelopes",
+          "diamond-display"
         ],
-        "dependsOn": [
-          "show-the-photograph"
+        "instruction": "Sacha gives Odile permission to open the prepared document case and place the sealed letter beside the diamond. Odile Bassot: Use the prepared prop key to open the lockable document case. Remove the sealed inheritance letter without opening it, place it beside La Colombe, and tell Sacha that paper is the only promise this house will believe.",
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "document-case",
+          "paper-envelopes",
+          "diamond-display"
         ],
-        "essential": true
+        "settingRefs": [
+          {
+            "kind": "availableProps",
+            "id": "document-case"
+          },
+          {
+            "kind": "availableProps",
+            "id": "paper-envelopes"
+          },
+          {
+            "kind": "availableProps",
+            "id": "diamond-display"
+          }
+        ]
       },
       {
         "id": "stage-collapse",
-        "phase": "opening",
         "title": "The last cognac",
         "trigger": "When the sealed letter rests beside La Colombe",
-        "operator": "Cue Hélène to place the inert glass. Perform the rehearsed no-contact collapse, announce Sacha dead, secretly remove the replica diamond, display the empty dome, and become Game Master.",
-        "actionIds": [
-          "helene-serve-cognac"
+        "propIds": [
+          "safe-glass",
+          "diamond-display"
         ],
-        "dependsOn": [
-          "place-the-letter"
+        "instruction": "Cue Hélène to place the inert glass. Perform the rehearsed no-contact collapse, announce Sacha dead, secretly remove the replica diamond, display the empty dome, and become Game Master. Hélène de Vernay: Place the inert prop glass beside Sacha without touching him. Say, 'Drink to the house you are so eager to give away.' The host mimes one sip, sets it down, and performs the rehearsed collapse.",
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "safe-glass",
+          "diamond-display",
+          "no-contact"
         ],
-        "essential": true
+        "settingRefs": [
+          {
+            "kind": "availableProps",
+            "id": "safe-glass"
+          },
+          {
+            "kind": "availableProps",
+            "id": "diamond-display"
+          },
+          {
+            "kind": "safetyConstraints",
+            "id": "no-physical-contact"
+          }
+        ]
       }
     ],
-    "solution": "Sacha de Vernay meant to acknowledge Julien Bassot as his son and leave him the House in Grambois and La Colombe. Hélène had read the letter. Refusing to watch property bought with Rachaud money pass to Odile's child, she fictionally crushed Sacha's heart pills into his cognac and served it herself, then hid the empty bottle inside the hollow bronze dove. Renato entered the study only after Sacha was dead, searching for photographs of himself and Prince Amaury; his fingerprints and lies made him useful to Hélène but did not make him the killer. Odile discovered what had happened and committed the night's second crime: she took La Colombe and hid it in the cottage's hollow art book so Julien would receive something no lawyer could contest. Hélène killed Sacha. Odile stole the diamond."
+    "host": {
+      "id": "host",
+      "name": "Sacha de Vernay",
+      "title": "Sacha de Vernay, collector and patriarch; then Game Master"
+    },
+    "victimRoleId": "host",
+    "culpritRoleId": "helene-de-vernay",
+    "solutionSummary": "Sacha de Vernay meant to acknowledge Julien Bassot as his son and leave him the House in Grambois and La Colombe. Hélène had read the letter. Refusing to watch property bought with Rachaud money pass to Odile's child, she fictionally crushed Sacha's heart pills into his cognac and served it herself, then hid the empty bottle inside the hollow bronze dove. Renato entered the study only after Sacha was dead, searching for photographs of himself and Prince Amaury; his fingerprints and lies made him useful to Hélène but did not make him the killer. Odile discovered what had happened and committed the night's second crime: she took La Colombe and hid it in the cottage's hollow art book so Julien would receive something no lawyer could contest. Hélène killed Sacha. Odile stole the diamond."
   },
   "clueDecks": [
     {
       "id": "salon-testimony",
       "label": "Salon testimony",
-      "settingField": "playableSpaces",
-      "settingValue": "Salon",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "salon"
+      },
       "clues": [
         {
           "id": "clue-letter-impression",
           "text": "The sealed letter's blotting sheet carries the words 'my son Julien' and a transfer of the House in Grambois.",
-          "beat": 1
+          "supportsSolutionStepIds": [
+            "grief-of-the-dove-solution-1"
+          ]
         },
         {
           "id": "clue-cognac-residue",
           "text": "The fictional residue described on the host card matches Sacha's own heart medicine, not any substance Renato brought into the study.",
-          "beat": 3
+          "supportsSolutionStepIds": [
+            "grief-of-the-dove-solution-2"
+          ]
         },
         {
           "id": "clue-bronze-thread",
           "text": "A black thread caught inside the bronze dove matches Hélène's glove and not Odile's polishing cloth.",
-          "beat": 6
+          "supportsSolutionStepIds": [
+            "grief-of-the-dove-solution-3"
+          ]
         }
       ]
     },
     {
       "id": "cottage-cache",
       "label": "Cottage cache",
-      "settingField": "playableSpaces",
-      "settingValue": "Cottage",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "cottage"
+      },
       "clues": [
         {
           "id": "clue-art-book",
           "text": "Blue velvet fibres from La Colombe's display base cling to the hollow art book, beside damp marks from an apron hem.",
-          "beat": 5
+          "supportsSolutionStepIds": [
+            "grief-of-the-dove-solution-1"
+          ]
         },
         {
           "id": "clue-photograph-time",
           "text": "The prepared study clock record places Renato's search after the fatal glass was served, making him an intruder but not the poisoner.",
-          "beat": 4
+          "supportsSolutionStepIds": [
+            "grief-of-the-dove-solution-2"
+          ]
         }
       ]
     }
@@ -797,86 +1095,114 @@
     {
       "id": "diamond-display",
       "label": "Place the replica blue diamond beneath its glass display dome in the dining room.",
-      "settingField": "availableProps",
-      "settingValue": "Replica blue diamond and glass display dome"
+      "settingRef": {
+        "kind": "availableProps",
+        "id": "diamond-display"
+      }
     },
     {
       "id": "jacket-keys",
       "label": "Put the linen jacket and prop key ring on the verified poolside chair, away from the pool edge.",
-      "settingField": "availableProps",
-      "settingValue": "Linen jacket and prop key ring"
+      "settingRef": {
+        "kind": "availableProps",
+        "id": "jacket-keys"
+      }
     },
     {
       "id": "document-case",
       "label": "Prepare the sealed inheritance letter inside the lockable document case.",
-      "settingField": "availableProps",
-      "settingValue": "Sealed inheritance letter and lockable document case"
+      "settingRef": {
+        "kind": "availableProps",
+        "id": "document-case"
+      }
     },
     {
       "id": "paper-envelopes",
       "label": "Prepare Poppy's invitation and the other paper packets used in the opening.",
-      "settingField": "availableProps",
-      "settingValue": "Paper envelopes and lacquer cigarette box"
+      "settingRef": {
+        "kind": "availableProps",
+        "id": "paper-envelopes"
+      }
     },
     {
       "id": "framed-photograph",
       "label": "Prepare the harmless framed Portofino photograph prop.",
-      "settingField": "availableProps",
-      "settingValue": "Framed photograph"
+      "settingRef": {
+        "kind": "availableProps",
+        "id": "framed-photograph"
+      }
     },
     {
       "id": "staircase-picture",
       "label": "Place the prepared framed picture on the verified staircase landing.",
-      "settingField": "usableFeatures",
-      "settingValue": "Framed picture on the staircase landing"
+      "settingRef": {
+        "kind": "usableFeatures",
+        "id": "framed-picture-on-the-staircase-landing"
+      }
     },
     {
       "id": "bronze-dove",
       "label": "Place the empty prop pill bottle inside the hollow bronze dove only after the host's setup check.",
-      "settingField": "availableProps",
-      "settingValue": "Hollow bronze dove and empty prop pill bottle"
+      "settingRef": {
+        "kind": "availableProps",
+        "id": "bronze-dove"
+      }
     },
     {
       "id": "hollow-book",
       "label": "Prepare the hollow art book in the cottage; the host alone manages the replica diamond's hidden duplicate or transfer.",
-      "settingField": "availableProps",
-      "settingValue": "Hollow art book"
+      "settingRef": {
+        "kind": "availableProps",
+        "id": "hollow-book"
+      }
     },
     {
       "id": "safe-glass",
       "label": "Prepare an inert cognac glass with no medicine, substance, or required drinking.",
-      "settingField": "availableProps",
-      "settingValue": "Safe cognac glass containing no medicine or substance"
+      "settingRef": {
+        "kind": "availableProps",
+        "id": "safe-glass"
+      }
     },
     {
       "id": "poolside-chair",
       "label": "Confirm the jacket's chair is outside the swimming pool and reachable without approaching the water.",
-      "settingField": "usableFeatures",
-      "settingValue": "Poolside chair kept outside the swimming pool"
+      "settingRef": {
+        "kind": "usableFeatures",
+        "id": "poolside-chair-kept-outside-the-swimming-pool"
+      }
     },
     {
       "id": "poolside-route",
       "label": "Confirm the ordinary outdoor route to the swimming pool area is clear and host-approved.",
-      "settingField": "routes",
-      "settingValue": "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation"
+      "settingRef": {
+        "kind": "routes",
+        "id": "the-terrace-poolside-parlor-and-swimming-pool-area-connect-through-the-ordinary-outdoor-circulation"
+      }
     },
     {
       "id": "no-contact",
       "label": "Rehearse every handoff and Sacha's collapse without physical contact.",
-      "settingField": "safetyConstraints",
-      "settingValue": "No physical contact"
+      "settingRef": {
+        "kind": "safetyConstraints",
+        "id": "no-physical-contact"
+      }
     },
     {
       "id": "no-running",
       "label": "Confirm that nobody runs or enters the swimming pool during play.",
-      "settingField": "safetyConstraints",
-      "settingValue": "No running or entering the swimming pool during play"
+      "settingRef": {
+        "kind": "safetyConstraints",
+        "id": "no-running-or-entering-the-swimming-pool-during-play"
+      }
     },
     {
       "id": "host-proxy",
-      "label": "Assign the host as proxy for any physical action a player cannot or should not perform.",
-      "settingField": "accessibilityNeeds",
-      "settingValue": "All essential actions can be performed seated or by the host as named human proxy"
+      "label": "Assign the host as proxy for any physical staging a player cannot or should not perform.",
+      "settingRef": {
+        "kind": "accessibilityNeeds",
+        "id": "all-essential-actions-can-be-performed-seated-or-by-the-host-as-named-human-proxy"
+      }
     }
   ]
 }

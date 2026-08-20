@@ -1,4 +1,4 @@
-import { cast, clueDecks, publicEvidence, runPlan, timeline } from './scenario.js'
+import { cast, clueDecks, openingSteps, publicEvidence, solutionSteps } from './scenario.js'
 import { compileStory } from './story/compile.js'
 import type { Character, Story } from './types.js'
 import { hashString } from './random/hash.js'
@@ -44,9 +44,9 @@ export function generateGame(seed: string): Story {
     subtitle: 'Five restitution packets. One stolen song. A sixth envelope meant to kill.',
     premise: 'Armand Delatour has summoned five people to Maison Bleue under five different promises of restitution. Before midnight, he intends to restore the authorship and royalties of La Dernière Marée, the famous waltz stolen from Anaïs Loret. He displays five sealed packets and the blue notebook that records fifteen years of profit and silence. During Anaïs’s surviving test recording, a sixth envelope addressed privately to Armand appears on the notebook. He opens it, pricks his thumb on the fictional poisoned sliver hidden inside, and collapses before the final refrain.',
     totalPeople: 6,
-    hostRole: 'Armand Delatour, former impresario, then Game Master',
-    victim: 'Armand Delatour',
-    culprit: 'Solange Béraud',
+    host: { id: 'host', name: 'Armand Delatour', title: 'Former impresario, then Game Master' },
+    victimRoleId: 'host',
+    culpritRoleId: 'solange',
     characters: cast,
     publicEvidence,
     evening: [
@@ -55,8 +55,8 @@ export function generateGame(seed: string): Story {
       { id: 'free-play', title: 'Open investigation', description: 'For one to three hours, talk, pursue objectives, buy clues, trade, scheme, and call a public accusation whenever the room is ready.', durationMinutes: 90, phase: 'investigation' },
       { id: 'reveal', title: 'Reveal, scoring, and awards', description: 'Read the solution, score objectives and remaining tokens, then award best player, performance, and costume.', durationMinutes: 15, phase: 'reveal' },
     ],
-    timeline,
-    runPlan,
-    solution: 'Anaïs Loret composed La Dernière Marée. Henri Valois disguised the purchase of her working score, registered the waltz in his own name, and became famous; Armand Delatour witnessed the bargain and suppressed questions about it. The largest royalty share still flowed to Éditions du Méridien, secretly owned by Solange Béraud. Armand’s restitution would have transferred the publisher and its royalties to Anaïs’s estate. Before dinner, Solange had Mathilde address an archive label over blue carbon, then kept the duplicate. She trimmed that duplicate into a label for a safe prop envelope fictionally rigged with a poisoned glass sliver and slipped it onto Armand’s notebook while Colette played Anaïs’s test recording. Armand opened the sixth envelope and collapsed. The transfer inventory had told Solange that Mathilde expected the original score in the west drawer, so she counted on Mathilde’s threat and immediate retrieval to complete the frame. But Rémy had counted only five packets, Gabriel saw Solange at the notebook, and the torn blue corner in her folio fit the address label.',
+    solutionSteps,
+    openingSteps,
+    solutionSummary: 'Anaïs Loret composed La Dernière Marée. Henri Valois disguised the purchase of her working score, registered the waltz in his own name, and became famous; Armand Delatour witnessed the bargain and suppressed questions about it. The largest royalty share still flowed to Éditions du Méridien, secretly owned by Solange Béraud. Armand’s restitution would have transferred the publisher and its royalties to Anaïs’s estate. Before dinner, Solange had Mathilde address an archive label over blue carbon, then kept the duplicate. She trimmed that duplicate into a label for a safe prop envelope fictionally rigged with a poisoned glass sliver and slipped it onto Armand’s notebook while Colette played Anaïs’s test recording. Armand opened the sixth envelope and collapsed. The transfer inventory had told Solange that Mathilde expected the original score in the west drawer, so she counted on Mathilde’s threat and immediate retrieval to complete the frame. But Rémy had counted only five packets, Gabriel saw Solange at the notebook, and the torn blue corner in her folio fit the address label.',
   }, cleanSeed, new Set(clueDecks.flatMap(deck => deck.clues.map(clue => clue.id))))
 }

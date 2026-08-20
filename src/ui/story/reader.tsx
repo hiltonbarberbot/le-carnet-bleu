@@ -1,5 +1,8 @@
 import type { StorylineDefinition } from '../../game/definition/contract'
-import type { Action, Story } from '../../game/types'
+import { getPropBacklinks } from '../../game/props/links'
+import { getSettingBacklinks, getSettingResource } from '../../game/setting/links'
+import type { Story } from '../../game/types'
+import { liveCharacterName, liveInstructionText, liveRoleName, type LiveAssignments } from '../game/live-name'
 import type { GameSessionEntry } from '../library/storage'
 
 type GodViewProps = {
@@ -7,121 +10,147 @@ type GodViewProps = {
   onExit: () => void
 }
 
-type IndexedAction = Action & { owner: string }
-
 type EvidenceThread = {
   text: string
   source: string
-  availableAfter?: string
 }
 
-function indexActions(story: Story) {
-  return new Map<string, IndexedAction>(story.characters.flatMap(character =>
-    character.actions.map(action => [action.id, { ...action, owner: character.name }] as const),
-  ))
+function storyText(story: Story, assignments: LiveAssignments | undefined, text: string) {
+  return assignments ? liveInstructionText(story, assignments, text) : text
 }
 
-function indexEvidence(story: Story) {
+function storyRoleName(story: Story, roleId: string) {
+  if (roleId === story.host.id) return story.host.name
+  return story.characters.find(character => character.id === roleId)?.name ?? roleId
+}
+
+function SettingLinks({ definition, references, assignments }: { definition: StorylineDefinition; references: StorylineDefinition['story']['openingSteps'][number]['settingRefs']; assignments?: LiveAssignments }) {
+  if (!references.length) return null
+  return <small>Setting: {references.map((reference, index) => {
+    const resource = getSettingResource(definition, reference)
+    const anchor = reference.kind === 'availableProps' ? `prop-${reference.id}` : `setting-${reference.kind}-${reference.id}`
+    return <span key={`${reference.kind}:${reference.id}`}>{index > 0 && ' · '}<a href={`#${anchor}`}>{storyText(definition.story, assignments, resource?.label ?? reference.id)}</a></span>
+  })}</small>
+}
+
+function indexEvidence(story: Story, assignments?: LiveAssignments) {
   const threads: Array<readonly [string, EvidenceThread]> = [
     ...story.publicEvidence.map(item => [item.id, {
-      text: item.text,
+      text: storyText(story, assignments, item.text),
       source: 'Public scene evidence',
     }] as const),
     ...story.characters.flatMap(character => character.secrets.map(secret => [secret.id, {
-      text: secret.text,
-      source: `${character.name} · ${secret.kind}`,
-      availableAfter: secret.availableAfter,
+      text: storyText(story, assignments, secret.text),
+      source: `${assignments ? liveCharacterName(character, assignments) : character.name} · ${secret.kind}`,
     }] as const)),
   ]
   return new Map(threads)
 }
 
-function StoryCast({ story }: { story: Story }) {
+function StoryCast({ story, assignments }: { story: Story; assignments?: LiveAssignments }) {
   return <section className="story-section">
     <div className="story-section-heading">
       <span>02 · DRAMATIS PERSONAE</span>
       <h2>What everyone wants</h2>
-      <p>Public identities, three playable goals, and the actions each suspect brings into the plot.</p>
+      <p>Public identities, three playable objectives, relationships, and private truths.</p>
     </div>
     <div className="story-cast">
       {story.characters.map(character => <article key={character.id}>
-        <header><span>{character.title}</span><h3>{character.name}</h3></header>
-        <p>{character.publicFace}</p>
+        <header><span>{character.title}</span><h3>{assignments ? liveCharacterName(character, assignments) : character.name}</h3></header>
+        <p>{storyText(story, assignments, character.publicFace)}</p>
         <dl className="story-motive">
-          <div><dt>WHY THEY CAME</dt><dd>{character.invitationPretext}</dd></div>
-          <div><dt>WHAT THEY NEED</dt><dd>{character.objectives.map(objective => objective.title).join(' · ')}</dd></div>
+          <div><dt>WHY THEY CAME</dt><dd>{storyText(story, assignments, character.invitationPretext)}</dd></div>
+          <div><dt>WHAT THEY NEED</dt><dd>{character.objectives.map(objective => storyText(story, assignments, objective.title)).join(' · ')}</dd></div>
         </dl>
-        <div className="story-secret"><b>PRIVATE TRUTH</b><p>{character.privateSecret}</p></div>
-        <div className="story-contributions"><b>WHAT THEY MAKE HAPPEN</b>{character.actions.map(action => <p key={action.id}><strong>{action.cue}:</strong> {action.text}</p>)}</div>
+        <div className="story-secret"><b>PRIVATE TRUTH</b><p>{storyText(story, assignments, character.privateSecret)}</p></div>
       </article>)}
     </div>
   </section>
 }
 
-function StoryEvening({ story }: { story: Story }) {
+function StoryEvening({ story, assignments }: { story: Story; assignments?: LiveAssignments }) {
   const total = story.evening.reduce((minutes, stage) => minutes + stage.durationMinutes, 0)
   return <section className="story-section">
     <div className="story-section-heading"><span>01 · THE EVENING</span><h2>{total} minutes, start to finish</h2><p>This is the player-facing shape of the night. The host can move on early whenever the room is ready.</p></div>
-    <ol className="story-evening">{story.evening.map((stage, index) => <li key={stage.id}><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{stage.title}</h3><p>{stage.description}</p></div><b>{stage.durationMinutes} min</b></li>)}</ol>
+    <ol className="story-evening">{story.evening.map((stage, index) => <li key={stage.id}><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{storyText(story, assignments, stage.title)}</h3><p>{storyText(story, assignments, stage.description)}</p></div><b>{stage.durationMinutes} min</b></li>)}</ol>
   </section>
 }
 
-function StoryRun({ definition }: { definition: StorylineDefinition }) {
-  const actions = indexActions(definition.story)
-  const plannedPhases = new Set(definition.acts.map(act => act.id))
-  const phases = [
-    ...definition.acts.map(act => ({ id: act.id, title: act.title, goal: act.operatorGoal })),
-    ...definition.story.runPlan
-      .filter(beat => !plannedPhases.has(beat.phase))
-      .map(beat => beat.phase)
-      .filter((phase, index, all) => all.indexOf(phase) === index)
-      .map(phase => ({ id: phase, title: phase, goal: '' })),
-  ]
+function StoryRun({ definition, assignments }: { definition: StorylineDefinition; assignments?: LiveAssignments }) {
+  const act = definition.acts[0]
 
   return <section className="story-section">
     <div className="story-section-heading">
       <span>03 · THE NIGHT AS PLAYED</span>
-      <h2>Cause before effect</h2>
-      <p>The live sequence in dependency order. Every numbered card is a host-confirmed event, not backstory.</p>
+      <h2>The short opening</h2>
+      <p>One ordered checklist takes the room from introductions to the body discovery. There is no dependency graph.</p>
     </div>
     <div className="story-acts">
-      {phases.map((phase, phaseIndex) => <section key={phase.id}>
-        <header><span>ACT {phaseIndex + 1}</span><h3>{phase.title}</h3>{phase.goal && <p>{phase.goal}</p>}</header>
+      <section>
+        <header><span>OPENING</span><h3>{storyText(definition.story, assignments, act.title)}</h3><p>{storyText(definition.story, assignments, act.operatorGoal)}</p></header>
         <div className="story-run">
-          {definition.story.runPlan.filter(beat => beat.phase === phase.id).map((beat, beatIndex) => <article key={beat.id}>
-            <div className="story-run-number">{String(beatIndex + 1).padStart(2, '0')}</div>
+          {definition.story.openingSteps.map((step, stepIndex) => <article id={`run-step-${step.id}`} key={step.id}>
+            <div className="story-run-number">{String(stepIndex + 1).padStart(2, '0')}</div>
             <div>
-              <div className="story-run-title"><h4>{beat.title}</h4><span>{beat.essential ? 'REQUIRED' : 'OPTIONAL'}</span></div>
-              <p className="story-trigger">When: {beat.trigger}</p>
-              <p>{beat.operator}</p>
-              {beat.dependsOn.length > 0 && <small>Follows: {beat.dependsOn.map(id => definition.story.runPlan.find(item => item.id === id)?.title ?? id).join(' · ')}</small>}
-              {beat.actionIds.map(id => {
-                const action = actions.get(id)
-                return action ? <div className="story-action" key={id}><b>{action.owner}</b><p>{action.text}</p><small>Result: {action.consequence}</small></div> : null
-              })}
+              <div className="story-run-title"><h4>{storyText(definition.story, assignments, step.title)}</h4></div>
+              <p className="story-trigger">When: {storyText(definition.story, assignments, step.trigger)}</p>
+              <p>{storyText(definition.story, assignments, step.instruction)}</p>
+              <SettingLinks definition={definition} references={step.settingRefs} assignments={assignments} />
             </div>
           </article>)}
         </div>
-      </section>)}
+      </section>
     </div>
   </section>
 }
 
-function StoryTruth({ story }: { story: Story }) {
-  const evidence = indexEvidence(story)
+function StorySetting({ definition, assignments }: { definition: StorylineDefinition; assignments?: LiveAssignments }) {
+  const backlinks = getSettingBacklinks(definition).filter(entry => entry.reference.kind !== 'availableProps' && (entry.setupRequirements.length || entry.clueDecks.length || entry.openingSteps.length))
+  return <section className="story-section">
+    <div className="story-section-heading"><span>05 · VERIFIED SETTING</span><h2>The setting crosslink ledger</h2><p>Every used room, route, feature, constraint, and accessibility need links back to the authored elements that depend on it.</p></div>
+    <div className="story-decks">{backlinks.map(({ reference, resource, setupRequirements, clueDecks, openingSteps }) => <article id={`setting-${reference.kind}-${reference.id}`} key={`${reference.kind}:${reference.id}`}>
+      <header><span>{reference.kind} · {reference.id}</span><h3>{storyText(definition.story, assignments, resource.label)}</h3></header>
+      {'description' in resource && resource.description && <p>{storyText(definition.story, assignments, resource.description)}</p>}
+      <dl className="story-motive">
+        <div><dt>PREPARE</dt><dd>{setupRequirements.length ? setupRequirements.map(item => storyText(definition.story, assignments, item.label)).join(' · ') : 'No setup check.'}</dd></div>
+        <div><dt>CLUE DECKS</dt><dd>{clueDecks.length ? clueDecks.map(item => storyText(definition.story, assignments, item.label)).join(' · ') : 'No clue deck.'}</dd></div>
+        <div><dt>HOST STEPS</dt><dd>{openingSteps.length ? openingSteps.map((step, index) => <span key={step.id}>{index > 0 && ' · '}<a href={`#run-step-${step.id}`}>{storyText(definition.story, assignments, step.title)}</a></span>) : 'No opening step.'}</dd></div>
+      </dl>
+    </article>)}</div>
+  </section>
+}
+
+function StoryProps({ definition, assignments }: { definition: StorylineDefinition; assignments?: LiveAssignments }) {
+  const backlinks = getPropBacklinks(definition)
+  return <section className="story-section">
+    <div className="story-section-heading"><span>04 · PHYSICAL PROPS</span><h2>The object ledger</h2><p>Every object has one stable setting ID. Links below lead to each authored preparation and host step that uses it.</p></div>
+    <div className="story-decks">{backlinks.map(({ prop, setupRequirements, openingSteps }) => <article id={`prop-${prop.id}`} key={prop.id}>
+      <header><span>PROP · {prop.id}</span><h3>{storyText(definition.story, assignments, prop.label)}</h3><small>Quantity {prop.quantity}</small></header>
+      {prop.description && <p>{storyText(definition.story, assignments, prop.description)}</p>}
+      {prop.safetyNotes.length > 0 && <p><b>Safety:</b> {prop.safetyNotes.map(note => storyText(definition.story, assignments, note)).join(' · ')}</p>}
+      <dl className="story-motive">
+        <div><dt>PREPARE</dt><dd>{setupRequirements.length ? setupRequirements.map(requirement => storyText(definition.story, assignments, requirement.label)).join(' · ') : 'Available in the setting; no authored preparation.'}</dd></div>
+        <div><dt>HOST STEPS</dt><dd>{openingSteps.length ? openingSteps.map((step, index) => <span key={step.id}>{index > 0 && ' · '}<a href={`#run-step-${step.id}`}>{storyText(definition.story, assignments, step.title)}</a></span>) : 'No authored opening step.'}</dd></div>
+      </dl>
+    </article>)}</div>
+  </section>
+}
+
+function StoryTruth({ story, assignments }: { story: Story; assignments?: LiveAssignments }) {
+  const evidence = indexEvidence(story, assignments)
   return <section className="story-section story-truth">
     <div className="story-section-heading">
-      <span>05 · CANONICAL TRUTH</span>
+      <span>07 · CANONICAL TRUTH</span>
       <h2>What actually happened</h2>
       <p>Read top to bottom as the solution. The indented notes are the independent routes by which players can establish each claim.</p>
     </div>
     <div className="story-timeline">
-      {story.timeline.map(beat => <article key={beat.beat}>
-        <div className="story-beat"><span>{String(beat.beat).padStart(2, '0')}</span><div><h3>{beat.title}</h3><p>{beat.truth}</p></div></div>
+      {story.solutionSteps.map((step, index) => <article key={`${index}-${step.title}`}>
+        <div className="story-step"><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{storyText(story, assignments, step.title)}</h3><p>{storyText(story, assignments, step.truth)}</p></div></div>
         <div className="story-evidence">
-          {beat.evidence.map(id => {
+          {step.evidence.map(id => {
             const thread = evidence.get(id)
-            return <div key={id}><span>{thread?.source ?? 'Missing evidence'}</span><p>{thread?.text ?? id}</p>{thread?.availableAfter && <small>Enters play after “{story.runPlan.find(item => item.id === thread.availableAfter)?.title ?? thread.availableAfter}”.</small>}</div>
+            return <div key={id}><span>{thread?.source ?? 'Missing evidence'}</span><p>{thread?.text ?? id}</p></div>
           })}
         </div>
       </article>)}
@@ -129,16 +158,17 @@ function StoryTruth({ story }: { story: Story }) {
   </section>
 }
 
-function StoryClues({ definition }: { definition: StorylineDefinition }) {
+function StoryClues({ definition, assignments }: { definition: StorylineDefinition; assignments?: LiveAssignments }) {
   return <section className="story-section">
-    <div className="story-section-heading"><span>04 · PURCHASABLE CLUES</span><h2>The complete clue-desk inventory</h2><p>Players draw these privately and without replacement. They corroborate the case; the canonical solution never depends on an unsold clue alone.</p></div>
-    <div className="story-decks">{definition.clueDecks.map(deck => <article key={deck.id}><header><span>DECK</span><h3>{deck.label}</h3><small>{deck.settingValue}</small></header><ol>{deck.clues.map(clue => <li key={clue.id}><span>BEAT {clue.beat}</span><p>{clue.text}</p></li>)}</ol></article>)}</div>
+    <div className="story-section-heading"><span>06 · PURCHASABLE CLUES</span><h2>The complete clue-desk inventory</h2><p>Players draw these privately and without replacement. They corroborate the case; the canonical solution never depends on an unsold clue alone.</p></div>
+    <div className="story-decks">{definition.clueDecks.map(deck => <article key={deck.id}><header><span>DECK</span><h3>{storyText(definition.story, assignments, deck.label)}</h3><small>{deck.source.kind} · {deck.source.id}</small></header><ol>{deck.clues.map((clue, index) => <li key={clue.id}><span>CLUE {index + 1}</span><p>{storyText(definition.story, assignments, clue.text)}</p></li>)}</ol></article>)}</div>
   </section>
 }
 
 export function GodView({ game, onExit }: GodViewProps) {
   const definition = game.storyline
   const { story } = definition
+  const assignments = game.state.phase === 'active' || game.state.phase === 'completed' ? game.state : undefined
   return <>
     <header className="story-reader-bar">
       <button onClick={onExit}>← Back</button>
@@ -149,19 +179,21 @@ export function GodView({ game, onExit }: GodViewProps) {
       <header className="story-reader-hero">
         <span className="kicker">THE WHOLE STORY · {definition.setting.venueName}</span>
         <h1>{story.title}</h1>
-        <p className="story-deck">{story.premise}</p>
+        <p className="story-deck">{storyText(story, assignments, story.premise)}</p>
         <div className="story-facts">
-          <div><span>VICTIM</span><b>{story.victim}</b></div>
-          <div><span>CULPRIT</span><b>{story.culprit}</b></div>
-          <div><span>STRUCTURE</span><b>{story.timeline.length} truth beats · {story.runPlan.length} live beats</b></div>
+          <div><span>VICTIM</span><b>{assignments ? liveRoleName(story, assignments, story.victimRoleId) : storyRoleName(story, story.victimRoleId)}</b></div>
+          <div><span>CULPRIT</span><b>{assignments ? liveRoleName(story, assignments, story.culpritRoleId) : storyRoleName(story, story.culpritRoleId)}</b></div>
+          <div><span>STRUCTURE</span><b>{story.solutionSteps.length} solution steps · {story.openingSteps.length} opening steps</b></div>
         </div>
-        <section className="story-synopsis"><span>THE SOLUTION IN ONE PASS</span><p>{story.solution}</p></section>
+        <section className="story-synopsis"><span>THE SOLUTION IN ONE PASS</span><p>{storyText(story, assignments, story.solutionSummary)}</p></section>
       </header>
-      <StoryEvening story={story} />
-      <StoryCast story={story} />
-      <StoryRun definition={definition} />
-      <StoryClues definition={definition} />
-      <StoryTruth story={story} />
+      <StoryEvening story={story} assignments={assignments} />
+      <StoryCast story={story} assignments={assignments} />
+      <StoryRun definition={definition} assignments={assignments} />
+      <StoryProps definition={definition} assignments={assignments} />
+      <StorySetting definition={definition} assignments={assignments} />
+      <StoryClues definition={definition} assignments={assignments} />
+      <StoryTruth story={story} assignments={assignments} />
       <button className="story-reader-finish" onClick={onExit}>Finished reading — return to the game →</button>
     </main>
   </>

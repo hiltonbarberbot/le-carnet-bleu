@@ -6,14 +6,13 @@ import {
   callAccusation,
   castVote,
   completeGame,
-  confirmRunBeat,
+  completeOpeningStep,
   createGame,
   enableDuplicateClues,
   endInvestigation,
   lowerCluePrice,
   prepareGame,
   recordAward,
-  recordAiPerformance,
   setObjectiveCompleted,
   startGame,
   toggleEvidence,
@@ -98,16 +97,14 @@ export function createGameRuntime(authoredGame: AuthoredStoryline): PortableGame
           return changed(prepareGame(definition, expectPhase(state, 'enrolling'), context.capabilities, context.now), 'Role assignments prepared.')
         case 'start':
           return changed(startGame(definition, expectPhase(state, 'prepared'), context.now), 'Game started.')
-        case 'record_ai_performance':
-          return changed(recordAiPerformance(definition, expectPhase(state, 'active'), payloadString(command, 'roleId'), payloadString(command, 'actionId'), payloadString(command, 'text'), context.now), 'AI performance recorded.')
-        case 'confirm_beat':
-          return changed(confirmRunBeat(definition, expectPhase(state, 'active'), payloadString(command, 'beatId')), 'Beat confirmed.')
+        case 'complete_opening_step':
+          return changed(completeOpeningStep(definition, expectPhase(state, 'active'), payloadString(command, 'stepId')), 'Opening step completed.')
         case 'advance_act': {
           const next = advanceAct(definition, expectPhase(state, 'active'))
           return changed(next, next.playPhase === 'investigation' ? 'Investigation started.' : `Advanced to ${next.playPhase}.`)
         }
         case 'toggle_evidence':
-          return changed(toggleEvidence(expectPhase(state, 'active'), payloadString(command, 'evidenceId')), 'Evidence tracking updated.')
+          return changed(toggleEvidence(definition, expectPhase(state, 'active'), payloadString(command, 'evidenceId')), 'Evidence tracking updated.')
         case 'buy_clue': {
           const active = expectPhase(state, 'active')
           const roleId = payloadString(command, 'roleId')

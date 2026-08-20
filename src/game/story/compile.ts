@@ -3,11 +3,10 @@ import type { Story } from '../types.js'
 export function validateStory(story: Story, purchasableEvidenceIds: ReadonlySet<string> = new Set()): string[] {
   const errors: string[] = []
   const characterIds = new Set(story.characters.map(character => character.id))
-  const actionIds = new Set<string>()
   const storyEvidenceIds = new Set(story.publicEvidence.map(item => item.id))
   const evidenceIds = new Set([...storyEvidenceIds, ...purchasableEvidenceIds])
-  const runBeatIds = new Set<string>()
-  const declaredRunBeatIds = new Set(story.runPlan.map(beat => beat.id))
+  const openingStepIds = new Set<string>()
+  const evidenceProvenance = new Map(story.publicEvidence.map(item => [item.id, item.provenance] as const))
 
   if (story.totalPeople !== story.characters.length + 1) {
     errors.push(`story requires ${story.characters.length} guests plus one host, but totalPeople is ${story.totalPeople}`)
@@ -23,6 +22,7 @@ export function validateStory(story: Story, purchasableEvidenceIds: ReadonlySet<
   if ((story.evening ?? []).length < 4) errors.push('story needs a simple evening timeline with at least four stages')
 
   if (characterIds.size !== story.characters.length) errors.push('character ids must be unique')
+  if (characterIds.has(story.host.id)) errors.push(`host role id ${story.host.id} collides with a guest role`)
 
   const relationshipEdges = new Map<string, Set<string>>(story.characters.map(character => [character.id, new Set()]))
   const charactersWithOutgoingKnowledge = new Set<string>()
@@ -59,9 +59,10 @@ export function validateStory(story: Story, purchasableEvidenceIds: ReadonlySet<
       if (evidenceIds.has(secret.id)) errors.push(`duplicate evidence id ${secret.id}`)
       evidenceIds.add(secret.id)
       storyEvidenceIds.add(secret.id)
-      if (secret.availableAfter && !declaredRunBeatIds.has(secret.availableAfter)) {
-        errors.push(`secret ${secret.id} unlocks after missing run-plan beat ${secret.availableAfter}`)
-      }
+      const provenance = secret.provenance ?? { source: { kind: 'role' as const, roleId: character.id }, independenceGroup: `role:${character.id}` }
+      evidenceProvenance.set(secret.id, provenance)
+      if (!provenance.independenceGroup.trim()) errors.push(`evidence ${secret.id} needs an independence group`)
+      if (provenance.source.kind === 'role' && !characterIds.has(provenance.source.roleId)) errors.push(`evidence ${secret.id} references missing source role ${provenance.source.roleId}`)
       for (const roleId of secret.aboutRoleIds ?? []) {
         if (!characterIds.has(roleId)) errors.push(`secret ${secret.id} references missing character ${roleId}`)
         if (roleId !== character.id) {
@@ -73,11 +74,6 @@ export function validateStory(story: Story, purchasableEvidenceIds: ReadonlySet<
       }
     }
 
-    for (const action of character.actions) {
-      if (actionIds.has(action.id)) errors.push(`duplicate action id ${action.id}`)
-      actionIds.add(action.id)
-      if (action.essential && !action.beat) errors.push(`essential action ${action.id} has no canonical beat`)
-    }
   }
 
   for (const character of story.characters) {
@@ -96,48 +92,38 @@ export function validateStory(story: Story, purchasableEvidenceIds: ReadonlySet<
     if (visited.size !== story.characters.length) errors.push('character secrets and relationships must form one connected social graph')
   }
 
-  const timelineNumbers = story.timeline.map(item => item.beat)
-  const expectedNumbers = story.timeline.map((_, index) => index + 1)
-  if (timelineNumbers.some((beat, index) => beat !== expectedNumbers[index])) {
-    errors.push('timeline beats must be contiguous and ordered from 1')
-  }
-
-  for (const beat of story.timeline) {
-    if (new Set(beat.evidence.filter(id => storyEvidenceIds.has(id))).size < 2) errors.push(`timeline beat ${beat.beat} needs at least two non-purchasable evidence routes`)
-    for (const evidenceId of beat.evidence) {
-      if (!evidenceIds.has(evidenceId)) errors.push(`timeline beat ${beat.beat} references missing evidence ${evidenceId}`)
+  const solutionStepIds = new Set<string>()
+  for (const [index, step] of story.solutionSteps.entries()) {
+    if (!step.id.trim()) errors.push(`solution step ${index + 1} needs an id`)
+    if (solutionStepIds.has(step.id)) errors.push(`duplicate solution step ${step.id}`)
+    solutionStepIds.add(step.id)
+    if (!step.title.trim() || !step.truth.trim()) errors.push(`solution step ${index + 1} is incomplete`)
+    const independentRoutes = new Set(step.evidence.filter(id => storyEvidenceIds.has(id)).map(id => evidenceProvenance.get(id)?.independenceGroup).filter(Boolean))
+    if (independentRoutes.size < 2) errors.push(`solution step ${index + 1} needs at least two independent non-purchasable evidence routes`)
+    for (const evidenceId of step.evidence) {
+      if (!evidenceIds.has(evidenceId)) errors.push(`solution step ${index + 1} references missing evidence ${evidenceId}`)
     }
   }
 
-  for (const beat of story.runPlan) {
-    if (runBeatIds.has(beat.id)) errors.push(`duplicate run-plan beat id ${beat.id}`)
-    runBeatIds.add(beat.id)
-    for (const actionId of beat.actionIds) {
-      if (!actionIds.has(actionId)) errors.push(`run-plan beat ${beat.id} references missing action ${actionId}`)
+  for (const step of story.openingSteps) {
+    if (openingStepIds.has(step.id)) errors.push(`duplicate opening step id ${step.id}`)
+    openingStepIds.add(step.id)
+    if (!step.id.trim() || !step.title.trim() || !step.trigger.trim() || !step.instruction.trim()) {
+      errors.push('opening steps require id, title, trigger and instruction')
     }
   }
 
-  const seenRunBeats = new Set<string>()
-  for (const beat of story.runPlan) {
-    for (const dependency of beat.dependsOn) {
-      if (!seenRunBeats.has(dependency)) errors.push(`run-plan beat ${beat.id} depends on unavailable earlier beat ${dependency}`)
-    }
-    seenRunBeats.add(beat.id)
+  for (const evidence of story.publicEvidence) {
+    if (!evidence.provenance) continue
+    if (!evidence.provenance.independenceGroup.trim()) errors.push(`evidence ${evidence.id} needs an independence group`)
+    if (evidence.provenance.source.kind === 'public' && !openingStepIds.has(evidence.provenance.source.openingStepId)) errors.push(`evidence ${evidence.id} references missing opening step ${evidence.provenance.source.openingStepId}`)
   }
 
-  const plannedActions = new Set(story.runPlan.flatMap(beat => beat.actionIds))
-  for (const character of story.characters) {
-    for (const action of character.actions) {
-      if (action.essential && !plannedActions.has(action.id)) {
-        errors.push(`essential action ${action.id} is absent from the run plan`)
-      }
-    }
-  }
-
-  if (!story.characters.some(character => character.name === story.culprit)) {
-    errors.push(`culprit ${story.culprit} is not a guest character`)
-  }
+  if (story.host.id !== story.victimRoleId) errors.push('the victim role must be the host role')
+  if (!story.characters.some(character => character.id === story.culpritRoleId)) errors.push(`culprit role ${story.culpritRoleId} is not a guest character`)
+  if (!story.host.id.trim() || !story.host.name.trim() || !story.host.title.trim()) errors.push('host role requires id, name and title')
   if (!story.premise?.trim()) errors.push('story premise is required')
+  if (!story.solutionSummary?.trim()) errors.push('story solution summary is required')
 
   return errors
 }

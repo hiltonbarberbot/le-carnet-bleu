@@ -1,6 +1,6 @@
 {
   "id": "le-carnet-bleu",
-  "version": "0.5.0",
+  "version": "0.7.0",
   "name": "Le Carnet Bleu",
   "description": "A setting-aware live murder mystery with one host role and five assignable suspect roles.",
   "aliases": ["carnet bleu", "the blue notebook", "blue notebook"],
@@ -13,7 +13,7 @@
   "authoring": {
     "mode": "setting_first",
     "requiredBeforeStory": true,
-    "instructions": "Collect and validate the real setting before drafting characters, clues, physical actions, or the canonical solution. Never assume the demo house is the venue.",
+    "instructions": "Collect and validate the real setting before drafting characters, clues, physical staging, or the canonical solution. Give every setting resource a stable ID; crosslink setup, opening execution, clue provenance, and solution support with those IDs. Never assume the demo house is the venue.",
     "settingQuestions": [
       { "id": "venueName", "prompt": "What is the real venue called, and what kind of place is it?", "required": true },
       { "id": "location", "prompt": "Where is the venue, and which local details should the story use?", "required": true },
@@ -41,8 +41,7 @@
     { "name": "replace_enrolment", "description": "Replace the editable host, seats and venue proof.", "allowedPhases": ["enrolling"], "payload": { "setup": "SetupDraft" } },
     { "name": "prepare", "description": "Lock the role labels and expose the dossier links.", "allowedPhases": ["enrolling"], "payload": {} },
     { "name": "start", "description": "Start play when the host is ready.", "allowedPhases": ["prepared"], "payload": {} },
-    { "name": "record_ai_performance", "description": "Persist the bounded output produced for one AI-controlled authored action.", "allowedPhases": ["active"], "payload": { "roleId": "string", "actionId": "string", "text": "string" } },
-    { "name": "confirm_beat", "description": "Confirm an authored live beat.", "allowedPhases": ["active"], "payload": { "beatId": "string" } },
+    { "name": "complete_opening_step", "description": "Complete the next authored opening step.", "allowedPhases": ["active"], "payload": { "stepId": "string" } },
     { "name": "advance_act", "description": "Finish the single authored cold open and release the room into continuous investigation.", "allowedPhases": ["active"], "payload": {} },
     { "name": "buy_clue", "description": "Spend the current clue price for one private random clue from a chosen deck.", "allowedPhases": ["active"], "payload": { "roleId": "string", "deckId": "string" } },
     { "name": "transfer_tokens", "description": "Move tradable tokens between two suspect roles.", "allowedPhases": ["active"], "payload": { "fromRoleId": "string", "toRoleId": "string", "amount": "number" } },

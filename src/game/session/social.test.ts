@@ -8,7 +8,7 @@ import {
   callAccusation,
   castVote,
   completeGame,
-  confirmRunBeat,
+  completeOpeningStep,
   createGame,
   enableDuplicateClues,
   endInvestigation,
@@ -35,12 +35,8 @@ function openInvestigation(seed = 'social-loop') {
     venue: Object.fromEntries(definition.setupRequirements.map(requirement => [requirement.id, true])),
   })
   let active = startGame(definition, prepareGame(definition, enrolling, { aiControllers: false }))
-  for (const act of definition.acts) {
-    for (const beat of definition.story.runPlan.filter(beat => beat.phase === act.id && beat.essential)) {
-      active = confirmRunBeat(definition, active, beat.id)
-    }
-    active = advanceAct(definition, active)
-  }
+  for (const step of definition.story.openingSteps) active = completeOpeningStep(definition, active, step.id)
+  active = advanceAct(definition, active)
   expect(active.playPhase).toBe('investigation')
   return { definition, active }
 }

@@ -7,7 +7,7 @@ import {
   callAccusation,
   castVote,
   completeGame,
-  confirmRunBeat,
+  completeOpeningStep,
   createGame,
   createIdleState,
   getSetupBlockers,
@@ -47,12 +47,13 @@ describe('story compilation', () => {
     expect(story.characters).toHaveLength(5)
   })
 
-  it('has a valid evidence graph and executable essential actions', () => {
+  it('has a valid evidence graph and one ordered opening checklist', () => {
     const story = generateGame('coverage')
     expect(validateStory(story)).toEqual([])
-    const planned = new Set(story.runPlan.flatMap(beat => beat.actionIds))
-    const essential = story.characters.flatMap(character => character.actions).filter(action => action.essential)
-    expect(essential.every(action => planned.has(action.id))).toBe(true)
+    expect(story.openingSteps.length).toBeGreaterThan(0)
+    expect(story.characters.every(character => character.objectives.length === 3)).toBe(true)
+    expect(JSON.stringify(story)).not.toContain('actionIds')
+    expect(JSON.stringify(story.characters)).not.toContain('"actions"')
   })
 
   it('does not make the present murder a recreation of an earlier crime', () => {
@@ -81,26 +82,26 @@ describe('story compilation', () => {
       expect(character.privateIdentity).toBeTruthy()
       expect(character.privateObjective).toBeTruthy()
     }
-    const canonicalEvidence = new Set(story.timeline.flatMap(beat => beat.evidence))
+    const canonicalEvidence = new Set(story.solutionSteps.flatMap(step => step.evidence))
     expect([...canonicalEvidence].some(id => /identity|invitation|promise|objective/.test(id))).toBe(false)
   })
 
   it('rejects missing canonical evidence', () => {
     const story = structuredClone(generateGame('broken'))
-    story.timeline[0].evidence.push('missing-proof')
-    expect(validateStory(story)).toContain('timeline beat 1 references missing evidence missing-proof')
+    story.solutionSteps[0].evidence.push('missing-proof')
+    expect(validateStory(story)).toContain('solution step 1 references missing evidence missing-proof')
   })
 
-  it('requires two distinct non-purchasable evidence routes per truth beat', () => {
+  it('requires two distinct non-purchasable evidence routes per solution step', () => {
     const story = structuredClone(generateGame('duplicate-route'))
-    story.timeline[0].evidence = [story.timeline[0].evidence[0], story.timeline[0].evidence[0]]
-    expect(validateStory(story)).toContain('timeline beat 1 needs at least two non-purchasable evidence routes')
+    story.solutionSteps[0].evidence = [story.solutionSteps[0].evidence[0], story.solutionSteps[0].evidence[0]]
+    expect(validateStory(story)).toContain('solution step 1 needs at least two independent non-purchasable evidence routes')
   })
 
-  it('rejects secrets gated by a missing run-plan beat', () => {
-    const story = structuredClone(generateGame('broken-unlock'))
-    story.characters[0].secrets[0].availableAfter = 'missing-beat'
-    expect(validateStory(story)).toContain(`secret ${story.characters[0].secrets[0].id} unlocks after missing run-plan beat missing-beat`)
+  it('rejects duplicate opening step ids', () => {
+    const story = structuredClone(generateGame('duplicate-opening-step'))
+    story.openingSteps[1].id = story.openingSteps[0].id
+    expect(validateStory(story)).toContain(`duplicate opening step id ${story.openingSteps[0].id}`)
   })
 })
 
@@ -108,7 +109,7 @@ describe('truthful game lifecycle', () => {
   it('starts at idle with no game identity, assignments, or timestamps', () => {
     const definition = createDemoGame('idle')
     const idle = createIdleState(definition)
-    expect(idle).toEqual({ schemaVersion: 3, definitionFingerprint: definition.fingerprint, storyId: 'le-carnet-bleu', seed: 'idle', phase: 'idle' })
+    expect(idle).toEqual({ schemaVersion: 5, definitionFingerprint: definition.fingerprint, storyId: 'le-carnet-bleu', seed: 'idle', phase: 'idle' })
     expect('id' in idle).toBe(false)
   })
 
@@ -150,9 +151,9 @@ describe('truthful game lifecycle', () => {
     expect(active.phase).toBe('active')
     expect(active.playPhase).toBe('opening')
     expect(() => advanceAct(definition, active)).toThrow(/last recording is missing/i)
-    for (const beat of story.runPlan.filter(beat => beat.phase === 'opening' && beat.essential)) active = confirmRunBeat(definition, active, beat.id)
+    for (const step of story.openingSteps) active = completeOpeningStep(definition, active, step.id)
     active = advanceAct(definition, active)
-    for (const evidenceId of new Set(story.timeline.flatMap(beat => beat.evidence))) if (!active.revealedEvidenceIds.includes(evidenceId)) active = toggleEvidence(active, evidenceId)
+    for (const evidenceId of new Set(story.solutionSteps.flatMap(step => step.evidence))) if (!active.revealedEvidenceIds.includes(evidenceId)) active = toggleEvidence(definition, active, evidenceId)
     active = callAccusation(active, 'gabriel', 'solange', 'The sixth envelope, carbon-copy label, and matching corner form one chain.')
     active = advanceHearing(active)
     active = advanceHearing(active)
@@ -176,6 +177,18 @@ describe('truthful game lifecycle', () => {
     expect(restoreGameState(definition, serialized)).toEqual(prepared)
     expect(() => restoreGameState(definition, '{"schemaVersion":1,"phase":"prepared"}')).toThrow()
     expect(() => restoreGameState(definition, '{bad json')).toThrow(/valid JSON/)
+  })
+
+  it('rejects runtime references that are absent from the definition', () => {
+    const { definition, state } = enrolledGame('reference-integrity')
+    let active = startGame(definition, prepareGame(definition, state, noAi))
+    for (const step of definition.story.openingSteps) active = completeOpeningStep(definition, active, step.id)
+    active = advanceAct(definition, active)
+    expect(() => toggleEvidence(definition, active, 'invented-evidence')).toThrow(/Unknown evidence/)
+
+    const envelope = JSON.parse(serializeGameState(definition, active))
+    envelope.state.completedStepIds = ['invented-step']
+    expect(() => restoreGameState(definition, JSON.stringify(envelope))).toThrow(/unknown id/)
   })
 })
 

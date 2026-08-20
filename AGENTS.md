@@ -4,7 +4,7 @@ This product is a setting-aware live mystery authoring system. Its public name c
 
 ## Setting gate
 
-Before drafting or adapting a storyline, creating a runtime, assigning characters, or proposing physical beats:
+Before drafting or adapting a storyline, creating a runtime, assigning characters, or proposing physical staging:
 
 1. Check whether a validated `SettingBrief` already exists for this specific run.
 2. If it does not, collect the required questions from `game.manifest.json` or `src/game/setting/brief.ts`.
