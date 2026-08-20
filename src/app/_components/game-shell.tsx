@@ -7,6 +7,6 @@ const GameRoot = dynamic(
   { ssr: false },
 )
 
-export function GameShell({ studio }: { studio: boolean }) {
-  return <GameRoot studio={studio} />
+export function GameShell({ issuePreview = false }: { issuePreview?: boolean }) {
+  return <GameRoot issuePreview={issuePreview} />
 }

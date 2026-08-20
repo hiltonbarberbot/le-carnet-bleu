@@ -2,21 +2,17 @@
 
 import { lazy, Suspense, useEffect } from 'react'
 import { productNaming } from '../product/naming'
-import { LaColombeIssue } from './issue/la-colombe'
+import { App } from './App'
 
-const Studio = lazy(() => import('./App').then(module => ({ default: module.App })))
+const IssuePreview = lazy(() => import('./issue/la-colombe').then(module => ({ default: module.LaColombeIssue })))
 
-export function Root({ studio }: { studio?: boolean } = {}) {
-  const showStudio = studio ?? (
-    typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('studio')
-  )
-
+export function Root({ issuePreview = false }: { issuePreview?: boolean } = {}) {
   useEffect(() => {
-    if (showStudio) document.title = productNaming.documentTitle
-  }, [showStudio])
+    if (!issuePreview) document.title = productNaming.documentTitle
+  }, [issuePreview])
 
-  if (showStudio) {
-    return <Suspense fallback={null}><Studio /></Suspense>
+  if (issuePreview) {
+    return <Suspense fallback={null}><IssuePreview /></Suspense>
   }
-  return <LaColombeIssue />
+  return <App />
 }
