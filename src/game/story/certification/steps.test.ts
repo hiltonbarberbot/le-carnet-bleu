@@ -3,13 +3,27 @@ import { RetryableError } from 'workflow'
 import { authorStorylineAttempt } from '../../ai/server/author'
 import { createDemoStoryline, demoSetting } from '../../demo'
 import { createSettingBrief } from '../../setting/brief'
-import { draftStorylineStep } from './steps'
+import {
+  draftStorylineStep,
+  judgeRehearsalStep,
+  rehearseHostStep,
+  rehearseRoleStep,
+  reviewStorylineStep,
+} from './steps'
 
 vi.mock('../../ai/server/author', () => ({ authorStorylineAttempt: vi.fn() }))
 
 const setting = createSettingBrief(demoSetting)
 
 describe('durable authoring step', () => {
+  it('gives every provider step durable retries', () => {
+    expect(draftStorylineStep.maxRetries).toBe(2)
+    expect(reviewStorylineStep.maxRetries).toBe(2)
+    expect(rehearseRoleStep.maxRetries).toBe(2)
+    expect(rehearseHostStep.maxRetries).toBe(2)
+    expect(judgeRehearsalStep.maxRetries).toBe(2)
+  })
+
   it('retries malformed model output inside the same semantic authoring attempt', async () => {
     vi.mocked(authorStorylineAttempt).mockResolvedValue({
       status: 'rejected',

@@ -1,4 +1,4 @@
-export const defaultAiCallTimeoutMs = 5 * 60 * 1_000
+export const defaultAiCallTimeoutMs = 4 * 60 * 1_000
 
 export function resolveAiCallTimeoutMs(value = process.env.AI_GATEWAY_CALL_TIMEOUT_MS) {
   if (!value) return defaultAiCallTimeoutMs
@@ -8,6 +8,9 @@ export function resolveAiCallTimeoutMs(value = process.env.AI_GATEWAY_CALL_TIMEO
     : defaultAiCallTimeoutMs
 }
 
-export function createAiCallSignal() {
-  return AbortSignal.timeout(resolveAiCallTimeoutMs())
+export function createAiCallOptions() {
+  return {
+    maxRetries: 0,
+    timeout: { totalMs: resolveAiCallTimeoutMs() },
+  } as const
 }

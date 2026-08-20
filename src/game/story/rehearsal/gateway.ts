@@ -1,5 +1,5 @@
 import { generateText, jsonSchema, Output } from 'ai'
-import { createAiCallSignal } from '../../ai/server/deadline'
+import { createAiCallOptions } from '../../ai/server/deadline'
 import type { StorylineDefinition } from '../../definition/contract'
 import { productNaming } from '../../../product/naming'
 import {
@@ -30,7 +30,7 @@ export async function rehearseRoleWithGateway(
     system: 'You are an isolated mystery-game player. Reason only from your supplied public material and private dossier. Return only the requested structured report.',
     prompt: createRoleRehearsalPrompt(definition, roleIndex),
     output: Output.object({ schema: jsonSchema<RoleRehearsalReport>(roleRehearsalReportJsonSchema(participantRef)) }),
-    abortSignal: createAiCallSignal(),
+    ...createAiCallOptions(),
     temperature: 0,
     providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'role-rehearsal'] } },
   })
@@ -48,7 +48,7 @@ export async function rehearseHostWithGateway(
     system: 'You are an isolated live-mystery host. Verify exact physical and runtime execution from the supplied host packet. Return only the requested structured report.',
     prompt: createHostRehearsalPrompt(definition),
     output: Output.object({ schema: jsonSchema<HostRehearsalReport>(hostRehearsalReportJsonSchema) }),
-    abortSignal: createAiCallSignal(),
+    ...createAiCallOptions(),
     temperature: 0,
     providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'host-rehearsal'] } },
   })
@@ -68,7 +68,7 @@ export async function judgeRehearsalWithGateway(
     system: 'You are a severe spoiler-aware playtest judge. Treat every missing, uncertain, or inaccessible route as blocking. Return only the requested structured review.',
     prompt: createRehearsalJudgePrompt(definition, roleReports, hostReport),
     output: Output.object({ schema: jsonSchema<RehearsalJudgeReview>(rehearsalJudgeReviewJsonSchema) }),
-    abortSignal: createAiCallSignal(),
+    ...createAiCallOptions(),
     temperature: 0,
     providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'rehearsal-judge'] } },
   })
