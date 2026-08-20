@@ -1,0 +1,199 @@
+[
+  {
+    "code": "HV", "name": "Hélène de Vernay", "age": 60,
+    "role": "His wife", "photo": "03-widowed-patroness-bw.jpg",
+    "desc": "You were Hélène Rachaud before you were Hélène de Vernay, and Rachaud money bought this villa in 1931, the boat, both cars and most of the paintings. Sacha brought the name and the diamond. For thirty-one years you have been introduced as his wife at parties full of women he was sleeping with, and you have been perfectly pleasant to every one of them. This afternoon he left the study cabinet open while he was writing, and you read the letter inside it. At seven o'clock you took him his cognac with his heart pills crushed into it, and you sat with him while he drank it.",
+    "secrets": [
+      "You killed him. You did not take the diamond and you have no idea who did.",
+      "The letter is real, it is in the study cabinet, and Sacha kept that key on his own ring. <em>You do not know where his keys are.</em> Find them before anyone else does.",
+      "The empty pill bottle is inside the hollow bronze dove on the salon mantelpiece. You could not get out to the sea in the rain.",
+      "True, and the most useful thing you own: Renato Sabbatini came out of the study at ten past seven, white as paper. You have also known for six years that he and Amaury share more than a tailor."
+    ],
+    "rels": [
+      ["Odile", "The only other person who might know about the letter. Twenty years of \"Madame\", and neither of you has ever liked the other."],
+      ["Julien", "You have called him \"the boy\" since he was nine. He has the run of this house and no idea what he is worth."],
+      ["Amaury", "Sacha's most expensive pet. He needs a new owner by morning and you both know it."],
+      ["Renato", "Your alibi, if you build him carefully. Everything you have on him is true."],
+      ["Claude", "An old friend and a coward. He wants something from tonight; find out what and charge for it."],
+      ["Poppy", "A child in a wet dress. Harmless — unless she saw something."]
+    ],
+    "objectives": [
+      ["Find out", "Where Sacha's keys are — from Julien or Odile, without either understanding why you want them. Then open the cabinet and burn the letter."],
+      ["Go to", "The fireplace. Get the bottle out of the bronze dove and get rid of it — the pool, if it comes to that. Once only, and anyone in the room will see you."],
+      ["Hide", "That you went upstairs at seven at all. Under pressure: you went to fetch a shawl."],
+      ["", "Build Renato Sabbatini into the murderer, using only things that are true."],
+      ["", "Before midnight, make one person at this table say out loud that this house is yours."]
+    ],
+    "line": "Let us be clear before the soup. Nobody is leaving, nobody is telephoning anybody, and that diamond did not walk off the table by itself."
+  },
+  {
+    "code": "AC", "name": "Prince Amaury de Croy-Langeais", "age": 45,
+    "role": "Royal · nine summers on Sacha's account", "photo": "05-retired-agent-bw.jpg",
+    "desc": "Your family ruled a corner of Flanders and your grandfather lost the last of it at baccarat. You have a title the Almanach still recognises, a Bentley you cannot insure, and a suite at the Hôtel du Cap that Sacha de Vernay has paid for every summer for nine years. You are charming for a living and you are extremely good at it. What Sacha bought was the word <em>prince</em> on his guest list, and you have never resented the arrangement, because the alternative was Belgium.",
+    "secrets": [
+      "You and Renato Sabbatini have been together six years. Discovery ends his career and your name in the same week.",
+      "Sacha had photographs of the two of you in Portofino. He never asked for money. Last week he said, smiling, \"your face already hangs in my house.\"",
+      "Nineteen thousand francs of debt in Cannes, and no income at all after tonight.",
+      "You saw Claude Mireau slip something into the pocket of Poppy's coat, on the stairs, before dinner.",
+      "Standing at the fire you set your glass on the mantel and heard the bronze dove rattle. It has never rattled."
+    ],
+    "rels": [
+      ["Renato", "Six years. Tonight he wants to be brave, which will destroy you both."],
+      ["Hélène", "Likely the richest widow in France by breakfast. Be kind, be useful, be available."],
+      ["Sacha", "You are the only person here who is genuinely, uselessly sad."],
+      ["Claude", "A minister carrying something in his hands all evening. Find out what."],
+      ["Poppy", "Renato brought her, and you were jealous for four days about nothing."],
+      ["Odile", "She has known about you and Renato for years and never charged you for it."]
+    ],
+    "objectives": [
+      ["Find out", "What \"your face already hangs in my house\" meant. Claude noticed something on the landing — get it out of him."],
+      ["Go to", "The staircase. Look behind the portrait on the landing."],
+      ["Hide", "The six years. If Renato starts to confess, stop him — publicly, cruelly, whatever it takes."],
+      ["", "Attach yourself to whoever ends this night owning the villa. Ask them, before midnight, in words."],
+      ["", "Sell the rattling dove to somebody. Sell it high."]
+    ],
+    "line": "I have no money, no alibi and no talent, so you may all stop looking at me like that."
+  },
+  {
+    "code": "RS", "name": "Renato Sabbatini", "age": 44,
+    "role": "Film star · eleven summers, all of them paid for", "photo": "02-disgraced-attache-bw.jpg",
+    "desc": "Thirty-one films, and you are recognised in every city in Europe — which sounds wonderful until it happens to you. You came up from Bari with nothing and you have never once told the truth about it in an interview. Sacha de Vernay has invited you here every August for eleven years, and every August you have come, and you have never been able to say no to him. Tonight you finally understand that this was the arrangement.",
+    "secrets": [
+      "You and Prince Amaury have been together six years.",
+      "Sacha had photographs of the two of you in Portofino. He never asked for money — he asked for August, and for your face at his table.",
+      "You let yourself into the study at ten past seven to find those photographs. He was already dead. You searched the desk anyway, you noticed one drawer had already been opened, and you picked up his glass. You have told nobody.",
+      "At seven o'clock, on the stairs, you passed Hélène carrying a glass. She was holding it from underneath, like a waiter.",
+      "Sacha said of Poppy, laughing: \"I'm not the one who owes that girl anything. Ask the minister.\""
+    ],
+    "rels": [
+      ["Amaury", "You love him and he is a coward, and tonight those two facts are going to collide."],
+      ["Poppy", "You brought her. She is twenty-two and thinks you are a friend, and she is not wrong."],
+      ["Hélène", "Always polite to you in the way people are polite to furniture."],
+      ["Claude", "He has been trying to get the girl alone all evening. You have not decided what that means."],
+      ["Julien", "You have offered him a screen test twice, drunk both times. He laughed at you twice."],
+      ["Odile", "Eleven summers of your rooms and your linen. She knows exactly what you are."]
+    ],
+    "objectives": [
+      ["Find out", "Where Sacha kept the photographs. Amaury has a clue he doesn't understand and Claude has one he is sitting on."],
+      ["Go to", "The study cabinet, and then — when that fails — the staircase."],
+      ["Hide", "That you were in the study at ten past seven. Hélène saw you leave, so this will not hold all night; decide what you say when it breaks."],
+      ["", "Get Amaury out of this house unnamed, even if you have to be the one they suspect."],
+      ["", "Tell Poppy what Sacha said about the minister — but choose your moment, because it costs her something."]
+    ],
+    "line": "I have known Sacha eleven years and I have never once been in this house without being paid for it. So no, I am not going to pretend to cry."
+  },
+  {
+    "code": "CM", "name": "Claude Mireau", "age": 52,
+    "role": "Minister of Public Works · three weeks from the Interior", "photo": "01-concierge-bw.jpg",
+    "desc": "You are a serious man in a government of serious men, and in twenty years you have never given a journalist anything to work with. In 1939 there was a girl in Rouen called Margaret Ashcombe. In 1940 there was a child. You sent money until 1948 and then you stopped, and you have been a good husband and a good father to two other children ever since. Sacha found out last spring. You came here with forty thousand francs in an envelope, expecting to be asked for it, and instead you were invited to dinner and told to wait for an announcement.",
+    "secrets": [
+      "Poppy Ashcombe is your daughter. She does not know. You have not been able to look at her all evening.",
+      "The money is in the fireplace, under the logs. The fire is not lit. Anybody may light it.",
+      "This afternoon you asked Sacha, carefully, how a man acknowledges a child under French law. He laughed and said, \"I have been asking myself the same thing all week.\" You assumed he meant Poppy. You are terrified the letter in his cabinet names her.",
+      "You wrote to her tonight — three lines — and put it in her coat pocket on the stairs, because you could not say it out loud. You have regretted it ever since.",
+      "Waiting twenty minutes on the landing to catch her alone, you noticed the little portrait hangs crooked, and has since spring."
+    ],
+    "rels": [
+      ["Poppy", "Your daughter. You came here for her and you have done nothing all evening but avoid her."],
+      ["Hélène", "An old friend. She has never asked you a question she didn't already know the answer to."],
+      ["Sacha", "Dead before he told you the price. You cannot decide whether that is mercy."],
+      ["Renato", "He brought her here. Find out how much he was told."],
+      ["Odile", "She has taken your letters at the door for fifteen years. Assume she reads."],
+      ["Amaury", "Watches everyone. Was on the stairs when you should have been alone."]
+    ],
+    "objectives": [
+      ["Find out", "What is in the letter in the cabinet, before anyone reads it aloud. Odile knows it exists."],
+      ["Go to", "The fireplace. Make sure nobody lights it — or get the envelope out first."],
+      ["Hide", "That Poppy is yours, until you decide otherwise. You have until midnight to decide."],
+      ["", "Get her alone for two minutes. You have tried twice tonight and failed twice."],
+      ["", "Trade the crooked portrait to Amaury or Renato. They both want it badly, and either will owe you."]
+    ],
+    "line": "I will say this once. I am a public man, and by Tuesday there will be journalists on that road. Whatever we settle tonight, we settle in this room."
+  },
+  {
+    "code": "PA", "name": "Poppy Ashcombe", "age": 22,
+    "role": "English · sings in a club off the rue de Ponthieu", "photo": "06-cabaret-cryptographer-bw.jpg",
+    "desc": "You sing four nights a week, you own one good dress and it is currently wet, and you are here because Renato Sabbatini said \"come to Antibes, there will be a diamond on the table.\" Then, three weeks ago, a letter arrived at the club from a man you have never met. <em>I knew your mother in Rouen, and there are things you are owed.</em> Your mother died in 1959 without ever answering the question you asked her every year of your life.",
+    "secrets": [
+      "You believe Sacha de Vernay was your father. You came here to ask him, and now he is dead.",
+      "This afternoon you took a photograph off his desk — your mother at nineteen, on a beach, laughing. It is yours by right. It is also stolen, in a house where a diamond has just vanished.",
+      "From the stairs before dinner you watched a woman cross the courtyard in the rain, holding something closed in both hands. She was wearing an apron.",
+      "Julien showed you the atelier at the bottom of the garden on Tuesday. He paints, badly and secretly, and you are the only person he has ever told.",
+      "There is a letter in your coat pocket. You do not know that yet."
+    ],
+    "rels": [
+      ["Julien", "Four days, and you have not stopped thinking about it."],
+      ["Renato", "Brought you, protects you, and is not telling you something."],
+      ["Odile", "Kind to you at the door and avoiding you ever since."],
+      ["Claude", "Cannot look at you. You have decided he is a snob."],
+      ["Hélène", "Has spoken to you twice, both times about the weather."],
+      ["Amaury", "The only one who asked what you sing."]
+    ],
+    "objectives": [
+      ["Find out", "Who your father was. Renato knows something. So does Odile, and she has posted letters to Rouen."],
+      ["Go to", "The staircase, and look in your own coat."],
+      ["Go to", "The atelier, with Julien. Whatever the woman in the apron carried out there is still there."],
+      ["Hide", "The photograph you took off the desk."],
+      ["", "Do not let them make Julien the murderer. They will try, because he is the only person here who works for a living."]
+    ],
+    "line": "I never met him. He wrote to me. So I'm the only person in this room with nothing to gain, and I'd like that written down."
+  },
+  {
+    "code": "JB", "name": "Julien Bassot", "age": 27,
+    "role": "Runs the boat · born in this house", "photo": "04-pastry-magnate-bw.jpg",
+    "desc": "You run the boat, mend the shutters, drive the guests up from the station, and are called \"the boy\" by people twelve years older than you. Your mother has been the housekeeper here for thirty years. You were born in the room behind the kitchen and you have never been told who your father was. At four o'clock this afternoon you asked Sacha de Vernay for eleven thousand francs so you could go to Marseille and not come back. He said no. You shouted. Half the house heard it. Three and a half hours later he was dead.",
+    "secrets": [
+      "You have the worst motive in this house and you know it: a public row, no money, and nobody to vouch for you between six and half past seven.",
+      "Sacha carried his own keys — a small ring, three keys, one of them for the study cabinet. He never used the ring in the hall. He swam at half past four and left his linen jacket on the chair by the pool. It has been out in the rain since five.",
+      "You paint, in the old atelier, which has been locked since 1958 and whose key sits on the ledge above the door. Nobody else goes in. You have shown one person: Poppy.",
+      "Your mother has lied to you your whole life about one thing, and tonight you are going to make her say it.",
+      "You can open the pool filter basket. Nobody else here knows there is one."
+    ],
+    "rels": [
+      ["Odile", "Your mother. You love her and you have not had a true conversation with her since you were fifteen."],
+      ["Sacha", "You asked him for money three times in ten years. He gave it to you twice, and you never understood why."],
+      ["Hélène", "Looks at you the way she looks at weather."],
+      ["Poppy", "Four days. The only person here who has asked you a question and then waited for the answer."],
+      ["Renato", "Two screen tests offered, two refusals. You are not for sale, and you cannot afford that position."],
+      ["Amaury", "Tips well, remembers your name, means nothing by either."]
+    ],
+    "objectives": [
+      ["Go to", "The poolside. Get the keys out of the jacket before anyone else thinks of it."],
+      ["Find out", "What Sacha was going to announce. Your mother knows and will not say it."],
+      ["", "Make her tell you who your father was, in front of at least one witness."],
+      ["Hide", "The row at four o'clock, as long as you can — and know that three people heard it."],
+      ["", "If the fireplace or the pool gives up something that should not be there, be the one holding it."]
+    ],
+    "line": "Go on, ask me where I was. Then ask which of you has ever once known where I was on any other night."
+  },
+  {
+    "code": "OB", "name": "Odile Bassot", "age": 58,
+    "role": "Housekeeper · thirty years", "photo": "07-society-photographer-bw.jpg",
+    "desc": "You came to this house in 1932 as a chambermaid and you have run it since the war. You know which stair creaks, which shutter swells in August, and what every guest leaves in their wastepaper basket. Julien was born here in 1935, in the room behind the kitchen, and Sacha de Vernay is his father. Sacha has known since the first week. In thirty years he never once said the word out loud. This week he wrote it down.",
+    "secrets": [
+      "Julien is Sacha's son. Nobody at that table knows. Your son does not know.",
+      "You went in at twenty past seven, not half past. He was already dead. On your way through the dining room you lifted the Dove out of its dome, crossed the courtyard in the rain, and hid it in the atelier inside the hollow art book — because you have watched lawyers strip this family before and you wanted your son to have one thing they could not argue with. You did not know Julien goes out there. You killed nobody.",
+      "You have ten minutes you cannot account for, and one person saw you cross the yard.",
+      "Sacha sealed a letter himself this week; he asked you for the wax. It is in the study cabinet. You will say this to Julien, or to somebody who convinces you they will protect him — to nobody else.",
+      "You polished the mantelpiece at six. The bronze dove was empty and silent.",
+      "You posted the money orders to Rouen until 1948. You know exactly whose daughter Poppy is, and it is not Sacha's."
+    ],
+    "rels": [
+      ["Julien", "Your son. You have refused him the truth for twenty-seven years and your reasons have got worse every year."],
+      ["Sacha", "Thirty years, and neither of you ever found a word for it."],
+      ["Hélène", "She has waited three decades for a reason to dismiss you. Tonight you have handed her one."],
+      ["Poppy", "She has her mother's face, and you addressed the envelopes."],
+      ["Claude", "You know. He does not know you know."],
+      ["Renato & Amaury", "Years of knowing, never once said. They both owe you and neither has been asked to pay."]
+    ],
+    "objectives": [
+      ["Hide", "The ten minutes, and the Dove."],
+      ["Go to", "The atelier and move the diamond, once, if you think that room is about to be searched."],
+      ["Find out", "Who has Sacha's keys, and whether the letter is still in the cabinet."],
+      ["", "Get that letter read aloud tonight — by somebody who is not you."],
+      ["", "Do not let Julien be accused of murder. Confess to the theft before you allow it."],
+      ["", "Decide, before midnight, whether to tell him. You have kept it twenty-seven years for his sake, and you know that is not entirely true."]
+    ],
+    "line": "Dinner is at eight, because Monsieur always dined at eight. I will answer any question any one of you asks me, and you may judge for yourselves what that is worth."
+  }
+]

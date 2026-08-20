@@ -1,0 +1,748 @@
+{
+  "schemaVersion": 6,
+  "id": "saint-tropez-double",
+  "title": "The Saint-Tropez Double",
+  "setting": {
+    "venueName": "House in Grambois",
+    "location": "Grambois, France",
+    "era": "1960s",
+    "playableSpaces": [
+      {
+        "id": "terrace",
+        "label": "Terrace",
+        "description": ""
+      },
+      {
+        "id": "dining-room",
+        "label": "Dining room",
+        "description": ""
+      },
+      {
+        "id": "kitchen",
+        "label": "Kitchen",
+        "description": ""
+      },
+      {
+        "id": "poolside-parlor",
+        "label": "Poolside parlor",
+        "description": ""
+      },
+      {
+        "id": "salon",
+        "label": "Salon",
+        "description": ""
+      },
+      {
+        "id": "entrance-hall",
+        "label": "Entrance hall",
+        "description": ""
+      },
+      {
+        "id": "staircase-to-the-bedrooms",
+        "label": "Staircase to the bedrooms",
+        "description": ""
+      },
+      {
+        "id": "master-bedroom",
+        "label": "Master bedroom",
+        "description": ""
+      },
+      {
+        "id": "basement",
+        "label": "Basement",
+        "description": ""
+      },
+      {
+        "id": "basement-room-marked-private",
+        "label": "Basement room marked private",
+        "description": ""
+      },
+      {
+        "id": "swimming-pool-area",
+        "label": "Swimming pool area",
+        "description": ""
+      },
+      {
+        "id": "cottage",
+        "label": "Cottage",
+        "description": ""
+      }
+    ],
+    "routes": [
+      {
+        "id": "all-named-spaces-are-accessible-through-the-house-s-ordinary-connected-layout",
+        "label": "All named spaces are accessible through the house's ordinary connected layout",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-staircase-connects-the-entrance-level-with-the-bedrooms",
+        "label": "The staircase connects the entrance level with the bedrooms",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-basement-and-its-room-marked-private-are-accessible-by-the-ordinary-basement-route",
+        "label": "The basement and its room marked private are accessible by the ordinary basement route",
+        "description": "",
+        "spaceIds": [
+          "basement"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-terrace-poolside-parlor-and-swimming-pool-area-connect-through-the-ordinary-outdoor-circulation",
+        "label": "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+        "description": "",
+        "spaceIds": [
+          "terrace",
+          "poolside-parlor",
+          "swimming-pool-area"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-cottage-is-accessible-from-the-house-and-is-farther-from-the-kitchen-than-the-dining-room-is",
+        "label": "The cottage is accessible from the house and is farther from the kitchen than the dining room is",
+        "description": "",
+        "spaceIds": [
+          "dining-room",
+          "kitchen",
+          "cottage"
+        ],
+        "accessibilityNotes": []
+      }
+    ],
+    "usableFeatures": [],
+    "availableProps": [],
+    "tone": "Glamorous 1960s French Riviera spy mystery",
+    "safetyConstraints": [
+      {
+        "id": "no-physical-contact",
+        "label": "No physical contact",
+        "description": ""
+      },
+      {
+        "id": "all-physical-actions-are-reversible-and-host-cued",
+        "label": "All physical staging is reversible and host-cued",
+        "description": ""
+      },
+      {
+        "id": "no-running-or-entering-the-swimming-pool-during-play",
+        "label": "No running or entering the swimming pool during play",
+        "description": ""
+      }
+    ],
+    "accessibilityNeeds": [
+      {
+        "id": "all-named-spaces-are-accessible-to-the-group-and-no-additional-mobility-needs-were-supplied",
+        "label": "All named spaces are accessible to the group and no additional mobility needs were supplied",
+        "description": ""
+      }
+    ],
+    "contentBoundaries": [
+      {
+        "id": "no-additional-content-boundaries-were-supplied",
+        "label": "No additional content boundaries were supplied",
+        "description": ""
+      }
+    ]
+  },
+  "story": {
+    "id": "saint-tropez-double",
+    "seed": "saint-tropez-double",
+    "title": "The Saint-Tropez Double",
+    "subtitle": "A film producer’s screen test is really an audition for a political impersonation.",
+    "premise": "producer Vivienne Marchal's private screen test for a Riviera thriller called The Second Face brings five accomplished strangers to a house in Grambois. Each accepted a different private promise from Vivienne Marchal; one came to make sure that promise could never be kept.",
+    "totalPeople": 6,
+    "characters": [
+      {
+        "id": "saint-tropez-double-guest-1",
+        "name": "Anaïs Morel",
+        "title": "Costume designer",
+        "costume": "1960s Riviera evening wear suited to costume designer",
+        "publicFace": "Inventive, tactile, and socially fearless",
+        "invitationPretext": "You were invited to producer Vivienne Marchal's private screen test for a Riviera thriller called The Second Face in your public capacity as costume designer.",
+        "invitationPromise": "Vivienne promised you credit and ownership of the minister’s transformation wardrobe.",
+        "privateIdentity": "You realized the measurements were copied from a real statesman.",
+        "privateObjective": "Prove your designs were misused without surrendering ownership.",
+        "privateSecret": "You concealed a fitting card to protect the actor named on it.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "saint-tropez-double-guest-1-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Vivienne promised you credit and ownership of the minister’s transformation wardrobe.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "saint-tropez-double-guest-1-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Peter Sloan is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "saint-tropez-double-guest-1-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "saint-tropez-double-guest-2",
+            "text": "Peter Sloan can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "saint-tropez-double-guest-5",
+            "text": "Gabriel Neri once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "saint-tropez-double-guest-1-evidence",
+            "text": "You heard dialect coach Peter tell Dario that the double could pass for one speech but not a lifetime.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "saint-tropez-double-guest-2"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "saint-tropez-double-guest-1"
+              },
+              "independenceGroup": "role:saint-tropez-double-guest-1"
+            }
+          }
+        ]
+      },
+      {
+        "id": "saint-tropez-double-guest-2",
+        "name": "Peter Sloan",
+        "title": "Dialect coach",
+        "costume": "1960s Riviera evening wear suited to dialect coach",
+        "publicFace": "Soft-spoken, exacting, and fond of imitation",
+        "invitationPretext": "You were invited to producer Vivienne Marchal's private screen test for a Riviera thriller called The Second Face in your public capacity as dialect coach.",
+        "invitationPromise": "Vivienne promised to erase recordings from a previous covert assignment.",
+        "privateIdentity": "You trained political doubles for an allied service.",
+        "privateObjective": "Keep your old service work private while stopping the permanent substitution.",
+        "privateSecret": "You coached the candidate in the cottage before knowing the plan was criminal.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "saint-tropez-double-guest-2-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Vivienne promised to erase recordings from a previous covert assignment.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "saint-tropez-double-guest-2-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Dario Vescari is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "saint-tropez-double-guest-2-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "saint-tropez-double-guest-3",
+            "text": "Dario Vescari can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "saint-tropez-double-guest-1",
+            "text": "Anaïs Morel once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "saint-tropez-double-guest-2-evidence",
+            "text": "You saw Inès alter the minister’s route notes after Dario demanded a second exit plan.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "saint-tropez-double-guest-3"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "saint-tropez-double-guest-2"
+              },
+              "independenceGroup": "role:saint-tropez-double-guest-2"
+            }
+          }
+        ]
+      },
+      {
+        "id": "saint-tropez-double-guest-3",
+        "name": "Dario Vescari",
+        "title": "International financier",
+        "costume": "1960s Riviera evening wear suited to international financier",
+        "publicFace": "Luxurious, amused, and never visibly surprised",
+        "invitationPretext": "You were invited to producer Vivienne Marchal's private screen test for a Riviera thriller called The Second Face in your public capacity as international financier.",
+        "invitationPromise": "Vivienne promised to deliver a flawless double for one diplomatic appearance.",
+        "privateIdentity": "You planned to replace the minister permanently and control the office through an impostor.",
+        "privateObjective": "Make the screen test look like Vivienne’s independent blackmail scheme.",
+        "privateSecret": "You killed Vivienne when she threatened to expose the permanent substitution.",
+        "traits": [
+          "Controlled under pressure",
+          "Charm used as misdirection"
+        ],
+        "objectives": [
+          {
+            "id": "saint-tropez-double-guest-3-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Vivienne promised to deliver a flawless double for one diplomatic appearance.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "saint-tropez-double-guest-3-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Inès Laurent is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "saint-tropez-double-guest-3-reckoning",
+            "title": "Escape the reckoning",
+            "text": "Keep the final conviction away from you without inventing evidence.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "saint-tropez-double-guest-4",
+            "text": "Inès Laurent can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "saint-tropez-double-guest-2",
+            "text": "Peter Sloan once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "saint-tropez-double-guest-3-evidence",
+            "text": "You know Inès copied the real route and can be framed as the operation’s architect.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "saint-tropez-double-guest-4"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "saint-tropez-double-guest-3"
+              },
+              "independenceGroup": "role:saint-tropez-double-guest-3"
+            }
+          }
+        ]
+      },
+      {
+        "id": "saint-tropez-double-guest-4",
+        "name": "Inès Laurent",
+        "title": "Location scout",
+        "costume": "1960s Riviera evening wear suited to location scout",
+        "publicFace": "Energetic, practical, and always mapping exits",
+        "invitationPretext": "You were invited to producer Vivienne Marchal's private screen test for a Riviera thriller called The Second Face in your public capacity as location scout.",
+        "invitationPromise": "Vivienne promised to clear your brother’s debt to Dario.",
+        "privateIdentity": "You mapped a visiting minister’s route under the cover of scouting locations.",
+        "privateObjective": "Free your brother without being blamed for the substitution.",
+        "privateSecret": "You added a cottage escape route after Dario threatened your family.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "saint-tropez-double-guest-4-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Vivienne promised to clear your brother’s debt to Dario.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "saint-tropez-double-guest-4-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Gabriel Neri is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "saint-tropez-double-guest-4-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "saint-tropez-double-guest-5",
+            "text": "Gabriel Neri can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "saint-tropez-double-guest-3",
+            "text": "Dario Vescari once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "saint-tropez-double-guest-4-evidence",
+            "text": "You heard actor Gabriel refuse Dario’s demand to remain in character after the public appearance.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "saint-tropez-double-guest-5"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "saint-tropez-double-guest-4"
+              },
+              "independenceGroup": "role:saint-tropez-double-guest-4"
+            }
+          }
+        ]
+      },
+      {
+        "id": "saint-tropez-double-guest-5",
+        "name": "Gabriel Neri",
+        "title": "Unknown screen actor",
+        "costume": "1960s Riviera evening wear suited to unknown screen actor",
+        "publicFace": "Earnest, malleable, and desperate to impress",
+        "invitationPretext": "You were invited to producer Vivienne Marchal's private screen test for a Riviera thriller called The Second Face in your public capacity as unknown screen actor.",
+        "invitationPromise": "Vivienne promised the role that would make you famous.",
+        "privateIdentity": "You were recruited because you resemble the minister and believed the job ended after one speech.",
+        "privateObjective": "Prove you were a pawn and escape Dario’s control.",
+        "privateSecret": "You signed the minister’s name during rehearsal and hid the page.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "saint-tropez-double-guest-5-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Vivienne promised the role that would make you famous.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "saint-tropez-double-guest-5-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Anaïs Morel is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "saint-tropez-double-guest-5-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "saint-tropez-double-guest-1",
+            "text": "Anaïs Morel can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "saint-tropez-double-guest-4",
+            "text": "Inès Laurent once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "saint-tropez-double-guest-5-evidence",
+            "text": "You saw Anaïs’s fitting card and know Dario approved the disguise before Vivienne formally cast you.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "saint-tropez-double-guest-1"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "saint-tropez-double-guest-5"
+              },
+              "independenceGroup": "role:saint-tropez-double-guest-5"
+            }
+          }
+        ]
+      }
+    ],
+    "publicEvidence": [],
+    "evening": [
+      {
+        "id": "saint-tropez-double-briefing",
+        "title": "Private briefing",
+        "description": "Read the dossiers, establish the fictional gathering, and give each suspect ten tokens.",
+        "durationMinutes": 5,
+        "phase": "opening"
+      },
+      {
+        "id": "saint-tropez-double-incident",
+        "title": "The fatal interruption",
+        "description": "Follow the five short opening cues until the host is discovered and becomes Game Master.",
+        "durationMinutes": 10,
+        "phase": "opening"
+      },
+      {
+        "id": "saint-tropez-double-investigation",
+        "title": "Open investigation",
+        "description": "Bargain, trade, buy clues, pursue objectives, and call a public accusation when ready.",
+        "durationMinutes": 105,
+        "phase": "investigation"
+      },
+      {
+        "id": "saint-tropez-double-reveal",
+        "title": "Reveal and scoring",
+        "description": "Reveal the operation, score objectives and tokens, and award the evening.",
+        "durationMinutes": 15,
+        "phase": "reveal"
+      }
+    ],
+    "solutionSteps": [
+      {
+        "title": "The impossible casting",
+        "truth": "Vivienne was recruiting a double for a visiting minister, not casting a film.",
+        "evidence": [
+          "saint-tropez-double-guest-1-evidence",
+          "saint-tropez-double-guest-2-evidence"
+        ],
+        "id": "saint-tropez-double-solution-1"
+      },
+      {
+        "title": "The face behind the camera",
+        "truth": "Dario Vescari killed Vivienne because she discovered he planned to replace the minister permanently.",
+        "evidence": [
+          "saint-tropez-double-guest-3-evidence",
+          "saint-tropez-double-guest-4-evidence",
+          "saint-tropez-double-guest-5-evidence"
+        ],
+        "id": "saint-tropez-double-solution-2"
+      }
+    ],
+    "openingSteps": [
+      {
+        "id": "saint-tropez-double-opening-1",
+        "title": "Receive Anaïs Morel",
+        "trigger": "When every player is seated",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Anaïs Morel to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "saint-tropez-double-guest-1",
+            "text": "Announce that the costume measurements belong to a public figure, not any actor present."
+          }
+        ]
+      },
+      {
+        "id": "saint-tropez-double-opening-2",
+        "title": "Receive Peter Sloan",
+        "trigger": "After Anaïs Morel completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Peter Sloan to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "saint-tropez-double-guest-2",
+            "text": "Repeat one sentence in two identical voices and say the production is not what it claims."
+          }
+        ]
+      },
+      {
+        "id": "saint-tropez-double-opening-3",
+        "title": "Receive Dario Vescari",
+        "trigger": "After Peter Sloan completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Dario Vescari to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "saint-tropez-double-guest-3",
+            "text": "Present yourself as the film’s investor and demand the screen test proceed despite Vivienne’s doubts."
+          }
+        ]
+      },
+      {
+        "id": "saint-tropez-double-opening-4",
+        "title": "Receive Inès Laurent",
+        "trigger": "After Dario Vescari completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Inès Laurent to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "saint-tropez-double-guest-4",
+            "text": "Point out that the “locations” form a real motorcade route and ask who commissioned it."
+          }
+        ]
+      },
+      {
+        "id": "saint-tropez-double-opening-5",
+        "title": "Discover the host",
+        "trigger": "After Inès Laurent completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "saint-tropez-double-no-contact"
+        ],
+        "settingRefs": [
+          {
+            "kind": "safetyConstraints",
+            "id": "no-physical-contact"
+          }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Cue Gabriel Neri, stage Vivienne Marchal's off-page collapse without contact, announce the discovery, and become Game Master."
+          },
+          {
+            "recipientRoleId": "saint-tropez-double-guest-5",
+            "text": "Enter in the minister’s posture, then break character and ask why everyone looks frightened."
+          }
+        ]
+      }
+    ],
+    "host": {
+      "id": "host",
+      "name": "Vivienne Marchal",
+      "title": "Vivienne Marchal, film producer and covert talent scout; then Game Master"
+    },
+    "victimRoleId": "host",
+    "culpritRoleId": "saint-tropez-double-guest-3",
+    "solutionSummary": "Dario financed the screen test to place his own operative as the minister’s double. Vivienne learned the substitution was intended to last beyond one public appearance and gathered witnesses. Dario killed her before the final test and exploited everyone’s film-industry secrets as alternate motives."
+  },
+  "clueDecks": [
+    {
+      "id": "saint-tropez-double-salon-file",
+      "label": "Salon intelligence file",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "salon"
+      },
+      "clues": [
+        {
+          "id": "saint-tropez-double-clue-1",
+          "text": "The camera marks correspond to a minister’s public route, not a film scene.",
+          "supportsSolutionStepIds": [
+            "saint-tropez-double-solution-1"
+          ]
+        },
+        {
+          "id": "saint-tropez-double-clue-2",
+          "text": "Dario approved a costume before the supposed lead actor was selected.",
+          "supportsSolutionStepIds": [
+            "saint-tropez-double-solution-2"
+          ]
+        },
+        {
+          "id": "saint-tropez-double-clue-3",
+          "text": "Vivienne promised each guest a different reward for helping expose the substitution plan.",
+          "supportsSolutionStepIds": [
+            "saint-tropez-double-solution-2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "saint-tropez-double-cottage-file",
+      "label": "Cottage intelligence file",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "cottage"
+      },
+      "clues": [
+        {
+          "id": "saint-tropez-double-clue-4",
+          "text": "The cottage rehearsal matched the minister’s gait and signature gestures.",
+          "supportsSolutionStepIds": [
+            "saint-tropez-double-solution-1"
+          ]
+        },
+        {
+          "id": "saint-tropez-double-clue-5",
+          "text": "Dario knew the double was meant to survive the appearance when everyone else expected one performance.",
+          "supportsSolutionStepIds": [
+            "saint-tropez-double-solution-2"
+          ]
+        }
+      ]
+    }
+  ],
+  "acts": [
+    {
+      "id": "opening",
+      "title": "The fatal interruption",
+      "operatorGoal": "Establish producer Vivienne Marchal's private screen test for a Riviera thriller called The Second Face, stage the single no-contact death, then become Game Master.",
+      "playerGoal": "Deliver only your short prepared cue and wait for the body to be discovered before bargaining begins.",
+      "durationMinutes": 15,
+      "completionLabel": "Open the investigation →"
+    }
+  ],
+  "setupRequirements": [
+    {
+      "id": "saint-tropez-double-no-contact",
+      "label": "Confirm that the entire opening is spoken and staged without contact.",
+      "settingRef": {
+        "kind": "safetyConstraints",
+        "id": "no-physical-contact"
+      }
+    }
+  ]
+}

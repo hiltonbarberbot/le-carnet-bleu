@@ -1,12 +1,12 @@
 import rawManifest from '../../game.manifest.json' with { type: 'json' }
-import type { GameManifest } from '../game/runtime/contract.js'
+import type { GameManifest } from '../game/runtime/contract'
 
 /**
  * Product-facing naming lives here. The manifest remains the single source of
  * truth so runtimes, the browser, persistence, and AI telemetry rename together.
  * The manifest id is a stable machine identifier; change `name` for a rebrand.
  */
-export const gameManifest = rawManifest as GameManifest
+export const gameManifest = rawManifest as unknown as GameManifest
 
 export const productNaming = Object.freeze({
   id: gameManifest.id,

@@ -5,3 +5,6 @@ dist
 *.tsbuildinfo
 .env*
 !.env.example
+/.next
+/.swc
+/.workflow-data

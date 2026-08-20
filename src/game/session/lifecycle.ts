@@ -2,19 +2,17 @@ import type {
   AccusationVote,
   ActiveGameState,
   Controller,
-  DeliveryRecord,
   EnrollingGameState,
   ExistingGameState,
   GameState,
   IdleGameState,
   PreparedGameState,
-  RunBeat,
   RuntimeCapabilities,
   ScoreCard,
   SeatDraft,
   SetupDraft,
 } from '../types'
-import type { GameDefinition } from '../definition/contract'
+import type { StorylineDefinition } from '../definition/contract'
 import { hashString } from '../random/hash'
 
 export const SOCIAL_RULES = {
@@ -26,7 +24,7 @@ export const SOCIAL_RULES = {
   culpritEscapePoints: 10,
 } as const
 
-export function getConvictionThreshold(definition: GameDefinition) {
+export function getConvictionThreshold(definition: StorylineDefinition) {
   return Math.floor(definition.story.characters.length / 2) + 1
 }
 
@@ -34,27 +32,23 @@ export const browserCapabilities: RuntimeCapabilities = {
   aiControllers: false,
 }
 
-export function createSetupDraft(definition: GameDefinition): SetupDraft {
+export function createSetupDraft(definition: StorylineDefinition): SetupDraft {
   const { story } = definition
   return {
     hostName: '',
     seats: story.characters.map<SeatDraft>(character => ({
       roleId: character.id,
-      participantId: '',
       humanName: '',
-      privateAddress: '',
-      ready: false,
-      allowAiFallback: false,
     })),
     venue: Object.fromEntries(definition.setupRequirements.map(check => [check.id, false])),
   }
 }
 
-export function createIdleState(definition: GameDefinition): IdleGameState {
-  return { schemaVersion: 3, definitionFingerprint: definition.fingerprint, storyId: definition.story.id, seed: definition.story.seed, phase: 'idle' }
+export function createIdleState(definition: StorylineDefinition): IdleGameState {
+  return { schemaVersion: 5, definitionFingerprint: definition.fingerprint, storyId: definition.story.id, seed: definition.story.seed, phase: 'idle' }
 }
 
-export function createGame(definition: GameDefinition, now = new Date(), id: string = crypto.randomUUID()): EnrollingGameState {
+export function createGame(definition: StorylineDefinition, now = new Date(), id: string = crypto.randomUUID()): EnrollingGameState {
   return {
     ...createIdleState(definition),
     phase: 'enrolling',
@@ -68,13 +62,11 @@ export function updateEnrolment(state: EnrollingGameState, setup: SetupDraft): E
   return { ...state, setup }
 }
 
-export function getSetupBlockers(definition: GameDefinition, setup: SetupDraft, capabilities: RuntimeCapabilities): string[] {
+export function getSetupBlockers(definition: StorylineDefinition, setup: SetupDraft, capabilities: RuntimeCapabilities): string[] {
   const { story } = definition
   const blockers: string[] = []
-  if (!setup.hostName.trim()) blockers.push(`The host for “${story.hostRole}” has not been named.`)
+  if (!setup.hostName.trim()) blockers.push(`The host for “${story.host.title}” has not been named.`)
 
-  const participantIds = new Set<string>()
-  const addresses = new Set<string>()
   for (const character of story.characters) {
     const seat = setup.seats.find(item => item.roleId === character.id)
     if (!seat) {
@@ -82,20 +74,10 @@ export function getSetupBlockers(definition: GameDefinition, setup: SetupDraft, 
       continue
     }
 
-    if (seat.humanName.trim()) {
-      if (!seat.participantId.trim()) blockers.push(`${seat.humanName.trim()} has no stable participant identity.`)
-      if (!seat.privateAddress.trim()) blockers.push(`${seat.humanName.trim()} has no private delivery address.`)
-      if (!seat.ready) blockers.push(`${seat.humanName.trim()} has not confirmed readiness for ${character.name}.`)
-      if (seat.participantId.trim() && participantIds.has(seat.participantId.trim())) blockers.push(`${seat.humanName.trim()} duplicates another participant identity.`)
-      if (seat.privateAddress.trim() && addresses.has(seat.privateAddress.trim())) blockers.push(`${seat.humanName.trim()} duplicates another private delivery address.`)
-      participantIds.add(seat.participantId.trim())
-      addresses.add(seat.privateAddress.trim())
-      continue
+    if (!seat.humanName.trim() && !seat.allowAiFallback) {
+      blockers.push(`${character.name} needs a player or an AI controller.`)
     }
-
-    if (!seat.allowAiFallback) {
-      blockers.push(`${character.name} has no ready human and no fallback permission.`)
-    } else if (!capabilities.aiControllers) {
+    if (seat.allowAiFallback && !capabilities.aiControllers) {
       blockers.push(`${character.name} would require AI fallback, but this host has no AI controller runtime.`)
     }
   }
@@ -108,7 +90,7 @@ export function getSetupBlockers(definition: GameDefinition, setup: SetupDraft, 
 }
 
 export function prepareGame(
-  definition: GameDefinition,
+  definition: StorylineDefinition,
   state: EnrollingGameState,
   capabilities: RuntimeCapabilities,
   now = new Date(),
@@ -119,31 +101,23 @@ export function prepareGame(
 
   const roster = Object.fromEntries(story.characters.map(character => {
     const seat = state.setup.seats.find(item => item.roleId === character.id)!
-    const controller: Controller = seat.humanName.trim()
+    const controller: Controller = seat.allowAiFallback
       ? {
-          kind: 'human',
-          participantId: seat.participantId.trim(),
-          displayName: seat.humanName.trim(),
-          privateAddress: seat.privateAddress.trim(),
-        }
-      : {
           kind: 'ai',
           displayName: `AI · ${character.name}`,
           physicalProxy: state.setup.hostName.trim(),
         }
+      : seat.humanName.trim()
+      ? {
+          kind: 'human',
+          displayName: seat.humanName.trim(),
+        }
+      : (() => { throw new Error(`${character.name} needs a player or an AI controller.`) })()
     return [character.id, controller]
   }))
 
-  const deliveries = Object.fromEntries(story.characters.map(character => {
-    const controller = roster[character.id]
-    const delivery: DeliveryRecord = controller.kind === 'human'
-      ? { roleId: character.id, address: controller.privateAddress, status: 'not_requested', attempts: 0 }
-      : { roleId: character.id, status: 'not_required', attempts: 0 }
-    return [character.id, delivery]
-  }))
-
   return {
-    schemaVersion: 3,
+    schemaVersion: 5,
     definitionFingerprint: state.definitionFingerprint,
     storyId: state.storyId,
     seed: state.seed,
@@ -153,74 +127,16 @@ export function prepareGame(
     preparedAt: now.toISOString(),
     hostName: state.setup.hostName.trim(),
     roster,
-    deliveries,
   }
 }
 
-function updateDelivery(state: PreparedGameState, roleId: string, record: DeliveryRecord): PreparedGameState {
-  if (!state.deliveries[roleId]) throw new Error(`No delivery exists for role ${roleId}.`)
-  return { ...state, deliveries: { ...state.deliveries, [roleId]: record } }
-}
-
-export function requestDelivery(state: PreparedGameState, roleId: string, now = new Date()): PreparedGameState {
-  const delivery = state.deliveries[roleId]
-  if (!delivery) throw new Error(`No delivery exists for role ${roleId}.`)
-  if (delivery.status !== 'not_requested' && delivery.status !== 'failed') {
-    throw new Error(`Delivery for ${roleId} cannot be queued from ${delivery.status}.`)
-  }
-  return updateDelivery(state, roleId, {
-    roleId,
-    address: delivery.address,
-    status: 'queued',
-    attempts: delivery.attempts + 1,
-    requestedAt: now.toISOString(),
-  })
-}
-
-export function beginDelivery(state: PreparedGameState, roleId: string, now = new Date()): PreparedGameState {
-  const delivery = state.deliveries[roleId]
-  if (!delivery || delivery.status !== 'queued') throw new Error(`Delivery for ${roleId} can begin only from queued.`)
-  return updateDelivery(state, roleId, { ...delivery, status: 'sending', sendingAt: now.toISOString() })
-}
-
-export type DeliveryOutcome =
-  | { ok: true; receipt: string }
-  | { ok: false; error: string }
-
-export function recordDeliveryOutcome(
-  state: PreparedGameState,
-  roleId: string,
-  outcome: DeliveryOutcome,
-  now = new Date(),
-): PreparedGameState {
-  const delivery = state.deliveries[roleId]
-  if (!delivery || delivery.status !== 'sending') throw new Error(`Delivery for ${roleId} can finish only from sending.`)
-  if (outcome.ok && !outcome.receipt.trim()) throw new Error('A confirmed delivery requires a non-empty receipt.')
-  if (!outcome.ok && !outcome.error.trim()) throw new Error('A failed delivery requires an error.')
-  return updateDelivery(state, roleId, outcome.ok
-    ? { ...delivery, status: 'delivered', deliveredAt: now.toISOString(), receipt: outcome.receipt.trim() }
-    : { ...delivery, status: 'failed', failedAt: now.toISOString(), error: outcome.error.trim() })
-}
-
-export function getStartBlockers(definition: GameDefinition, state: PreparedGameState): string[] {
-  const { story } = definition
-  return story.characters.flatMap(character => {
-    const delivery = state.deliveries[character.id]
-    return delivery?.status === 'delivered' || delivery?.status === 'not_required'
-      ? []
-      : [`${character.name} dossier is ${delivery?.status ?? 'missing'}.`]
-  })
-}
-
-export function startGame(definition: GameDefinition, state: PreparedGameState, now = new Date()): ActiveGameState {
-  const blockers = getStartBlockers(definition, state)
-  if (blockers.length) throw new Error(blockers.join('\n'))
+export function startGame(definition: StorylineDefinition, state: PreparedGameState, now = new Date()): ActiveGameState {
   return {
     ...state,
     phase: 'active',
     playPhase: definition.acts[0].id,
     paused: false,
-    completedBeatIds: [],
+    completedStepIds: [],
     revealedEvidenceIds: [],
     tokenBalances: Object.fromEntries(definition.story.characters.map(character => [character.id, SOCIAL_RULES.startingTokens])),
     ownedClueIds: Object.fromEntries(definition.story.characters.map(character => [character.id, []])),
@@ -235,7 +151,6 @@ export function startGame(definition: GameDefinition, state: PreparedGameState, 
     hearingHistory: [],
     outcome: null,
     awards: {},
-    aiPerformances: {},
     startedAt: now.toISOString(),
   }
 }
@@ -261,83 +176,52 @@ function assertActive(state: ActiveGameState) {
   if (state.paused) throw new Error('The game is paused.')
 }
 
-function essentialBeats(definition: GameDefinition, phase: RunBeat['phase']) {
-  return definition.story.runPlan.filter(beat => beat.phase === phase && beat.essential)
-}
-
-export function confirmRunBeat(definition: GameDefinition, state: ActiveGameState, beatId: string): ActiveGameState {
+export function completeOpeningStep(definition: StorylineDefinition, state: ActiveGameState, stepId: string): ActiveGameState {
   const { story } = definition
   assertActive(state)
-  const beat = story.runPlan.find(item => item.id === beatId)
-  if (!beat) throw new Error(`Unknown run-plan beat ${beatId}.`)
-  if (beat.phase !== state.playPhase) throw new Error(`${beat.title} belongs to ${beat.phase}, not ${state.playPhase}.`)
-  const missingDependencies = beat.dependsOn.filter(id => !state.completedBeatIds.includes(id))
-  if (missingDependencies.length) throw new Error(`${beat.title} is blocked by ${missingDependencies.join(', ')}.`)
-  const missingAiPerformances = beat.actionIds.filter(actionId => {
-    const owner = story.characters.find(character => character.actions.some(action => action.id === actionId))
-    return owner && state.roster[owner.id]?.kind === 'ai' && !state.aiPerformances[actionId]
-  })
-  if (missingAiPerformances.length) throw new Error(`${beat.title} is waiting for AI performance: ${missingAiPerformances.join(', ')}.`)
-  if (state.completedBeatIds.includes(beat.id)) return state
-  return { ...state, completedBeatIds: [...state.completedBeatIds, beat.id] }
+  if (state.playPhase !== definition.acts[0]?.id) throw new Error('Opening steps can only be completed during the authored opening.')
+  const step = story.openingSteps.find(item => item.id === stepId)
+  if (!step) throw new Error(`Unknown opening step ${stepId}.`)
+  const next = story.openingSteps.find(item => !state.completedStepIds.includes(item.id))
+  if (next?.id !== step.id) throw new Error(`${step.title} is not the next opening step.`)
+  return { ...state, completedStepIds: [...state.completedStepIds, step.id] }
 }
 
-export function recordAiPerformance(
-  definition: GameDefinition,
-  state: ActiveGameState,
-  roleId: string,
-  actionId: string,
-  text: string,
-  now = new Date(),
-): ActiveGameState {
+export function undoOpeningStep(definition: StorylineDefinition, state: ActiveGameState, stepId: string): ActiveGameState {
   assertActive(state)
-  const { story } = definition
-  const character = story.characters.find(item => item.id === roleId)
-  const action = character?.actions.find(item => item.id === actionId)
-  if (!character || !action) throw new Error('That AI role or action does not exist in this story.')
-  if (state.roster[roleId]?.kind !== 'ai') throw new Error(`${character.name} is not controlled by AI in this game.`)
-  if (action.phase !== state.playPhase) throw new Error(`${action.id} belongs to ${action.phase}, not ${state.playPhase}.`)
-  if (!text.trim()) throw new Error('An AI performance cannot be empty.')
-  return {
-    ...state,
-    aiPerformances: {
-      ...state.aiPerformances,
-      [actionId]: { roleId, actionId, text: text.trim(), generatedAt: now.toISOString() },
-    },
-  }
+  const last = state.completedStepIds.at(-1)
+  if (last !== stepId) throw new Error('Only the most recently completed opening step can be undone.')
+  return { ...state, completedStepIds: state.completedStepIds.slice(0, -1) }
 }
 
-export function undoRunBeat(definition: GameDefinition, state: ActiveGameState, beatId: string): ActiveGameState {
-  assertActive(state)
-  const { story } = definition
-  const dependants = story.runPlan.filter(beat => beat.dependsOn.includes(beatId) && state.completedBeatIds.includes(beat.id))
-  if (dependants.length) throw new Error(`Cannot undo while ${dependants.map(beat => beat.title).join(', ')} depends on it.`)
-  return { ...state, completedBeatIds: state.completedBeatIds.filter(id => id !== beatId) }
-}
-
-export function advanceAct(definition: GameDefinition, state: ActiveGameState): ActiveGameState {
+export function advanceAct(definition: StorylineDefinition, state: ActiveGameState): ActiveGameState {
   assertActive(state)
   const actIndex = definition.acts.findIndex(act => act.id === state.playPhase)
   if (actIndex < 0) throw new Error(`${state.playPhase} is not an authored act.`)
   const current = definition.acts[actIndex]
-  const missing = essentialBeats(definition, current.id).filter(beat => !state.completedBeatIds.includes(beat.id))
-  if (missing.length) throw new Error(`${current.title} is missing: ${missing.map(beat => beat.title).join(', ')}.`)
+  const missing = definition.story.openingSteps.filter(step => !state.completedStepIds.includes(step.id))
+  if (missing.length) throw new Error(`${current.title} is missing: ${missing.map(step => step.title).join(', ')}.`)
   const next = definition.acts[actIndex + 1]
   return next
     ? { ...state, playPhase: next.id }
     : { ...state, playPhase: 'investigation', revealedEvidenceIds: definition.story.publicEvidence.map(item => item.id) }
 }
 
-export function toggleEvidence(state: ActiveGameState, evidenceId: string): ActiveGameState {
+export function toggleEvidence(definition: StorylineDefinition, state: ActiveGameState, evidenceId: string): ActiveGameState {
   assertActive(state)
   if (state.playPhase !== 'investigation') throw new Error('Evidence can be tracked only during investigation.')
+  const evidenceIds = new Set([
+    ...definition.story.publicEvidence.map(item => item.id),
+    ...definition.story.characters.flatMap(character => character.secrets.map(secret => secret.id)),
+  ])
+  if (!evidenceIds.has(evidenceId)) throw new Error(`Unknown evidence ${evidenceId}.`)
   const exists = state.revealedEvidenceIds.includes(evidenceId)
   return { ...state, revealedEvidenceIds: exists ? state.revealedEvidenceIds.filter(id => id !== evidenceId) : [...state.revealedEvidenceIds, evidenceId] }
 }
 
 function assertInvestigation(state: ActiveGameState) {
   assertActive(state)
-  if (state.playPhase !== 'investigation' || state.outcome) throw new Error('That social action is available only during the open investigation.')
+  if (state.playPhase !== 'investigation' || state.outcome) throw new Error('That interaction is available only during the open investigation.')
 }
 
 function assertRole(state: ActiveGameState, roleId: string) {
@@ -361,7 +245,7 @@ export function transferTokens(state: ActiveGameState, fromRoleId: string, toRol
   }
 }
 
-export function buyClue(definition: GameDefinition, state: ActiveGameState, roleId: string, deckId: string): ActiveGameState {
+export function buyClue(definition: StorylineDefinition, state: ActiveGameState, roleId: string, deckId: string): ActiveGameState {
   assertInvestigation(state)
   assertRole(state, roleId)
   if (state.hearing) throw new Error('Clue buying pauses during an accusation hearing.')
@@ -429,7 +313,7 @@ export function advanceHearing(state: ActiveGameState): ActiveGameState {
   return { ...state, hearing: { ...state.hearing, stage: stages[index + 1] } }
 }
 
-export function castVote(definition: GameDefinition, state: ActiveGameState, roleId: string, vote: AccusationVote): ActiveGameState {
+export function castVote(definition: StorylineDefinition, state: ActiveGameState, roleId: string, vote: AccusationVote): ActiveGameState {
   assertInvestigation(state)
   assertRole(state, roleId)
   if (!state.hearing || state.hearing.stage !== 'voting') throw new Error('Votes can be cast only during the voting stage.')
@@ -456,11 +340,11 @@ export function endInvestigation(state: ActiveGameState): ActiveGameState {
   return { ...state, playPhase: 'reveal', outcome: { kind: 'time_expired' } }
 }
 
-export function revealToTable(_definition: GameDefinition, state: ActiveGameState): ActiveGameState {
+export function revealToTable(_definition: StorylineDefinition, state: ActiveGameState): ActiveGameState {
   return endInvestigation(state)
 }
 
-export function setObjectiveCompleted(definition: GameDefinition, state: ActiveGameState, roleId: string, objectiveId: string, completed: boolean): ActiveGameState {
+export function setObjectiveCompleted(definition: StorylineDefinition, state: ActiveGameState, roleId: string, objectiveId: string, completed: boolean): ActiveGameState {
   assertActive(state)
   if (!['investigation', 'reveal'].includes(state.playPhase)) throw new Error('Objectives are scored only after the staged incident.')
   const character = definition.story.characters.find(item => item.id === roleId)
@@ -475,15 +359,15 @@ export function setObjectiveCompleted(definition: GameDefinition, state: ActiveG
   }
 }
 
-export function recordAward(definition: GameDefinition, state: ActiveGameState, award: 'performance' | 'costume', roleId: string): ActiveGameState {
+export function recordAward(definition: StorylineDefinition, state: ActiveGameState, award: 'performance' | 'costume', roleId: string): ActiveGameState {
   assertActive(state)
   if (state.playPhase !== 'reveal') throw new Error('Table awards are recorded during the reveal.')
   if (!definition.story.characters.some(character => character.id === roleId)) throw new Error(`Unknown award recipient ${roleId}.`)
   return { ...state, awards: { ...state.awards, [award === 'performance' ? 'performanceRoleId' : 'costumeRoleId']: roleId } }
 }
 
-export function calculateScores(definition: GameDefinition, state: ActiveGameState): Record<string, ScoreCard> {
-  const culprit = definition.story.characters.find(character => character.name === definition.story.culprit)!
+export function calculateScores(definition: StorylineDefinition, state: ActiveGameState): Record<string, ScoreCard> {
+  const culprit = definition.story.characters.find(character => character.id === definition.story.culpritRoleId)!
   const hearingId = state.outcome?.kind === 'conviction' ? state.outcome.hearingId : undefined
   const conviction = hearingId
     ? state.hearingHistory.find(hearing => hearing.id === hearingId)
@@ -501,12 +385,12 @@ export function calculateScores(definition: GameDefinition, state: ActiveGameSta
   }))
 }
 
-export function getRevealBlockers(_definition: GameDefinition, state: ActiveGameState): string[] {
+export function getRevealBlockers(_definition: StorylineDefinition, state: ActiveGameState): string[] {
   if (state.playPhase === 'reveal' && state.outcome) return []
   return ['Investigation must end through a majority conviction or the time limit.']
 }
 
-export function completeGame(definition: GameDefinition, state: ActiveGameState, now = new Date()) {
+export function completeGame(definition: StorylineDefinition, state: ActiveGameState, now = new Date()) {
   assertActive(state)
   if (state.playPhase !== 'reveal') throw new Error('The game can complete only after the table reveal.')
   if (!state.outcome) throw new Error('The game cannot complete without an investigation outcome.')
@@ -521,7 +405,7 @@ export function abortGame(state: ExistingGameState, now = new Date()) {
   if (state.phase === 'completed') throw new Error('A completed game cannot be aborted.')
   if (state.phase === 'aborted') return state
   return {
-    schemaVersion: 3 as const,
+    schemaVersion: 5 as const,
     definitionFingerprint: state.definitionFingerprint,
     storyId: state.storyId,
     seed: state.seed,
@@ -534,7 +418,7 @@ export function abortGame(state: ExistingGameState, now = new Date()) {
   }
 }
 
-export function resetGame(definition: GameDefinition, state: GameState, confirmed: boolean): IdleGameState {
+export function resetGame(definition: StorylineDefinition, state: GameState, confirmed: boolean): IdleGameState {
   if (state.phase === 'idle') throw new Error('There is no game to reset.')
   if (!confirmed) throw new Error('Reset requires explicit confirmation.')
   return createIdleState(definition)

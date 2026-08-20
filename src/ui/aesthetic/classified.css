@@ -1,0 +1,1468 @@
+:root {
+  color: var(--photo-paper);
+  background: var(--paper);
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+  font-synthesis: none;
+  --paper-pale: var(--paper-warm);
+  --ink: var(--text-strong);
+  --ink-soft: var(--ink-type);
+  --ink-red-dark: var(--ink-red-2);
+  --desk: var(--table);
+  --desk-deep: var(--ink-black);
+  --desk-line: color-mix(in srgb, var(--paper-warm) 24%, transparent);
+  --success: var(--table-lamp);
+  --warning: var(--ink-red-2);
+  --shadow-paper: 0 1px 0 color-mix(in srgb, var(--punch-white) 28%, transparent) inset,
+    0 0 38px color-mix(in srgb, var(--table-lamp) 20%, transparent) inset,
+    0 24px 46px -20px color-mix(in srgb, var(--plate-dark) 70%, transparent),
+    0 2px 0 color-mix(in srgb, var(--plate-dark) 24%, transparent);
+  --paper-image:
+    radial-gradient(48% 34% at 18% 12%, color-mix(in srgb, var(--punch-white) 42%, transparent), transparent 70%),
+    radial-gradient(42% 30% at 84% 30%, color-mix(in srgb, var(--photo-paper) 30%, transparent), transparent 72%),
+    radial-gradient(60% 40% at 26% 78%, color-mix(in srgb, var(--paper-cool) 30%, transparent), transparent 74%),
+    radial-gradient(38% 26% at 72% 92%, color-mix(in srgb, var(--paper-cool) 26%, transparent), transparent 70%),
+    linear-gradient(168deg, var(--paper-warm) 0%, var(--paper) 46%, var(--paper-cool) 100%);
+}
+
+html {
+  background: var(--paper);
+}
+
+body {
+  min-width: 320px;
+  background-color: var(--paper);
+  background-image: var(--paper-image);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-kerning: none;
+}
+
+body::before {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.22'/></svg>");
+  content: '';
+  mix-blend-mode: multiply;
+  opacity: .14;
+  pointer-events: none;
+}
+
+body::after {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='.008 .9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='600' height='600' filter='url(%23f)' opacity='.45'/></svg>");
+  background-size: 600px 600px;
+  content: '';
+  mix-blend-mode: overlay;
+  opacity: .14;
+  pointer-events: none;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--ink-red) 28%, transparent);
+}
+
+button,
+input,
+select,
+textarea {
+  border-radius: 0;
+  font-family: inherit;
+}
+
+button {
+  letter-spacing: .015em;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+label:has(input:focus-visible) {
+  outline: 3px solid color-mix(in srgb, var(--paper-warm) 88%, transparent);
+  outline-offset: 3px;
+}
+
+button:active {
+  transform: scale(.98);
+}
+
+h1,
+h2,
+h3,
+h4,
+.storyline-card > h3,
+.author-head h1,
+.author-prompt-copy h2,
+.author-step-copy h2,
+.draft-card h1 {
+  color: inherit;
+  font-family: 'Archivo', var(--font-plate) !important;
+  font-weight: 700 !important;
+  letter-spacing: .015em;
+  text-wrap: balance;
+}
+
+.kicker,
+.label,
+.mode-bar span,
+.page-title > b,
+.phase-marker span,
+.field > span,
+.setup-heading > span,
+.run-sheet header small,
+.run-sheet header > b,
+.gateway-status,
+.storyline-card > header span,
+.storyline-games > b,
+.story-facts span,
+.story-synopsis > span,
+.story-section-heading > span,
+.story-motive dt,
+.story-secret > b,
+.story-contributions > b,
+.story-acts > section > header > span,
+.story-decks header > span,
+.story-decks li > span,
+.author-step-copy > span,
+.author-prompt-copy > span,
+.author-field > span,
+.author-ai-status {
+  color: var(--ink-red);
+  font-family: 'Archivo', var(--font-plate) !important;
+  font-weight: 700;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+/* Website pages */
+.chooser,
+.page,
+.rules-page,
+.author-studio {
+  color: var(--ink);
+}
+
+.chooser-summary,
+.page-title p,
+.host-intro p,
+.phase-content > p,
+.setup-hero p,
+.setup-heading p,
+.session-head p,
+.rules-page header p,
+.rules-block p,
+.rules-block li,
+.author-head p,
+.author-prompt-copy p,
+.author-step-copy p {
+  color: var(--ink-soft);
+}
+
+.library-head,
+.author-head,
+.rules-page > header,
+.host-intro,
+.setup-hero {
+  position: relative;
+}
+
+.library-head::after,
+.author-head::after,
+.rules-page > header::after,
+.host-intro::after,
+.setup-hero::after {
+  display: block;
+  width: min(360px, 70%);
+  height: 9px;
+  margin-top: 22px;
+  background: var(--ink-black);
+  content: '';
+  opacity: .78;
+  transform: rotate(-.5deg);
+}
+
+.library-head h1,
+.author-head h1,
+.rules-page h1,
+.host-intro h1,
+.setup-hero h1,
+.session-head h1,
+.page-title h1,
+.page-title h2 {
+  color: var(--ink-red);
+  text-shadow: .5px .5px 0 color-mix(in srgb, var(--ink-red-2) 35%, transparent);
+}
+
+.library-title,
+.author-progress,
+.author-footer,
+.rules-page > header,
+.rules-summary,
+.rules-block,
+.host-phase,
+.setup-section,
+.phase-panel {
+  border-color: var(--desk-line);
+}
+
+/* The reusable onionskin document material. */
+.storyline-card,
+.profile,
+.story-reader,
+.draft-card,
+.evening-timeline,
+.seat-card,
+.run-sheet > article,
+.social-panel,
+.canonical-truth,
+.truth,
+.fatal-screen,
+.hard-errors,
+.awards,
+.theory,
+.score-room > article {
+  position: relative;
+  background-color: var(--paper);
+  background-image: var(--paper-image);
+  box-shadow: var(--shadow-paper);
+  color: var(--ink);
+  isolation: isolate;
+}
+
+.storyline-card::after,
+.profile::after,
+.draft-card::after,
+.story-reader::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='240' height='240' filter='url(%23g)' opacity='.42'/></svg>");
+  background-size: 240px 240px;
+  content: '';
+  mix-blend-mode: multiply;
+  opacity: .19;
+  pointer-events: none;
+}
+
+.storyline-card:nth-child(odd) {
+  transform: rotate(-.12deg);
+}
+
+.storyline-card:nth-child(even) {
+  transform: rotate(.1deg);
+}
+
+.storyline-card,
+.seat-card,
+.run-sheet > article,
+.social-panel,
+.canonical-truth,
+.truth,
+.awards,
+.theory,
+.score-room > article {
+  border-color: color-mix(in srgb, var(--text-strong) 38%, transparent);
+}
+
+.storyline-card > p,
+.storyline-card > header small,
+.storyline-facts span,
+.storyline-tools,
+.storyline-tools > small,
+.seat-card > header small,
+.run-sheet small,
+.operator-copy,
+.social-panel small,
+.canonical-truth p,
+.truth-grid p,
+.truth-grid small,
+.theory small,
+.score-room small {
+  color: var(--ink-soft);
+}
+
+.storyline-card > header,
+.storyline-games,
+.storyline-tools,
+.truth-grid,
+.canonical-truth > header {
+  border-color: color-mix(in srgb, var(--text-strong) 30%, transparent);
+}
+
+.storyline-card > header span,
+.storyline-games > b,
+.storyline-tools > small,
+.run-sheet header small,
+.run-sheet header > b,
+.theory > span,
+.canonical-truth > header span,
+.canonical-truth > h3,
+.truth-grid article > span {
+  color: var(--ink-red);
+}
+
+/* Controls feel stamped and typed, not glossy. */
+.create-storyline,
+.storyline-game-action,
+.primary-action,
+.rules-start,
+.author-shape,
+.author-next,
+.story-reader-finish,
+.vote-list button:first-child {
+  border: 1px solid color-mix(in srgb, var(--ink-red-2) 52%, transparent);
+  background: var(--ink-red);
+  box-shadow: 1px 2px 0 var(--ink-red-dark);
+  color: var(--photo-paper);
+  font-family: 'Archivo', var(--font-plate);
+  text-transform: uppercase;
+}
+
+.create-storyline > span,
+.create-storyline > small {
+  color: var(--photo-paper);
+}
+
+.create-storyline > b {
+  font-family: 'Archivo', var(--font-plate);
+}
+
+.import-storyline span,
+.storyline-tools button,
+.mode-actions button,
+.session-actions button,
+.run-sheet button,
+.trade-form button,
+.clue-options button,
+.pacing-tools button,
+.vote-list button,
+.author-secondary,
+.draft-actions button {
+  border: 1px solid color-mix(in srgb, var(--text-strong) 48%, transparent);
+  background: color-mix(in srgb, var(--punch-white) 18%, transparent);
+  color: var(--ink);
+}
+
+.storyline-games > button,
+.dossier-grid button,
+.roster-strip button,
+.clue-buyers > details,
+.vote-list article,
+.setup-left,
+.host-only,
+.opening-action,
+.ai-performance blockquote,
+.private-clue,
+.failed-hearing,
+.host-note,
+.library-notice {
+  border-color: color-mix(in srgb, var(--text-strong) 38%, transparent);
+  background: color-mix(in srgb, var(--punch-white) 22%, transparent);
+  color: var(--ink);
+}
+
+.storyline-games > button,
+.dossier-grid button,
+.roster-strip button {
+  background-color: var(--paper-pale);
+  background-image: var(--paper-image);
+  box-shadow: 0 12px 24px -18px var(--plate-dark);
+}
+
+.storyline-games > button small,
+.storyline-games > button i,
+.dossier-grid small,
+.dossier-grid em,
+.roster-strip small,
+.clue-buyers summary small,
+.clue-options button small,
+.setup-left li,
+.host-note span,
+.social-steps p {
+  color: var(--ink-soft);
+}
+
+.storyline-games > button strong,
+.dossier-grid b,
+.roster-strip span,
+.roster-strip b,
+.clue-buyers summary strong {
+  color: var(--ink);
+}
+
+.host-nav {
+  border-color: color-mix(in srgb, var(--text-strong) 30%, transparent);
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  backdrop-filter: blur(18px) saturate(115%);
+}
+
+.host-nav button {
+  color: var(--ink-soft);
+}
+
+.host-nav button.active {
+  border-color: var(--ink-red);
+  color: var(--ink-red);
+}
+
+.mode-bar,
+.story-reader-bar {
+  background: color-mix(in srgb, var(--ink-red-2) 88%, transparent);
+  border-color: color-mix(in srgb, var(--punch-white) 26%, transparent);
+  color: var(--punch-white);
+  backdrop-filter: blur(18px) saturate(125%);
+  box-shadow: 0 8px 30px color-mix(in srgb, var(--plate-dark) 22%, transparent);
+}
+
+.mode-bar span,
+.story-reader-bar span {
+  color: var(--photo-paper);
+}
+
+.mode-bar .mode-actions button {
+  border-color: color-mix(in srgb, var(--punch-white) 60%, transparent);
+  background: var(--paper-warm);
+  color: var(--ink);
+}
+
+.mode-bar .mode-actions .quiet {
+  border-color: color-mix(in srgb, var(--punch-white) 52%, transparent);
+  background: transparent;
+  color: var(--punch-white);
+}
+
+.player-mode {
+  background: color-mix(in srgb, var(--text-strong) 90%, transparent);
+}
+
+.story-reader-bar span {
+  color: var(--punch-white);
+}
+
+.story-reader-bar button {
+  color: var(--punch-white);
+}
+
+.phase-marker b,
+.setup-heading > span,
+.social-steps article > b,
+.number,
+.story-step > span {
+  border-radius: 50%;
+  background: var(--ink-red);
+  color: var(--photo-paper);
+  box-shadow: 1px 1px 0 var(--ink-red-dark);
+}
+
+.number.red {
+  background: var(--ink-black);
+}
+
+/* Forms are pale typewriter fields with violet ribbon text. */
+.field input,
+.field textarea,
+.field select,
+.author-field input,
+.author-field textarea,
+.trade-form select,
+.trade-form input,
+.accusation-form input,
+.case-seed input,
+.profile-picker select {
+  border: 1px solid color-mix(in srgb, var(--text-strong) 46%, transparent);
+  background: color-mix(in srgb, var(--punch-white) 24%, transparent);
+  color: var(--ink);
+  caret-color: var(--ink-red);
+}
+
+.field input::placeholder,
+.field textarea::placeholder,
+.author-field input::placeholder,
+.author-field textarea::placeholder,
+.trade-form input::placeholder,
+.accusation-form input::placeholder {
+  color: color-mix(in srgb, var(--text-strong) 58%, transparent);
+}
+
+.author-prompt textarea {
+  border: 1px solid color-mix(in srgb, var(--text-strong) 55%, transparent);
+  background-color: var(--paper);
+  background-image: var(--paper-image);
+  box-shadow: var(--shadow-paper);
+  color: var(--ink);
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+  font-weight: 700;
+  text-shadow: 0 0 .55px color-mix(in srgb, var(--text-strong) 45%, transparent);
+  caret-color: var(--ink-red);
+}
+
+.author-prompt textarea::placeholder {
+  color: color-mix(in srgb, var(--text-strong) 56%, transparent);
+}
+
+.author-prompt textarea:focus {
+  border-color: var(--ink-red);
+  box-shadow: var(--shadow-paper), 0 0 0 3px color-mix(in srgb, var(--paper-warm) 25%, transparent);
+}
+
+.author-progress span,
+.author-prompt-meta,
+.author-back,
+.rules-back,
+.profile-picker label {
+  color: var(--ink-soft);
+}
+
+.author-seed-card > .kicker {
+  color: var(--ink-red);
+  font-family: 'Archivo', var(--font-plate);
+}
+
+.author-seed-card > p {
+  color: var(--ink-soft);
+}
+
+.author-ai-note {
+  color: var(--ink-soft);
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+}
+
+.author-ai-note.unavailable {
+  color: var(--paper-warm);
+}
+
+.author-progress b {
+  border-color: color-mix(in srgb, var(--paper-warm) 40%, transparent);
+}
+
+.author-progress .active b,
+.author-progress .done b {
+  border-color: var(--paper);
+  background: var(--ink-red);
+}
+
+.author-ai-status,
+.gateway-status {
+  border-color: color-mix(in srgb, var(--paper-warm) 42%, transparent);
+  color: var(--paper-warm);
+}
+
+.author-ai-status.available,
+.gateway-status.available,
+.theory.correct {
+  border-color: var(--on-dark-soft);
+  background: color-mix(in srgb, var(--table-lamp) 20%, transparent);
+  color: var(--photo-paper);
+}
+
+.author-errors,
+.hard-errors,
+.fatal-screen {
+  border-color: var(--ink-red);
+}
+
+/* Paper documents */
+.profile,
+.story-reader,
+.draft-card {
+  color: var(--ink);
+}
+
+.profile > header,
+.story-reader-hero,
+.story-section,
+.story-motive,
+.story-motive div,
+.story-contributions p,
+.story-run,
+.story-run > article,
+.story-decks ol,
+.story-decks li,
+.story-evening,
+.story-evening li,
+.story-facts,
+.story-facts div {
+  border-color: color-mix(in srgb, var(--text-strong) 36%, transparent);
+}
+
+.profile .label,
+.profile-heading p,
+.goal-list small,
+.relationship-grid p,
+.story-deck,
+.story-section-heading p,
+.story-cast > article > p,
+.story-secret p,
+.story-contributions p,
+.story-acts > section > header p,
+.story-evening p,
+.story-decks header small,
+.story-decks li p,
+.story-evidence small {
+  color: var(--ink-soft);
+}
+
+.stamp {
+  border-color: var(--ink-red);
+  color: var(--ink-red);
+  font-family: 'Archivo', var(--font-plate);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ink-red) 8%, transparent) inset;
+  transform: rotate(2.4deg);
+}
+
+.start-here,
+.goal-list label,
+.relationship-grid article,
+.story-cast > article,
+.story-decks > article,
+.story-evidence > div,
+.story-action,
+.story-synopsis {
+  border-color: color-mix(in srgb, var(--text-strong) 32%, transparent);
+  background: color-mix(in srgb, var(--punch-white) 24%, transparent);
+}
+
+.trait-list span {
+  border: 1px solid color-mix(in srgb, var(--text-strong) 45%, transparent);
+  background: transparent;
+  color: var(--ink);
+}
+
+.task-list article,
+.story-secret,
+.dilemma {
+  border-color: var(--ink-red);
+  background: color-mix(in srgb, var(--ink-red) 8%, transparent);
+}
+
+.story-reader-hero h1,
+.profile h1,
+.story-section-heading h2,
+.story-cast h3,
+.story-evening h3,
+.story-run-title h4,
+.story-step h3,
+.story-decks h3,
+.story-synopsis p {
+  color: var(--ink);
+}
+
+.story-deck,
+.story-synopsis p,
+.draft-card > p,
+.ai-performance blockquote {
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace !important;
+  font-weight: 700;
+}
+
+.story-facts span,
+.story-synopsis > span,
+.story-section-heading > span,
+.story-motive dt,
+.story-secret > b,
+.story-contributions > b,
+.story-acts > section > header > span,
+.story-run-number,
+.story-run-title span,
+.story-trigger,
+.story-action > b,
+.story-evidence span,
+.story-evening li > span,
+.story-evening li > b,
+.story-decks header > span,
+.story-decks li > span {
+  color: var(--ink-red);
+}
+
+.story-timeline::before {
+  background: color-mix(in srgb, var(--text-strong) 38%, transparent);
+}
+
+/* Host and social cards use lighter carbon-copy stock. */
+.seat-card,
+.run-sheet > article,
+.social-panel,
+.canonical-truth,
+.truth,
+.awards,
+.theory,
+.score-room > article,
+.evening-timeline {
+  --paper: var(--paper-warm);
+  --paper-cool: var(--surface);
+}
+
+.run-sheet > article.done,
+.theory.correct {
+  --paper: var(--on-dark-soft);
+  --paper-warm: var(--photo-paper);
+  --paper-cool: var(--on-dark-soft);
+  opacity: .9;
+}
+
+.run-sheet > article.essential {
+  border-left-color: var(--ink-red);
+}
+
+.seat-card > header b,
+.dossier-grid b,
+.roster-strip span {
+  color: var(--ink);
+  font-family: 'Archivo', var(--font-plate);
+  font-weight: 700;
+}
+
+.seat-card > header button {
+  color: var(--ink-red);
+  font-weight: 700;
+}
+
+.seat-card .check-row {
+  color: var(--ink-soft);
+}
+
+.preview-parent {
+  color: var(--ink-soft);
+}
+
+.preview-parent button {
+  color: var(--ink-red);
+}
+
+.social-steps article,
+.venue-list label,
+.evidence-list label,
+.accusation,
+.vote-list article {
+  border-color: color-mix(in srgb, var(--text-strong) 38%, transparent);
+  background: color-mix(in srgb, var(--punch-white) 20%, transparent);
+  color: var(--ink);
+}
+
+.social-steps p,
+.venue-list small,
+.evidence-list small,
+.accusation p,
+.vote-list small {
+  color: var(--ink-soft);
+}
+
+.private-clue {
+  background: var(--paper-warm);
+  color: var(--table-lamp);
+}
+
+.blackout,
+.truth-seal,
+.hearing-now {
+  border-color: var(--ink-red);
+  background: var(--ink-black);
+  color: var(--photo-paper);
+}
+
+.blackout span,
+.truth-seal span,
+.hearing-panel .social-heading > strong {
+  color: var(--paper-cool);
+}
+
+.danger-button {
+  border-color: var(--ink-pencil);
+  background: var(--ink-plate);
+  color: var(--paper-warm);
+}
+
+/* Player dossier — a responsive facsimile of the supplied personal sheet. */
+.profile.classified-dossier {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(794px, calc(100% - 40px));
+  min-height: 1308px;
+  margin: 54px auto 90px;
+  padding: 34px 62px 0;
+  overflow: hidden;
+  background-color: var(--paper);
+  background-image: var(--paper-image);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--punch-white) 32%, transparent) inset,
+    0 0 46px color-mix(in srgb, var(--table-lamp) 32%, transparent) inset,
+    0 26px 48px -18px color-mix(in srgb, var(--plate-dark) 48%, transparent),
+    0 2px 0 color-mix(in srgb, var(--plate-dark) 26%, transparent);
+  color: var(--ink);
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+  isolation: isolate;
+  transform: rotate(.12deg);
+}
+
+.profile.classified-dossier::after {
+  z-index: 6;
+  inset: -2%;
+  opacity: .22;
+}
+
+.profile.classified-dossier::before {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='.008 .9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='600' height='600' filter='url(%23f)' opacity='.5'/></svg>");
+  background-size: 600px 600px;
+  content: '';
+  mix-blend-mode: overlay;
+  opacity: .2;
+  pointer-events: none;
+}
+
+.classified-dossier > * {
+  position: relative;
+  z-index: 2;
+}
+
+.classified-dossier .dossier-punch {
+  position: absolute;
+  z-index: 5;
+  top: 26px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: var(--punch-white);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ink-pencil) 50%, transparent),
+    2px 3px 3px color-mix(in srgb, var(--table) 42%, transparent) inset,
+    -1px -1px 2px color-mix(in srgb, var(--punch-white) 55%, transparent) inset;
+}
+
+.classified-dossier .dossier-punch-left {
+  left: 236px;
+}
+
+.classified-dossier .dossier-punch-right {
+  right: 236px;
+}
+
+.classified-dossier .dossier-fold {
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  left: 0;
+  height: 26px;
+  background: linear-gradient(to bottom,
+    color-mix(in srgb, var(--plate-dark) 0%, transparent) 0%,
+    color-mix(in srgb, var(--table-lamp) 8%, transparent) 46%,
+    color-mix(in srgb, var(--punch-white) 11%, transparent) 56%,
+    color-mix(in srgb, var(--plate-dark) 0%, transparent) 100%);
+  pointer-events: none;
+}
+
+.classified-dossier .dossier-fold-a {
+  top: 32.8%;
+}
+
+.classified-dossier .dossier-fold-b {
+  top: 66.4%;
+}
+
+.profile.classified-dossier > .dossier-masthead {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+  column-gap: 16px;
+  padding: 0;
+  border: 0;
+}
+
+.dossier-registration {
+  padding-top: 8px;
+  color: var(--ink-soft);
+  font-size: 11.5px;
+  line-height: 1.4;
+  letter-spacing: .03em;
+}
+
+.dossier-registration-right {
+  text-align: right;
+}
+
+.dossier-plate {
+  text-align: center;
+}
+
+.dossier-classification,
+.dossier-department,
+.profile.classified-dossier .dossier-kind {
+  color: var(--ink-red);
+  font-family: 'Archivo', var(--font-plate) !important;
+  font-weight: 700 !important;
+  text-shadow: .4px .4px 0 color-mix(in srgb, var(--ink-red-2) 50%, transparent);
+}
+
+.dossier-classification {
+  font-size: 21px;
+  letter-spacing: .055em;
+}
+
+.dossier-department {
+  margin-top: 6px;
+  color: var(--ink-red-dark);
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: .1em;
+}
+
+.profile.classified-dossier .dossier-kind {
+  margin: 8px 0 0;
+  font-size: 26px;
+  line-height: 1.05;
+  letter-spacing: .03em;
+  word-spacing: .16em;
+}
+
+.dossier-wire {
+  flex: 1 1 auto;
+  margin-top: 16px;
+  font-size: 11.7px;
+  line-height: 1.36;
+  letter-spacing: .004em;
+  text-shadow: 0 0 .55px color-mix(in srgb, var(--text-strong) 50%, transparent);
+}
+
+.dossier-wire p {
+  margin: 0 0 8px;
+}
+
+.dossier-wire .dossier-tight {
+  margin-bottom: 2px;
+}
+
+.profile.classified-dossier .dossier-section {
+  margin: 0 0 8px;
+}
+
+.profile.classified-dossier .dossier-section h2 {
+  margin: 0 0 4px;
+  color: var(--ink);
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace !important;
+  font-size: inherit;
+  font-weight: 700 !important;
+  line-height: inherit;
+  letter-spacing: .07em;
+}
+
+.dossier-hang {
+  padding-left: 5.5ch;
+}
+
+.dossier-section-note {
+  margin: -1px 0 5px;
+  color: var(--ink-soft);
+  font-size: .94em;
+  font-style: italic;
+}
+
+.dossier-items {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.dossier-items li {
+  display: grid;
+  grid-template-columns: 5.5ch 1fr;
+  margin-bottom: 3px;
+}
+
+.dossier-number {
+  letter-spacing: .04em;
+}
+
+.dossier-flag {
+  color: var(--ink-red-dark);
+  font-size: .86em;
+  letter-spacing: .055em;
+}
+
+.dossier-ledger li {
+  margin-bottom: 4px;
+}
+
+.dossier-who {
+  letter-spacing: .04em;
+}
+
+.dossier-objectives label {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.dossier-objectives input {
+  width: 11px;
+  height: 11px;
+  margin: 1px 0 0;
+  accent-color: var(--ink-red);
+}
+
+.dossier-cue b,
+.dossier-cue strong {
+  font-weight: 700;
+  letter-spacing: .055em;
+}
+
+.dossier-cue strong {
+  color: var(--ink-red-dark);
+}
+
+.profile.classified-dossier > .dossier-band {
+  position: relative;
+  flex: 0 0 156px;
+  margin: 0 -62px;
+}
+
+.dossier-declassified {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  color: var(--ink-black);
+  text-align: center;
+  transform: translateX(-50%) rotate(-.4deg);
+}
+
+.dossier-declassified > div {
+  position: relative;
+  display: inline-block;
+  color: var(--ink-plate);
+  font-family: 'Archivo', var(--font-plate);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+
+.dossier-declassified > div::after {
+  position: absolute;
+  top: 44%;
+  right: -6%;
+  left: -6%;
+  height: 6px;
+  background: var(--ink-black);
+  content: '';
+  opacity: .9;
+  transform: rotate(-1.2deg);
+}
+
+.dossier-declassified small {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.dossier-declassified p {
+  margin: 3px 0 0;
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+.dossier-declassified u {
+  display: inline-block;
+  width: 48px;
+  border-bottom: 1px solid var(--table-edge);
+}
+
+.dossier-declassified b {
+  color: var(--ink-red);
+  font-family: 'Archivo', var(--font-plate);
+  font-size: 10.5px;
+  letter-spacing: .01em;
+  transform: rotate(-1.6deg) skewX(-4deg);
+}
+
+.dossier-journal {
+  position: absolute;
+  bottom: 27px;
+  left: 62px;
+  color: var(--ink-red);
+  font-family: 'Caveat', cursive;
+  font-size: 25px;
+  line-height: .9;
+  transform: rotate(-3deg);
+}
+
+.dossier-journal small {
+  display: block;
+  font-family: 'Archivo', var(--font-plate);
+  font-size: 8px;
+  letter-spacing: .06em;
+}
+
+.dossier-date-stamp {
+  position: absolute;
+  bottom: 57px;
+  left: 63px;
+  padding: 5px 7px 3px;
+  border: 2px solid var(--ink-red);
+  color: var(--ink-red);
+  font-family: 'Archivo', var(--font-plate);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  opacity: .82;
+  transform: rotate(-5deg);
+}
+
+.dossier-pencil {
+  position: absolute;
+  color: var(--ink-pencil);
+  font-family: 'Caveat', cursive;
+  font-size: 22px;
+  opacity: .9;
+}
+
+.dossier-pencil-copy {
+  right: 71px;
+  bottom: 65px;
+  transform: rotate(7deg);
+}
+
+.dossier-pencil-name {
+  right: 70px;
+  bottom: 96px;
+  transform: rotate(-3deg);
+}
+
+.dossier-secret {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  color: var(--ink-red);
+  font-family: 'Archivo', var(--font-plate);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  transform: translateX(-50%);
+}
+
+.dossier-secret::after {
+  position: absolute;
+  top: 46%;
+  right: -10%;
+  left: -10%;
+  height: 10px;
+  border-radius: 6px;
+  background: var(--ink-black);
+  content: '';
+  opacity: .92;
+  transform: rotate(-2.4deg);
+}
+
+.dossier-copy-number {
+  position: absolute;
+  right: 62px;
+  bottom: 26px;
+  color: var(--ink-red-2);
+  font-family: 'Archivo', var(--font-plate);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: .03em;
+}
+
+.dossier-forbidden {
+  position: absolute;
+  right: 0;
+  bottom: 8px;
+  left: 0;
+  color: var(--ink-red);
+  font-family: 'Archivo', var(--font-plate);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .profile.classified-dossier {
+    width: calc(100% - 24px);
+    min-height: 0;
+    margin: 18px auto 45px;
+    padding: 28px 24px 0;
+    transform: none;
+  }
+
+  .profile.classified-dossier > .dossier-masthead {
+    grid-template-columns: 1fr auto 1fr;
+    column-gap: 7px;
+  }
+
+  .dossier-registration {
+    font-size: 7px;
+  }
+
+  .dossier-classification {
+    font-size: 15px;
+  }
+
+  .dossier-department {
+    font-size: 8px;
+  }
+
+  .profile.classified-dossier .dossier-kind {
+    font-size: 18px;
+  }
+
+  .dossier-wire {
+    font-size: 10.5px;
+    line-height: 1.38;
+  }
+
+  .dossier-hang {
+    padding-left: 2ch;
+  }
+
+  .dossier-items li {
+    grid-template-columns: 3.5ch 1fr;
+  }
+
+  .profile.classified-dossier > .dossier-band {
+    margin: 0 -24px;
+  }
+
+  .classified-dossier .dossier-punch-left {
+    left: 29%;
+  }
+
+  .classified-dossier .dossier-punch-right {
+    right: 29%;
+  }
+
+  .dossier-journal,
+  .dossier-date-stamp {
+    left: 24px;
+  }
+
+  .dossier-pencil,
+  .dossier-copy-number {
+    right: 24px;
+  }
+
+  .dossier-pencil-name {
+    display: none;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .create-storyline:hover,
+  .storyline-game-action:hover,
+  .primary-action:hover,
+  .rules-start:hover,
+  .author-shape:hover,
+  .author-next:hover,
+  .story-reader-finish:hover {
+    background: var(--ink-red);
+    filter: none;
+  }
+
+  .storyline-card:hover {
+    border-color: color-mix(in srgb, var(--photo-paper) 80%, transparent);
+    box-shadow: var(--shadow-paper), 0 0 0 2px color-mix(in srgb, var(--ink-red) 16%, transparent);
+  }
+
+  .storyline-games > button:hover,
+  .storyline-tools button:hover,
+  .import-storyline:hover span,
+  .dossier-grid button:hover {
+    border-color: var(--paper);
+  }
+}
+
+@media (max-width: 700px) {
+  .library-head > *,
+  .library-title > *,
+  .storyline-card,
+  .storyline-card > header > * {
+    min-width: 0;
+  }
+
+  .library-head h1 {
+    max-width: 100%;
+    font-size: clamp(40px, 12vw, 46px);
+    overflow-wrap: anywhere;
+  }
+
+  .storyline-card > header small {
+    overflow-wrap: anywhere;
+  }
+
+  .profile,
+  .storyline-card,
+  .draft-card {
+    box-shadow: 0 16px 35px -20px color-mix(in srgb, var(--plate-dark) 70%, transparent);
+  }
+
+  .library-head::after,
+  .author-head::after,
+  .rules-page > header::after,
+  .host-intro::after,
+  .setup-hero::after {
+    width: 54%;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .mode-bar,
+  .story-reader-bar,
+  .host-nav {
+    background: var(--table-mid);
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .storyline-card,
+  .profile,
+  .story-reader,
+  .draft-card,
+  .seat-card,
+  .run-sheet > article,
+  .social-panel,
+  .canonical-truth {
+    background-image: none;
+    border: 2px solid currentColor;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+
+  .storyline-card:nth-child(n) {
+    transform: none;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  :root {
+    color: var(--ink);
+    background: var(--punch-white);
+  }
+
+  body {
+    background: var(--punch-white);
+  }
+
+  body::before,
+  .storyline-card::after,
+  .profile::after,
+  .draft-card::after,
+  .story-reader::after {
+    display: none;
+  }
+
+  .profile,
+  .story-reader {
+    background: var(--paper);
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .profile.classified-dossier {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    padding: 9mm 16mm 0;
+    overflow: hidden;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .profile.classified-dossier > .dossier-band {
+    margin: 0 -16mm;
+  }
+}
+
+/* The live host guide keeps the dossier palette, with stronger operational contrast. */
+.live-act-head h2 {
+  color: var(--ink-red);
+  font-family: 'Archivo', var(--font-plate);
+  font-weight: 700;
+}
+
+.live-act-head > p,
+.live-act-head summary {
+  color: var(--ink-soft);
+}
+
+.live-act-head details p {
+  border-left-color: var(--ink-red);
+  background: color-mix(in srgb, var(--punch-white) 28%, transparent);
+  color: var(--ink);
+}
+
+.session-head {
+  border-color: color-mix(in srgb, var(--text-strong) 34%, transparent);
+}
+
+.session-actions summary {
+  color: var(--ink);
+}
+
+.later-steps,
+.completed-steps,
+.host-reference {
+  border-color: color-mix(in srgb, var(--text-strong) 56%, transparent);
+  background: color-mix(in srgb, var(--text-strong) 88%, transparent);
+}
+
+.later-steps > summary span,
+.completed-steps > summary span,
+.host-reference > summary span,
+.later-steps > summary b,
+.completed-steps > summary b,
+.host-reference > summary b,
+.later-steps summary i,
+.completed-steps summary i,
+.host-reference summary i {
+  color: var(--photo-paper);
+}
+
+.later-steps li,
+.completed-steps li {
+  border-color: color-mix(in srgb, var(--punch-white) 20%, transparent);
+}
+
+.later-steps li span,
+.later-steps li small,
+.completed-steps li span,
+.completed-steps li button {
+  color: var(--photo-paper);
+}
+
+.now-trigger b,
+.host-instruction span,
+.player-cue header span {
+  color: var(--accent);
+}
+
+.player-cue > header small,
+.player-cue details summary {
+  color: var(--ink-pencil);
+}

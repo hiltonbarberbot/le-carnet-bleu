@@ -1,0 +1,748 @@
+{
+  "schemaVersion": 6,
+  "id": "mistral-cipher",
+  "title": "The Mistral Cipher",
+  "setting": {
+    "venueName": "House in Grambois",
+    "location": "Grambois, France",
+    "era": "1960s",
+    "playableSpaces": [
+      {
+        "id": "terrace",
+        "label": "Terrace",
+        "description": ""
+      },
+      {
+        "id": "dining-room",
+        "label": "Dining room",
+        "description": ""
+      },
+      {
+        "id": "kitchen",
+        "label": "Kitchen",
+        "description": ""
+      },
+      {
+        "id": "poolside-parlor",
+        "label": "Poolside parlor",
+        "description": ""
+      },
+      {
+        "id": "salon",
+        "label": "Salon",
+        "description": ""
+      },
+      {
+        "id": "entrance-hall",
+        "label": "Entrance hall",
+        "description": ""
+      },
+      {
+        "id": "staircase-to-the-bedrooms",
+        "label": "Staircase to the bedrooms",
+        "description": ""
+      },
+      {
+        "id": "master-bedroom",
+        "label": "Master bedroom",
+        "description": ""
+      },
+      {
+        "id": "basement",
+        "label": "Basement",
+        "description": ""
+      },
+      {
+        "id": "basement-room-marked-private",
+        "label": "Basement room marked private",
+        "description": ""
+      },
+      {
+        "id": "swimming-pool-area",
+        "label": "Swimming pool area",
+        "description": ""
+      },
+      {
+        "id": "cottage",
+        "label": "Cottage",
+        "description": ""
+      }
+    ],
+    "routes": [
+      {
+        "id": "all-named-spaces-are-accessible-through-the-house-s-ordinary-connected-layout",
+        "label": "All named spaces are accessible through the house's ordinary connected layout",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-staircase-connects-the-entrance-level-with-the-bedrooms",
+        "label": "The staircase connects the entrance level with the bedrooms",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-basement-and-its-room-marked-private-are-accessible-by-the-ordinary-basement-route",
+        "label": "The basement and its room marked private are accessible by the ordinary basement route",
+        "description": "",
+        "spaceIds": [
+          "basement"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-terrace-poolside-parlor-and-swimming-pool-area-connect-through-the-ordinary-outdoor-circulation",
+        "label": "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+        "description": "",
+        "spaceIds": [
+          "terrace",
+          "poolside-parlor",
+          "swimming-pool-area"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-cottage-is-accessible-from-the-house-and-is-farther-from-the-kitchen-than-the-dining-room-is",
+        "label": "The cottage is accessible from the house and is farther from the kitchen than the dining room is",
+        "description": "",
+        "spaceIds": [
+          "dining-room",
+          "kitchen",
+          "cottage"
+        ],
+        "accessibilityNotes": []
+      }
+    ],
+    "usableFeatures": [],
+    "availableProps": [],
+    "tone": "Glamorous 1960s French Riviera spy mystery",
+    "safetyConstraints": [
+      {
+        "id": "no-physical-contact",
+        "label": "No physical contact",
+        "description": ""
+      },
+      {
+        "id": "all-physical-actions-are-reversible-and-host-cued",
+        "label": "All physical staging is reversible and host-cued",
+        "description": ""
+      },
+      {
+        "id": "no-running-or-entering-the-swimming-pool-during-play",
+        "label": "No running or entering the swimming pool during play",
+        "description": ""
+      }
+    ],
+    "accessibilityNeeds": [
+      {
+        "id": "all-named-spaces-are-accessible-to-the-group-and-no-additional-mobility-needs-were-supplied",
+        "label": "All named spaces are accessible to the group and no additional mobility needs were supplied",
+        "description": ""
+      }
+    ],
+    "contentBoundaries": [
+      {
+        "id": "no-additional-content-boundaries-were-supplied",
+        "label": "No additional content boundaries were supplied",
+        "description": ""
+      }
+    ]
+  },
+  "story": {
+    "id": "mistral-cipher",
+    "seed": "mistral-cipher",
+    "title": "The Mistral Cipher",
+    "subtitle": "An aviator’s memorial dinner hides the route of a missing reconnaissance flight.",
+    "premise": "test pilot Émile Vauban's memorial dinner for the tenth anniversary of the vanished Mistral flight brings five accomplished strangers to a house in Grambois. Each accepted a different private promise from Émile Vauban; one came to make sure that promise could never be kept.",
+    "totalPeople": 6,
+    "characters": [
+      {
+        "id": "mistral-cipher-guest-1",
+        "name": "Thérèse Vidal",
+        "title": "Aviation columnist",
+        "costume": "1960s Riviera evening wear suited to aviation columnist",
+        "publicFace": "Brisk, glamorous, and delighted by contradiction",
+        "invitationPretext": "You were invited to test pilot Émile Vauban's memorial dinner for the tenth anniversary of the vanished Mistral flight in your public capacity as aviation columnist.",
+        "invitationPromise": "Émile promised you the uncensored Mistral flight log.",
+        "privateIdentity": "You helped publish the false crash story under government pressure.",
+        "privateObjective": "Correct the record without destroying your career.",
+        "privateSecret": "You removed the fuel page years ago and brought it back tonight.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "mistral-cipher-guest-1-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Émile promised you the uncensored Mistral flight log.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "mistral-cipher-guest-1-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why André Masson is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "mistral-cipher-guest-1-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "mistral-cipher-guest-2",
+            "text": "André Masson can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "mistral-cipher-guest-5",
+            "text": "René Cassin once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "mistral-cipher-guest-1-evidence",
+            "text": "You heard mechanic André tell Isabelle that René knew the aircraft landed before the official search began.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "mistral-cipher-guest-2"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "mistral-cipher-guest-1"
+              },
+              "independenceGroup": "role:mistral-cipher-guest-1"
+            }
+          }
+        ]
+      },
+      {
+        "id": "mistral-cipher-guest-2",
+        "name": "André Masson",
+        "title": "Flight mechanic",
+        "costume": "1960s Riviera evening wear suited to flight mechanic",
+        "publicFace": "Practical, proud, and suspicious of polished shoes",
+        "invitationPretext": "You were invited to test pilot Émile Vauban's memorial dinner for the tenth anniversary of the vanished Mistral flight in your public capacity as flight mechanic.",
+        "invitationPromise": "Émile promised to clear you of sabotaging the Mistral.",
+        "privateIdentity": "You prepared the aircraft for a planned landing under sealed orders.",
+        "privateObjective": "Prove the aircraft was sound and identify who issued the orders.",
+        "privateSecret": "You falsified a maintenance entry to protect Émile from a court martial.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "mistral-cipher-guest-2-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Émile promised to clear you of sabotaging the Mistral.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "mistral-cipher-guest-2-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Isabelle Dumas is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "mistral-cipher-guest-2-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "mistral-cipher-guest-3",
+            "text": "Isabelle Dumas can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "mistral-cipher-guest-1",
+            "text": "Thérèse Vidal once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "mistral-cipher-guest-2-evidence",
+            "text": "You saw Isabelle hide the strip coordinates inside her father’s memorial speech.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "mistral-cipher-guest-3"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "mistral-cipher-guest-2"
+              },
+              "independenceGroup": "role:mistral-cipher-guest-2"
+            }
+          }
+        ]
+      },
+      {
+        "id": "mistral-cipher-guest-3",
+        "name": "Isabelle Dumas",
+        "title": "Navigator’s daughter",
+        "costume": "1960s Riviera evening wear suited to navigator’s daughter",
+        "publicFace": "Composed, scholarly, and fiercely literal",
+        "invitationPretext": "You were invited to test pilot Émile Vauban's memorial dinner for the tenth anniversary of the vanished Mistral flight in your public capacity as navigator’s daughter.",
+        "invitationPromise": "Émile promised to tell you where your father spent his final night.",
+        "privateIdentity": "Your father survived the landing and died years later under another name.",
+        "privateObjective": "Recover your father’s true history without exposing his second family.",
+        "privateSecret": "You carry coordinates proving the landing but concealed their source.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "mistral-cipher-guest-3-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Émile promised to tell you where your father spent his final night.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "mistral-cipher-guest-3-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Miles Graham is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "mistral-cipher-guest-3-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "mistral-cipher-guest-4",
+            "text": "Miles Graham can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "mistral-cipher-guest-2",
+            "text": "André Masson once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "mistral-cipher-guest-3-evidence",
+            "text": "You saw intelligence officer Graham pass René a weather strip matching the night of the flight.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "mistral-cipher-guest-4"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "mistral-cipher-guest-3"
+              },
+              "independenceGroup": "role:mistral-cipher-guest-3"
+            }
+          }
+        ]
+      },
+      {
+        "id": "mistral-cipher-guest-4",
+        "name": "Miles Graham",
+        "title": "Embassy air officer",
+        "costume": "1960s Riviera evening wear suited to embassy air officer",
+        "publicFace": "Amiable, clipped, and professionally evasive",
+        "invitationPretext": "You were invited to test pilot Émile Vauban's memorial dinner for the tenth anniversary of the vanished Mistral flight in your public capacity as embassy air officer.",
+        "invitationPromise": "Émile promised the original film canister before it reached your rivals.",
+        "privateIdentity": "Your service arranged the buyer but lost control of its courier.",
+        "privateObjective": "Recover the film without admitting your government financed the operation.",
+        "privateSecret": "You attempted to buy Émile’s silence that afternoon.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "mistral-cipher-guest-4-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Émile promised the original film canister before it reached your rivals.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "mistral-cipher-guest-4-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why René Cassin is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "mistral-cipher-guest-4-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "mistral-cipher-guest-5",
+            "text": "René Cassin can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "mistral-cipher-guest-3",
+            "text": "Isabelle Dumas once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "mistral-cipher-guest-4-evidence",
+            "text": "You heard René demand that Émile keep “the canister” buried before Émile had named any film.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "mistral-cipher-guest-5"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "mistral-cipher-guest-4"
+              },
+              "independenceGroup": "role:mistral-cipher-guest-4"
+            }
+          }
+        ]
+      },
+      {
+        "id": "mistral-cipher-guest-5",
+        "name": "René Cassin",
+        "title": "Aviation industrialist",
+        "costume": "1960s Riviera evening wear suited to aviation industrialist",
+        "publicFace": "Expansive, patriotic, and accustomed to applause",
+        "invitationPretext": "You were invited to test pilot Émile Vauban's memorial dinner for the tenth anniversary of the vanished Mistral flight in your public capacity as aviation industrialist.",
+        "invitationPromise": "Émile promised to sign a statement preserving your company’s role in the Mistral legend.",
+        "privateIdentity": "You were the foreign buyer’s courier and profited from the secret landing.",
+        "privateObjective": "Keep the landing deniable and shift the vote toward Graham.",
+        "privateSecret": "You killed Émile to stop him identifying you as the courier.",
+        "traits": [
+          "Controlled under pressure",
+          "Charm used as misdirection"
+        ],
+        "objectives": [
+          {
+            "id": "mistral-cipher-guest-5-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Émile promised to sign a statement preserving your company’s role in the Mistral legend.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "mistral-cipher-guest-5-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Thérèse Vidal is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "mistral-cipher-guest-5-reckoning",
+            "title": "Escape the reckoning",
+            "text": "Keep the final conviction away from you without inventing evidence.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "mistral-cipher-guest-1",
+            "text": "Thérèse Vidal can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "mistral-cipher-guest-4",
+            "text": "Miles Graham once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "mistral-cipher-guest-5-evidence",
+            "text": "You saw Thérèse return the missing fuel page and knew it could prove the landing.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "mistral-cipher-guest-1"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "mistral-cipher-guest-5"
+              },
+              "independenceGroup": "role:mistral-cipher-guest-5"
+            }
+          }
+        ]
+      }
+    ],
+    "publicEvidence": [],
+    "evening": [
+      {
+        "id": "mistral-cipher-briefing",
+        "title": "Private briefing",
+        "description": "Read the dossiers, establish the fictional gathering, and give each suspect ten tokens.",
+        "durationMinutes": 5,
+        "phase": "opening"
+      },
+      {
+        "id": "mistral-cipher-incident",
+        "title": "The fatal interruption",
+        "description": "Follow the five short opening cues until the host is discovered and becomes Game Master.",
+        "durationMinutes": 10,
+        "phase": "opening"
+      },
+      {
+        "id": "mistral-cipher-investigation",
+        "title": "Open investigation",
+        "description": "Bargain, trade, buy clues, pursue objectives, and call a public accusation when ready.",
+        "durationMinutes": 105,
+        "phase": "investigation"
+      },
+      {
+        "id": "mistral-cipher-reveal",
+        "title": "Reveal and scoring",
+        "description": "Reveal the operation, score objectives and tokens, and award the evening.",
+        "durationMinutes": 15,
+        "phase": "reveal"
+      }
+    ],
+    "solutionSteps": [
+      {
+        "title": "The flight that landed",
+        "truth": "The Mistral aircraft did not crash; it landed secretly and delivered reconnaissance film to a foreign buyer.",
+        "evidence": [
+          "mistral-cipher-guest-1-evidence",
+          "mistral-cipher-guest-2-evidence"
+        ],
+        "id": "mistral-cipher-solution-1"
+      },
+      {
+        "title": "The survivor’s last correction",
+        "truth": "René Cassin killed Émile because Émile planned to reveal René as the buyer’s courier.",
+        "evidence": [
+          "mistral-cipher-guest-3-evidence",
+          "mistral-cipher-guest-4-evidence",
+          "mistral-cipher-guest-5-evidence"
+        ],
+        "id": "mistral-cipher-solution-2"
+      }
+    ],
+    "openingSteps": [
+      {
+        "id": "mistral-cipher-opening-1",
+        "title": "Receive Thérèse Vidal",
+        "trigger": "When every player is seated",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Thérèse Vidal to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "mistral-cipher-guest-1",
+            "text": "Read the official crash time, then reveal that the fuel figures make it impossible."
+          }
+        ]
+      },
+      {
+        "id": "mistral-cipher-opening-2",
+        "title": "Receive André Masson",
+        "trigger": "After Thérèse Vidal completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite André Masson to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "mistral-cipher-guest-2",
+            "text": "State that the Mistral left in perfect condition and accuse the official inquiry of lying."
+          }
+        ]
+      },
+      {
+        "id": "mistral-cipher-opening-3",
+        "title": "Receive Isabelle Dumas",
+        "trigger": "After André Masson completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Isabelle Dumas to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "mistral-cipher-guest-3",
+            "text": "Correct the memorial date and say your father was alive three days after the supposed crash."
+          }
+        ]
+      },
+      {
+        "id": "mistral-cipher-opening-4",
+        "title": "Receive Miles Graham",
+        "trigger": "After Isabelle Dumas completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Miles Graham to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "mistral-cipher-guest-4",
+            "text": "Call the flight an unfortunate reconnaissance accident and ask everyone to honour official history."
+          }
+        ]
+      },
+      {
+        "id": "mistral-cipher-opening-5",
+        "title": "Discover the host",
+        "trigger": "After Miles Graham completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "mistral-cipher-no-contact"
+        ],
+        "settingRefs": [
+          {
+            "kind": "safetyConstraints",
+            "id": "no-physical-contact"
+          }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Cue René Cassin, stage Émile Vauban's off-page collapse without contact, announce the discovery, and become Game Master."
+          },
+          {
+            "recipientRoleId": "mistral-cipher-guest-5",
+            "text": "Propose a toast to Émile as the only survivor and insist the crash story must remain untouched."
+          }
+        ]
+      }
+    ],
+    "host": {
+      "id": "host",
+      "name": "Émile Vauban",
+      "title": "Émile Vauban, celebrated test pilot and sole public survivor; then Game Master"
+    },
+    "victimRoleId": "host",
+    "culpritRoleId": "mistral-cipher-guest-5",
+    "solutionSummary": "René brokered the secret landing and built his career on the myth of the crash. Émile convened the memorial to correct the record. René killed him during the commemorative toast and tried to make the dispute look like rivalry between pilot and mechanic. Five private accounts reconstruct the landing and René’s foreknowledge."
+  },
+  "clueDecks": [
+    {
+      "id": "mistral-cipher-salon-file",
+      "label": "Salon intelligence file",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "salon"
+      },
+      "clues": [
+        {
+          "id": "mistral-cipher-clue-1",
+          "text": "The logged fuel use is consistent with a landing, not a crash at sea.",
+          "supportsSolutionStepIds": [
+            "mistral-cipher-solution-1"
+          ]
+        },
+        {
+          "id": "mistral-cipher-clue-2",
+          "text": "René possessed a weather code available only to the foreign buyer’s courier.",
+          "supportsSolutionStepIds": [
+            "mistral-cipher-solution-2"
+          ]
+        },
+        {
+          "id": "mistral-cipher-clue-3",
+          "text": "Émile invited each guest because each held one segment of the hidden flight path.",
+          "supportsSolutionStepIds": [
+            "mistral-cipher-solution-2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mistral-cipher-cottage-file",
+      "label": "Cottage intelligence file",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "cottage"
+      },
+      "clues": [
+        {
+          "id": "mistral-cipher-clue-4",
+          "text": "A cottage map marks an improvised landing strip rather than wreckage.",
+          "supportsSolutionStepIds": [
+            "mistral-cipher-solution-1"
+          ]
+        },
+        {
+          "id": "mistral-cipher-clue-5",
+          "text": "René described the film canister before its existence was made public.",
+          "supportsSolutionStepIds": [
+            "mistral-cipher-solution-2"
+          ]
+        }
+      ]
+    }
+  ],
+  "acts": [
+    {
+      "id": "opening",
+      "title": "The fatal interruption",
+      "operatorGoal": "Establish test pilot Émile Vauban's memorial dinner for the tenth anniversary of the vanished Mistral flight, stage the single no-contact death, then become Game Master.",
+      "playerGoal": "Deliver only your short prepared cue and wait for the body to be discovered before bargaining begins.",
+      "durationMinutes": 15,
+      "completionLabel": "Open the investigation →"
+    }
+  ],
+  "setupRequirements": [
+    {
+      "id": "mistral-cipher-no-contact",
+      "label": "Confirm that the entire opening is spoken and staged without contact.",
+      "settingRef": {
+        "kind": "safetyConstraints",
+        "id": "no-physical-contact"
+      }
+    }
+  ]
+}

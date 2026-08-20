@@ -1,0 +1,178 @@
+.setting-confirmation h1 {
+  font-size: clamp(42px, 7vw, 68px);
+}
+
+.setting-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin: 32px 0;
+  border: 1px solid var(--ink-type);
+  background: var(--ink-type);
+}
+
+.setting-facts div {
+  padding: 18px;
+  background: var(--table);
+}
+
+.setting-facts dt {
+  margin-bottom: 7px;
+  color: var(--on-dark-soft);
+  font: 9px var(--font-typewriter);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.setting-facts dd {
+  margin: 0;
+  color: var(--on-dark-soft);
+  line-height: 1.45;
+}
+
+.setting-confirmation > .author-shape {
+  margin-top: 24px;
+}
+
+.setting-conversation-studio > .author-back {
+  margin-bottom: 28px;
+}
+
+.setting-conversation-card {
+  padding: 42px;
+  border: 1px solid var(--ink-type-2);
+  background: var(--table);
+}
+
+.setting-conversation-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr);
+  gap: 32px;
+  align-items: end;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--ink-type);
+}
+
+.setting-conversation-head h1 {
+  margin: 14px 0;
+  font: 600 clamp(42px, 7vw, 64px)/1 var(--font-plate);
+}
+
+.setting-conversation-head > p {
+  margin: 0 0 14px;
+  max-width: 720px;
+  color: var(--on-dark-soft);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.setting-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 280px;
+  max-height: min(52vh, 560px);
+  padding: 30px 0;
+  overflow-y: auto;
+}
+
+.setting-message {
+  max-width: 76%;
+  padding: 16px 18px;
+  border: 1px solid var(--ink-type);
+  background: var(--table-deep);
+}
+
+.setting-message.user {
+  align-self: flex-end;
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 24%, var(--table));
+}
+
+.setting-message > span {
+  color: var(--on-dark-soft);
+  font: 9px var(--font-typewriter);
+  letter-spacing: .09em;
+}
+
+.setting-message p {
+  margin: 8px 0 0;
+  color: var(--punch-white);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.setting-message.thinking p {
+  color: var(--on-dark-soft);
+}
+
+.setting-composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 56px;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid var(--ink-type);
+}
+
+.setting-composer textarea {
+  width: 100%;
+  min-height: 74px;
+  padding: 15px 17px;
+  resize: vertical;
+  border: 1px solid var(--ink-type-2);
+  border-radius: 1px;
+  outline: none;
+  background: var(--table-deep);
+  color: var(--punch-white);
+  font: 14px/1.45 inherit;
+}
+
+.setting-composer textarea:focus {
+  border-color: var(--on-dark-soft);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent);
+}
+
+.setting-composer button {
+  border: 0;
+  background: var(--accent);
+  color: var(--punch-white);
+  font-size: 24px;
+}
+
+.setting-composer button:disabled {
+  opacity: .4;
+}
+
+.setting-composer-note {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px 2px 0;
+  color: var(--on-dark-soft);
+  font: 9px/1.4 var(--font-typewriter);
+  letter-spacing: .03em;
+}
+
+@media (max-width: 720px) {
+  .setting-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .setting-conversation-card {
+    padding: 26px;
+  }
+
+  .setting-conversation-head {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .setting-message {
+    max-width: 92%;
+  }
+
+  .setting-composer-note {
+    flex-direction: column;
+    gap: 3px;
+  }
+}

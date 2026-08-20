@@ -1,4 +1,4 @@
-import type { SettingBrief, SettingBriefInput, SettingQuestion } from './contract.js'
+import type { SettingBrief, SettingBriefInput, SettingQuestion, SettingResourceInput } from './contract'
 
 export const settingQuestions: SettingQuestion[] = [
   {
@@ -11,12 +11,6 @@ export const settingQuestions: SettingQuestion[] = [
     id: 'location',
     prompt: 'Where is the venue, and which local details should the story use?',
     why: 'Location supplies atmosphere, history, weather, and believable reasons for gathering.',
-    required: true,
-  },
-  {
-    id: 'occasion',
-    prompt: 'Why are the players gathering, and what will really happen during the evening?',
-    why: 'The fictional invitation and live pacing must fit the actual occasion.',
     required: true,
   },
   {
@@ -58,13 +52,13 @@ export const settingQuestions: SettingQuestion[] = [
   {
     id: 'safetyConstraints',
     prompt: 'What physical, privacy, timing, or venue rules must never be crossed?',
-    why: 'Story beats must be designed around real safety rather than patched afterward.',
+    why: 'Physical staging must be designed around real safety rather than patched afterward.',
     required: true,
   },
   {
     id: 'accessibilityNeeds',
     prompt: 'Does anyone need seated play, step-free routes, larger text, lower sensory load, or another accommodation?',
-    why: 'Essential actions must be playable by the people actually attending.',
+    why: 'Essential staging must be playable by the people actually attending.',
     required: false,
   },
   {
@@ -83,15 +77,102 @@ function cleanList(value: string[] | undefined) {
   return [...new Set((value ?? []).map(item => item.trim()).filter(Boolean))]
 }
 
+function resourceId(label: string) {
+  return label
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
+function cleanResources(value: SettingResourceInput[] | undefined) {
+  return (value ?? []).map(item => {
+    const input = typeof item === 'string' ? { label: item } : item
+    const label = cleanText(input.label)
+    return { id: cleanText(input.id) || resourceId(label), label, description: cleanText(input.description) }
+  }).filter(resource => resource.label)
+}
+
+function cleanRoutes(value: SettingBriefInput['routes']): SettingBrief['routes'] {
+  return (value ?? []).map(item => {
+    const input = typeof item === 'string' ? { label: item } : item
+    const label = cleanText(input.label)
+    return {
+      id: cleanText(input.id) || resourceId(label),
+      label,
+      description: cleanText(input.description),
+      spaceIds: cleanList('spaceIds' in input ? input.spaceIds as string[] | undefined : undefined),
+      accessibilityNotes: cleanList('accessibilityNotes' in input ? input.accessibilityNotes as string[] | undefined : undefined),
+    }
+  }).filter(resource => resource.label)
+}
+
+function cleanFeatures(value: SettingBriefInput['usableFeatures']): SettingBrief['usableFeatures'] {
+  return (value ?? []).map(item => {
+    const input = typeof item === 'string' ? { label: item } : item
+    const label = cleanText(input.label)
+    return {
+      id: cleanText(input.id) || resourceId(label),
+      label,
+      description: cleanText(input.description),
+      spaceIds: cleanList('spaceIds' in input ? input.spaceIds as string[] | undefined : undefined),
+    }
+  }).filter(resource => resource.label)
+}
+
+function cleanProps(value: SettingBriefInput['availableProps']): SettingBrief['availableProps'] {
+  return (value ?? []).map(item => {
+    const input = typeof item === 'string' ? { label: item } : item
+    const label = cleanText(input.label)
+    return {
+      id: cleanText(input.id) || resourceId(label),
+      label,
+      description: cleanText(input.description),
+      quantity: input.quantity ?? 1,
+      safetyNotes: cleanList(input.safetyNotes),
+    }
+  }).filter(prop => prop.label)
+}
+
 export function getSettingBriefBlockers(input: SettingBriefInput): string[] {
   const blockers: string[] = []
   for (const question of settingQuestions.filter(item => item.required)) {
     const value = input[question.id]
-    const missing = Array.isArray(value) ? cleanList(value).length === 0 : !cleanText(value)
+    const missing = Array.isArray(value)
+      ? value.every(item => typeof item === 'string' ? !item.trim() : !cleanText(item.label))
+      : !cleanText(value)
     if (missing) blockers.push(question.prompt)
   }
-  if (cleanList(input.playableSpaces).length === 1) {
+  const spaces = cleanResources(input.playableSpaces)
+  if (spaces.length === 1) {
     blockers.push('Name at least two playable areas, or describe how one area can safely change function during the evening.')
+  }
+  const props = cleanProps(input.availableProps)
+  const propIds = new Set<string>()
+  for (const prop of props) {
+    if (!prop.id) blockers.push(`Give “${prop.label}” a stable prop id.`)
+    if (propIds.has(prop.id)) blockers.push(`Use a unique prop id instead of “${prop.id}” more than once.`)
+    if (!Number.isInteger(prop.quantity) || prop.quantity < 1) blockers.push(`Give prop “${prop.id}” a positive whole-number quantity.`)
+    propIds.add(prop.id)
+  }
+  for (const [kind, resources] of Object.entries({
+    playableSpaces: spaces,
+    routes: cleanRoutes(input.routes),
+    usableFeatures: cleanFeatures(input.usableFeatures),
+    safetyConstraints: cleanResources(input.safetyConstraints),
+    accessibilityNeeds: cleanResources(input.accessibilityNeeds),
+    contentBoundaries: cleanResources(input.contentBoundaries),
+  })) {
+    const ids = new Set<string>()
+    for (const resource of resources) {
+      if (ids.has(resource.id)) blockers.push(`Use a unique ${kind} id instead of “${resource.id}” more than once.`)
+      ids.add(resource.id)
+    }
+  }
+  const spaceIds = new Set(spaces.map(space => space.id))
+  for (const resource of [...cleanRoutes(input.routes), ...cleanFeatures(input.usableFeatures)]) {
+    for (const spaceId of resource.spaceIds) if (!spaceIds.has(spaceId)) blockers.push(`${resource.id} references missing playable space ${spaceId}.`)
   }
   return blockers
 }
@@ -102,15 +183,14 @@ export function createSettingBrief(input: SettingBriefInput): SettingBrief {
   return {
     venueName: cleanText(input.venueName),
     location: cleanText(input.location),
-    occasion: cleanText(input.occasion),
     era: cleanText(input.era),
-    playableSpaces: cleanList(input.playableSpaces),
-    routes: cleanList(input.routes),
-    usableFeatures: cleanList(input.usableFeatures),
-    availableProps: cleanList(input.availableProps),
+    playableSpaces: cleanResources(input.playableSpaces),
+    routes: cleanRoutes(input.routes),
+    usableFeatures: cleanFeatures(input.usableFeatures),
+    availableProps: cleanProps(input.availableProps),
     tone: cleanText(input.tone),
-    safetyConstraints: cleanList(input.safetyConstraints),
-    accessibilityNeeds: cleanList(input.accessibilityNeeds),
-    contentBoundaries: cleanList(input.contentBoundaries),
+    safetyConstraints: cleanResources(input.safetyConstraints),
+    accessibilityNeeds: cleanResources(input.accessibilityNeeds),
+    contentBoundaries: cleanResources(input.contentBoundaries),
   }
 }

@@ -1,17 +1,20 @@
-import type { GameState, RuntimeCapabilities } from '../types'
+import type { GameState } from '../types'
 import type { SettingBrief } from '../setting/contract'
+import type {
+  GameCommand,
+  GameCommandContext,
+  GameCommandDescriptor,
+  GameEvent,
+} from '../application/commands'
+
+export type { GameCommand, GameCommandDescriptor } from '../application/commands'
+export type { RuntimeCapabilities } from '../types'
 
 export type GameParticipant = {
-  id: string
   displayName: string
-  privateAddress: string
 }
 
-export type RuntimeContext = {
-  capabilities: RuntimeCapabilities
-  now?: Date
-  createId?: () => string
-}
+export type RuntimeContext = GameCommandContext
 
 export type CreateSessionRequest = {
   host: GameParticipant
@@ -19,27 +22,11 @@ export type CreateSessionRequest = {
   allowAiFallback?: boolean
 }
 
-export type GameCommand = {
-  name: string
-  payload?: Record<string, unknown>
-}
-
-export type RuntimeEvent = {
-  type: 'session_created' | 'state_changed' | 'delivery_requested' | 'delivery_finished' | 'error'
-  message: string
-  privateAddress?: string
-}
+export type RuntimeEvent = GameEvent
 
 export type RuntimeResult<State> = {
   state: State
   events: RuntimeEvent[]
-}
-
-export type GameCommandDescriptor = {
-  name: string
-  description: string
-  allowedPhases: string[]
-  payload: Record<string, string>
 }
 
 export type GameManifest = {
@@ -48,10 +35,8 @@ export type GameManifest = {
   name: string
   description: string
   aliases: string[]
-  players: {
-    minHumans: number
-    maxHumans: number
-    gameSeats: number
+  roles: {
+    suspects: number
     hostRequired: boolean
   }
   requiredHostCapabilities: string[]
@@ -73,12 +58,12 @@ export type GameManifest = {
 
 export type PortableGameRuntime<State = GameState> = {
   manifest: GameManifest
-  authoredGame: {
+  storyline: {
     setting: SettingBrief
-    definitionId: string
-    definitionFingerprint: string
+    id: string
+    fingerprint: string
     storyId: string
-    storyTitle: string
+    title: string
   }
   createSession(request: CreateSessionRequest, context: RuntimeContext): RuntimeResult<State>
   handleInput(state: State, command: GameCommand, context: RuntimeContext): RuntimeResult<State>

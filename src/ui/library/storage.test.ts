@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { createDemoGame } from '../../game/demo'
+import { createDemoStoryline } from '../../game/demo'
 import { createGame } from '../../game/session/lifecycle'
+import { createGramboisCatalog } from '../../game/story/grambois/catalog'
 import { serializeGameState } from '../../game/session/storage'
 import { bindGameToStoryline, GAMES_KEY, LEGACY_GAME_KEY, readGameLibrary, STORYLINES_KEY, writeGameLibrary } from './storage'
 
@@ -14,9 +15,18 @@ function memoryStorage(initial: Record<string, string> = {}) {
 }
 
 describe('storyline and game library storage', () => {
+  it('includes every bundled storyline before local saves', () => {
+    const first = createDemoStoryline('bundled-first')
+    const second = createDemoStoryline('bundled-second')
+
+    const restored = readGameLibrary(memoryStorage(), [first, second])
+
+    expect(restored.storylines.map(storyline => storyline.fingerprint)).toEqual([first.fingerprint, second.fingerprint])
+  })
+
   it('keeps several games linked to one reusable storyline', () => {
     const storage = memoryStorage()
-    const storyline = createDemoGame('library')
+    const storyline = createDemoStoryline('library')
     const first = createGame(storyline, new Date('2026-08-18T18:00:00Z'), 'blue-hour')
     const second = createGame(storyline, new Date('2026-08-19T18:00:00Z'), 'second-sitting')
 
@@ -24,7 +34,7 @@ describe('storyline and game library storage', () => {
       bindGameToStoryline(storyline, first),
       bindGameToStoryline(storyline, second),
     ])
-    const restored = readGameLibrary(storage, storyline)
+    const restored = readGameLibrary(storage, [storyline])
 
     expect(restored.storylines).toHaveLength(1)
     expect(restored.games.map(game => game.state.id)).toEqual(['blue-hour', 'second-sitting'])
@@ -32,19 +42,19 @@ describe('storyline and game library storage', () => {
   })
 
   it('rejects a game paired with any other storyline', () => {
-    const firstStoryline = createDemoGame('first-storyline')
-    const otherStoryline = createDemoGame('other-storyline')
+    const firstStoryline = createDemoStoryline('first-storyline')
+    const otherStoryline = createDemoStoryline('other-storyline')
     const game = createGame(firstStoryline, new Date('2026-08-18T18:00:00Z'), 'wrong-story')
 
     expect(() => bindGameToStoryline(otherStoryline, game)).toThrow('fingerprints do not match')
   })
 
   it('migrates the previous single-game save into the libraries', () => {
-    const storyline = createDemoGame('legacy')
+    const storyline = createDemoStoryline('legacy')
     const game = createGame(storyline, new Date('2026-08-18T18:00:00Z'), 'legacy-game')
     const storage = memoryStorage({ [LEGACY_GAME_KEY]: serializeGameState(storyline, game) })
 
-    const restored = readGameLibrary(storage, createDemoGame('browser-demo'))
+    const restored = readGameLibrary(storage, [createDemoStoryline('browser-demo')])
 
     expect(restored.storylines.some(item => item.fingerprint === storyline.fingerprint)).toBe(true)
     expect(restored.games[0].state.id).toBe('legacy-game')
@@ -57,11 +67,37 @@ describe('storyline and game library storage', () => {
   it('keeps an incompatible legacy save without blocking the storyline library', () => {
     const storage = memoryStorage({ [LEGACY_GAME_KEY]: '{"obsolete":true}' })
 
-    const restored = readGameLibrary(storage, createDemoGame('browser-demo'))
+    const restored = readGameLibrary(storage, [createDemoStoryline('browser-demo')])
 
     expect(restored.error).toBe('')
     expect(restored.warning).toContain('left untouched')
     expect(restored.storylines).toHaveLength(1)
     expect(storage.getItem(LEGACY_GAME_KEY)).toBe('{"obsolete":true}')
+  })
+
+  it('upgrades a v5 game only when its combined opening prose has separable recipients', () => {
+    const storyline = createGramboisCatalog()[0]
+    const state = createGame(storyline, new Date('2026-08-18T18:00:00Z'), 'v5-addressed-upgrade')
+    const legacyDefinition = structuredClone(storyline) as any
+    legacyDefinition.schemaVersion = 5
+    for (const step of legacyDefinition.story.openingSteps) {
+      step.instruction = step.instructions.map((instruction: { recipientRoleId: string; text: string }) => {
+        if (instruction.recipientRoleId === legacyDefinition.story.host.id) return instruction.text
+        const character = legacyDefinition.story.characters.find((item: { id: string }) => item.id === instruction.recipientRoleId)
+        return `${character.name}: ${instruction.text}`
+      }).join(' ')
+      delete step.instructions
+    }
+    state.definitionFingerprint = 'legacy-v5-fingerprint'
+    const storage = memoryStorage({
+      [GAMES_KEY]: JSON.stringify([JSON.stringify({ formatVersion: 3, definition: legacyDefinition, state })]),
+    })
+
+    const restored = readGameLibrary(storage, [storyline])
+
+    expect(restored.error).toBe('')
+    expect(restored.games[0].state.id).toBe('v5-addressed-upgrade')
+    expect(restored.games[0].state.definitionFingerprint).toBe(restored.games[0].storyline.fingerprint)
+    expect(restored.games[0].storyline.schemaVersion).toBe(6)
   })
 })

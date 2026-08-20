@@ -5,18 +5,23 @@ import { PlayerProfile } from './App'
 
 describe('player dossier projection', () => {
   const story = generateGame('dossier-ui')
-  const jacques = story.characters.find(character => character.id === 'jacques')!
+  const solange = story.characters.find(character => character.id === 'solange')!
 
-  it('does not present future events as starting memories', () => {
-    const html = renderToStaticMarkup(<PlayerProfile character={jacques} />)
-    expect(html).toContain('Armand’s demands arrived in violet-black ink')
-    expect(html).not.toContain('You deliberately killed Armand')
-    expect(html).not.toContain('You tore page forty-seven')
+  it('presents the complete fixed dossier without runtime unlocks', () => {
+    const html = renderToStaticMarkup(<PlayerProfile story={story} character={solange} />)
+    expect(html).toContain('transfers Éditions du Méridien')
+    expect(html).toContain('safe prop envelope representing a poisoned-splinter trap')
+    expect(html).toContain('Mathilde’s handwriting')
   })
 
-  it('shows the observations after the host confirms their event', () => {
-    const html = renderToStaticMarkup(<PlayerProfile character={jacques} completedBeatIds={['stage-murder']} />)
-    expect(html).toContain('You deliberately killed Armand')
-    expect(html).toContain('You tore page forty-seven')
+  it('shows public evidence only after the host releases it', () => {
+    const evidence = story.publicEvidence[0]
+    const openingHtml = renderToStaticMarkup(<PlayerProfile story={story} character={solange} />)
+    const investigationHtml = renderToStaticMarkup(<PlayerProfile story={story} character={solange} visiblePublicEvidenceIds={[evidence.id]} />)
+
+    expect(openingHtml).not.toContain(evidence.text)
+    expect(investigationHtml).toContain('INVESTIGATION RESOURCES')
+    expect(investigationHtml).toContain(evidence.text)
+    expect(investigationHtml).not.toContain(solange.privateObjective)
   })
 })

@@ -1,5 +1,7 @@
-export type RunPhase = string
-export type PlayPhase = RunPhase | 'investigation' | 'reveal'
+import type { SettingReference } from './definition/contract'
+
+export type OpeningPhase = 'opening'
+export type PlayPhase = OpeningPhase | 'investigation' | 'reveal'
 export type GameLifecyclePhase = 'idle' | 'enrolling' | 'prepared' | 'active' | 'completed' | 'aborted'
 
 export type CharacterSecret = {
@@ -7,27 +9,23 @@ export type CharacterSecret = {
   text: string
   kind: 'evidence' | 'secret' | 'colour'
   aboutRoleIds?: string[]
-  beat?: number
-  availableAfter?: string
+  provenance?: EvidenceProvenance
 }
 
-export type Action = {
-  id: string
-  text: string
-  cue: string
-  consequence: string
-  essential: boolean
-  beat?: number
-  phase: RunPhase
-  physical: boolean
-  requires: string[]
+export type EvidenceProvenance = {
+  source: { kind: 'role'; roleId: string } | { kind: 'public'; openingStepId: string } | { kind: 'setting'; settingRef: SettingReference }
+  independenceGroup: string
 }
+
+export type OpeningExecution =
+  | { kind: 'spoken' }
+  | { kind: 'physical'; contact: 'none'; reversible: true; hostCued: true; proxy: 'player' | 'host' }
 
 export type CharacterObjective = {
   id: string
   title: string
   text: string
-  phase: RunPhase | 'any'
+  phase: 'investigation' | 'any'
   points: number
 }
 
@@ -45,37 +43,50 @@ export type Character = {
   invitationPretext: string
   invitationPromise: string
   privateIdentity: string
-  privateObjective: string
+  /** Legacy field accepted when importing older stories; new stories use scored objectives only. */
+  privateObjective?: string
   privateSecret: string
   traits: string[]
   objectives: CharacterObjective[]
   relationships: CharacterRelationship[]
   secrets: CharacterSecret[]
-  actions: Action[]
 }
 
 export type PublicEvidence = {
   id: string
   text: string
-  beat: number
+  provenance?: EvidenceProvenance
 }
 
-export type TimelineBeat = {
-  beat: number
+export type SolutionStep = {
+  id: string
   title: string
   truth: string
   evidence: string[]
 }
 
-export type RunBeat = {
+export type CaseTheory = {
+  motiveStepId: string
+  meansStepId: string
+  opportunityStepId: string
+  actStepId: string
+  coverUpStepId?: string
+}
+
+export type OpeningInstruction = {
+  recipientRoleId: string
+  text: string
+}
+
+export type OpeningStep = {
   id: string
-  phase: RunPhase
   title: string
   trigger: string
-  operator: string
-  actionIds: string[]
-  dependsOn: string[]
-  essential: boolean
+  instructions: OpeningInstruction[]
+  execution: OpeningExecution
+  setupRequirementIds: string[]
+  settingRefs: SettingReference[]
+  propIds: string[]
 }
 
 export type EveningStage = {
@@ -93,22 +104,21 @@ export type Story = {
   subtitle: string
   premise: string
   totalPeople: number
-  hostRole: string
-  victim: string
-  culprit: string
+  host: { id: string; name: string; title: string }
+  victimRoleId: string
+  culpritRoleId: string
   characters: Character[]
   publicEvidence: PublicEvidence[]
   evening: EveningStage[]
-  timeline: TimelineBeat[]
-  runPlan: RunBeat[]
-  solution: string
+  solutionSteps: SolutionStep[]
+  caseTheory?: CaseTheory
+  openingSteps: OpeningStep[]
+  solutionSummary: string
 }
 
 export type HumanController = {
   kind: 'human'
-  participantId: string
   displayName: string
-  privateAddress: string
 }
 
 export type AiController = {
@@ -117,15 +127,17 @@ export type AiController = {
   physicalProxy: string
 }
 
-export type Controller = HumanController | AiController
+export type UnassignedController = {
+  kind: 'unassigned'
+  displayName: string
+}
+
+export type Controller = HumanController | AiController | UnassignedController
 
 export type SeatDraft = {
   roleId: string
-  participantId: string
   humanName: string
-  privateAddress: string
-  ready: boolean
-  allowAiFallback: boolean
+  allowAiFallback?: boolean
 }
 
 export type VenueCheck = {
@@ -137,21 +149,6 @@ export type SetupDraft = {
   hostName: string
   seats: SeatDraft[]
   venue: Record<string, boolean>
-}
-
-export type DeliveryStatus = 'not_required' | 'not_requested' | 'queued' | 'sending' | 'delivered' | 'failed'
-
-export type DeliveryRecord = {
-  roleId: string
-  address?: string
-  status: DeliveryStatus
-  attempts: number
-  requestedAt?: string
-  sendingAt?: string
-  deliveredAt?: string
-  receipt?: string
-  failedAt?: string
-  error?: string
 }
 
 export type ClueDeckState = {
@@ -196,15 +193,8 @@ export type SocialAwards = {
   costumeRoleId?: string
 }
 
-export type AiPerformanceRecord = {
-  roleId: string
-  actionId: string
-  text: string
-  generatedAt: string
-}
-
 type StateIdentity = {
-  schemaVersion: 3
+  schemaVersion: 5
   definitionFingerprint: string
   storyId: string
   seed: string
@@ -228,7 +218,6 @@ export type PreparedGameState = StateIdentity & {
   preparedAt: string
   hostName: string
   roster: Record<string, Controller>
-  deliveries: Record<string, DeliveryRecord>
 }
 
 export type ActiveGameState = StateIdentity & {
@@ -239,10 +228,9 @@ export type ActiveGameState = StateIdentity & {
   startedAt: string
   hostName: string
   roster: Record<string, Controller>
-  deliveries: Record<string, DeliveryRecord>
   playPhase: PlayPhase
   paused: boolean
-  completedBeatIds: string[]
+  completedStepIds: string[]
   revealedEvidenceIds: string[]
   tokenBalances: Record<string, number>
   ownedClueIds: Record<string, string[]>
@@ -254,7 +242,6 @@ export type ActiveGameState = StateIdentity & {
   hearingHistory: AccusationHearingResult[]
   outcome: GameOutcome | null
   awards: SocialAwards
-  aiPerformances: Record<string, AiPerformanceRecord>
 }
 
 export type CompletedGameState = Omit<ActiveGameState, 'phase' | 'paused'> & {

@@ -1,25 +1,23 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { createDemoGame } from '../game/demo'
+import { createDemoStoryline } from '../game/demo'
 import {
   advanceAct,
-  beginDelivery,
-  confirmRunBeat,
+  completeOpeningStep,
   createGame,
   createIdleState,
   prepareGame,
-  recordDeliveryOutcome,
-  requestDelivery,
   resetGame,
   startGame,
   updateEnrolment,
 } from '../game/session/lifecycle'
-import type { ExistingGameState, GameState, PreparedGameState } from '../game/types'
+import type { ExistingGameState, GameState } from '../game/types'
+import { openingInstructionsForRole } from '../game/story/instructions'
 import { bindGameToStoryline } from './library/storage'
 import { ActiveGameBar, getHostScreen, HostWorkspace, PlayerProfile, StartScreen } from './App'
 import { GodView } from './story/reader'
 
-const definition = createDemoGame('ui')
+const definition = createDemoStoryline('ui')
 const story = definition.story
 const noAi = { aiControllers: false }
 
@@ -27,7 +25,7 @@ function enrolling() {
   let state = createGame(definition, new Date('2026-08-18T10:00:00Z'), 'ui-game')
   state = updateEnrolment(state, {
     hostName: 'Host',
-    seats: state.setup.seats.map((seat, index) => ({ ...seat, participantId: `p${index}`, humanName: `Player ${index}`, privateAddress: `private:${index}`, ready: true })),
+    seats: state.setup.seats.map((seat, index) => ({ ...seat, humanName: `Player ${index}` })),
     venue: Object.fromEntries(definition.setupRequirements.map(check => [check.id, true])),
   })
   return state
@@ -37,82 +35,116 @@ function render(state: GameState, capabilities = noAi) {
   return renderToStaticMarkup(<HostWorkspace
     definition={definition}
     state={state}
-    setState={() => undefined}
+    onCommands={() => undefined}
     capabilities={capabilities}
     gateway={capabilities.aiControllers ? { state: 'available', model: 'anthropic/claude-sonnet-4.6' } : { state: 'unavailable' }}
     onPreview={() => undefined}
   />)
 }
 
-function deliverAll(state: PreparedGameState) {
-  let next = state
-  for (const roleId of Object.keys(next.deliveries)) {
-    if (next.deliveries[roleId].status === 'not_required') continue
-    next = requestDelivery(next, roleId)
-    next = beginDelivery(next, roleId)
-    next = recordDeliveryOutcome(next, roleId, { ok: true, receipt: `receipt:${roleId}` })
-  }
-  return next
-}
-
 describe('host lifecycle projection', () => {
   it('renders first load as idle with create but no reset action', () => {
     const html = render(createIdleState(definition))
     expect(html).toContain('READY FOR MAISON BLEUE DEMO HOUSE')
-    expect(html).toContain('Set up this game')
+    expect(html).toContain('Assign names, then open the dossiers')
+    expect(html).toContain('No assumed headcount')
     expect(html).not.toContain('Reset game')
   })
 
-  it('renders partial enrolment as blocked', () => {
+  it('requires a player behind every dossier before showing dossier links', () => {
     const html = render(createGame(definition, new Date('2026-08-18T10:00:00Z'), 'partial'))
-    expect(html).toContain('SETUP')
-    expect(html).toContain('things left before roles are ready')
-    expect(html).toContain('disabled')
+    expect(html).toContain('ROLE ASSIGNMENTS')
+    expect(html).toContain('Assigned player')
+    expect(html).toContain('Open dossier / PDF')
+    expect(html).not.toContain('Private handoff')
+    expect(html).not.toContain('How many people')
   })
 
-  it('renders prepared-but-unsent and failed delivery distinctly', () => {
-    let prepared = prepareGame(definition, enrolling(), noAi)
-    expect(render(prepared)).toContain('waiting')
-    const roleId = story.characters[0].id
-    prepared = requestDelivery(prepared, roleId)
-    prepared = beginDelivery(prepared, roleId)
-    prepared = recordDeliveryOutcome(prepared, roleId, { ok: false, error: 'No route' })
-    const failed = render(prepared)
-    expect(failed).toContain('failed')
-    expect(failed).toContain('No route')
-    expect(failed).toContain('START BLOCKED')
+  it('shares the central issue desk from the enrolling screen', () => {
+    const issueCode = '33333333-3333-4333-8333-333333333333'
+    const html = renderToStaticMarkup(<HostWorkspace
+      definition={definition}
+      state={createGame(definition, new Date('2026-08-18T10:00:00Z'), 'issue-link')}
+      issueCode={issueCode}
+      onCommands={() => undefined}
+      capabilities={noAi}
+      gateway={{ state: 'unavailable' }}
+      onPreview={() => undefined}
+      onRefresh={() => undefined}
+    />)
+    expect(html).toContain(`/issue?game=${issueCode}`)
+    expect(html).toContain('central register assigns the next free role in order')
+    expect(html).toContain('Refresh issued names')
+  })
+
+  it('links assignment labels directly to dossiers without delivery claims', () => {
+    const prepared = prepareGame(definition, enrolling(), noAi)
+    const html = render(prepared)
+    expect(html).toContain('Player 0')
+    expect(html).toContain('Open / save PDF')
+    expect(html).not.toContain('waiting')
+    expect(html).not.toContain('Mark received')
   })
 
   it('renders active play and reset-to-idle as separate states', () => {
-    const active = startGame(definition, deliverAll(prepareGame(definition, enrolling(), noAi)))
+    const active = startGame(definition, prepareGame(definition, enrolling(), noAi))
     expect(getHostScreen(active)).toBe('active:opening')
-    expect(render(active)).toContain('The murder at Maison Bleue')
+    const html = render(active)
+    expect(html).toContain('The last recording')
+    expect(html).toContain('LIVE HOST GUIDE')
+    expect(html).toContain('DO THIS NOW')
+    expect(html).toContain('Done — show me the next step →')
+    for (const [index, character] of story.characters.entries()) {
+      expect(html).toContain(`${character.name} (Player ${index})`)
+    }
+    const currentCard = html.slice(html.indexOf('aria-current="step"'), html.indexOf('</article>'))
+    const hostInstruction = story.openingSteps[0].instructions.find(instruction => instruction.recipientRoleId === story.host.id)!
+    const playerInstruction = story.openingSteps[0].instructions.find(instruction => instruction.recipientRoleId !== story.host.id)!
+    expect(currentCard).toContain(hostInstruction.text.split('.')[0])
+    expect(currentCard).not.toContain(playerInstruction.text)
+    expect(html).not.toContain('dependency')
     const idle = resetGame(definition, active, true)
     expect(getHostScreen(idle)).toBe('idle')
     expect(render(idle)).toContain('READY FOR MAISON BLEUE DEMO HOUSE')
   })
 
-  it('exposes Gateway performances for an active AI seat', () => {
+  it('shows one actionable step and advances the host to the next one', () => {
+    const openingSteps = story.openingSteps
+    let active = startGame(definition, prepareGame(definition, enrolling(), noAi))
+    const firstHtml = render(active)
+    expect(firstHtml).toContain('aria-current="step"')
+    expect(firstHtml).toContain(`${openingSteps.length - 1} later steps`)
+    expect(firstHtml.indexOf(openingSteps[0].title)).toBeLessThan(firstHtml.indexOf(openingSteps[1].title))
+
+    active = completeOpeningStep(definition, active, openingSteps[0].id)
+    const secondHtml = render(active)
+    const currentCard = secondHtml.slice(secondHtml.indexOf('aria-current="step"'), secondHtml.indexOf('</article>'))
+    expect(currentCard).toContain(openingSteps[1].title)
+    expect(currentCard).not.toContain(openingSteps[0].title)
+    expect(secondHtml).toContain('1 step')
+    expect(secondHtml).toContain('Undo')
+  })
+
+  it('does not create a second task system for an active AI seat', () => {
     const state = enrolling()
     const aiRole = story.characters[0].id
     const withVacancy = updateEnrolment(state, {
       ...state.setup,
       seats: state.setup.seats.map(seat => seat.roleId === aiRole
-        ? { ...seat, participantId: '', humanName: '', privateAddress: '', ready: false, allowAiFallback: true }
+        ? { ...seat, humanName: '', allowAiFallback: true }
         : seat),
     })
-    const active = startGame(definition, deliverAll(prepareGame(definition, withVacancy, { aiControllers: true })))
+    let active = startGame(definition, prepareGame(definition, withVacancy, { aiControllers: true }))
     const html = render(active, { aiControllers: true })
-    expect(html).toContain('Generate AI line')
-    expect(html).toContain('AI performance required')
+    expect(html).toContain('DO THIS NOW')
+    expect(html).not.toContain('Prepare line for')
+    expect(html).not.toContain('YOUR CUE')
   })
 
   it('turns investigation into three visible social steps without private ballots', () => {
-    let active = startGame(definition, deliverAll(prepareGame(definition, enrolling(), noAi)))
-    for (const act of definition.acts) {
-      for (const beat of story.runPlan.filter(item => item.phase === act.id && item.essential)) active = confirmRunBeat(definition, active, beat.id)
-      active = advanceAct(definition, active)
-    }
+    let active = startGame(definition, prepareGame(definition, enrolling(), noAi))
+    for (const step of story.openingSteps) active = completeOpeningStep(definition, active, step.id)
+    active = advanceAct(definition, active)
     const html = render(active)
     expect(html).toContain('Talk, trade, accuse')
     expect(html).toContain('PRIVATE CLUE DESK')
@@ -125,15 +157,19 @@ describe('host lifecycle projection', () => {
 describe('private player card', () => {
   it('shows traits, relationships, secrets, and three scored objectives', () => {
     const character = story.characters[0]
-    const html = renderToStaticMarkup(<PlayerProfile character={character} />)
-    expect(html).toContain('Your three objectives')
+    const openingCues = openingInstructionsForRole(story, character.id)
+    const html = renderToStaticMarkup(<PlayerProfile story={story} character={character} />)
+    expect(html).toContain(`Your ${character.objectives.length} objectives`)
     expect(html).toContain(character.traits[0])
     expect(html).toContain(character.relationships[0].text)
     expect(html).toContain(character.secrets[0].text)
     expect(html).not.toContain(story.characters[1].privateSecret)
-    expect(html).not.toContain(story.solution)
+    expect(html).not.toContain(story.solutionSummary)
     expect(html).not.toContain('THE SOLUTION')
     expect(html).not.toContain('Use each ability')
+    for (const cue of openingCues) expect(html).toContain(cue.text)
+    const anotherRoleCue = story.openingSteps.flatMap(step => step.instructions).find(instruction => instruction.recipientRoleId !== story.host.id && instruction.recipientRoleId !== character.id)
+    expect(html).not.toContain(anotherRoleCue?.text)
   })
 })
 
@@ -182,9 +218,9 @@ describe('privileged game views', () => {
     const bar = renderToStaticMarkup(<ActiveGameBar game={game} onGodView={() => undefined} onExit={() => undefined} />)
     const view = renderToStaticMarkup(<GodView game={game} onExit={() => undefined} />)
 
-    expect(bar).toContain('God view · spoilers')
+    expect(bar).toContain('Full story · spoilers')
     expect(bar).toContain('Maison Bleue demo')
-    expect(bar).toContain('enrolling')
+    expect(bar).toContain('Assign roles')
     expect(view).toContain('EDITORIAL VIEW · COMPLETE SPOILERS')
     expect(view).toContain('Finished reading — return to the game')
   })

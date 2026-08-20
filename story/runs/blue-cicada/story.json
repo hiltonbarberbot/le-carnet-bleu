@@ -1,0 +1,748 @@
+{
+  "schemaVersion": 6,
+  "id": "blue-cicada",
+  "title": "Operation Blue Cicada",
+  "setting": {
+    "venueName": "House in Grambois",
+    "location": "Grambois, France",
+    "era": "1960s",
+    "playableSpaces": [
+      {
+        "id": "terrace",
+        "label": "Terrace",
+        "description": ""
+      },
+      {
+        "id": "dining-room",
+        "label": "Dining room",
+        "description": ""
+      },
+      {
+        "id": "kitchen",
+        "label": "Kitchen",
+        "description": ""
+      },
+      {
+        "id": "poolside-parlor",
+        "label": "Poolside parlor",
+        "description": ""
+      },
+      {
+        "id": "salon",
+        "label": "Salon",
+        "description": ""
+      },
+      {
+        "id": "entrance-hall",
+        "label": "Entrance hall",
+        "description": ""
+      },
+      {
+        "id": "staircase-to-the-bedrooms",
+        "label": "Staircase to the bedrooms",
+        "description": ""
+      },
+      {
+        "id": "master-bedroom",
+        "label": "Master bedroom",
+        "description": ""
+      },
+      {
+        "id": "basement",
+        "label": "Basement",
+        "description": ""
+      },
+      {
+        "id": "basement-room-marked-private",
+        "label": "Basement room marked private",
+        "description": ""
+      },
+      {
+        "id": "swimming-pool-area",
+        "label": "Swimming pool area",
+        "description": ""
+      },
+      {
+        "id": "cottage",
+        "label": "Cottage",
+        "description": ""
+      }
+    ],
+    "routes": [
+      {
+        "id": "all-named-spaces-are-accessible-through-the-house-s-ordinary-connected-layout",
+        "label": "All named spaces are accessible through the house's ordinary connected layout",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-staircase-connects-the-entrance-level-with-the-bedrooms",
+        "label": "The staircase connects the entrance level with the bedrooms",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-basement-and-its-room-marked-private-are-accessible-by-the-ordinary-basement-route",
+        "label": "The basement and its room marked private are accessible by the ordinary basement route",
+        "description": "",
+        "spaceIds": [
+          "basement"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-terrace-poolside-parlor-and-swimming-pool-area-connect-through-the-ordinary-outdoor-circulation",
+        "label": "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+        "description": "",
+        "spaceIds": [
+          "terrace",
+          "poolside-parlor",
+          "swimming-pool-area"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-cottage-is-accessible-from-the-house-and-is-farther-from-the-kitchen-than-the-dining-room-is",
+        "label": "The cottage is accessible from the house and is farther from the kitchen than the dining room is",
+        "description": "",
+        "spaceIds": [
+          "dining-room",
+          "kitchen",
+          "cottage"
+        ],
+        "accessibilityNotes": []
+      }
+    ],
+    "usableFeatures": [],
+    "availableProps": [],
+    "tone": "Glamorous 1960s French Riviera spy mystery",
+    "safetyConstraints": [
+      {
+        "id": "no-physical-contact",
+        "label": "No physical contact",
+        "description": ""
+      },
+      {
+        "id": "all-physical-actions-are-reversible-and-host-cued",
+        "label": "All physical staging is reversible and host-cued",
+        "description": ""
+      },
+      {
+        "id": "no-running-or-entering-the-swimming-pool-during-play",
+        "label": "No running or entering the swimming pool during play",
+        "description": ""
+      }
+    ],
+    "accessibilityNeeds": [
+      {
+        "id": "all-named-spaces-are-accessible-to-the-group-and-no-additional-mobility-needs-were-supplied",
+        "label": "All named spaces are accessible to the group and no additional mobility needs were supplied",
+        "description": ""
+      }
+    ],
+    "contentBoundaries": [
+      {
+        "id": "no-additional-content-boundaries-were-supplied",
+        "label": "No additional content boundaries were supplied",
+        "description": ""
+      }
+    ]
+  },
+  "story": {
+    "id": "blue-cicada",
+    "seed": "blue-cicada",
+    "title": "Operation Blue Cicada",
+    "subtitle": "A radio serial’s lost final episode contains orders for a sleeper agent.",
+    "premise": "radio producer Armand Célier's private listening party for the final episode of The Blue Cicada brings five accomplished strangers to a house in Grambois. Each accepted a different private promise from Armand Célier; one came to make sure that promise could never be kept.",
+    "totalPeople": 6,
+    "characters": [
+      {
+        "id": "blue-cicada-guest-1",
+        "name": "Mireille Sanz",
+        "title": "Radio actress",
+        "costume": "1960s Riviera evening wear suited to radio actress",
+        "publicFace": "Warm, theatrical, and allergic to silence",
+        "invitationPretext": "You were invited to radio producer Armand Célier's private listening party for the final episode of The Blue Cicada in your public capacity as radio actress.",
+        "invitationPromise": "Armand promised you the lead in his international adaptation.",
+        "privateIdentity": "You improvised a line years ago that became an intelligence recognition phrase.",
+        "privateObjective": "Protect your career while learning who weaponized your voice.",
+        "privateSecret": "You kept the original rehearsal pages after claiming they were burned.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "blue-cicada-guest-1-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Armand promised you the lead in his international adaptation.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "blue-cicada-guest-1-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Paul Veyrier is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "blue-cicada-guest-1-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "blue-cicada-guest-2",
+            "text": "Paul Veyrier can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "blue-cicada-guest-5",
+            "text": "Odette Blanc once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "blue-cicada-guest-1-evidence",
+            "text": "You heard sound engineer Paul tell Hugo that Armand had restored the forbidden final line.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "blue-cicada-guest-2"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "blue-cicada-guest-1"
+              },
+              "independenceGroup": "role:blue-cicada-guest-1"
+            }
+          }
+        ]
+      },
+      {
+        "id": "blue-cicada-guest-2",
+        "name": "Paul Veyrier",
+        "title": "Sound engineer",
+        "costume": "1960s Riviera evening wear suited to sound engineer",
+        "publicFace": "Patient, technical, and quietly resentful",
+        "invitationPretext": "You were invited to radio producer Armand Célier's private listening party for the final episode of The Blue Cicada in your public capacity as sound engineer.",
+        "invitationPromise": "Armand promised to confess who took credit for your wartime broadcasts.",
+        "privateIdentity": "You hid coded field reports inside radio dramas during the war.",
+        "privateObjective": "Recover your reputation without revealing the illegal archive you kept.",
+        "privateSecret": "You erased part of the rehearsal to hide your own wartime call sign.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "blue-cicada-guest-2-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Armand promised to confess who took credit for your wartime broadcasts.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "blue-cicada-guest-2-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Delphine Kassar is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "blue-cicada-guest-2-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "blue-cicada-guest-3",
+            "text": "Delphine Kassar can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "blue-cicada-guest-1",
+            "text": "Mireille Sanz once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "blue-cicada-guest-2-evidence",
+            "text": "You saw Delphine mark every fifth word in the script and realize it contained live instructions.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "blue-cicada-guest-3"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "blue-cicada-guest-2"
+              },
+              "independenceGroup": "role:blue-cicada-guest-2"
+            }
+          }
+        ]
+      },
+      {
+        "id": "blue-cicada-guest-3",
+        "name": "Delphine Kassar",
+        "title": "Cultural correspondent",
+        "costume": "1960s Riviera evening wear suited to cultural correspondent",
+        "publicFace": "Cosmopolitan, teasing, and ruthlessly attentive",
+        "invitationPretext": "You were invited to radio producer Armand Célier's private listening party for the final episode of The Blue Cicada in your public capacity as cultural correspondent.",
+        "invitationPromise": "Armand promised proof that your father was not a collaborator.",
+        "privateIdentity": "You decode propaganda for a foreign service while posing as a critic.",
+        "privateObjective": "Secure the proof about your father before your cover is exposed.",
+        "privateSecret": "You solved the frequency but concealed it to contact your service first.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "blue-cicada-guest-3-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Armand promised proof that your father was not a collaborator.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "blue-cicada-guest-3-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Hugo Bellac is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "blue-cicada-guest-3-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "blue-cicada-guest-4",
+            "text": "Hugo Bellac can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "blue-cicada-guest-2",
+            "text": "Paul Veyrier once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "blue-cicada-guest-3-evidence",
+            "text": "You saw Odette leave Hugo alone with Armand during the only break in the listening session.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "blue-cicada-guest-4"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "blue-cicada-guest-3"
+              },
+              "independenceGroup": "role:blue-cicada-guest-3"
+            }
+          }
+        ]
+      },
+      {
+        "id": "blue-cicada-guest-4",
+        "name": "Hugo Bellac",
+        "title": "Voice actor",
+        "costume": "1960s Riviera evening wear suited to voice actor",
+        "publicFace": "Modest, magnetic, and uncannily adaptable",
+        "invitationPretext": "You were invited to radio producer Armand Célier's private listening party for the final episode of The Blue Cicada in your public capacity as voice actor.",
+        "invitationPromise": "Armand promised to erase a wartime recording in your voice.",
+        "privateIdentity": "You are the sleeper agent CICADA and believed the network had forgotten you.",
+        "privateObjective": "Convince the room that the code targets someone outside the house.",
+        "privateSecret": "You killed Armand to prevent the final line from reactivating and identifying you.",
+        "traits": [
+          "Controlled under pressure",
+          "Charm used as misdirection"
+        ],
+        "objectives": [
+          {
+            "id": "blue-cicada-guest-4-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Armand promised to erase a wartime recording in your voice.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "blue-cicada-guest-4-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Odette Blanc is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "blue-cicada-guest-4-reckoning",
+            "title": "Escape the reckoning",
+            "text": "Keep the final conviction away from you without inventing evidence.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "blue-cicada-guest-5",
+            "text": "Odette Blanc can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "blue-cicada-guest-3",
+            "text": "Delphine Kassar once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "blue-cicada-guest-4-evidence",
+            "text": "You know Odette carried a sealed note from Armand naming the Blue Cicada, and you tried to make her surrender it.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "blue-cicada-guest-5"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "blue-cicada-guest-4"
+              },
+              "independenceGroup": "role:blue-cicada-guest-4"
+            }
+          }
+        ]
+      },
+      {
+        "id": "blue-cicada-guest-5",
+        "name": "Odette Blanc",
+        "title": "Sponsor’s widow",
+        "costume": "1960s Riviera evening wear suited to sponsor’s widow",
+        "publicFace": "Elegant, maternal, and unexpectedly blunt",
+        "invitationPretext": "You were invited to radio producer Armand Célier's private listening party for the final episode of The Blue Cicada in your public capacity as sponsor’s widow.",
+        "invitationPromise": "Armand promised to reveal why your husband funded the serial.",
+        "privateIdentity": "Your husband used the production company as a courier network.",
+        "privateObjective": "Separate your husband’s legacy from the murder before the vote.",
+        "privateSecret": "You destroyed a financial ledger that named several innocent performers.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "blue-cicada-guest-5-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Armand promised to reveal why your husband funded the serial.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "blue-cicada-guest-5-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Mireille Sanz is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "blue-cicada-guest-5-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "blue-cicada-guest-1",
+            "text": "Mireille Sanz can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "blue-cicada-guest-4",
+            "text": "Hugo Bellac once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "blue-cicada-guest-5-evidence",
+            "text": "You saw Mireille’s original pages and know the phrase Hugo repeated was never broadcast publicly.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "blue-cicada-guest-1"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "blue-cicada-guest-5"
+              },
+              "independenceGroup": "role:blue-cicada-guest-5"
+            }
+          }
+        ]
+      }
+    ],
+    "publicEvidence": [],
+    "evening": [
+      {
+        "id": "blue-cicada-briefing",
+        "title": "Private briefing",
+        "description": "Read the dossiers, establish the fictional gathering, and give each suspect ten tokens.",
+        "durationMinutes": 5,
+        "phase": "opening"
+      },
+      {
+        "id": "blue-cicada-incident",
+        "title": "The fatal interruption",
+        "description": "Follow the five short opening cues until the host is discovered and becomes Game Master.",
+        "durationMinutes": 10,
+        "phase": "opening"
+      },
+      {
+        "id": "blue-cicada-investigation",
+        "title": "Open investigation",
+        "description": "Bargain, trade, buy clues, pursue objectives, and call a public accusation when ready.",
+        "durationMinutes": 105,
+        "phase": "investigation"
+      },
+      {
+        "id": "blue-cicada-reveal",
+        "title": "Reveal and scoring",
+        "description": "Reveal the operation, score objectives and tokens, and award the evening.",
+        "durationMinutes": 15,
+        "phase": "reveal"
+      }
+    ],
+    "solutionSteps": [
+      {
+        "title": "The broadcast beneath the broadcast",
+        "truth": "Armand built a real activation code into the radio script and invited everyone who might understand it.",
+        "evidence": [
+          "blue-cicada-guest-1-evidence",
+          "blue-cicada-guest-2-evidence"
+        ],
+        "id": "blue-cicada-solution-1"
+      },
+      {
+        "title": "Dead air",
+        "truth": "Hugo Bellac disabled Armand before the final line could identify him as the sleeper agent CICADA.",
+        "evidence": [
+          "blue-cicada-guest-3-evidence",
+          "blue-cicada-guest-4-evidence",
+          "blue-cicada-guest-5-evidence"
+        ],
+        "id": "blue-cicada-solution-2"
+      }
+    ],
+    "openingSteps": [
+      {
+        "id": "blue-cicada-opening-1",
+        "title": "Receive Mireille Sanz",
+        "trigger": "When every player is seated",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Mireille Sanz to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "blue-cicada-guest-1",
+            "text": "Perform the harmless opening sentence of the serial and ask who remembers hearing it before."
+          }
+        ]
+      },
+      {
+        "id": "blue-cicada-opening-2",
+        "title": "Receive Paul Veyrier",
+        "trigger": "After Mireille Sanz completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Paul Veyrier to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "blue-cicada-guest-2",
+            "text": "State that the recording has been altered since rehearsal and that the final minute is new."
+          }
+        ]
+      },
+      {
+        "id": "blue-cicada-opening-3",
+        "title": "Receive Delphine Kassar",
+        "trigger": "After Paul Veyrier completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Delphine Kassar to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "blue-cicada-guest-3",
+            "text": "Announce that the episode’s scene numbers are not dramatic notation but a frequency."
+          }
+        ]
+      },
+      {
+        "id": "blue-cicada-opening-4",
+        "title": "Receive Hugo Bellac",
+        "trigger": "After Delphine Kassar completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Hugo Bellac to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "blue-cicada-guest-4",
+            "text": "Laugh off the cipher and repeat a line that appears only in the missing final minute."
+          }
+        ]
+      },
+      {
+        "id": "blue-cicada-opening-5",
+        "title": "Discover the host",
+        "trigger": "After Hugo Bellac completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "blue-cicada-no-contact"
+        ],
+        "settingRefs": [
+          {
+            "kind": "safetyConstraints",
+            "id": "no-physical-contact"
+          }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Cue Odette Blanc, stage Armand Célier's off-page collapse without contact, announce the discovery, and become Game Master."
+          },
+          {
+            "recipientRoleId": "blue-cicada-guest-5",
+            "text": "Reveal that your late husband financed more than entertainment and demand the final episode be played."
+          }
+        ]
+      }
+    ],
+    "host": {
+      "id": "host",
+      "name": "Armand Célier",
+      "title": "Armand Célier, radio producer and former resistance broadcaster; then Game Master"
+    },
+    "victimRoleId": "host",
+    "culpritRoleId": "blue-cicada-guest-4",
+    "solutionSummary": "Hugo was the dormant agent. He understood the rehearsal line, silenced Armand during the listening break, and blamed the missing ending on professional sabotage. The guests’ independent memories show the script was a trap and that Hugo reacted to details no innocent actor had heard."
+  },
+  "clueDecks": [
+    {
+      "id": "blue-cicada-salon-file",
+      "label": "Salon intelligence file",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "salon"
+      },
+      "clues": [
+        {
+          "id": "blue-cicada-clue-1",
+          "text": "The script’s scene numbers form a shortwave frequency.",
+          "supportsSolutionStepIds": [
+            "blue-cicada-solution-1"
+          ]
+        },
+        {
+          "id": "blue-cicada-clue-2",
+          "text": "Only Hugo received the unrevised rehearsal line containing the word CICADA.",
+          "supportsSolutionStepIds": [
+            "blue-cicada-solution-2"
+          ]
+        },
+        {
+          "id": "blue-cicada-clue-3",
+          "text": "Armand’s private promises were designed to make every guest listen for a different layer of the episode.",
+          "supportsSolutionStepIds": [
+            "blue-cicada-solution-2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "blue-cicada-cottage-file",
+      "label": "Cottage intelligence file",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "cottage"
+      },
+      "clues": [
+        {
+          "id": "blue-cicada-clue-4",
+          "text": "The cottage was used for an earlier clandestine recording, not for the killing.",
+          "supportsSolutionStepIds": [
+            "blue-cicada-solution-1"
+          ]
+        },
+        {
+          "id": "blue-cicada-clue-5",
+          "text": "Hugo knew the final line had been cut before the producer announced it.",
+          "supportsSolutionStepIds": [
+            "blue-cicada-solution-2"
+          ]
+        }
+      ]
+    }
+  ],
+  "acts": [
+    {
+      "id": "opening",
+      "title": "The fatal interruption",
+      "operatorGoal": "Establish radio producer Armand Célier's private listening party for the final episode of The Blue Cicada, stage the single no-contact death, then become Game Master.",
+      "playerGoal": "Deliver only your short prepared cue and wait for the body to be discovered before bargaining begins.",
+      "durationMinutes": 15,
+      "completionLabel": "Open the investigation →"
+    }
+  ],
+  "setupRequirements": [
+    {
+      "id": "blue-cicada-no-contact",
+      "label": "Confirm that the entire opening is spoken and staged without contact.",
+      "settingRef": {
+        "kind": "safetyConstraints",
+        "id": "no-physical-contact"
+      }
+    }
+  ]
+}

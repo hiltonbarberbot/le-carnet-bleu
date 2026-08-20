@@ -1,0 +1,748 @@
+{
+  "schemaVersion": 6,
+  "id": "velvet-consul",
+  "title": "The Velvet Consul",
+  "setting": {
+    "venueName": "House in Grambois",
+    "location": "Grambois, France",
+    "era": "1960s",
+    "playableSpaces": [
+      {
+        "id": "terrace",
+        "label": "Terrace",
+        "description": ""
+      },
+      {
+        "id": "dining-room",
+        "label": "Dining room",
+        "description": ""
+      },
+      {
+        "id": "kitchen",
+        "label": "Kitchen",
+        "description": ""
+      },
+      {
+        "id": "poolside-parlor",
+        "label": "Poolside parlor",
+        "description": ""
+      },
+      {
+        "id": "salon",
+        "label": "Salon",
+        "description": ""
+      },
+      {
+        "id": "entrance-hall",
+        "label": "Entrance hall",
+        "description": ""
+      },
+      {
+        "id": "staircase-to-the-bedrooms",
+        "label": "Staircase to the bedrooms",
+        "description": ""
+      },
+      {
+        "id": "master-bedroom",
+        "label": "Master bedroom",
+        "description": ""
+      },
+      {
+        "id": "basement",
+        "label": "Basement",
+        "description": ""
+      },
+      {
+        "id": "basement-room-marked-private",
+        "label": "Basement room marked private",
+        "description": ""
+      },
+      {
+        "id": "swimming-pool-area",
+        "label": "Swimming pool area",
+        "description": ""
+      },
+      {
+        "id": "cottage",
+        "label": "Cottage",
+        "description": ""
+      }
+    ],
+    "routes": [
+      {
+        "id": "all-named-spaces-are-accessible-through-the-house-s-ordinary-connected-layout",
+        "label": "All named spaces are accessible through the house's ordinary connected layout",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-staircase-connects-the-entrance-level-with-the-bedrooms",
+        "label": "The staircase connects the entrance level with the bedrooms",
+        "description": "",
+        "spaceIds": [],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-basement-and-its-room-marked-private-are-accessible-by-the-ordinary-basement-route",
+        "label": "The basement and its room marked private are accessible by the ordinary basement route",
+        "description": "",
+        "spaceIds": [
+          "basement"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-terrace-poolside-parlor-and-swimming-pool-area-connect-through-the-ordinary-outdoor-circulation",
+        "label": "The terrace, poolside parlor, and swimming pool area connect through the ordinary outdoor circulation",
+        "description": "",
+        "spaceIds": [
+          "terrace",
+          "poolside-parlor",
+          "swimming-pool-area"
+        ],
+        "accessibilityNotes": []
+      },
+      {
+        "id": "the-cottage-is-accessible-from-the-house-and-is-farther-from-the-kitchen-than-the-dining-room-is",
+        "label": "The cottage is accessible from the house and is farther from the kitchen than the dining room is",
+        "description": "",
+        "spaceIds": [
+          "dining-room",
+          "kitchen",
+          "cottage"
+        ],
+        "accessibilityNotes": []
+      }
+    ],
+    "usableFeatures": [],
+    "availableProps": [],
+    "tone": "Glamorous 1960s French Riviera spy mystery",
+    "safetyConstraints": [
+      {
+        "id": "no-physical-contact",
+        "label": "No physical contact",
+        "description": ""
+      },
+      {
+        "id": "all-physical-actions-are-reversible-and-host-cued",
+        "label": "All physical staging is reversible and host-cued",
+        "description": ""
+      },
+      {
+        "id": "no-running-or-entering-the-swimming-pool-during-play",
+        "label": "No running or entering the swimming pool during play",
+        "description": ""
+      }
+    ],
+    "accessibilityNeeds": [
+      {
+        "id": "all-named-spaces-are-accessible-to-the-group-and-no-additional-mobility-needs-were-supplied",
+        "label": "All named spaces are accessible to the group and no additional mobility needs were supplied",
+        "description": ""
+      }
+    ],
+    "contentBoundaries": [
+      {
+        "id": "no-additional-content-boundaries-were-supplied",
+        "label": "No additional content boundaries were supplied",
+        "description": ""
+      }
+    ]
+  },
+  "story": {
+    "id": "velvet-consul",
+    "seed": "velvet-consul",
+    "title": "The Velvet Consul",
+    "subtitle": "A farewell portrait session becomes a contest over a forged diplomatic identity.",
+    "premise": "honorary consul Alain Rochefort's farewell portrait sitting before his supposed retirement brings five accomplished strangers to a house in Grambois. Each accepted a different private promise from Alain Rochefort; one came to make sure that promise could never be kept.",
+    "totalPeople": 6,
+    "characters": [
+      {
+        "id": "velvet-consul-guest-1",
+        "name": "Sylvie Caron",
+        "title": "Document restorer",
+        "costume": "1960s Riviera evening wear suited to document restorer",
+        "publicFace": "Cultured, precise, and offended by vulgar suspicion",
+        "invitationPretext": "You were invited to honorary consul Alain Rochefort's farewell portrait sitting before his supposed retirement in your public capacity as document restorer.",
+        "invitationPromise": "Alain promised to return the master seal you forged for him.",
+        "privateIdentity": "You manufactured Alain’s consular identity and dozens of passports beneath it.",
+        "privateObjective": "Recover or discredit every trace of the master seal.",
+        "privateSecret": "You killed Alain when you learned the portrait sitting was an inquiry trap.",
+        "traits": [
+          "Controlled under pressure",
+          "Charm used as misdirection"
+        ],
+        "objectives": [
+          {
+            "id": "velvet-consul-guest-1-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Alain promised to return the master seal you forged for him.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "velvet-consul-guest-1-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Jonas Fèvre is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "velvet-consul-guest-1-reckoning",
+            "title": "Escape the reckoning",
+            "text": "Keep the final conviction away from you without inventing evidence.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "velvet-consul-guest-2",
+            "text": "Jonas Fèvre can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "velvet-consul-guest-5",
+            "text": "Béatrice Lenoir once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "velvet-consul-guest-1-evidence",
+            "text": "You saw photographer Jonas compare Alain’s face with a dead diplomat’s file before the gathering.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "velvet-consul-guest-2"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "velvet-consul-guest-1"
+              },
+              "independenceGroup": "role:velvet-consul-guest-1"
+            }
+          }
+        ]
+      },
+      {
+        "id": "velvet-consul-guest-2",
+        "name": "Jonas Fèvre",
+        "title": "Society photographer",
+        "costume": "1960s Riviera evening wear suited to society photographer",
+        "publicFace": "Flirtatious, restless, and sharper than his reputation",
+        "invitationPretext": "You were invited to honorary consul Alain Rochefort's farewell portrait sitting before his supposed retirement in your public capacity as society photographer.",
+        "invitationPromise": "Alain promised exclusive rights to his final official portrait.",
+        "privateIdentity": "You photograph intelligence targets for a newspaper contact.",
+        "privateObjective": "Keep your hidden negatives safe while proving the portrait was a trap.",
+        "privateSecret": "You entered the master bedroom early to compare Alain with an archival photograph.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "velvet-consul-guest-2-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Alain promised exclusive rights to his final official portrait.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "velvet-consul-guest-2-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Leila Haddad is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "velvet-consul-guest-2-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "velvet-consul-guest-3",
+            "text": "Leila Haddad can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "velvet-consul-guest-1",
+            "text": "Sylvie Caron once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "velvet-consul-guest-2-evidence",
+            "text": "You heard Leila tell Colonel Ward that Alain’s passport number belonged to a dead man.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "velvet-consul-guest-3"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "velvet-consul-guest-2"
+              },
+              "independenceGroup": "role:velvet-consul-guest-2"
+            }
+          }
+        ]
+      },
+      {
+        "id": "velvet-consul-guest-3",
+        "name": "Leila Haddad",
+        "title": "Shipping heiress",
+        "costume": "1960s Riviera evening wear suited to shipping heiress",
+        "publicFace": "Direct, immaculate, and impatient with ceremony",
+        "invitationPretext": "You were invited to honorary consul Alain Rochefort's farewell portrait sitting before his supposed retirement in your public capacity as shipping heiress.",
+        "invitationPromise": "Alain promised a passport for a dissident captain in your fleet.",
+        "privateIdentity": "You move political refugees inside legitimate shipping crews.",
+        "privateObjective": "Secure the captain’s escape without exposing your route.",
+        "privateSecret": "You bribed Alain and concealed the payment in a false restoration invoice.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "velvet-consul-guest-3-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Alain promised a passport for a dissident captain in your fleet.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "velvet-consul-guest-3-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Colonel Arthur Ward is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "velvet-consul-guest-3-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "velvet-consul-guest-4",
+            "text": "Colonel Arthur Ward can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "velvet-consul-guest-2",
+            "text": "Jonas Fèvre once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "velvet-consul-guest-3-evidence",
+            "text": "You watched Colonel Ward react to Sylvie’s name before any forgery accusation was made.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "velvet-consul-guest-4"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "velvet-consul-guest-3"
+              },
+              "independenceGroup": "role:velvet-consul-guest-3"
+            }
+          }
+        ]
+      },
+      {
+        "id": "velvet-consul-guest-4",
+        "name": "Colonel Arthur Ward",
+        "title": "Military liaison",
+        "costume": "1960s Riviera evening wear suited to military liaison",
+        "publicFace": "Courteous, square, and visibly tired of euphemisms",
+        "invitationPretext": "You were invited to honorary consul Alain Rochefort's farewell portrait sitting before his supposed retirement in your public capacity as military liaison.",
+        "invitationPromise": "Alain promised the name of the official who compromised your last operation.",
+        "privateIdentity": "You were sent to close Alain’s unofficial passport channel.",
+        "privateObjective": "Identify the forger without admitting your own service used the channel.",
+        "privateSecret": "You intended to arrest Alain after the portrait and concealed the warrant.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "velvet-consul-guest-4-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Alain promised the name of the official who compromised your last operation.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "velvet-consul-guest-4-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Béatrice Lenoir is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "velvet-consul-guest-4-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "velvet-consul-guest-5",
+            "text": "Béatrice Lenoir can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "velvet-consul-guest-3",
+            "text": "Leila Haddad once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "velvet-consul-guest-4-evidence",
+            "text": "In the entrance hall, you heard Béatrice accuse Sylvie of restoring documents that had never legally existed.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "velvet-consul-guest-5"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "velvet-consul-guest-4"
+              },
+              "independenceGroup": "role:velvet-consul-guest-4"
+            }
+          }
+        ]
+      },
+      {
+        "id": "velvet-consul-guest-5",
+        "name": "Béatrice Lenoir",
+        "title": "Portrait painter",
+        "costume": "1960s Riviera evening wear suited to portrait painter",
+        "publicFace": "Dreamy, candid, and unnervingly good at faces",
+        "invitationPretext": "You were invited to honorary consul Alain Rochefort's farewell portrait sitting before his supposed retirement in your public capacity as portrait painter.",
+        "invitationPromise": "Alain promised to identify the unknown woman in your mother’s wartime sketchbook.",
+        "privateIdentity": "Your mother taught Sylvie the forgery technique visible in Alain’s papers.",
+        "privateObjective": "Learn whether your mother created the first false consul or merely trained the culprit.",
+        "privateSecret": "You altered the commissioned portrait to include the dead diplomat’s profile.",
+        "traits": [
+          "Socially observant",
+          "Protective of a private agenda"
+        ],
+        "objectives": [
+          {
+            "id": "velvet-consul-guest-5-promise",
+            "title": "Collect the promise",
+            "text": "Get another suspect to acknowledge what the host privately promised you: Alain promised to identify the unknown woman in your mother’s wartime sketchbook.",
+            "phase": "any",
+            "points": 1
+          },
+          {
+            "id": "velvet-consul-guest-5-leverage",
+            "title": "Gain useful leverage",
+            "text": "Learn why Sylvie Caron is concealing evidence and trade that knowledge for a clue, token, or public concession.",
+            "phase": "investigation",
+            "points": 2
+          },
+          {
+            "id": "velvet-consul-guest-5-reckoning",
+            "title": "Shape the reckoning",
+            "text": "Put your private objective before the table while keeping your own compromising secret from deciding the vote.",
+            "phase": "investigation",
+            "points": 3
+          }
+        ],
+        "relationships": [
+          {
+            "roleId": "velvet-consul-guest-1",
+            "text": "Sylvie Caron can confirm part of your cover story, but only by exposing their own."
+          },
+          {
+            "roleId": "velvet-consul-guest-4",
+            "text": "Colonel Arthur Ward once helped your career and now expects repayment."
+          }
+        ],
+        "secrets": [
+          {
+            "id": "velvet-consul-guest-5-evidence",
+            "text": "You saw Sylvie’s restoration mark on a seal impression Jonas had secretly photographed.",
+            "kind": "evidence",
+            "aboutRoleIds": [
+              "velvet-consul-guest-1"
+            ],
+            "provenance": {
+              "source": {
+                "kind": "role",
+                "roleId": "velvet-consul-guest-5"
+              },
+              "independenceGroup": "role:velvet-consul-guest-5"
+            }
+          }
+        ]
+      }
+    ],
+    "publicEvidence": [],
+    "evening": [
+      {
+        "id": "velvet-consul-briefing",
+        "title": "Private briefing",
+        "description": "Read the dossiers, establish the fictional gathering, and give each suspect ten tokens.",
+        "durationMinutes": 5,
+        "phase": "opening"
+      },
+      {
+        "id": "velvet-consul-incident",
+        "title": "The fatal interruption",
+        "description": "Follow the five short opening cues until the host is discovered and becomes Game Master.",
+        "durationMinutes": 10,
+        "phase": "opening"
+      },
+      {
+        "id": "velvet-consul-investigation",
+        "title": "Open investigation",
+        "description": "Bargain, trade, buy clues, pursue objectives, and call a public accusation when ready.",
+        "durationMinutes": 105,
+        "phase": "investigation"
+      },
+      {
+        "id": "velvet-consul-reveal",
+        "title": "Reveal and scoring",
+        "description": "Reveal the operation, score objectives and tokens, and award the evening.",
+        "durationMinutes": 15,
+        "phase": "reveal"
+      }
+    ],
+    "solutionSteps": [
+      {
+        "title": "The consul who never was",
+        "truth": "Alain’s title was a long-running intelligence cover built on the identity of a dead diplomat.",
+        "evidence": [
+          "velvet-consul-guest-1-evidence",
+          "velvet-consul-guest-2-evidence"
+        ],
+        "id": "velvet-consul-solution-1"
+      },
+      {
+        "title": "The portrait’s final sitter",
+        "truth": "Sylvie Caron killed Alain because his farewell portrait would expose her as the forger who created the cover.",
+        "evidence": [
+          "velvet-consul-guest-3-evidence",
+          "velvet-consul-guest-4-evidence",
+          "velvet-consul-guest-5-evidence"
+        ],
+        "id": "velvet-consul-solution-2"
+      }
+    ],
+    "openingSteps": [
+      {
+        "id": "velvet-consul-opening-1",
+        "title": "Receive Sylvie Caron",
+        "trigger": "When every player is seated",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Sylvie Caron to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "velvet-consul-guest-1",
+            "text": "Inspect Alain’s public seal and declare that someone has recently copied it badly."
+          }
+        ]
+      },
+      {
+        "id": "velvet-consul-opening-2",
+        "title": "Receive Jonas Fèvre",
+        "trigger": "After Sylvie Caron completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Jonas Fèvre to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "velvet-consul-guest-2",
+            "text": "Announce that the sitting requires each guest to say how they first met the consul."
+          }
+        ]
+      },
+      {
+        "id": "velvet-consul-opening-3",
+        "title": "Receive Leila Haddad",
+        "trigger": "After Jonas Fèvre completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Leila Haddad to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "velvet-consul-guest-3",
+            "text": "Challenge Alain’s retirement story and say that someone here is still waiting for a passport."
+          }
+        ]
+      },
+      {
+        "id": "velvet-consul-opening-4",
+        "title": "Receive Colonel Arthur Ward",
+        "trigger": "After Leila Haddad completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "spoken"
+        },
+        "setupRequirementIds": [],
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Colonel Arthur Ward to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "velvet-consul-guest-4",
+            "text": "State that the farewell is not ceremonial: Alain’s credentials are under review tonight."
+          }
+        ]
+      },
+      {
+        "id": "velvet-consul-opening-5",
+        "title": "Discover the host",
+        "trigger": "After Colonel Arthur Ward completes their cue",
+        "propIds": [],
+        "execution": {
+          "kind": "physical",
+          "contact": "none",
+          "reversible": true,
+          "hostCued": true,
+          "proxy": "host"
+        },
+        "setupRequirementIds": [
+          "velvet-consul-no-contact"
+        ],
+        "settingRefs": [
+          {
+            "kind": "safetyConstraints",
+            "id": "no-physical-contact"
+          }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Cue Béatrice Lenoir, stage Alain Rochefort's off-page collapse without contact, announce the discovery, and become Game Master."
+          },
+          {
+            "recipientRoleId": "velvet-consul-guest-5",
+            "text": "Unveil your sketch: Alain’s face layered over another man’s, and ask which identity is retiring."
+          }
+        ]
+      }
+    ],
+    "host": {
+      "id": "host",
+      "name": "Alain Rochefort",
+      "title": "Alain Rochefort, honorary consul and keeper of unofficial passports; then Game Master"
+    },
+    "victimRoleId": "host",
+    "culpritRoleId": "velvet-consul-guest-1",
+    "solutionSummary": "Sylvie built Alain’s false diplomatic identity and feared the portrait archive would connect her to every passport it enabled. She poisoned him before the sitting and steered suspicion toward the photographer. The others independently place her at the origin of the forged seal and prove she knew the portrait’s hidden purpose."
+  },
+  "clueDecks": [
+    {
+      "id": "velvet-consul-salon-file",
+      "label": "Salon intelligence file",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "salon"
+      },
+      "clues": [
+        {
+          "id": "velvet-consul-clue-1",
+          "text": "The consular seal predates Alain’s appointment by two years.",
+          "supportsSolutionStepIds": [
+            "velvet-consul-solution-1"
+          ]
+        },
+        {
+          "id": "velvet-consul-clue-2",
+          "text": "Sylvie recognized a deliberately reversed seal impression without being shown it.",
+          "supportsSolutionStepIds": [
+            "velvet-consul-solution-2"
+          ]
+        },
+        {
+          "id": "velvet-consul-clue-3",
+          "text": "The farewell portrait was intended as evidence for an internal inquiry.",
+          "supportsSolutionStepIds": [
+            "velvet-consul-solution-2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "velvet-consul-cottage-file",
+      "label": "Cottage intelligence file",
+      "source": {
+        "kind": "playableSpaces",
+        "id": "cottage"
+      },
+      "clues": [
+        {
+          "id": "velvet-consul-clue-4",
+          "text": "A cottage guest register links the dead diplomat’s name to Sylvie’s old studio.",
+          "supportsSolutionStepIds": [
+            "velvet-consul-solution-1"
+          ]
+        },
+        {
+          "id": "velvet-consul-clue-5",
+          "text": "Alain was poisoned after announcing the portrait, not before the guests arrived.",
+          "supportsSolutionStepIds": [
+            "velvet-consul-solution-2"
+          ]
+        }
+      ]
+    }
+  ],
+  "acts": [
+    {
+      "id": "opening",
+      "title": "The fatal interruption",
+      "operatorGoal": "Establish honorary consul Alain Rochefort's farewell portrait sitting before his supposed retirement, stage the single no-contact death, then become Game Master.",
+      "playerGoal": "Deliver only your short prepared cue and wait for the body to be discovered before bargaining begins.",
+      "durationMinutes": 15,
+      "completionLabel": "Open the investigation →"
+    }
+  ],
+  "setupRequirements": [
+    {
+      "id": "velvet-consul-no-contact",
+      "label": "Confirm that the entire opening is spoken and staged without contact.",
+      "settingRef": {
+        "kind": "safetyConstraints",
+        "id": "no-physical-contact"
+      }
+    }
+  ]
+}

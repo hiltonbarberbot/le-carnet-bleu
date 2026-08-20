@@ -24,7 +24,30 @@ describe('setting-first story authoring', () => {
     expect(brief).toContain(`# ${productNaming.name} authoring brief`)
     expect(brief).toContain('Maison Bleue demo house')
     expect(brief).toContain('Do not invent rooms, routes, props')
+    expect(brief).toContain('Invent a compelling fictional gathering')
     expect(brief).toContain('No sharp objects')
+    expect(brief).toContain('Multiple simple props are welcome')
+    expect(brief).toContain('judge the preparation burden, not the count')
+    expect(brief).not.toContain('At most one')
+  })
+
+  it('keeps the fictional gathering out of the real setting brief', () => {
+    expect(settingQuestions.map(question => question.id)).not.toContain('occasion')
+    expect(createSettingBrief(demoSetting)).not.toHaveProperty('occasion')
+  })
+
+  it('normalizes legacy prop strings into stable structured inventory records', () => {
+    const setting = createSettingBrief({
+      ...demoSetting,
+      availableProps: ['Blue ledger'],
+    })
+    expect(setting.availableProps).toEqual([{
+      id: 'blue-ledger',
+      label: 'Blue ledger',
+      description: '',
+      quantity: 1,
+      safetyNotes: [],
+    }])
   })
 
   it('packages a compiled story with the setting required by the runtime', () => {

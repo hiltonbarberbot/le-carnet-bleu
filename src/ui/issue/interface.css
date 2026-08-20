@@ -1,0 +1,535 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LA COLOMBE — the game's front page and dossier issue
+   Villa Mirabelle, Cap d'Antibes · August 1962
+
+   ONE sheet, TWO states.
+     state-main  the game announces itself: the premise, the synopsis, and a
+                 gate running the seven guests past with no names on them
+     state-file  the same sheet after assignment: your name under the tear
+                 rule, your dossier in the left field
+
+   The film gate never stops and is never rebuilt between the two, which is
+   why the transition reads as one continuous act rather than a page change.
+
+   Paper, ink, ribbon wear, folds and the typed measure are unchanged from the
+   1962 dossier sheets — this is the same document family.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root{
+  /* ── paper ── */
+  --paper:      #dfa79f;
+  --paper-warm: #e9b3a9;
+  --paper-cool: #d0938c;
+
+  /* ── inks ── */
+  --ink-red:    #b32017;
+  --ink-red-2:  #9a2412;
+  --ink-type:   #573a70;
+  --ink-type-2: #6b4b80;
+  --ink-black:  #1b1410;
+  --ink-pencil: #6b5f5a;
+  --ink-hand:   #b0231c;
+  --ink-stamp:  #bf2137;
+  --ink-plate:  #2a2220;
+
+  /* ── ink wear masks ── */
+  --wear-ribbon:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><filter id='w'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.34 0.34 0.34 0 0.24'/></filter><rect width='150' height='150' filter='url(%23w)'/></svg>");
+  --wear-press:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='190' height='190'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.26 0.26 0.26 0 0.52'/></filter><rect width='190' height='190' filter='url(%23p)'/></svg>");
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.55'/></svg>");
+
+  /* ── geometry ── */
+  --sheet-w: 1140px;
+  --pad:     46px;
+  --fs:      12.4px;
+  --lh:      18.4px;
+
+  /* ── the film ── */
+  --dwell:   2900ms;   /* how long a guest is held while the game waits    */
+  --pull:    460ms;    /* the claw catching one frame                      */
+  --swap:    .5s;      /* typed matter settling                            */
+  --gap:     9px;      /* the frame line between two frames               */
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+html{ background:#332f2c; scroll-behavior:smooth; }
+body{
+  background:radial-gradient(120% 60% at 50% 0%, #4a4541 0%, #302c29 68%, #221e1c 100%);
+  font-kerning:none;
+  font-family:"Courier Prime","Courier New",Courier,monospace;
+  padding:44px 20px 56px;
+  display:flex; justify-content:center;
+}
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } }
+
+/* ═════════════════════════════  THE SHEET  ════════════════════════════════ */
+
+.sheet{
+  position:relative; isolation:isolate;
+  width:min(var(--sheet-w), 100%); min-width:0;
+  display:flex; flex-direction:column;
+  padding:34px var(--pad) 34px;
+  background-color:var(--paper);
+  background-image:
+    radial-gradient(44% 30% at 12% 8%,  rgba(255,226,222,.26), transparent 70%),
+    radial-gradient(38% 24% at 88% 16%, rgba(255,214,210,.18), transparent 72%),
+    radial-gradient(54% 32% at 32% 94%, rgba(178,110,108,.30), transparent 74%),
+    linear-gradient(168deg, var(--paper-warm) 0%, var(--paper) 46%, var(--paper-cool) 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.30) inset,
+    0 0 60px rgba(120,60,58,.30) inset,
+    0 30px 56px -22px rgba(0,0,0,.66),
+    0 2px 0 rgba(0,0,0,.26);
+  color:var(--ink-type);
+  transform:rotate(-.1deg);
+  overflow:hidden;
+}
+.sheet::before{
+  content:""; position:absolute; inset:-2%; z-index:6; pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='240' height='240' filter='url(%23g)' opacity='0.55'/></svg>");
+  background-size:240px 240px; mix-blend-mode:multiply; opacity:.26;
+}
+.sheet::after{
+  content:""; position:absolute; inset:0; z-index:6; pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.008 0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='600' height='600' filter='url(%23f)' opacity='0.5'/></svg>");
+  background-size:600px 600px; mix-blend-mode:overlay; opacity:.18;
+}
+.sheet > *{ position:relative; z-index:2; }
+
+.fold{
+  position:absolute; left:0; right:0; height:26px; z-index:5; pointer-events:none;
+  background:linear-gradient(to bottom,
+    rgba(0,0,0,0) 0%, rgba(120,60,58,.075) 46%,
+    rgba(255,255,255,.11) 56%, rgba(0,0,0,0) 100%);
+}
+.fold--a{ top:31%; } .fold--b{ top:68%; }
+
+.punch{
+  position:absolute; top:22px; z-index:5;
+  width:17px; height:17px; border-radius:50%;
+  background:#f5f3ef;
+  box-shadow:0 0 0 1px rgba(140,80,84,.5),
+             2px 3px 3px rgba(90,40,44,.42) inset,
+             -1px -1px 2px rgba(255,255,255,.55) inset;
+}
+.punch--l{ left:33%; } .punch--r{ right:33%; }
+
+/* ── ink soaks in, it does not sit on top ── */
+.ink{ mix-blend-mode:multiply; }
+.ink--ribbon{
+  filter:blur(.26px) saturate(.92);
+  -webkit-mask-image:var(--wear-ribbon); mask-image:var(--wear-ribbon);
+  -webkit-mask-size:150px 150px; mask-size:150px 150px;
+}
+.ink--press{
+  filter:blur(.22px) saturate(.94);
+  -webkit-mask-image:var(--wear-press); mask-image:var(--wear-press);
+  -webkit-mask-size:190px 190px; mask-size:190px 190px;
+}
+.ink--fine{
+  filter:blur(.16px) saturate(.95);
+  -webkit-mask-image:var(--wear-press); mask-image:var(--wear-press);
+  -webkit-mask-size:190px 190px; mask-size:190px 190px;
+  -webkit-mask-position:37px 61px; mask-position:37px 61px;
+}
+.cap{ letter-spacing:.05em; color:#3d1f55; text-shadow:.4px 0 0 currentColor,-.15px 0 0 currentColor; }
+
+/* ═════════════════════════════  MASTHEAD  ═════════════════════════════════ */
+
+.masthead{
+  display:grid; grid-template-columns:1fr auto 1fr;
+  align-items:start; column-gap:16px; flex:0 0 auto;
+}
+.reg{ font-size:11px; line-height:1.45; letter-spacing:.03em; color:var(--ink-type-2); padding-top:4px; }
+.reg--r{ text-align:right; }
+
+.plate{ text-align:center; }
+.plate .classline{
+  font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:700;
+  font-size:19px; letter-spacing:.05em; color:var(--ink-red);
+  text-shadow:.35px .35px 0 rgba(140,26,11,.42);
+}
+.plate .dept{
+  font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:700;
+  font-size:11px; letter-spacing:.085em; line-height:1.5;
+  color:var(--ink-red-2); margin-top:7px;
+}
+.plate .kind{
+  font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:700;
+  font-size:44px; letter-spacing:.03em; word-spacing:.2em;
+  color:var(--ink-red); margin-top:11px; line-height:1;
+  text-shadow:.4px .4px 0 rgba(140,26,11,.38);
+}
+body.state-file .plate .kind{ font-size:27px; }
+
+.dek{
+  margin:calc(var(--lh) * .85) 0 0;
+  font-size:14px; line-height:21px; font-weight:700; letter-spacing:.004em;
+  max-width:54ch; color:#3d1f55;
+}
+.meta{
+  margin-top:6px; font-size:10.5px; letter-spacing:.12em; color:var(--ink-type-2);
+}
+body.state-file .dek,
+body.state-file .meta{ display:none; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE FIELD — two dotted rules, the gate on the right, the text at the left
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.field{
+  position:relative; flex:1 1 auto; min-height:0;
+  margin-top:calc(var(--lh) * .9);
+  display:grid; grid-template-columns:58fr 30fr 12fr;
+}
+.rule{
+  position:absolute; top:-14px; bottom:-10px; width:1px;
+  background-image:radial-gradient(circle, rgba(74,40,52,.68) 45%, transparent 46%);
+  background-size:1px 6px; background-repeat:repeat-y;
+}
+.rule--a{ left:58%; } .rule--b{ left:88%; }
+
+.slot{ grid-column:2; grid-row:1; padding:2% 0 0 14%; }
+
+.window{
+  position:relative; width:80%; aspect-ratio:1.06;
+  padding:5px 5px 9px; background:#efe6da;
+  box-shadow:0 1px 2px rgba(80,36,40,.45), 0 0 0 .5px rgba(80,36,40,.35);
+  transform:rotate(.4deg);
+  transition:box-shadow .3s ease;
+}
+.plate-in{ position:relative; width:100%; height:100%; overflow:hidden; background:#0d0b0b; }
+.strip{
+  position:absolute; left:0; right:0; top:0;
+  will-change:transform;
+  transition:transform var(--pull) cubic-bezier(.26,.86,.28,1.03);
+}
+.frame{ width:100%; height:var(--frameH,100%); margin-bottom:var(--gap); overflow:hidden; }
+.frame img{
+  display:block; width:100%; height:100%;
+  object-fit:cover; object-position:center 26%;
+  filter:grayscale(1) contrast(1.06) brightness(.99);
+}
+/* while the film is moving it smears vertically and the lamp reads brighter */
+.plate-in.is-pulling .strip{ filter:url(#pullBlur) brightness(1.09); }
+/* on the reel it never stops long enough to settle, so the smear is heavier */
+.plate-in.is-spinning .strip{ filter:url(#spinBlur) brightness(1.14); }
+/* the gate itself does the printing, so any picture in it matches everything */
+.plate-in::after{
+  content:""; position:absolute; inset:0; z-index:3; pointer-events:none;
+  background-image:var(--grain);
+  background-size:160px 160px; mix-blend-mode:overlay; opacity:.34;
+  box-shadow:0 0 26px 6px rgba(0,0,0,.42) inset;
+}
+
+.tear{
+  height:1px; margin:22px 0 0 -20%;
+  background-image:radial-gradient(circle, rgba(74,40,52,.62) 45%, transparent 46%);
+  background-size:6px 1px; background-repeat:repeat-x;
+}
+
+/* under the tear rule: on the front page a withheld slug, then your name */
+.plateline{ position:relative; margin-top:19px; min-height:74px; }
+.plateline .withheld{
+  font-size:10.5px; line-height:16px; letter-spacing:.11em; color:var(--ink-type-2);
+  transition:opacity var(--swap) ease;
+}
+.plateline .nm{
+  position:absolute; inset:0; opacity:0; transition:opacity var(--swap) ease;
+}
+body.state-file .plateline .withheld{ opacity:0; }
+body.state-file .plateline .nm{ opacity:1; }
+.plateline .name{
+  font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:600;
+  font-size:18px; letter-spacing:.09em; line-height:1.3; color:var(--ink-plate);
+}
+.plateline .role{
+  margin-top:7px; font-size:11px; letter-spacing:.05em;
+  font-style:italic; color:var(--ink-type-2);
+}
+
+/* ── the left field: synopsis, then the dossier ── */
+.left{ grid-column:1; grid-row:1; position:relative; padding:0 8% 0 2%; }
+
+/* ── the story, folded away once a file has been issued ──
+   On the front page it is the main event and always open. On a character page
+   it becomes a filed appendix: a tab, a dotted rule, and the whole thing
+   folded flat underneath. Nothing here is secret — every guest at the table
+   knows this much — it is simply not what you came to this page to read. */
+.storytab{
+  position:relative; display:none; width:100%;
+  align-items:baseline; justify-content:space-between; gap:18px;
+  padding:0 0 9px; margin-bottom:calc(var(--lh) * .75);
+  background:none; border:0; cursor:pointer; text-align:left; color:inherit;
+}
+.storytab::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:1px;
+  background-image:radial-gradient(circle, rgba(74,40,52,.6) 45%, transparent 46%);
+  background-size:6px 1px; background-repeat:repeat-x;
+}
+body.state-file .storytab{ display:flex; }
+.storytab .lab{
+  font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:600;
+  font-size:10px; letter-spacing:.19em; color:var(--ink-red-2);
+}
+.storytab .op{
+  font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:600;
+  font-size:9.5px; letter-spacing:.15em; color:var(--ink-type-2); white-space:nowrap;
+}
+.storytab:hover .op{ color:var(--ink-red-2); }
+.storytab:focus-visible{ outline:1px dashed var(--ink-red-2); outline-offset:5px; }
+
+/* 0fr → 1fr folds the sheet flat and back without measuring anything */
+.storyfold{ display:grid; grid-template-rows:1fr; }
+.storyfold > .inner{ overflow:hidden; min-height:0; }
+body.state-file .storyfold{
+  grid-template-rows:0fr;
+  transition:grid-template-rows .45s cubic-bezier(.4,0,.2,1);
+}
+body.state-file.story-open .storyfold{ grid-template-rows:1fr; }
+body.state-file .synopsis{ padding-bottom:var(--lh); }
+body.state-file .synopsis h2{ display:none; }   /* the tab already says it */
+
+.synopsis{ transition:opacity var(--swap) ease; }
+.synopsis h2,
+.dossier h2{
+  font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:600;
+  font-size:10.5px; letter-spacing:.19em; color:var(--ink-red-2);
+  margin:0 0 calc(var(--lh) * .6);
+}
+.synopsis p{
+  font-size:var(--fs); line-height:var(--lh); font-weight:700; letter-spacing:.003em;
+  margin-bottom:calc(var(--lh) * .8);
+}
+.synopsis p:last-child{ margin-bottom:0; }
+.synopsis .clue-emphasis{ color:#3d1f55; text-shadow:.4px 0 0 currentColor,-.15px 0 0 currentColor; }
+
+
+.dossier{
+  opacity:0; pointer-events:none; position:absolute; inset:0;
+  transition:opacity var(--swap) ease .1s;
+}
+body.state-file .dossier{ opacity:1; pointer-events:auto; position:static; }
+
+.dossier .desc{
+  font-size:11.9px; line-height:17px; font-weight:700; letter-spacing:.004em;
+  margin-bottom:var(--lh);
+}
+.dossier section{ margin-bottom:var(--lh); }
+.dossier h3{
+  font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:600;
+  font-size:10px; letter-spacing:.19em; color:var(--ink-red-2);
+  margin-bottom:calc(var(--lh) * .45);
+}
+.dossier ul,.dossier ol{ list-style:none; }
+.dossier li{
+  position:relative; padding-left:3.4ch; margin-bottom:calc(var(--lh) * .42);
+  font-size:11.7px; line-height:16.6px; font-weight:700; letter-spacing:.004em;
+}
+.dossier li .n{ position:absolute; left:0; top:0; color:var(--ink-type-2); letter-spacing:.04em; }
+.dossier .rel li{ padding-left:0; display:grid; grid-template-columns:11ch 1fr; gap:1ch; }
+.dossier .rel .who{
+  letter-spacing:.05em; color:#3d1f55; text-shadow:.4px 0 0 currentColor;
+}
+.dossier .rel .what{ font-style:italic; color:var(--ink-type-2); font-weight:400; }
+.dossier .tagi{
+  font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:600;
+  font-size:8.5px; letter-spacing:.13em; color:var(--ink-red-2);
+  border:1px solid var(--ink-red-2); padding:1px 4px; margin-right:6px;
+  position:relative; top:-1px; white-space:nowrap;
+}
+.dossier .line{
+  margin-top:var(--lh); padding-top:calc(var(--lh) * .6);
+  border-top:1px solid rgba(74,40,52,.32);
+  font-size:12.6px; line-height:18px; font-weight:700; font-style:italic; color:#3d1f55;
+}
+.dossier .line .lab{
+  display:block; font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:600;
+  font-size:9.5px; letter-spacing:.16em; font-style:normal;
+  color:var(--ink-red-2); margin-bottom:5px;
+}
+
+/* ═════════════════════════  THE ISSUE BUTTON  ═════════════════════════════ */
+
+.issue{
+  margin-top:calc(var(--lh) * 1.3); display:flex; align-items:center; gap:22px;
+  flex-wrap:wrap;
+  transition:opacity .4s ease;
+}
+.issue-field{display:flex;flex-direction:column;gap:5px;min-width:210px;font-size:9px;letter-spacing:.1em;color:var(--ink-type-2)}
+.issue-field input{width:100%;padding:9px 10px;border:1px solid rgba(87,58,112,.55);border-bottom:2px solid var(--ink-type);background:rgba(255,235,230,.18);color:#2b1c22;font:700 12px "Courier Prime","Courier New",monospace;outline:none}
+.issue-field input:focus{border-color:var(--ink-red-2);box-shadow:0 0 0 1px var(--ink-red-2)}
+.issue-field[hidden]{display:none}
+.issue-error{flex-basis:100%;min-height:15px;color:var(--ink-red-2);font-size:11px;font-weight:700}
+body.state-file .issue,
+body.state-spin .issue{ opacity:0; pointer-events:none; }
+
+.issue button{
+  font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:700;
+  font-size:15px; letter-spacing:.1em; color:var(--ink-stamp);
+  background:none; border:2.5px solid var(--ink-stamp);
+  padding:10px 20px; cursor:pointer;
+  transform:rotate(-1.1deg) skewX(-3deg);
+  mix-blend-mode:multiply;
+  transition:transform .16s ease, color .16s ease, border-color .16s ease;
+}
+.issue button:hover{ transform:rotate(-1.1deg) skewX(-3deg) scale(1.03); color:#a51b2c; border-color:#a51b2c; }
+.issue button:active{ transform:rotate(-1.1deg) skewX(-3deg) scale(.98); }
+.issue button:focus-visible{ outline:2px dashed var(--ink-red-2); outline-offset:5px; }
+.issue button:disabled{opacity:.45;cursor:wait}
+.issue .note{
+  font-size:10.5px; line-height:15px; letter-spacing:.06em; color:var(--ink-type-2);
+  max-width:36ch;
+}
+
+/* the stamp that lands once the reel has stopped */
+.myline{
+  margin-top:26px; opacity:0; transition:opacity var(--swap) ease .1s;
+}
+body.state-file .myline{ opacity:1; }
+.myline .lab{
+  display:block; font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:600;
+  font-size:9.5px; letter-spacing:.15em; color:var(--ink-red-2); margin-bottom:7px;
+}
+.myline .say{
+  font-size:12.6px; line-height:18.4px; font-weight:700; font-style:italic;
+  color:#3d1f55;
+}
+
+.issued{
+  position:relative; display:inline-block; margin:30px 0 0 4%; z-index:7;
+  font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:700;
+  font-size:19px; letter-spacing:.08em; color:var(--ink-stamp);
+  padding:7px 12px; border:2.5px solid var(--ink-stamp);
+  transform:rotate(-7.5deg) skewX(-5deg) scale(.86);
+  opacity:0; mix-blend-mode:multiply; pointer-events:none;
+  transition:opacity .18s ease .62s, transform .18s cubic-bezier(.2,1.5,.4,1) .62s;
+}
+body.state-file .issued{ opacity:.9; transform:rotate(-7.5deg) skewX(-5deg) scale(1); }
+body.state-file .window{ box-shadow:0 1px 2px rgba(80,36,40,.45), 0 0 0 2px var(--ink-stamp); }
+
+/* ═════════════════════════════  FOOTER  ═══════════════════════════════════ */
+
+.foot{
+  flex:0 0 auto; display:flex; align-items:flex-end; justify-content:space-between;
+  gap:24px; margin-top:calc(var(--lh) * 1.2);
+  padding-top:14px; border-top:1px solid rgba(74,40,52,.3);
+}
+.foot .l,.foot .r{ font-size:10.5px; line-height:16px; letter-spacing:.05em; color:var(--ink-type-2); }
+.foot .r{ text-align:right; }
+.foot .strong{ color:#2b1c22; letter-spacing:.09em; text-shadow:.4px 0 0 currentColor; }
+.foot .main-only{ display:block; }
+.foot .file-only{ display:none; }
+body.state-file .foot .main-only{ display:none; }
+body.state-file .foot .file-only{ display:block; }
+
+.foot-secret{
+  position:relative; display:inline-block;
+  font-family:"Archivo",Helvetica,Arial,sans-serif;
+  font-size:17px; letter-spacing:.06em; color:var(--ink-red);
+}
+.foot-secret::after{
+  content:""; position:absolute; left:-9%; right:-9%; top:52%;
+  height:6px; border-radius:4px; background:var(--ink-black); opacity:.92;
+  transform:translateY(-50%) rotate(-2.4deg);
+}
+.hand{
+  position:absolute; right:var(--pad); top:150px; z-index:3;
+  font-family:"Caveat","Bradley Hand",cursive; color:var(--ink-hand);
+  font-size:28px; transform:rotate(-6deg); mix-blend-mode:multiply; text-align:right;
+}
+.hand small{
+  display:block; font-family:"Archivo",Helvetica,Arial,sans-serif;
+  font-size:8px; letter-spacing:.06em; color:#8f1a14;
+  transform:rotate(2deg); margin-bottom:-5px;
+}
+/* ── host controls ──
+   Off unless the URL asks for them. A player who can press START OVER can
+   re-roll until they get the character they fancy, which is the one thing
+   this whole flow exists to prevent — so it stays behind ?host. */
+.hostbar{ display:none; }
+/* Pinned to the window, not to the sheet. These are not part of the document
+   and they must be reachable whatever the page is doing — scrolled to the
+   bottom of a long dossier, or squeezed into a preview pane a couple of
+   hundred pixels tall. Dark on purpose: nothing here belongs to the fiction. */
+body.host .hostbar{
+  display:block; position:fixed; z-index:99; top:10px; right:10px;
+  max-width:min(320px, calc(100vw - 20px));
+  padding:8px 11px 9px;
+  background:rgba(28,24,22,.93); border:1px solid rgba(214,200,186,.28);
+  border-radius:3px; box-shadow:0 6px 18px -6px rgba(0,0,0,.7);
+  mix-blend-mode:normal;
+}
+.hostbar .lab{
+  display:block; font-family:"Archivo",Helvetica,Arial,sans-serif; font-weight:600;
+  font-size:8px; letter-spacing:.15em; color:#a99e93; margin-bottom:5px;
+}
+.hostbtn{
+  padding:0; background:none; border:0; cursor:pointer;
+  font:700 10px/1.4 "Courier Prime",monospace; letter-spacing:.09em;
+  color:#e6dbcd; text-decoration:underline; text-underline-offset:3px;
+  text-align:left;
+}
+.hostbtn:hover{ color:#f0a08f; }
+.hostbtn:focus-visible{ outline:1px dashed #f0a08f; outline-offset:3px; }
+
+.rerun{
+  padding:0; background:none; border:0; cursor:pointer;
+  font:700 10px/1.5 "Courier Prime",monospace; letter-spacing:.11em;
+  color:var(--ink-type-2); text-decoration:underline; text-underline-offset:3px;
+}
+.rerun:hover{ color:var(--ink-red-2); }
+
+.w,.g{ display:inline-block; text-indent:0; }
+
+@media (prefers-reduced-motion:reduce){
+  .strip{ transition:none; }
+  .plate-in.is-pulling .strip,.plate-in.is-spinning .strip{ filter:none; }
+  .issued{ transition:none; }
+}
+
+/* ═════════════════════════════  NARROW  ═══════════════════════════════════ */
+@media (max-width:900px){
+  :root{ --pad:24px; }
+  body{ padding:26px 12px 40px; }
+  .sheet{ padding:22px var(--pad) 26px; }
+  .punch,.hand{ display:none; }
+  .plate .classline{ font-size:15px; }
+  .plate .dept{ font-size:9.5px; margin-top:5px; }
+  .plate .kind{ font-size:30px; margin-top:8px; }
+  body.state-file .plate .kind{ font-size:20px; }
+  .reg{ font-size:9.5px; }
+  .dek{ font-size:12.6px; line-height:19px; }
+
+  .field{ grid-template-columns:1fr; grid-template-rows:auto auto; margin-top:16px; }
+  .rule--a{ left:6px; } .rule--b{ display:none; }
+  .slot{ grid-column:1; grid-row:1; padding:8px 0 0 32px; }
+  .window{ width:160px; }
+  .tear{ margin:16px 0 0 -32px; }
+  .plateline{ margin-top:14px; min-height:60px; }
+  .plateline .name{ font-size:16px; }
+  .left{ grid-column:1; grid-row:2; padding:20px 0 0 32px; }
+  .issued{ margin-left:0; font-size:15px; }
+  .foot{ flex-direction:column; align-items:flex-start; gap:10px; }
+  .foot .r{ text-align:left; }
+}
+@media (max-width:560px){
+  .masthead{ grid-template-columns:1fr; }
+  .reg{ display:none; }
+  .window{ width:140px; }
+  .foot-secret{ display:none; }
+}
+
+@media print{
+  html,body{ background:#fff; padding:0; }
+  .issue,.rerun,.hostbar{ display:none !important; }
+  .sheet{ transform:none; box-shadow:0 0 34px rgba(120,60,58,.28) inset;
+          -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+}
+
+
+/* The React mount is transparent so the delivered sheet keeps the designer's body-child geometry. */
+body.la-colombe-interface::before,
+body.la-colombe-interface::after{ content:none; }
+body.la-colombe-interface #root{ width:100%; display:flex; justify-content:center; }
+.la-colombe-mount{ display:contents; }

@@ -1,0 +1,117 @@
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <filter id="pullBlur" x="-6%" y="-14%" width="112%" height="128%">
+    <feGaussianBlur stdDeviation="0 2.6"/>
+  </filter>
+  <filter id="spinBlur" x="-8%" y="-20%" width="116%" height="140%">
+    <feGaussianBlur stdDeviation="0 3"/>
+  </filter>
+</svg>
+
+<main class="sheet" id="sheet">
+  <span class="punch punch--l"></span><span class="punch punch--r"></span>
+  <span class="fold fold--a"></span><span class="fold fold--b"></span>
+
+  <header class="masthead">
+    <div class="reg tw ink ink--ribbon">PJ-06<br>Filed 2340/15<br>ANT</div>
+    <div class="plate ink ink--press">
+      <div class="classline">CONFIDENTIEL</div>
+      <div class="dept">POLICE JUDICIAIRE · NICE<br>DOSSIER D'ENQUÊTE</div>
+      <div class="kind" id="kind">LA COLOMBE</div>
+    </div>
+    <div class="reg reg--r tw ink ink--ribbon">VILLA MIRABELLE<br>Aug 15<br>11:58 P</div>
+  </header>
+
+  <p class="dek tw ink ink--ribbon">Seven guests sit down to a very good dinner in a
+    very good house, and every one of them is respectable. Something in this
+    house is badly wrong. What exactly, is for you to find out.</p>
+  <p class="meta tw ink ink--ribbon">7 PLAYERS &nbsp;·&nbsp; 2 H 30 &nbsp;·&nbsp;
+    VILLA MIRABELLE, CAP D'ANTIBES &nbsp;·&nbsp; AUGUST 1962</p>
+
+  <div class="field">
+    <span class="rule rule--a"></span><span class="rule rule--b"></span>
+
+    <div class="slot">
+      <div class="window">
+        <div class="plate-in" id="plate" role="img"
+             aria-label="The seven guests, identities withheld"></div>
+      </div>
+      <div class="tear"></div>
+      <div class="plateline ink ink--press" id="plateline">
+        <div class="withheld tw">SEVEN PARTIES PRESENT<br>NAMES AND PARTICULARS WITHHELD<br>UNTIL A FILE IS ISSUED</div>
+        <div class="nm">
+          <div class="name" id="myName"></div>
+          <div class="role tw" id="myRole"></div>
+        </div>
+      </div>
+      <div class="myline ink ink--fine" id="myline"></div>
+      <div class="issued">DOSSIER ISSUED</div>
+    </div>
+
+    <div class="left">
+      <button class="storytab" type="button" id="storyTab"
+              aria-expanded="false" aria-controls="storyfold">
+        <span class="lab">THE CASE — WHAT EVERY GUEST AT THIS TABLE KNOWS</span>
+        <span class="op" id="storyOp">+ &nbsp;UNFOLD</span>
+      </button>
+
+      <div class="storyfold" id="storyfold"><div class="inner">
+      <div class="synopsis ink ink--ribbon" id="synopsis">
+        <h2>THE STORY — EVERYONE AT THE TABLE KNOWS THIS MUCH</h2>
+        <p class="tw">There is a blue diamond called <span class="clue-emphasis">La Colombe</span>
+          — the Dove. It is the size of a thumbnail and it has been in the Vernay
+          family for a hundred and forty years. Every August it comes out of the
+          bank in Nice and sits on the dinner table under a little glass dome,
+          because Sacha de Vernay likes his guests to see what money looks like.</p>
+        <p class="tw">Sacha is sixty-two, immensely rich, and famous for the people
+          he collects. This summer he invited seven of them to the villa. He wrote
+          to each of you privately, and each letter said the same strange thing:
+          <em>come on the fifteenth, I have something to announce that concerns
+          you.</em></p>
+        <p class="tw">You arrived this afternoon. It has rained since five. The
+          coast road is under water and the telephone is dead.</p>
+        <p class="tw">At half past seven the housekeeper went to call Sacha down to
+          dinner and found him on the floor of the study.</p>
+        <p class="tw">The glass dome on the dinner table is empty.</p>
+        <p class="tw">Nobody can leave until the road clears in the morning. So you
+          will have dinner, all seven of you, and by the end of it you will know
+          two things: <span class="clue-emphasis">who killed him, and who took the Dove.</span>
+          They are not the same person.</p>
+      </div>
+      </div></div>
+
+      <div class="dossier ink ink--fine" id="dossier"></div>
+    </div>
+  </div>
+
+  <div class="issue" id="issue">
+    <button type="button" id="issueBtn">ISSUE MY DOSSIER</button>
+    <span class="note tw">One named player ID per centrally issued file. Roles are
+      claimed once in order, never drawn independently in this browser.</span>
+  </div>
+
+  <footer class="foot">
+    <div class="l ink ink--ribbon">
+      <span class="main-only tw">NINE WERE INVITED. SEVEN SAT DOWN.<br>ONE IS DEAD AND ONE IS A THIEF.</span>
+      <span class="file-only">
+        <span class="tw">ISSUED TO <span class="strong" id="issuedTo">--</span> &nbsp;--&nbsp; ONE COPY</span><br>
+        <button class="rerun tw" type="button" id="rerun">RUN THE REEL AGAIN</button>
+      </span>
+    </div>
+    <div class="r ink ink--ribbon">
+      <span class="main-only tw">THE ROAD CLEARS AT DAWN</span>
+      <span class="file-only tw">THIS SHEET NAMES ONE PARTY ONLY<br>DO NOT SHOW IT AT THE TABLE</span>
+    </div>
+    <div class="ink ink--press"><span class="foot-secret">SECRET</span></div>
+  </footer>
+
+  <div class="hand ink ink--press"><small>P.J. DOSSIER NO</small>62/1147</div>
+</main>
+
+<!-- Host controls live OUTSIDE the sheet on purpose. `.ink--*` applies a CSS
+     filter, and a filtered ancestor becomes the containing block for
+     position:fixed — so anything pinned from inside the sheet would be pinned
+     to the sheet, not to the window. -->
+<div class="hostbar" id="hostbar">
+  <span class="lab" id="hostLab">HOST CONTROLS — NOT FOR PLAYERS</span>
+  <button class="hostbtn" type="button" id="startOver">START OVER — CLEAR THIS BROWSER'S PART</button>
+</div>

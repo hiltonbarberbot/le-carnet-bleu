@@ -1,15 +1,6 @@
-import type { StorylineDefinition } from '../definition/contract'
-
 export type AiGatewayStatus = {
   available: boolean
   model?: string
-}
-
-export type AiPerformanceRequest = {
-  definition: StorylineDefinition
-  sessionId: string
-  roleId: string
-  actionId: string
 }
 
 function apiError(status: number, payload: unknown) {
@@ -27,18 +18,4 @@ export async function readAiGatewayStatus(signal?: AbortSignal): Promise<AiGatew
     throw new Error('AI Gateway returned an invalid status response.')
   }
   return payload as AiGatewayStatus
-}
-
-export async function generateAiPerformance(input: AiPerformanceRequest): Promise<string> {
-  const response = await fetch('/api/ai/perform', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(input),
-  })
-  const payload: unknown = await response.json()
-  if (!response.ok) throw new Error(apiError(response.status, payload))
-  if (!payload || typeof payload !== 'object' || !('text' in payload) || typeof payload.text !== 'string') {
-    throw new Error('AI Gateway returned an invalid performance response.')
-  }
-  return payload.text
 }
