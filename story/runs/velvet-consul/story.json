@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "id": "velvet-consul",
   "title": "The Velvet Consul",
   "setting": {
@@ -547,55 +547,90 @@
         "title": "Receive Sylvie Caron",
         "trigger": "When every player is seated",
         "propIds": [],
-        "instruction": "Invite Sylvie Caron to deliver only the prepared opening fact. Sylvie Caron: Inspect Alain’s public seal and declare that someone has recently copied it badly.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Sylvie Caron to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "velvet-consul-guest-1",
+            "text": "Inspect Alain’s public seal and declare that someone has recently copied it badly."
+          }
+        ]
       },
       {
         "id": "velvet-consul-opening-2",
         "title": "Receive Jonas Fèvre",
         "trigger": "After Sylvie Caron completes their cue",
         "propIds": [],
-        "instruction": "Invite Jonas Fèvre to deliver only the prepared opening fact. Jonas Fèvre: Announce that the sitting requires each guest to say how they first met the consul.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Jonas Fèvre to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "velvet-consul-guest-2",
+            "text": "Announce that the sitting requires each guest to say how they first met the consul."
+          }
+        ]
       },
       {
         "id": "velvet-consul-opening-3",
         "title": "Receive Leila Haddad",
         "trigger": "After Jonas Fèvre completes their cue",
         "propIds": [],
-        "instruction": "Invite Leila Haddad to deliver only the prepared opening fact. Leila Haddad: Challenge Alain’s retirement story and say that someone here is still waiting for a passport.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Leila Haddad to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "velvet-consul-guest-3",
+            "text": "Challenge Alain’s retirement story and say that someone here is still waiting for a passport."
+          }
+        ]
       },
       {
         "id": "velvet-consul-opening-4",
         "title": "Receive Colonel Arthur Ward",
         "trigger": "After Leila Haddad completes their cue",
         "propIds": [],
-        "instruction": "Invite Colonel Arthur Ward to deliver only the prepared opening fact. Colonel Arthur Ward: State that the farewell is not ceremonial: Alain’s credentials are under review tonight.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Colonel Arthur Ward to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "velvet-consul-guest-4",
+            "text": "State that the farewell is not ceremonial: Alain’s credentials are under review tonight."
+          }
+        ]
       },
       {
         "id": "velvet-consul-opening-5",
         "title": "Discover the host",
         "trigger": "After Colonel Arthur Ward completes their cue",
         "propIds": [],
-        "instruction": "Cue Béatrice Lenoir, stage Alain Rochefort's off-page collapse without contact, announce the discovery, and become Game Master. Béatrice Lenoir: Unveil your sketch: Alain’s face layered over another man’s, and ask which identity is retiring.",
         "execution": {
           "kind": "physical",
           "contact": "none",
@@ -610,6 +645,16 @@
           {
             "kind": "safetyConstraints",
             "id": "no-physical-contact"
+          }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Cue Béatrice Lenoir, stage Alain Rochefort's off-page collapse without contact, announce the discovery, and become Game Master."
+          },
+          {
+            "recipientRoleId": "velvet-consul-guest-5",
+            "text": "Unveil your sketch: Alain’s face layered over another man’s, and ask which identity is retiring."
           }
         ]
       }

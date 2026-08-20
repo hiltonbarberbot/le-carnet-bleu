@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "id": "blue-cicada",
   "title": "Operation Blue Cicada",
   "setting": {
@@ -547,55 +547,90 @@
         "title": "Receive Mireille Sanz",
         "trigger": "When every player is seated",
         "propIds": [],
-        "instruction": "Invite Mireille Sanz to deliver only the prepared opening fact. Mireille Sanz: Perform the harmless opening sentence of the serial and ask who remembers hearing it before.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Mireille Sanz to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "blue-cicada-guest-1",
+            "text": "Perform the harmless opening sentence of the serial and ask who remembers hearing it before."
+          }
+        ]
       },
       {
         "id": "blue-cicada-opening-2",
         "title": "Receive Paul Veyrier",
         "trigger": "After Mireille Sanz completes their cue",
         "propIds": [],
-        "instruction": "Invite Paul Veyrier to deliver only the prepared opening fact. Paul Veyrier: State that the recording has been altered since rehearsal and that the final minute is new.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Paul Veyrier to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "blue-cicada-guest-2",
+            "text": "State that the recording has been altered since rehearsal and that the final minute is new."
+          }
+        ]
       },
       {
         "id": "blue-cicada-opening-3",
         "title": "Receive Delphine Kassar",
         "trigger": "After Paul Veyrier completes their cue",
         "propIds": [],
-        "instruction": "Invite Delphine Kassar to deliver only the prepared opening fact. Delphine Kassar: Announce that the episode’s scene numbers are not dramatic notation but a frequency.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Delphine Kassar to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "blue-cicada-guest-3",
+            "text": "Announce that the episode’s scene numbers are not dramatic notation but a frequency."
+          }
+        ]
       },
       {
         "id": "blue-cicada-opening-4",
         "title": "Receive Hugo Bellac",
         "trigger": "After Delphine Kassar completes their cue",
         "propIds": [],
-        "instruction": "Invite Hugo Bellac to deliver only the prepared opening fact. Hugo Bellac: Laugh off the cipher and repeat a line that appears only in the missing final minute.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Hugo Bellac to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "blue-cicada-guest-4",
+            "text": "Laugh off the cipher and repeat a line that appears only in the missing final minute."
+          }
+        ]
       },
       {
         "id": "blue-cicada-opening-5",
         "title": "Discover the host",
         "trigger": "After Hugo Bellac completes their cue",
         "propIds": [],
-        "instruction": "Cue Odette Blanc, stage Armand Célier's off-page collapse without contact, announce the discovery, and become Game Master. Odette Blanc: Reveal that your late husband financed more than entertainment and demand the final episode be played.",
         "execution": {
           "kind": "physical",
           "contact": "none",
@@ -610,6 +645,16 @@
           {
             "kind": "safetyConstraints",
             "id": "no-physical-contact"
+          }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Cue Odette Blanc, stage Armand Célier's off-page collapse without contact, announce the discovery, and become Game Master."
+          },
+          {
+            "recipientRoleId": "blue-cicada-guest-5",
+            "text": "Reveal that your late husband financed more than entertainment and demand the final episode be played."
           }
         ]
       }

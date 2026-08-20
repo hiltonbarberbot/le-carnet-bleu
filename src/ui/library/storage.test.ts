@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createDemoGame } from '../../game/demo'
 import { createGame } from '../../game/session/lifecycle'
+import { createGramboisCatalog } from '../../game/story/grambois/catalog'
 import { serializeGameState } from '../../game/session/storage'
 import { bindGameToStoryline, GAMES_KEY, LEGACY_GAME_KEY, readGameLibrary, STORYLINES_KEY, writeGameLibrary } from './storage'
 
@@ -72,5 +73,31 @@ describe('storyline and game library storage', () => {
     expect(restored.warning).toContain('left untouched')
     expect(restored.storylines).toHaveLength(1)
     expect(storage.getItem(LEGACY_GAME_KEY)).toBe('{"obsolete":true}')
+  })
+
+  it('upgrades a v5 game only when its combined opening prose has separable recipients', () => {
+    const storyline = createGramboisCatalog()[0]
+    const state = createGame(storyline, new Date('2026-08-18T18:00:00Z'), 'v5-addressed-upgrade')
+    const legacyDefinition = structuredClone(storyline) as any
+    legacyDefinition.schemaVersion = 5
+    for (const step of legacyDefinition.story.openingSteps) {
+      step.instruction = step.instructions.map((instruction: { recipientRoleId: string; text: string }) => {
+        if (instruction.recipientRoleId === legacyDefinition.story.host.id) return instruction.text
+        const character = legacyDefinition.story.characters.find((item: { id: string }) => item.id === instruction.recipientRoleId)
+        return `${character.name}: ${instruction.text}`
+      }).join(' ')
+      delete step.instructions
+    }
+    state.definitionFingerprint = 'legacy-v5-fingerprint'
+    const storage = memoryStorage({
+      [GAMES_KEY]: JSON.stringify([JSON.stringify({ formatVersion: 3, definition: legacyDefinition, state })]),
+    })
+
+    const restored = readGameLibrary(storage, [storyline])
+
+    expect(restored.error).toBe('')
+    expect(restored.games[0].state.id).toBe('v5-addressed-upgrade')
+    expect(restored.games[0].state.definitionFingerprint).toBe(restored.games[0].storyline.fingerprint)
+    expect(restored.games[0].storyline.schemaVersion).toBe(6)
   })
 })

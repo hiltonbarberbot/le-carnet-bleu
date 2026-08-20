@@ -2,6 +2,7 @@ export { generateGame } from './generate'
 export { createDemoGame, createDemoStoryline, demoSetting } from './demo'
 export { createSettingBrief, getSettingBriefBlockers, settingQuestions } from './setting/brief'
 export { createAuthoredGame, createAuthoredStoryline, createStoryAuthoringBrief } from './story/authoring'
+export { authoredStorySchemas, eveningStageSchema, evidenceSchema, objectiveSchema, openingExecutionSchema, openingStepSchema, provenanceSchema, relationshipSchema, solutionStepSchema } from './story/schema/authored'
 export { createGramboisCatalog } from './story/grambois/catalog'
 export { createLaColombeStoryline } from './story/grambois/dove'
 export { gramboisSetting } from './story/grambois/setting'
@@ -22,7 +23,8 @@ export type {
   RuntimeEvent,
   RuntimeResult,
 } from './runtime/contract'
-export type { ActiveGameState, GameState, ScoreCard, Story } from './types'
+export type { ActiveGameState, GameState, OpeningInstruction, ScoreCard, Story } from './types'
+export type { DataSchema } from './story/schema/validator'
 export type { SettingBrief, SettingBriefInput, SettingProp, SettingPropInput, SettingQuestion } from './setting/contract'
 export type { AuthoredGame, AuthoredStoryline } from './story/authoring'
 export type { ActDefinition, ClueCard, ClueDeck, GameDefinition, GameDefinitionInput, SettingReference, SetupRequirement, StorylineDefinition, StorylineDefinitionInput } from './definition/contract'

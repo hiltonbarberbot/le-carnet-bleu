@@ -64,11 +64,16 @@ export type SolutionStep = {
   evidence: string[]
 }
 
+export type OpeningInstruction = {
+  recipientRoleId: string
+  text: string
+}
+
 export type OpeningStep = {
   id: string
   title: string
   trigger: string
-  instruction: string
+  instructions: OpeningInstruction[]
   execution: OpeningExecution
   setupRequirementIds: string[]
   settingRefs: SettingReference[]

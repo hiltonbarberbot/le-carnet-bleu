@@ -12,6 +12,7 @@ import {
   updateEnrolment,
 } from '../game/session/lifecycle'
 import type { ExistingGameState, GameState } from '../game/types'
+import { openingInstructionsForRole } from '../game/story/instructions'
 import { bindGameToStoryline } from './library/storage'
 import { ActiveGameBar, getHostScreen, HostWorkspace, PlayerProfile, StartScreen } from './App'
 import { GodView } from './story/reader'
@@ -80,8 +81,10 @@ describe('host lifecycle projection', () => {
       expect(html).toContain(`${character.name} (Player ${index})`)
     }
     const currentCard = html.slice(html.indexOf('aria-current="step"'), html.indexOf('</article>'))
-    expect(currentCard).toContain(`${story.host.name} (Host)`)
-    expect(currentCard).not.toContain(story.openingSteps[0].instruction)
+    const hostInstruction = story.openingSteps[0].instructions.find(instruction => instruction.recipientRoleId === story.host.id)!
+    const playerInstruction = story.openingSteps[0].instructions.find(instruction => instruction.recipientRoleId !== story.host.id)!
+    expect(currentCard).toContain(hostInstruction.text.split('.')[0])
+    expect(currentCard).not.toContain(playerInstruction.text)
     expect(html).not.toContain('dependency')
     const idle = resetGame(definition, active, true)
     expect(getHostScreen(idle)).toBe('idle')
@@ -137,7 +140,8 @@ describe('host lifecycle projection', () => {
 describe('private player card', () => {
   it('shows traits, relationships, secrets, and three scored objectives', () => {
     const character = story.characters[0]
-    const html = renderToStaticMarkup(<PlayerProfile character={character} />)
+    const openingCues = openingInstructionsForRole(story, character.id)
+    const html = renderToStaticMarkup(<PlayerProfile character={character} openingCues={openingCues} />)
     expect(html).toContain('Your three objectives')
     expect(html).toContain(character.traits[0])
     expect(html).toContain(character.relationships[0].text)
@@ -146,6 +150,9 @@ describe('private player card', () => {
     expect(html).not.toContain(story.solutionSummary)
     expect(html).not.toContain('THE SOLUTION')
     expect(html).not.toContain('Use each ability')
+    for (const cue of openingCues) expect(html).toContain(cue.text)
+    const anotherRoleCue = story.openingSteps.flatMap(step => step.instructions).find(instruction => instruction.recipientRoleId !== story.host.id && instruction.recipientRoleId !== character.id)
+    expect(html).not.toContain(anotherRoleCue?.text)
   })
 })
 

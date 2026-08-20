@@ -73,8 +73,8 @@ function galleryInput() {
         { title: 'The fatal exposure', truth: 'The culprit silenced the curator when the catalogue proved the substitution.', evidence: ['gallery-evidence-3', 'gallery-evidence-4'] },
       ],
       openingSteps: [
-        { id: 'gallery-welcome', title: 'Welcome the circle', trigger: 'When everyone is seated', instruction: 'Invite the first disclosures without moving anyone.', propIds: [] },
-        { id: 'gallery-unveiling', title: 'Read the catalogue', trigger: 'After the welcome disclosures', instruction: 'Stage the curator’s off-page collapse with a bell, then release the room into free play in ordinary light.', propIds: [] },
+        { id: 'gallery-welcome', title: 'Welcome the circle', trigger: 'When everyone is seated', instructions: [{ recipientRoleId: 'host', text: 'Invite the first disclosures without moving anyone.' }], propIds: [] },
+        { id: 'gallery-unveiling', title: 'Read the catalogue', trigger: 'After the welcome disclosures', instructions: [{ recipientRoleId: 'host', text: 'Stage the curator’s off-page collapse with a bell, then release the room into free play in ordinary light.' }], propIds: [] },
       ],
       solution: 'Mara substituted the painting and silenced the curator before the catalogue could expose her.',
     },
@@ -105,6 +105,39 @@ describe('setting-specific game definitions', () => {
       expect(step.setupRequirementIds.length).toBeGreaterThan(0)
       expect(step.settingRefs.length).toBeGreaterThan(0)
     }
+  })
+
+  it('rejects unaddressed, duplicate, and unknown opening instruction recipients', () => {
+    const legacy = structuredClone(galleryInput()) as any
+    legacy.story.openingSteps[0] = { ...legacy.story.openingSteps[0], instruction: 'Tell Mara what to do.' }
+    delete legacy.story.openingSteps[0].instructions
+    expect(() => createGameDefinition(legacy)).toThrow(/obsolete unaddressed instruction field/)
+
+    const duplicate = structuredClone(galleryInput())
+    duplicate.story.openingSteps[0].instructions.push({ recipientRoleId: 'host', text: 'A second voice for the same recipient.' })
+    expect(() => createGameDefinition(duplicate)).toThrow(/duplicate instructions for host/)
+
+    const unknown = structuredClone(galleryInput())
+    unknown.story.openingSteps[0].instructions.push({ recipientRoleId: 'missing-role', text: 'Do something.' })
+    expect(() => createGameDefinition(unknown)).toThrow(/addresses unknown role missing-role/)
+  })
+
+  it('migrates an explicitly versioned v5 instruction only when its recipients can be separated', () => {
+    const v5 = structuredClone(galleryInput()) as any
+    v5.schemaVersion = 5
+    v5.story.openingSteps[0].instruction = 'Invite Mara Vale to speak. Mara Vale: State that the catalogue is false.'
+    delete v5.story.openingSteps[0].instructions
+
+    const migrated = createGameDefinition(v5)
+    expect(migrated.schemaVersion).toBe(6)
+    expect(migrated.story.openingSteps[0].instructions).toEqual([
+      { recipientRoleId: 'host', text: 'Invite Mara Vale to speak.' },
+      { recipientRoleId: 'guest-1', text: 'State that the catalogue is false.' },
+    ])
+
+    const ambiguous = structuredClone(v5)
+    ambiguous.story.openingSteps[0].instruction = 'Tell Mara Vale to state that the catalogue is false.'
+    expect(() => createGameDefinition(ambiguous)).toThrow(/does not separate that player's instruction/)
   })
 
   it('rejects a guided second act or a shortened free-play window', () => {

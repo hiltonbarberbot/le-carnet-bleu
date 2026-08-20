@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "id": "glass-embassy",
   "title": "The Glass Embassy",
   "setting": {
@@ -547,55 +547,90 @@
         "title": "Receive Colette Renaud",
         "trigger": "When every player is seated",
         "propIds": [],
-        "instruction": "Invite Colette Renaud to deliver only the prepared opening fact. Colette Renaud: State that Sabine invited the press for a perfume story, then ask why diplomats were included.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Colette Renaud to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "glass-embassy-guest-1",
+            "text": "State that Sabine invited the press for a perfume story, then ask why diplomats were included."
+          }
+        ]
       },
       {
         "id": "glass-embassy-opening-2",
         "title": "Receive Étienne Marot",
         "trigger": "After Colette Renaud completes their cue",
         "propIds": [],
-        "instruction": "Invite Étienne Marot to deliver only the prepared opening fact. Étienne Marot: Correct Colette: announce that you came only to discuss export licences, not diplomacy.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Étienne Marot to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "glass-embassy-guest-2",
+            "text": "Correct Colette: announce that you came only to discuss export licences, not diplomacy."
+          }
+        ]
       },
       {
         "id": "glass-embassy-opening-3",
         "title": "Receive Nadia Petrov",
         "trigger": "After Étienne Marot completes their cue",
         "propIds": [],
-        "instruction": "Invite Nadia Petrov to deliver only the prepared opening fact. Nadia Petrov: Reveal that Sabine privately promised a reunion, but refuse to name with whom.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Nadia Petrov to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "glass-embassy-guest-3",
+            "text": "Reveal that Sabine privately promised a reunion, but refuse to name with whom."
+          }
+        ]
       },
       {
         "id": "glass-embassy-opening-4",
         "title": "Receive Marc Delon",
         "trigger": "After Nadia Petrov completes their cue",
         "propIds": [],
-        "instruction": "Invite Marc Delon to deliver only the prepared opening fact. Marc Delon: Announce that the celebrated formula is incomplete and only Sabine knows the missing line.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Marc Delon to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "glass-embassy-guest-4",
+            "text": "Announce that the celebrated formula is incomplete and only Sabine knows the missing line."
+          }
+        ]
       },
       {
         "id": "glass-embassy-opening-5",
         "title": "Discover the host",
         "trigger": "After Marc Delon completes their cue",
         "propIds": [],
-        "instruction": "Cue Lucien Arbaud, stage Sabine Vautrin's off-page collapse without contact, announce the discovery, and become Game Master. Lucien Arbaud: Offer a toast to old secrets and say that one of Sabine’s formulas is really a confession.",
         "execution": {
           "kind": "physical",
           "contact": "none",
@@ -610,6 +645,16 @@
           {
             "kind": "safetyConstraints",
             "id": "no-physical-contact"
+          }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Cue Lucien Arbaud, stage Sabine Vautrin's off-page collapse without contact, announce the discovery, and become Game Master."
+          },
+          {
+            "recipientRoleId": "glass-embassy-guest-5",
+            "text": "Offer a toast to old secrets and say that one of Sabine’s formulas is really a confession."
           }
         ]
       }

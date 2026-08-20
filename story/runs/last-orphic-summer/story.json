@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "id": "last-orphic-summer",
   "title": "The Last Summer of Orphée",
   "setting": {
@@ -547,55 +547,90 @@
         "title": "Receive Camille Duret",
         "trigger": "When every player is seated",
         "propIds": [],
-        "instruction": "Invite Camille Duret to deliver only the prepared opening fact. Camille Duret: Play the rhythm verbally and announce that Laurent changed the ending after Victor arrived.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Camille Duret to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "last-orphic-summer-guest-1",
+            "text": "Play the rhythm verbally and announce that Laurent changed the ending after Victor arrived."
+          }
+        ]
       },
       {
         "id": "last-orphic-summer-opening-2",
         "title": "Receive Éva Horák",
         "trigger": "After Camille Duret completes their cue",
         "propIds": [],
-        "instruction": "Invite Éva Horák to deliver only the prepared opening fact. Éva Horák: State that the score contains two kinds of notation: music and instructions.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Éva Horák to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "last-orphic-summer-guest-2",
+            "text": "State that the score contains two kinds of notation: music and instructions."
+          }
+        ]
       },
       {
         "id": "last-orphic-summer-opening-3",
         "title": "Receive Sofia Alvar",
         "trigger": "After Éva Horák completes their cue",
         "propIds": [],
-        "instruction": "Invite Sofia Alvar to deliver only the prepared opening fact. Sofia Alvar: Announce that the suite was commissioned privately and that its true beneficiary is absent.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Sofia Alvar to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "last-orphic-summer-guest-3",
+            "text": "Announce that the suite was commissioned privately and that its true beneficiary is absent."
+          }
+        ]
       },
       {
         "id": "last-orphic-summer-opening-4",
         "title": "Receive Victor Salvi",
         "trigger": "After Sofia Alvar completes their cue",
         "propIds": [],
-        "instruction": "Invite Victor Salvi to deliver only the prepared opening fact. Victor Salvi: Demand the suite be heard without its final cadence and call the disputed bars unperformable.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Victor Salvi to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "last-orphic-summer-guest-4",
+            "text": "Demand the suite be heard without its final cadence and call the disputed bars unperformable."
+          }
+        ]
       },
       {
         "id": "last-orphic-summer-opening-5",
         "title": "Discover the host",
         "trigger": "After Victor Salvi completes their cue",
         "propIds": [],
-        "instruction": "Cue Luc Moreau, stage Laurent Orphée's off-page collapse without contact, announce the discovery, and become Game Master. Luc Moreau: Read the harmless rights clause, then reveal that one movement legally belongs to an unnamed foreign listener.",
         "execution": {
           "kind": "physical",
           "contact": "none",
@@ -610,6 +645,16 @@
           {
             "kind": "safetyConstraints",
             "id": "no-physical-contact"
+          }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Cue Luc Moreau, stage Laurent Orphée's off-page collapse without contact, announce the discovery, and become Game Master."
+          },
+          {
+            "recipientRoleId": "last-orphic-summer-guest-5",
+            "text": "Read the harmless rights clause, then reveal that one movement legally belongs to an unnamed foreign listener."
           }
         ]
       }

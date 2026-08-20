@@ -46,7 +46,7 @@ export type ClueDeck = {
 
 /** A validated, reusable mystery that can be instantiated as many games. */
 export type StorylineDefinition = {
-  schemaVersion: 5
+  schemaVersion: 6
   id: string
   title: string
   fingerprint: string

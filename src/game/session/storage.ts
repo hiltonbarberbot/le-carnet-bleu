@@ -179,10 +179,11 @@ export function restoreGameSession(serialized: string): { definition: GameDefini
   if (!isRecord(value) || ![2, 3].includes(Number(value.formatVersion)) || !isRecord(value.definition)) {
     throw new Error('Stored game session has an unsupported envelope.')
   }
+  const migratedAddressedInstructions = value.definition.schemaVersion === 5
   const definition = createGameDefinition(value.definition as unknown as GameDefinitionInput)
   const state = structuredClone(value.state)
-  if (value.formatVersion === 2 && isRecord(state) && state.schemaVersion === 4) {
-    state.schemaVersion = 5
+  if (isRecord(state) && ((value.formatVersion === 2 && state.schemaVersion === 4) || migratedAddressedInstructions)) {
+    if (state.schemaVersion === 4) state.schemaVersion = 5
     state.definitionFingerprint = definition.fingerprint
   }
   return { definition, state: restoreStateObject(definition, state) }

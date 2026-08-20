@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
+import './style.css'
+import './aesthetic/classified.css'
 import { readAiGatewayStatus } from '../game/ai/gateway'
 import { createStorylineDefinition } from '../game/definition/create'
 import type { StorylineDefinition, StorylineDefinitionInput } from '../game/definition/contract'
 import { getKnownSecrets } from '../game/dossier/knowledge'
 import { createGramboisCatalog } from '../game/story/grambois/catalog'
+import { openingInstructionForRole, openingInstructionsForRole } from '../game/story/instructions'
 import { getSettingResource } from '../game/setting/links'
 import {
   abortGame,
@@ -124,7 +127,7 @@ function Rules({ definition, onExit }: { definition: StorylineDefinition; onExit
   </main>
 }
 
-export function PlayerProfile({ character, assignee, formatText = text => text, onExit }: { character: Character; assignee?: string; formatText?: (text: string) => string; onExit?: () => void }) {
+export function PlayerProfile({ character, openingCues = [], assignee, formatText = text => text, onExit }: { character: Character; openingCues?: ReturnType<typeof openingInstructionsForRole>; assignee?: string; formatText?: (text: string) => string; onExit?: () => void }) {
   const secrets = getKnownSecrets(character)
   const fileNumber = String(1200 + [...character.id].reduce((total, letter) => total + letter.charCodeAt(0), 0)).padStart(4, '0')
   const surname = character.name.trim().split(/\s+/).at(-1) ?? character.name
@@ -177,7 +180,15 @@ export function PlayerProfile({ character, assignee, formatText = text => text, 
         </section>
 
         <section className="dossier-section dossier-objectives">
-          <h2>SECTION IV -- OBJECTIVES</h2>
+          <h2>SECTION IV -- OPENING CUES</h2>
+          <div className="dossier-section-note">Wait until the host calls on you. These directions are for you alone.</div>
+          {openingCues.length ? <ol className="dossier-items">
+            {openingCues.map((cue, index) => <li key={cue.stepId}><span className="dossier-number">{String(index + 1).padStart(2, '0')}</span><span><b>{formatText(cue.stepTitle).toUpperCase()}.</b> {formatText(cue.text)}</span></li>)}
+          </ol> : <p>You have no individual action in the scripted opening. Stay in character and follow the host.</p>}
+        </section>
+
+        <section className="dossier-section dossier-objectives">
+          <h2>SECTION V -- OBJECTIVES</h2>
           <div className="dossier-section-note">Your three objectives may be attempted in any order. Mark each completed instruction.</div>
           <ol className="dossier-items">
             {character.objectives.map((objective, index) => <li key={objective.id}><span className="dossier-number">{String(index + 1).padStart(2, '0')}</span><label><input type="checkbox" /><span><b>{formatText(objective.title).toUpperCase()}.</b> {formatText(objective.text)} <b>{objective.points} {objective.points === 1 ? 'POINT' : 'POINTS'}.</b></span></label></li>)}
@@ -262,7 +273,7 @@ function RunSheet({ story, state, onConfirm, onUndo }: {
     {current ? <article className="now-step" aria-current="step">
       <header className="now-step-head"><div><span><i aria-hidden="true">{completed.length + 1}</i>{state.paused ? 'PAUSED' : 'DO THIS NOW'}</span><h3>{liveInstructionText(story, state, current.step.title)}</h3></div></header>
       <p className="now-trigger"><b>Wait for</b><span>{liveInstructionText(story, state, current.step.trigger)}</span></p>
-      <section className="host-instruction"><span>YOU, THE HOST</span><p>{liveInstructionText(story, state, current.step.instruction)}</p></section>
+      <section className="host-instruction"><span>YOU, THE HOST</span><p>{liveInstructionText(story, state, openingInstructionForRole(current.step, story.host.id)!.text)}</p></section>
       <button className="step-done" disabled={state.paused} onClick={() => onConfirm(current.step.id)}>Done — show me the next step →</button>
     </article> : <section className="run-complete"><span>ACT COMPLETE</span><h3>You’ve finished every step in this act.</h3></section>}
 
@@ -470,7 +481,8 @@ export function App() {
     const assignee = liveState?.roster[player.id]?.displayName
     const playerName = assignee ? `${player.name} (${assignee})` : player.name
     const formatText = liveState ? (text: string) => liveInstructionText(activeGame.storyline.story, liveState, text) : undefined
-    return <main className="page player-page host-preview"><div className="preview-parent"><button onClick={() => setPreviewing(false)}>← Back to host dashboard</button><span>HOST PREVIEW · {playerName}</span></div><PlayerProfile character={player} assignee={assignee} formatText={formatText} onExit={() => setPreviewing(false)} /></main>
+    const openingCues = openingInstructionsForRole(activeGame.storyline.story, player.id)
+    return <main className="page player-page host-preview"><div className="preview-parent"><button onClick={() => setPreviewing(false)}>← Back to host dashboard</button><span>HOST PREVIEW · {playerName}</span></div><PlayerProfile character={player} openingCues={openingCues} assignee={assignee} formatText={formatText} onExit={() => setPreviewing(false)} /></main>
   }
   if (mode === 'host' && activeGame) {
     const { storyline, state } = activeGame

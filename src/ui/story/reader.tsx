@@ -94,7 +94,7 @@ function StoryRun({ definition, assignments }: { definition: StorylineDefinition
             <div>
               <div className="story-run-title"><h4>{storyText(definition.story, assignments, step.title)}</h4></div>
               <p className="story-trigger">When: {storyText(definition.story, assignments, step.trigger)}</p>
-              <p>{storyText(definition.story, assignments, step.instruction)}</p>
+              {step.instructions.map(instruction => <p key={instruction.recipientRoleId}><b>{storyRoleName(definition.story, instruction.recipientRoleId)}:</b> {storyText(definition.story, assignments, instruction.text)}</p>)}
               <SettingLinks definition={definition} references={step.settingRefs} assignments={assignments} />
             </div>
           </article>)}

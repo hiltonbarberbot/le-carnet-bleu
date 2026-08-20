@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "id": "saint-tropez-double",
   "title": "The Saint-Tropez Double",
   "setting": {
@@ -547,55 +547,90 @@
         "title": "Receive Anaïs Morel",
         "trigger": "When every player is seated",
         "propIds": [],
-        "instruction": "Invite Anaïs Morel to deliver only the prepared opening fact. Anaïs Morel: Announce that the costume measurements belong to a public figure, not any actor present.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Anaïs Morel to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "saint-tropez-double-guest-1",
+            "text": "Announce that the costume measurements belong to a public figure, not any actor present."
+          }
+        ]
       },
       {
         "id": "saint-tropez-double-opening-2",
         "title": "Receive Peter Sloan",
         "trigger": "After Anaïs Morel completes their cue",
         "propIds": [],
-        "instruction": "Invite Peter Sloan to deliver only the prepared opening fact. Peter Sloan: Repeat one sentence in two identical voices and say the production is not what it claims.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Peter Sloan to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "saint-tropez-double-guest-2",
+            "text": "Repeat one sentence in two identical voices and say the production is not what it claims."
+          }
+        ]
       },
       {
         "id": "saint-tropez-double-opening-3",
         "title": "Receive Dario Vescari",
         "trigger": "After Peter Sloan completes their cue",
         "propIds": [],
-        "instruction": "Invite Dario Vescari to deliver only the prepared opening fact. Dario Vescari: Present yourself as the film’s investor and demand the screen test proceed despite Vivienne’s doubts.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Dario Vescari to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "saint-tropez-double-guest-3",
+            "text": "Present yourself as the film’s investor and demand the screen test proceed despite Vivienne’s doubts."
+          }
+        ]
       },
       {
         "id": "saint-tropez-double-opening-4",
         "title": "Receive Inès Laurent",
         "trigger": "After Dario Vescari completes their cue",
         "propIds": [],
-        "instruction": "Invite Inès Laurent to deliver only the prepared opening fact. Inès Laurent: Point out that the “locations” form a real motorcade route and ask who commissioned it.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Inès Laurent to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "saint-tropez-double-guest-4",
+            "text": "Point out that the “locations” form a real motorcade route and ask who commissioned it."
+          }
+        ]
       },
       {
         "id": "saint-tropez-double-opening-5",
         "title": "Discover the host",
         "trigger": "After Inès Laurent completes their cue",
         "propIds": [],
-        "instruction": "Cue Gabriel Neri, stage Vivienne Marchal's off-page collapse without contact, announce the discovery, and become Game Master. Gabriel Neri: Enter in the minister’s posture, then break character and ask why everyone looks frightened.",
         "execution": {
           "kind": "physical",
           "contact": "none",
@@ -610,6 +645,16 @@
           {
             "kind": "safetyConstraints",
             "id": "no-physical-contact"
+          }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Cue Gabriel Neri, stage Vivienne Marchal's off-page collapse without contact, announce the discovery, and become Game Master."
+          },
+          {
+            "recipientRoleId": "saint-tropez-double-guest-5",
+            "text": "Enter in the minister’s posture, then break character and ask why everyone looks frightened."
           }
         ]
       }

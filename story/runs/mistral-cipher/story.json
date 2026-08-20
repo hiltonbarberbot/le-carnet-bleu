@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "id": "mistral-cipher",
   "title": "The Mistral Cipher",
   "setting": {
@@ -547,55 +547,90 @@
         "title": "Receive Thérèse Vidal",
         "trigger": "When every player is seated",
         "propIds": [],
-        "instruction": "Invite Thérèse Vidal to deliver only the prepared opening fact. Thérèse Vidal: Read the official crash time, then reveal that the fuel figures make it impossible.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Thérèse Vidal to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "mistral-cipher-guest-1",
+            "text": "Read the official crash time, then reveal that the fuel figures make it impossible."
+          }
+        ]
       },
       {
         "id": "mistral-cipher-opening-2",
         "title": "Receive André Masson",
         "trigger": "After Thérèse Vidal completes their cue",
         "propIds": [],
-        "instruction": "Invite André Masson to deliver only the prepared opening fact. André Masson: State that the Mistral left in perfect condition and accuse the official inquiry of lying.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite André Masson to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "mistral-cipher-guest-2",
+            "text": "State that the Mistral left in perfect condition and accuse the official inquiry of lying."
+          }
+        ]
       },
       {
         "id": "mistral-cipher-opening-3",
         "title": "Receive Isabelle Dumas",
         "trigger": "After André Masson completes their cue",
         "propIds": [],
-        "instruction": "Invite Isabelle Dumas to deliver only the prepared opening fact. Isabelle Dumas: Correct the memorial date and say your father was alive three days after the supposed crash.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Isabelle Dumas to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "mistral-cipher-guest-3",
+            "text": "Correct the memorial date and say your father was alive three days after the supposed crash."
+          }
+        ]
       },
       {
         "id": "mistral-cipher-opening-4",
         "title": "Receive Miles Graham",
         "trigger": "After Isabelle Dumas completes their cue",
         "propIds": [],
-        "instruction": "Invite Miles Graham to deliver only the prepared opening fact. Miles Graham: Call the flight an unfortunate reconnaissance accident and ask everyone to honour official history.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Miles Graham to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "mistral-cipher-guest-4",
+            "text": "Call the flight an unfortunate reconnaissance accident and ask everyone to honour official history."
+          }
+        ]
       },
       {
         "id": "mistral-cipher-opening-5",
         "title": "Discover the host",
         "trigger": "After Miles Graham completes their cue",
         "propIds": [],
-        "instruction": "Cue René Cassin, stage Émile Vauban's off-page collapse without contact, announce the discovery, and become Game Master. René Cassin: Propose a toast to Émile as the only survivor and insist the crash story must remain untouched.",
         "execution": {
           "kind": "physical",
           "contact": "none",
@@ -610,6 +645,16 @@
           {
             "kind": "safetyConstraints",
             "id": "no-physical-contact"
+          }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Cue René Cassin, stage Émile Vauban's off-page collapse without contact, announce the discovery, and become Game Master."
+          },
+          {
+            "recipientRoleId": "mistral-cipher-guest-5",
+            "text": "Propose a toast to Émile as the only survivor and insist the crash story must remain untouched."
           }
         ]
       }

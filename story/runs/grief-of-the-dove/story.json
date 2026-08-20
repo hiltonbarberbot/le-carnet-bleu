@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "id": "grief-of-the-dove",
   "title": "La Colombe",
   "setting": {
@@ -868,7 +868,6 @@
           "paper-envelopes",
           "diamond-display"
         ],
-        "instruction": "Sacha welcomes the five guests, unveils the replica blue diamond, then cues Poppy to read her invitation. Poppy Ashcombe: Open your prepared invitation and read Sacha's promise aloud: 'I knew your mother in Rouen. Come to Grambois; there are things you are owed.' Ask him whether he was your father.",
         "execution": {
           "kind": "physical",
           "contact": "none",
@@ -889,6 +888,16 @@
             "kind": "availableProps",
             "id": "diamond-display"
           }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Welcome the five guests as Sacha, unveil the replica blue diamond, then cue Poppy to read her invitation."
+          },
+          {
+            "recipientRoleId": "poppy-ashcombe",
+            "text": "Open your prepared invitation and read Sacha's promise aloud: 'I knew your mother in Rouen. Come to Grambois; there are things you are owed.' Ask him whether he was your father."
+          }
         ]
       },
       {
@@ -898,7 +907,6 @@
         "propIds": [
           "jacket-keys"
         ],
-        "instruction": "Sacha refuses to answer and cues Julien to retrieve only the prepared jacket and prop keys by the verified poolside route. Julien Bassot: Walk by the ordinary outdoor route to the poolside chair, without approaching or entering the pool. Bring back the prepared linen jacket and prop keys, place them beside the dome, and tell Sacha you are done asking for what he owes you.",
         "execution": {
           "kind": "physical",
           "contact": "none",
@@ -914,6 +922,16 @@
             "kind": "availableProps",
             "id": "jacket-keys"
           }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Refuse to answer as Sacha, then cue Julien to retrieve only the prepared jacket and prop keys by the verified poolside route."
+          },
+          {
+            "recipientRoleId": "julien-bassot",
+            "text": "Walk by the ordinary outdoor route to the poolside chair, without approaching or entering the pool. Bring back the prepared linen jacket and prop keys, place them beside the dome, and tell Sacha you are done asking for what he owes you."
+          }
         ]
       },
       {
@@ -923,7 +941,6 @@
         "propIds": [
           "framed-photograph"
         ],
-        "instruction": "Sacha turns the insult toward Renato and cues the prepared framed photograph action. Renato Sabbatini: Lift the prepared framed photograph from the staircase display, keep its image facing you, and tell Sacha that blackmail is not hospitality. Return it immediately when the host cues you.",
         "execution": {
           "kind": "physical",
           "contact": "none",
@@ -939,6 +956,16 @@
             "kind": "availableProps",
             "id": "framed-photograph"
           }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Turn the insult toward Renato as Sacha, then cue the prepared framed-photograph action."
+          },
+          {
+            "recipientRoleId": "renato-sabbatini",
+            "text": "Lift the prepared framed photograph from the staircase display, keep its image facing you, and tell Sacha that blackmail is not hospitality. Return it immediately when the host cues you."
+          }
         ]
       },
       {
@@ -950,7 +977,6 @@
           "paper-envelopes",
           "diamond-display"
         ],
-        "instruction": "Sacha gives Odile permission to open the prepared document case and place the sealed letter beside the diamond. Odile Bassot: Use the prepared prop key to open the lockable document case. Remove the sealed inheritance letter without opening it, place it beside La Colombe, and tell Sacha that paper is the only promise this house will believe.",
         "execution": {
           "kind": "physical",
           "contact": "none",
@@ -976,6 +1002,16 @@
             "kind": "availableProps",
             "id": "diamond-display"
           }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Give Odile permission, as Sacha, to open the prepared document case and place the sealed letter beside the diamond."
+          },
+          {
+            "recipientRoleId": "odile-bassot",
+            "text": "Use the prepared prop key to open the lockable document case. Remove the sealed inheritance letter without opening it, place it beside La Colombe, and tell Sacha that paper is the only promise this house will believe."
+          }
         ]
       },
       {
@@ -986,7 +1022,6 @@
           "safe-glass",
           "diamond-display"
         ],
-        "instruction": "Cue Hélène to place the inert glass. Perform the rehearsed no-contact collapse, announce Sacha dead, secretly remove the replica diamond, display the empty dome, and become Game Master. Hélène de Vernay: Place the inert prop glass beside Sacha without touching him. Say, 'Drink to the house you are so eager to give away.' The host mimes one sip, sets it down, and performs the rehearsed collapse.",
         "execution": {
           "kind": "physical",
           "contact": "none",
@@ -1011,6 +1046,16 @@
           {
             "kind": "safetyConstraints",
             "id": "no-physical-contact"
+          }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Cue Hélène to place the inert glass. Perform the rehearsed no-contact collapse, announce Sacha dead, secretly remove the replica diamond, display the empty dome, and become Game Master."
+          },
+          {
+            "recipientRoleId": "helene-de-vernay",
+            "text": "Place the inert prop glass beside Sacha without touching him. Say, 'Drink to the house you are so eager to give away.'"
           }
         ]
       }

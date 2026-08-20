@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "id": "cottage-at-midnight",
   "title": "The Cottage at Midnight",
   "setting": {
@@ -547,55 +547,90 @@
         "title": "Receive Élise Baumann",
         "trigger": "When every player is seated",
         "propIds": [],
-        "instruction": "Invite Élise Baumann to deliver only the prepared opening fact. Élise Baumann: State the formal claim and announce that everyone present appears somewhere in the provenance.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Élise Baumann to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "cottage-at-midnight-guest-1",
+            "text": "State the formal claim and announce that everyone present appears somewhere in the provenance."
+          }
+        ]
       },
       {
         "id": "cottage-at-midnight-opening-2",
         "title": "Receive Olivier Kern",
         "trigger": "After Élise Baumann completes their cue",
         "propIds": [],
-        "instruction": "Invite Olivier Kern to deliver only the prepared opening fact. Olivier Kern: Welcome restitution in principle but challenge the claim’s dates and demand discretion.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Olivier Kern to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "cottage-at-midnight-guest-2",
+            "text": "Welcome restitution in principle but challenge the claim’s dates and demand discretion."
+          }
+        ]
       },
       {
         "id": "cottage-at-midnight-opening-3",
         "title": "Receive Rémy Azoulay",
         "trigger": "After Olivier Kern completes their cue",
         "propIds": [],
-        "instruction": "Invite Rémy Azoulay to deliver only the prepared opening fact. Rémy Azoulay: Describe how the real cottage matches the painting and say the mismatch is deliberate.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Rémy Azoulay to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "cottage-at-midnight-guest-3",
+            "text": "Describe how the real cottage matches the painting and say the mismatch is deliberate."
+          }
+        ]
       },
       {
         "id": "cottage-at-midnight-opening-4",
         "title": "Receive Sister Agnès Vallet",
         "trigger": "After Rémy Azoulay completes their cue",
         "propIds": [],
-        "instruction": "Invite Sister Agnès Vallet to deliver only the prepared opening fact. Sister Agnès Vallet: Decode one harmless painted detail and warn that the rest names real acts of betrayal.",
         "execution": {
           "kind": "spoken"
         },
         "setupRequirementIds": [],
-        "settingRefs": []
+        "settingRefs": [],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Invite Sister Agnès Vallet to deliver only the prepared opening fact."
+          },
+          {
+            "recipientRoleId": "cottage-at-midnight-guest-4",
+            "text": "Decode one harmless painted detail and warn that the rest names real acts of betrayal."
+          }
+        ]
       },
       {
         "id": "cottage-at-midnight-opening-5",
         "title": "Discover the host",
         "trigger": "After Sister Agnès Vallet completes their cue",
         "propIds": [],
-        "instruction": "Cue Clara Weiss, stage Margot Bellier's off-page collapse without contact, announce the discovery, and become Game Master. Clara Weiss: Admit that the public provenance is false and announce that Margot intended a return, not a sale.",
         "execution": {
           "kind": "physical",
           "contact": "none",
@@ -610,6 +645,16 @@
           {
             "kind": "safetyConstraints",
             "id": "no-physical-contact"
+          }
+        ],
+        "instructions": [
+          {
+            "recipientRoleId": "host",
+            "text": "Cue Clara Weiss, stage Margot Bellier's off-page collapse without contact, announce the discovery, and become Game Master."
+          },
+          {
+            "recipientRoleId": "cottage-at-midnight-guest-5",
+            "text": "Admit that the public provenance is false and announce that Margot intended a return, not a sale."
           }
         ]
       }
