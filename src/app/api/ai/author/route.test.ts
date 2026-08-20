@@ -108,6 +108,39 @@ describe('durable authoring routes', () => {
     expect(await response.json()).toEqual({ jobId, status: 'succeeded', definition })
   })
 
+  it('returns persisted spoiler-safe blocking reasons for a failed job', async () => {
+    const details = {
+      schemaVersion: 1 as const,
+      attemptCount: 2,
+      blockingReasons: [{
+        stage: 'independent_review' as const,
+        code: 'culprit_only_proof',
+        message: 'A required deduction depended on information held only by the culprit.',
+      }],
+    }
+    const repository = jobs({
+      find: vi.fn().mockResolvedValue({
+        id: jobId,
+        ownerId,
+        status: 'failed',
+        failure: {
+          code: 'invalid_output',
+          message: 'The generated mystery did not pass certification.',
+          retryable: true,
+          details,
+        },
+      }),
+    })
+    vi.mocked(getCertificationJobRepository).mockReturnValue(repository as never)
+
+    const response = await poll(
+      new Request(`https://example.test/api/ai/author/${jobId}`, { headers: { cookie: `mystery_owner=${ownerId}` } }),
+      { params: Promise.resolve({ jobId }) },
+    )
+
+    expect(await response.json()).toEqual(expect.objectContaining({ status: 'failed', details }))
+  })
+
   it('fails closed when the durable run no longer exists', async () => {
     const running = {
       id: jobId,

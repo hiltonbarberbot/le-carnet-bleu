@@ -55,9 +55,9 @@ ${list(setting.contentBoundaries)}
 
 1. Invent a compelling fictional gathering that fits the verified venue, location, era, and tone. Create one host role who credibly convenes it, becomes Game Master after the staged murder, and exactly five suspect roles.
 2. Begin with a human wound or consequential shared history, then derive culprit, motive, method, and cover-up from it.
-3. Give every suspect a respectable invitation pretext grounded in the invented gathering, a different private promise from the host, playable traits, exactly three scored objectives, a dense relationship web, truthful secrets about other suspects, a credible motive, and a reason to conceal evidence. Do not add universal powers, mandatory personal props, or private-ballot mechanics.
+3. Give every suspect a respectable invitation pretext grounded in the invented gathering, a different private promise from the host, two playable traits, exactly two scored objectives, exactly two useful relationships, two truthful starting secrets, a credible motive, and a reason to conceal evidence. Do not add decorative subplots, universal powers, mandatory personal props, or private-ballot mechanics.
 4. Make the canonical solution fair: write motive, concrete means, opportunity, and fatal act as four distinct atomic solution steps, crosslink them through caseTheory, and give every ordered solution step at least two independent non-culprit evidence routes.
-5. Keep dossier secrets as facts the role knows from the start. The three scored objectives are the only player task system.
+5. Keep dossier secrets as facts the role knows from the start. The two scored objectives are the only player task system; do not add a separate hidden mission in prose.
 6. Define exactly one short authored opening, lasting no more than fifteen minutes. It introduces the cast, stages the incident, and ends with the body discovered. After that, the host becomes Game Master and the room enters continuous free play; do not add later scripted acts.
 7. Use physical props only when they create a clear play benefit. Multiple simple props are welcome: judge the preparation burden, not the count. Every prop must come from the verified setting and be easy for one host to gather, place, use, and reset. Reject setups that need special sourcing, fabrication, multi-part assembly, prepared media or consumables, concealment mechanisms, synchronized swaps, precise timing, or rehearsal. Essential evidence presented through an object must also have an authored fallback in the dossiers, public facts, or app.
 8. Derive any setup requirements from exact resource IDs in the verified setting. Every opening step must carry direct { kind, id } settingRefs, setupRequirementIds, and mirrored propIds for prop links.
@@ -67,7 +67,7 @@ ${list(setting.contentBoundaries)}
 12. Do not invent a second player task model for AI roles; their play is governed by the same objectives, relationships, and secrets.
 13. Create exactly two clue decks tied to verified setting resource IDs and exactly five purchasable clues total. Each clue names the solution-step IDs it supports, but every solution step must retain two independently sourced non-purchasable evidence routes.
 14. After the incident, preserve one uninterrupted one-to-three-hour social loop: ten starting tokens, five-token clues, free bargaining, public accusation hearings at any time, majority conviction, and end-of-game objective scoring.
-15. Keep five to eight entries in one ordered openingSteps checklist. Do not add phases or a dependency graph; array order is play order. It is a cold open, not a guided first half of the game.
+15. Keep exactly four entries in one ordered openingSteps checklist. Do not add phases or a dependency graph; array order is play order. It is a cold open, not a guided first half of the game.
 16. Return a schema-v6 StorylineDefinitionInput containing id, title, setting, story, clueDecks, acts, and setupRequirements. Preserve every stable setting resource ID and pass the result through createStorylineDefinition before constructing a runtime.`
 }
 

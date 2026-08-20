@@ -1,3 +1,8 @@
+import {
+  readCertificationFailureDetails,
+  type CertificationFailureDetails,
+} from '../story/certification/feedback'
+
 export type AiProblemCode =
   | 'invalid_request'
   | 'not_configured'
@@ -17,6 +22,7 @@ export type AiProblemPayload = {
   code: AiProblemCode
   retryable: boolean
   reference?: string
+  details?: CertificationFailureDetails
 }
 
 function isProblemCode(value: unknown): value is AiProblemCode {
@@ -45,6 +51,7 @@ function readProblem(value: unknown): AiProblemPayload | undefined {
     code: candidate.code,
     retryable: candidate.retryable,
     reference: typeof candidate.reference === 'string' ? candidate.reference : undefined,
+    details: readCertificationFailureDetails(candidate.details),
   }
 }
 
@@ -61,6 +68,7 @@ export class AiRequestError extends Error {
   readonly code: AiProblemCode
   readonly retryable: boolean
   readonly reference?: string
+  readonly details?: CertificationFailureDetails
   readonly status?: number
 
   constructor(problem: AiProblemPayload, status?: number) {
@@ -69,6 +77,7 @@ export class AiRequestError extends Error {
     this.code = problem.code
     this.retryable = problem.retryable
     this.reference = problem.reference
+    this.details = problem.details
     this.status = status
   }
 }

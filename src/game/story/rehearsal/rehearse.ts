@@ -19,6 +19,13 @@ import {
   rehearseHostWithGateway,
   rehearseRoleWithGateway,
 } from './gateway'
+import {
+  defaultTableRehearsalModel,
+  rehearseRoundTableWithGateway,
+  tableRehearsalBlockers,
+  tableRehearsalPassed,
+  type TableRehearsalReport,
+} from './table'
 
 export type RoleRehearsalRunner = (
   definition: StorylineDefinition,
@@ -29,25 +36,34 @@ export type RehearsalJudgeRunner = (
   definition: StorylineDefinition,
   roleReports: RoleRehearsalReport[],
   hostReport: HostRehearsalReport,
+  tableReport: TableRehearsalReport,
 ) => Promise<RehearsalJudgeReview>
 
 export type HostRehearsalRunner = (
   definition: StorylineDefinition,
 ) => Promise<HostRehearsalReport>
 
+export type TableRehearsalRunner = (
+  definition: StorylineDefinition,
+) => Promise<TableRehearsalReport>
+
 export type StorylineRehearsalOptions = {
   roleModel?: string
   hostModel?: string
   judgeModel?: string
+  tableModel?: string
   rehearseRole?: RoleRehearsalRunner
   rehearseHost?: HostRehearsalRunner
+  rehearseTable?: TableRehearsalRunner
   judge?: RehearsalJudgeRunner
 }
 
 function collectBlockingReasons(
+  definition: StorylineDefinition,
   roleReports: RoleRehearsalReport[],
   hostReport: HostRehearsalReport,
   judgeReview: RehearsalJudgeReview,
+  tableReport: TableRehearsalReport,
 ) {
   const roleReasons = roleReports.flatMap(report => {
     if (report.status === 'ready') return []
@@ -70,7 +86,7 @@ function collectBlockingReasons(
     ...judgeReview.checks.filter(check => check.verdict === 'fail').map(check => `${check.id}: ${check.explanation}`),
     ...judgeReview.findings.filter(finding => finding.severity === 'blocking').map(finding => `${finding.code}: ${finding.message}`),
   ]
-  return [...new Set([...roleReasons, ...hostReasons, ...judgeReasons])]
+  return [...new Set([...roleReasons, ...hostReasons, ...tableRehearsalBlockers(definition, tableReport), ...judgeReasons])]
 }
 
 /**
@@ -85,14 +101,17 @@ export async function rehearseStoryline(
   const roleModel = options.roleModel ?? process.env.AI_GATEWAY_REHEARSAL_ROLE_MODEL ?? defaultRoleRehearsalModel
   const hostModel = options.hostModel ?? process.env.AI_GATEWAY_REHEARSAL_HOST_MODEL ?? defaultHostRehearsalModel
   const judgeModel = options.judgeModel ?? process.env.AI_GATEWAY_REHEARSAL_JUDGE_MODEL ?? defaultRehearsalJudgeModel
+  const tableModel = options.tableModel ?? process.env.AI_GATEWAY_REHEARSAL_TABLE_MODEL ?? defaultTableRehearsalModel
   const rehearseRole = options.rehearseRole
     ?? ((candidate, roleIndex) => rehearseRoleWithGateway(candidate, roleIndex, { model: roleModel }))
   const rehearseHost = options.rehearseHost
     ?? (candidate => rehearseHostWithGateway(candidate, { model: hostModel }))
+  const rehearseTable = options.rehearseTable
+    ?? (candidate => rehearseRoundTableWithGateway(candidate, { model: tableModel }))
   const judge = options.judge
-    ?? ((candidate, reports, hostReport) => judgeRehearsalWithGateway(candidate, reports, hostReport, { model: judgeModel }))
+    ?? ((candidate, reports, hostReport, tableReport) => judgeRehearsalWithGateway(candidate, reports, hostReport, tableReport, { model: judgeModel }))
 
-  const [hostReport, roleReports] = await Promise.all([
+  const [hostReport, roleReports, tableReport] = await Promise.all([
     rehearseHost(definition).then(report => {
       const errors = validateHostRehearsalReport(definition, report)
       if (errors.length) throw new Error(`Invalid isolated-host rehearsal:\n${errors.join('\n')}`)
@@ -104,14 +123,18 @@ export async function rehearseStoryline(
       if (errors.length) throw new Error(`Invalid isolated-player rehearsal:\n${errors.join('\n')}`)
       return report
     })),
+    rehearseTable(definition),
   ])
 
-  const judgeReview = await judge(definition, roleReports, hostReport)
+  const judgeReview = await judge(definition, roleReports, hostReport, tableReport)
   const judgeErrors = validateRehearsalJudgeReview(definition, judgeReview)
   if (judgeErrors.length) throw new Error(`Invalid rehearsal judge review:\n${judgeErrors.join('\n')}`)
-  const blockingReasons = collectBlockingReasons(roleReports, hostReport, judgeReview)
+  const tableBlockers = tableRehearsalBlockers(definition, tableReport)
+  const blockingReasons = collectBlockingReasons(definition, roleReports, hostReport, judgeReview, tableReport)
   const verdict = roleReports.every(report => report.status === 'ready')
     && hostReport.status === 'ready'
+    && tableRehearsalPassed(tableReport)
+    && tableBlockers.length === 0
     && rehearsalJudgePassed(judgeReview)
     && blockingReasons.length === 0
     ? 'pass'
@@ -122,7 +145,9 @@ export async function rehearseStoryline(
     roleModel,
     hostModel,
     judgeModel,
+    tableModel,
     verdict,
+    tableReport,
     roleReports,
     hostReport,
     judgeReview,

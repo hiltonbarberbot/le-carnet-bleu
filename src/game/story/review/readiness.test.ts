@@ -7,6 +7,7 @@ import {
   type RehearsalJudgeReview,
   type HostRehearsalReport,
   type RoleRehearsalReport,
+  simulateRoundTable,
 } from '../rehearsal'
 import {
   evaluateStorylineReadiness,
@@ -66,17 +67,30 @@ function readyHostReport(definition: ReturnType<typeof createDemoStoryline>): Ho
   }
 }
 
+function readyTableReport(definition: ReturnType<typeof createDemoStoryline>, model = 'table/model') {
+  return simulateRoundTable(definition, {
+    model,
+    rounds: 2,
+    runTurn: async (roleIndex, view) => view.round === 1
+      ? { action: 'share_fact', factId: view.knownFactIds.at(-1)!, targetRoleId: '', deckId: '', accusedRoleId: '', caseFactIds: [], words: 'I share one fact that may connect our accounts.' }
+      : { action: 'accuse', factId: '', targetRoleId: '', deckId: '', accusedRoleId: definition.story.characters[(roleIndex + 1) % definition.story.characters.length].id, caseFactIds: view.knownFactIds.slice(0, 2), words: 'These two facts support a public accusation.' },
+  })
+}
+
 function rehearsalOptions() {
   return {
     roleModel: 'role/model',
     hostModel: 'host/model',
+    tableModel: 'table/model',
     judgeModel: 'judge/model',
     run: (definition: ReturnType<typeof createDemoStoryline>) => rehearseStoryline(definition, {
       roleModel: 'role/model',
       hostModel: 'host/model',
+      tableModel: 'table/model',
       judgeModel: 'judge/model',
       rehearseRole: async (candidate, roleIndex) => readyRoleReport(candidate, roleIndex),
       rehearseHost: async candidate => readyHostReport(candidate),
+      rehearseTable: candidate => readyTableReport(candidate),
       judge: async candidate => passingJudge(candidate),
     }),
   }
@@ -201,6 +215,7 @@ describe('storyline readiness gate', () => {
       rehearsal: {
         roleModel: 'role/model',
         hostModel: 'host/model',
+        tableModel: 'table/model',
         judgeModel: 'judge/model',
         run: async () => { throw providerError },
       },

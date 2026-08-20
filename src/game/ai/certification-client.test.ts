@@ -41,12 +41,25 @@ describe('storyline certification client', () => {
       error: 'The mystery remained unplayable.',
       code: 'invalid_output',
       retryable: true,
+      details: {
+        schemaVersion: 1,
+        attemptCount: 2,
+        blockingReasons: [{
+          stage: 'rehearsal',
+          code: 'not_deducible',
+          message: 'Players could not reliably deduce the solution.',
+        }],
+      },
     }))))
 
     await expect(resumeStorylineCertification('job-1', { pollIntervalMs: 0 })).rejects.toMatchObject({
       message: 'The mystery remained unplayable.',
       code: 'invalid_output',
       retryable: true,
+      details: expect.objectContaining({
+        attemptCount: 2,
+        blockingReasons: [expect.objectContaining({ code: 'not_deducible' })],
+      }),
     })
   })
 

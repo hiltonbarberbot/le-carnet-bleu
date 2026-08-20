@@ -1,6 +1,8 @@
 import type { StorylineDefinition } from '../../definition/contract'
 import { gameCommandDescriptors } from '../../application/commands'
+import { createPlayerVisiblePacket } from '../../player/packet'
 import type { HostRehearsalReport, RoleRehearsalReport } from './contract'
+import type { TableRehearsalReport } from './table'
 
 export function createRoleRehearsalPacket(definition: StorylineDefinition, roleIndex: number) {
   const role = definition.story.characters[roleIndex]
@@ -9,41 +11,10 @@ export function createRoleRehearsalPacket(definition: StorylineDefinition, roleI
   return {
     definitionFingerprint: definition.fingerprint,
     participantRef,
-    publicContext: {
-      title: definition.title,
-      premise: definition.story.premise,
-      host: definition.story.host,
-      cast: definition.story.characters.map(character => ({
-        id: character.id,
-        name: character.name,
-        title: character.title,
-        costume: character.costume,
-        publicFace: character.publicFace,
-      })),
-      publicEvidence: definition.story.publicEvidence,
-      opening: definition.story.openingSteps.map(step => ({
-        title: step.title,
-        trigger: step.trigger,
-        yourInstructions: step.instructions
-          .filter(instruction => instruction.recipientRoleId === role.id)
-          .map(instruction => instruction.text),
-      })),
+    ...createPlayerVisiblePacket(definition.story, role.id, {
+      visiblePublicEvidenceIds: definition.story.publicEvidence.map(evidence => evidence.id),
       clueSources: definition.clueDecks.map(deck => ({ label: deck.label, clueCount: deck.clues.length })),
-    },
-    yourDossier: {
-      name: role.name,
-      title: role.title,
-      publicFace: role.publicFace,
-      invitationPretext: role.invitationPretext,
-      invitationPromise: role.invitationPromise,
-      privateIdentity: role.privateIdentity,
-      privateObjective: role.privateObjective,
-      privateSecret: role.privateSecret,
-      traits: role.traits,
-      objectives: role.objectives,
-      relationships: role.relationships,
-      secrets: role.secrets,
-    },
+    }),
   }
 }
 
@@ -142,8 +113,9 @@ export function createRehearsalJudgePrompt(
   definition: StorylineDefinition,
   roleReports: RoleRehearsalReport[],
   hostReport: HostRehearsalReport,
+  tableReport: TableRehearsalReport,
 ) {
-  return `Judge a complete live-mystery rehearsal. The player reports were produced independently from isolated dossiers. They have been reordered and stripped of explicit role, fact, and objective identifiers. You may inspect the authored truth, but do not assume a player knows anything absent from their own report or an authored information route.
+  return `Judge a complete live-mystery rehearsal. The player reports were produced independently from isolated dossiers. The round-table transcript records constrained actions made by five isolated players from their actual knowledge. You may inspect the authored truth, but do not assume a player knows, shares, buys, or proves anything absent from the exact transcript and knowledge ledger.
 
 Fail unless all of these are true:
 - players can identify the culprit from authored evidence, without confession, lucky guessing, or purchasing every clue;
@@ -152,6 +124,8 @@ Fail unless all of these are true:
 - the ordered solution, accusation, and reveal consistently explain motive, concrete means, opportunity, fatal act, and any cover-up;
 - purchasable clues accelerate or corroborate the deduction but are not collectively mandatory;
 - every isolated player is ready to begin with actionable material.
+- every accusation in the transcript cites facts that actually support its case, and at least one transcript path can identify the culprit without culprit cooperation;
+- the table makes observable progress through actual shares, questions, purchases, and accusations rather than hypothetical plans.
 
 Return each required check exactly once. Any failed check requires at least one blocking finding and a fail verdict. An inconclusive player report is blocking because this certification is fail-closed.
 
@@ -162,6 +136,9 @@ ${JSON.stringify(anonymizeRoleReports(definition, roleReports))}
 
 Isolated host execution report:
 ${JSON.stringify(hostReport)}
+
+Constrained round-table transcript and final knowledge ledger:
+${JSON.stringify(tableReport)}
 
 Authored truth and runtime material:
 ${JSON.stringify({

@@ -1,10 +1,12 @@
 import type { AiProblemCode } from '../../ai/problem'
 import type { LibraryScope } from '../../persistence/repository'
+import type { CertificationFailureDetails } from './feedback'
 
 export type CertificationJobFailure = {
   code: AiProblemCode
   message: string
   retryable: boolean
+  details?: CertificationFailureDetails
 }
 
 export type CertificationJob = {

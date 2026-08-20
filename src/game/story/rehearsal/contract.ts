@@ -1,4 +1,6 @@
 import type { StorylineDefinition } from '../../definition/contract'
+import { tableRehearsalPassed, validateTableRehearsalReport } from './table'
+import type { TableRehearsalReport } from './table'
 
 export const rehearsalJudgeCheckIds = [
   'deducibility',
@@ -87,7 +89,9 @@ export type StorylineRehearsalReport = {
   roleModel: string
   hostModel: string
   judgeModel: string
+  tableModel: string
   verdict: 'pass' | 'fail'
+  tableReport: TableRehearsalReport
   roleReports: RoleRehearsalReport[]
   hostReport: HostRehearsalReport
   judgeReview: RehearsalJudgeReview
@@ -453,6 +457,7 @@ export function validateStorylineRehearsalReport(
   if (typeof value.roleModel !== 'string' || !value.roleModel.trim()) errors.push('storyline rehearsal has no role model')
   if (typeof value.hostModel !== 'string' || !value.hostModel.trim()) errors.push('storyline rehearsal has no host model')
   if (typeof value.judgeModel !== 'string' || !value.judgeModel.trim()) errors.push('storyline rehearsal has no judge model')
+  if (typeof value.tableModel !== 'string' || !value.tableModel.trim()) errors.push('storyline rehearsal has no table model')
   if (!['pass', 'fail'].includes(String(value.verdict))) errors.push('storyline rehearsal has an invalid verdict')
   if (!Array.isArray(value.roleReports) || value.roleReports.length !== definition.story.characters.length) {
     errors.push('storyline rehearsal must contain one report per suspect')
@@ -461,6 +466,7 @@ export function validateStorylineRehearsalReport(
   }
   errors.push(...validateHostRehearsalReport(definition, value.hostReport))
   errors.push(...validateRehearsalJudgeReview(definition, value.judgeReview))
+  errors.push(...validateTableRehearsalReport(definition, value.tableReport))
   if (hasInvalidStrings(value.blockingReasons, true)) errors.push('storyline rehearsal blocking reasons are invalid')
 
   const roleReports = Array.isArray(value.roleReports) ? value.roleReports.filter(isRecord) : []
@@ -470,8 +476,11 @@ export function validateStorylineRehearsalReport(
     && (value.hostReport as HostRehearsalReport).status === 'ready'
   const judgePassed = validateRehearsalJudgeReview(definition, value.judgeReview).length === 0
     && rehearsalJudgePassed(value.judgeReview as RehearsalJudgeReview)
+  const tablePassed = validateTableRehearsalReport(definition, value.tableReport).length === 0
+    && tableRehearsalPassed(value.tableReport as TableRehearsalReport)
+    && (value.tableReport as TableRehearsalReport).model === value.tableModel
   const hasNoBlockers = Array.isArray(value.blockingReasons) && value.blockingReasons.length === 0
-  const passes = rolesReady && hostReady && judgePassed && hasNoBlockers
+  const passes = rolesReady && hostReady && judgePassed && tablePassed && hasNoBlockers
   if (value.verdict === 'pass' && !passes) errors.push('storyline rehearsal cannot pass unless every player and the judge passed')
   if (value.verdict === 'fail' && passes) errors.push('storyline rehearsal cannot fail when every player and the judge passed')
   return [...new Set(errors)]
@@ -481,6 +490,8 @@ export function storylineRehearsalPassed(report: StorylineRehearsalReport) {
   return report.verdict === 'pass'
     && report.roleReports.every(role => role.status === 'ready')
     && report.hostReport.status === 'ready'
+    && report.tableReport.model === report.tableModel
+    && tableRehearsalPassed(report.tableReport)
     && rehearsalJudgePassed(report.judgeReview)
     && report.blockingReasons.length === 0
 }

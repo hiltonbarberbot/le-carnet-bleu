@@ -14,6 +14,7 @@ import {
   type RoleRehearsalReport,
 } from './contract'
 import { createHostRehearsalPrompt, createRehearsalJudgePrompt, createRoleRehearsalPrompt } from './packets'
+import type { TableRehearsalReport } from './table'
 
 export const defaultRoleRehearsalModel = 'google/gemini-3.7-flash'
 export const defaultHostRehearsalModel = 'google/gemini-3.7-flash'
@@ -61,12 +62,13 @@ export async function judgeRehearsalWithGateway(
   definition: StorylineDefinition,
   roleReports: RoleRehearsalReport[],
   hostReport: HostRehearsalReport,
+  tableReport: TableRehearsalReport,
   options: { model?: string } = {},
 ): Promise<RehearsalJudgeReview> {
   const result = await generateText({
     model: options.model ?? process.env.AI_GATEWAY_REHEARSAL_JUDGE_MODEL ?? defaultRehearsalJudgeModel,
     system: 'You are a severe spoiler-aware playtest judge. Treat every missing, uncertain, or inaccessible route as blocking. Return only the requested structured review.',
-    prompt: createRehearsalJudgePrompt(definition, roleReports, hostReport),
+    prompt: createRehearsalJudgePrompt(definition, roleReports, hostReport, tableReport),
     output: Output.object({ schema: jsonSchema<RehearsalJudgeReview>(rehearsalJudgeReviewJsonSchema) }),
     ...createAiCallOptions(),
     temperature: 0,

@@ -1,7 +1,8 @@
 import type { StorylineDefinition } from '../../definition/contract'
+import { auditStorylineQuality } from '../quality/audit'
 
 export function auditStorylineLogicStatically(definition: StorylineDefinition): string[] {
-  const errors: string[] = []
+  const errors: string[] = [...auditStorylineQuality(definition)]
   const stepIds = new Set(definition.story.solutionSteps.map(step => step.id))
   const evidence = new Map([
     ...definition.story.publicEvidence.map(item => [item.id, item] as const),

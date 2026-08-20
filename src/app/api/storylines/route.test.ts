@@ -11,6 +11,7 @@ vi.mock('../../../game/ai/server/author', () => ({
     review: 'review/model',
     roleRehearsal: 'role/model',
     hostRehearsal: 'host/model',
+    tableRehearsal: 'table/model',
     rehearsalJudge: 'judge/model',
   })),
 }))

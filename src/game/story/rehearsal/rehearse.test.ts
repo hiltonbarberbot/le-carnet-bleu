@@ -15,6 +15,7 @@ import {
   createRoleRehearsalPrompt,
 } from './packets'
 import { rehearseStoryline } from './rehearse'
+import { simulateRoundTable, type TableRehearsalReport } from './table'
 
 function readyRoleReport(definition: ReturnType<typeof createDemoStoryline>, roleIndex: number): RoleRehearsalReport {
   const role = definition.story.characters[roleIndex]
@@ -81,6 +82,16 @@ function passingJudge(definition: ReturnType<typeof createDemoStoryline>): Rehea
   }
 }
 
+function readyTableReport(definition: ReturnType<typeof createDemoStoryline>): Promise<TableRehearsalReport> {
+  return simulateRoundTable(definition, {
+    model: 'table/model',
+    rounds: 2,
+    runTurn: async (roleIndex, view) => view.round === 1
+      ? { action: 'share_fact', factId: view.knownFactIds.at(-1)!, targetRoleId: '', deckId: '', accusedRoleId: '', caseFactIds: [], words: 'I share one concrete fact with everyone.' }
+      : { action: 'accuse', factId: '', targetRoleId: '', deckId: '', accusedRoleId: definition.story.characters[(roleIndex + 1) % definition.story.characters.length].id, caseFactIds: view.knownFactIds.slice(0, 2), words: 'These known facts support my accusation.' },
+  })
+}
+
 describe('spoiler-isolated storyline rehearsal', () => {
   it('gives a role only public opening material and its own dossier', () => {
     const definition = createDemoStoryline('isolated-packet')
@@ -124,20 +135,22 @@ describe('spoiler-isolated storyline rehearsal', () => {
     const definition = createDemoStoryline('five-player-rehearsal')
     const roleRunner = vi.fn(async (candidate, roleIndex: number) => readyRoleReport(candidate, roleIndex))
     const hostRunner = vi.fn(async candidate => readyHostReport(candidate))
-    const judge = vi.fn(async (candidate, reports: RoleRehearsalReport[], hostReport: HostRehearsalReport) => {
-      const prompt = createRehearsalJudgePrompt(candidate, reports, hostReport)
+    const judge = vi.fn(async (candidate, reports: RoleRehearsalReport[], hostReport: HostRehearsalReport, tableReport: TableRehearsalReport) => {
+      const prompt = createRehearsalJudgePrompt(candidate, reports, hostReport, tableReport)
       expect(prompt).not.toContain('"participantRef"')
-      expect(prompt).not.toContain('"factId"')
       expect(prompt).not.toContain('"objectiveId"')
+      expect(prompt).toContain('Constrained round-table transcript')
       return passingJudge(candidate)
     })
 
     const report = await rehearseStoryline(definition, {
       roleModel: 'role/model',
       hostModel: 'host/model',
+      tableModel: 'table/model',
       judgeModel: 'judge/model',
       rehearseRole: roleRunner,
       rehearseHost: hostRunner,
+      rehearseTable: readyTableReport,
       judge,
     })
 
@@ -152,6 +165,7 @@ describe('spoiler-isolated storyline rehearsal', () => {
     const definition = createDemoStoryline('blocked-player')
     const report = await rehearseStoryline(definition, {
       roleModel: 'role/model',
+      tableModel: 'table/model',
       judgeModel: 'judge/model',
       rehearseRole: async (candidate, roleIndex) => {
         const roleReport = readyRoleReport(candidate, roleIndex)
@@ -163,6 +177,7 @@ describe('spoiler-isolated storyline rehearsal', () => {
         return roleReport
       },
       rehearseHost: async candidate => readyHostReport(candidate),
+      rehearseTable: readyTableReport,
       judge: async candidate => passingJudge(candidate),
     })
 
@@ -176,12 +191,14 @@ describe('spoiler-isolated storyline rehearsal', () => {
     const judge = vi.fn()
 
     await expect(rehearseStoryline(definition, {
+      tableModel: 'table/model',
       rehearseRole: async (candidate, roleIndex) => {
         const report = readyRoleReport(candidate, roleIndex)
         if (roleIndex === 0) report.definitionFingerprint = 'another-story'
         return report
       },
       rehearseHost: async candidate => readyHostReport(candidate),
+      rehearseTable: readyTableReport,
       judge,
     })).rejects.toThrow('fingerprint does not match')
     expect(judge).not.toHaveBeenCalled()
@@ -190,8 +207,10 @@ describe('spoiler-isolated storyline rehearsal', () => {
   it('keeps a blocking judge verdict in the durable report', async () => {
     const definition = createDemoStoryline('judge-rejection')
     const report = await rehearseStoryline(definition, {
+      tableModel: 'table/model',
       rehearseRole: async (candidate, roleIndex) => readyRoleReport(candidate, roleIndex),
       rehearseHost: async candidate => readyHostReport(candidate),
+      rehearseTable: readyTableReport,
       judge: async candidate => {
         const review = passingJudge(candidate)
         review.verdict = 'fail'
@@ -214,6 +233,7 @@ describe('spoiler-isolated storyline rehearsal', () => {
   it('treats an inconclusive host rehearsal as blocking', async () => {
     const definition = createDemoStoryline('host-repair-risk')
     const report = await rehearseStoryline(definition, {
+      tableModel: 'table/model',
       rehearseRole: async (candidate, roleIndex) => readyRoleReport(candidate, roleIndex),
       rehearseHost: async candidate => {
         const host = readyHostReport(candidate)
@@ -222,6 +242,7 @@ describe('spoiler-isolated storyline rehearsal', () => {
         host.revealAssessment.blockers = ['The authored reveal does not explain how the fatal act occurred.']
         return host
       },
+      rehearseTable: readyTableReport,
       judge: async candidate => passingJudge(candidate),
     })
 

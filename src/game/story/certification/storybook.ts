@@ -1,6 +1,6 @@
 import type { SettingBrief } from '../../setting/contract'
 import type { StorylineDefinition } from '../../definition/contract'
-import { formatStorylineReadinessFailure, storylineReadinessPassed } from '../review/readiness'
+import { storylineReadinessPassed } from '../review/readiness'
 import { logicReviewPassed } from '../review/contract'
 import { classifyAiProviderError } from '../../ai/server/problem'
 import type { LibraryScope } from '../../persistence/repository'
@@ -15,9 +15,15 @@ import {
   markCertificationRunning,
   rehearseHostStep,
   rehearseRoleStep,
+  rehearseTableStep,
   reviewStorylineStep,
   type CertificationModels,
 } from './steps'
+import {
+  createAuthoringRepairBrief,
+  createFailureDetails,
+  createReadinessRepairBrief,
+} from './feedback'
 
 function providerFailure(error: unknown) {
   const code = classifyAiProviderError(error)
@@ -51,16 +57,21 @@ export async function certifyStorylineWorkflow(
   'use workflow'
 
   await markCertificationRunning(input.scope, input.jobId)
-  let priorFailure = 'The generated story was invalid.'
+  let repairBrief = createAuthoringRepairBrief('The generated story was invalid.')
+  let attemptsRun = 0
 
   try {
     const attempts = input.source.kind === 'setting' ? 2 : 1
     for (let attempt = 0; attempt < attempts; attempt += 1) {
+      attemptsRun = attempt + 1
       const authored = input.source.kind === 'setting'
-        ? await draftStorylineStep(input.source.setting, attempt, priorFailure)
+        ? await draftStorylineStep(input.source.setting, attempt, repairBrief)
         : { status: 'authored' as const, definition: input.source.definition }
       if (authored.status === 'rejected') {
-        priorFailure = authored.reason
+        repairBrief = createAuthoringRepairBrief(
+          authored.reason,
+          authored.kind === 'malformed' ? 'malformed_output' : 'invalid_definition',
+        )
         continue
       }
 
@@ -68,27 +79,29 @@ export async function certifyStorylineWorkflow(
       const deterministic = await inspectStorylineStep(definition)
       if (deterministic.findings.length) {
         const evaluation = await assembleReadinessStep(definition, input.models)
-        priorFailure = formatStorylineReadinessFailure(evaluation.verdict)
+        repairBrief = createReadinessRepairBrief(evaluation.verdict)
         continue
       }
 
       const review = await reviewStorylineStep(definition, input.models.review)
       if (!logicReviewPassed(review)) {
         const evaluation = await assembleReadinessStep(definition, input.models, review)
-        priorFailure = formatStorylineReadinessFailure(evaluation.verdict)
+        repairBrief = createReadinessRepairBrief(evaluation.verdict)
         continue
       }
 
-      const [hostReport, roleReports] = await Promise.all([
+      const [hostReport, roleReports, tableReport] = await Promise.all([
         rehearseHostStep(definition, input.models.hostRehearsal),
         Promise.all(definition.story.characters.map((_character, roleIndex) => (
           rehearseRoleStep(definition, roleIndex, input.models.roleRehearsal)
         ))),
+        rehearseTableStep(definition, input.models.tableRehearsal),
       ])
       const judgeReview = await judgeRehearsalStep(
         definition,
         roleReports,
         hostReport,
+        tableReport,
         input.models.rehearsalJudge,
       )
       const rehearsal = await assembleRehearsalStep(
@@ -96,11 +109,12 @@ export async function certifyStorylineWorkflow(
         input.models,
         roleReports,
         hostReport,
+        tableReport,
         judgeReview,
       )
       const evaluation = await assembleReadinessStep(definition, input.models, review, rehearsal)
       if (!storylineReadinessPassed(evaluation.verdict)) {
-        priorFailure = formatStorylineReadinessFailure(evaluation.verdict)
+        repairBrief = createReadinessRepairBrief(evaluation.verdict)
         continue
       }
 
@@ -114,6 +128,7 @@ export async function certifyStorylineWorkflow(
         ? 'The generated mystery did not pass the complete playability certification after automatic repair.'
         : 'The imported mystery did not pass the complete playability certification.',
       retryable: input.source.kind === 'setting',
+      details: createFailureDetails(repairBrief, attemptsRun),
     })
     return { status: 'failed', jobId: input.jobId }
   } catch (error) {

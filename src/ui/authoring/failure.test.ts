@@ -20,4 +20,29 @@ describe('authoring failure copy', () => {
       reference: 'ABC12345',
     })
   })
+
+  it('keeps spoiler-safe certification blockers for the studio to render', () => {
+    const error = new AiRequestError({
+      error: 'The mystery remained unplayable.',
+      code: 'invalid_output',
+      retryable: true,
+      details: {
+        schemaVersion: 1,
+        attemptCount: 2,
+        blockingReasons: [{
+          stage: 'rehearsal',
+          code: 'not_deducible',
+          message: 'Players could not reliably deduce the solution from their actual information.',
+        }],
+      },
+    })
+
+    expect(describeDraftFailure(error, 'story')).toMatchObject({
+      attemptCount: 2,
+      blockingReasons: [expect.objectContaining({
+        stage: 'rehearsal',
+        code: 'not_deducible',
+      })],
+    })
+  })
 })

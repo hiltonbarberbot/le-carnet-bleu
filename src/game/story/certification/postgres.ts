@@ -1,6 +1,7 @@
 import postgres from 'postgres'
 import type { AiProblemCode } from '../../ai/problem'
 import type { CertificationJob, CertificationJobRepository } from './jobs'
+import { readCertificationFailureDetails } from './feedback'
 
 type QueryRow = Record<string, unknown>
 
@@ -22,7 +23,12 @@ function readJob(row: QueryRow): CertificationJob {
     status: row.status as CertificationJob['status'],
     storylineFingerprint: typeof row.storyline_fingerprint === 'string' ? row.storyline_fingerprint : undefined,
     failure: errorCode && errorMessage
-      ? { code: errorCode, message: errorMessage, retryable: Boolean(row.retryable) }
+      ? {
+          code: errorCode,
+          message: errorMessage,
+          retryable: Boolean(row.retryable),
+          details: readCertificationFailureDetails(row.failure_details),
+        }
       : undefined,
     createdAt: asIso(row.created_at),
     updatedAt: asIso(row.updated_at),
@@ -69,6 +75,7 @@ export function createPostgresCertificationJobRepository(sql: CertificationJobQu
         `UPDATE mystery_certification_jobs
             SET status = 'succeeded', storyline_fingerprint = $3,
                 error_code = NULL, error_message = NULL, retryable = NULL,
+                failure_details = NULL,
                 updated_at = NOW(), completed_at = NOW()
           WHERE owner_id = $1 AND id = $2::uuid AND status <> 'succeeded'
           RETURNING id`,
@@ -92,9 +99,17 @@ export function createPostgresCertificationJobRepository(sql: CertificationJobQu
       await sql.query(
         `UPDATE mystery_certification_jobs
             SET status = 'failed', error_code = $3, error_message = $4,
-                retryable = $5, updated_at = NOW(), completed_at = NOW()
+                retryable = $5, failure_details = $6::jsonb,
+                updated_at = NOW(), completed_at = NOW()
           WHERE owner_id = $1 AND id = $2::uuid AND status <> 'succeeded'`,
-        [scope.ownerId, jobId, failure.code, failure.message, failure.retryable],
+        [
+          scope.ownerId,
+          jobId,
+          failure.code,
+          failure.message,
+          failure.retryable,
+          failure.details ? JSON.stringify(failure.details) : null,
+        ],
       )
     },
 

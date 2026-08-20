@@ -3,6 +3,7 @@ import { generateText, streamText } from 'ai'
 import { GET, POST } from './server/author'
 import { createDemoStoryline, demoSetting } from '../demo'
 import { createSettingBrief } from '../setting/brief'
+import { createStorylineDefinition } from '../definition/create'
 import { logicCheckIds, type StoryLogicReview } from '../story/review/contract'
 import {
   rehearsalJudgeCheckIds,
@@ -49,10 +50,10 @@ function failedStructuredStream(text: string) {
   } as never
 }
 
-function passingReview(): StoryLogicReview {
+function passingReview(definition = createDemoStoryline('ai-authored')): StoryLogicReview {
   return {
     schemaVersion: 1,
-    definitionFingerprint: createDemoStoryline('ai-authored').fingerprint,
+    definitionFingerprint: definition.fingerprint,
     verdict: 'pass',
     summary: 'The case is coherent and fairly solvable.',
     checks: logicCheckIds.map(id => ({ id, verdict: 'pass', explanation: `${id} passes.`, relatedIds: [] })),
@@ -60,8 +61,7 @@ function passingReview(): StoryLogicReview {
   }
 }
 
-function passingHostRehearsal(): HostRehearsalReport {
-  const definition = createDemoStoryline('ai-authored')
+function passingHostRehearsal(definition = createDemoStoryline('ai-authored')): HostRehearsalReport {
   return {
     schemaVersion: 1,
     definitionFingerprint: definition.fingerprint,
@@ -75,8 +75,7 @@ function passingHostRehearsal(): HostRehearsalReport {
   }
 }
 
-function passingRoleRehearsal(roleIndex: number): RoleRehearsalReport {
-  const definition = createDemoStoryline('ai-authored')
+function passingRoleRehearsal(roleIndex: number, definition = createDemoStoryline('ai-authored')): RoleRehearsalReport {
   const role = definition.story.characters[roleIndex]
   return {
     schemaVersion: 1,
@@ -92,8 +91,7 @@ function passingRoleRehearsal(roleIndex: number): RoleRehearsalReport {
   }
 }
 
-function passingRehearsalJudge(): RehearsalJudgeReview {
-  const definition = createDemoStoryline('ai-authored')
+function passingRehearsalJudge(definition = createDemoStoryline('ai-authored')): RehearsalJudgeReview {
   return {
     schemaVersion: 1,
     definitionFingerprint: definition.fingerprint,
@@ -104,12 +102,23 @@ function passingRehearsalJudge(): RehearsalJudgeReview {
   }
 }
 
-function mockPassingRehearsal() {
-  vi.mocked(generateText).mockResolvedValueOnce({ output: passingHostRehearsal() } as never)
+function mockPassingRehearsal(definition = createDemoStoryline('ai-authored')) {
+  vi.mocked(generateText).mockResolvedValueOnce({ output: passingHostRehearsal(definition) } as never)
   for (let roleIndex = 0; roleIndex < 5; roleIndex += 1) {
-    vi.mocked(generateText).mockResolvedValueOnce({ output: passingRoleRehearsal(roleIndex) } as never)
+    vi.mocked(generateText).mockResolvedValueOnce({ output: passingRoleRehearsal(roleIndex, definition) } as never)
   }
-  vi.mocked(generateText).mockResolvedValueOnce({ output: passingRehearsalJudge() } as never)
+  for (let round = 1; round <= 3; round += 1) {
+    for (let roleIndex = 0; roleIndex < 5; roleIndex += 1) {
+      const nextRoleId = definition.story.characters[(roleIndex + 1) % definition.story.characters.length].id
+      const output = round === 1
+        ? { action: 'share_fact', factId: definition.story.characters[roleIndex].secrets[0].id, targetRoleId: '', deckId: '', accusedRoleId: '', caseFactIds: [], words: 'I share a concrete fact with the table.' }
+        : round === 2
+          ? { action: 'accuse', factId: '', targetRoleId: '', deckId: '', accusedRoleId: nextRoleId, caseFactIds: [definition.story.publicEvidence[0].id, definition.story.characters[0].secrets[0].id], words: 'These known facts support my accusation.' }
+          : { action: 'ask', factId: '', targetRoleId: nextRoleId, deckId: '', accusedRoleId: '', caseFactIds: [], words: 'Please explain how your timeline fits these facts.' }
+      vi.mocked(generateText).mockResolvedValueOnce({ output } as never)
+    }
+  }
+  vi.mocked(generateText).mockResolvedValueOnce({ output: passingRehearsalJudge(definition) } as never)
 }
 
 function mockPassingDraft(draft = generatedDefinition()) {
@@ -153,7 +162,7 @@ describe('AI story authoring function', () => {
       model: 'google/gemini-3.7-flash',
       temperature: 0,
     }))
-    expect(generateText).toHaveBeenNthCalledWith(8, expect.objectContaining({
+    expect(generateText).toHaveBeenNthCalledWith(23, expect.objectContaining({
       model: 'anthropic/claude-sonnet-5',
       temperature: 0,
     }))
@@ -169,6 +178,7 @@ describe('AI story authoring function', () => {
         status: 'passed',
         roleModel: 'google/gemini-3.7-flash',
         hostModel: 'google/gemini-3.7-flash',
+        tableModel: 'google/gemini-3.7-flash',
         judgeModel: 'anthropic/claude-sonnet-5',
       }),
     }))
@@ -184,7 +194,6 @@ describe('AI story authoring function', () => {
       invitationPretext: character.invitationPretext,
       invitationPromise: character.invitationPromise,
       privateIdentity: character.privateIdentity,
-      privateObjective: character.privateObjective,
       privateSecret: character.privateSecret,
       traits: character.traits,
       objectives: character.objectives,
@@ -204,14 +213,24 @@ describe('AI story authoring function', () => {
     }
     vi.mocked(streamText).mockReturnValueOnce(streamResult(compact))
     details.forEach(detail => vi.mocked(streamText).mockReturnValueOnce(streamResult(detail)))
-    vi.mocked(generateText).mockResolvedValueOnce({ output: passingReview() } as never)
-    mockPassingRehearsal()
+    const expected = createStorylineDefinition({
+      ...full,
+      story: {
+        ...full.story,
+        characters: full.story.characters.map(character => {
+          const { privateObjective: _privateObjective, ...rest } = character
+          return rest
+        }),
+      },
+    })
+    vi.mocked(generateText).mockResolvedValueOnce({ output: passingReview(expected) } as never)
+    mockPassingRehearsal(expected)
 
     const response = await POST(request(demoSetting))
     const payload = await response.json()
 
     expect(response.status).toBe(200)
-    expect(payload.definition.story.characters).toEqual(full.story.characters)
+    expect(payload.definition.story.characters).toEqual(expected.story.characters)
     expect(streamText).toHaveBeenCalledTimes(6)
     expect(streamText).toHaveBeenNthCalledWith(2, expect.objectContaining({
       model: 'openai/gpt-5.6-sol-fast',
@@ -291,7 +310,8 @@ describe('AI story authoring function', () => {
     }))
     expect(streamText).toHaveBeenCalledTimes(2)
     expect(generateText).toHaveBeenCalledTimes(2)
-    expect(vi.mocked(streamText).mock.calls[1][0].prompt).toContain('missing_means: The fatal mechanism is not established.')
+    expect(vi.mocked(streamText).mock.calls[1][0].prompt).toContain('"code": "missing_means"')
+    expect(vi.mocked(streamText).mock.calls[1][0].prompt).toContain('"message": "The fatal mechanism is not established."')
   })
 
   it('retries a draft that fails the domain checks', async () => {

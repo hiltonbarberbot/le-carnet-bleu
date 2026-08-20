@@ -14,6 +14,7 @@ import {
   defaultHostRehearsalModel,
   defaultRehearsalJudgeModel,
   defaultRoleRehearsalModel,
+  defaultTableRehearsalModel,
   rehearseStoryline,
 } from '../../src/game/story/rehearsal/index.js'
 
@@ -22,6 +23,7 @@ const requestedPaths = process.argv.slice(2).filter(argument => !argument.starts
 const reviewModel = process.env.AI_GATEWAY_REVIEW_MODEL ?? defaultLogicReviewModel
 const roleModel = process.env.AI_GATEWAY_REHEARSAL_ROLE_MODEL ?? defaultRoleRehearsalModel
 const hostModel = process.env.AI_GATEWAY_REHEARSAL_HOST_MODEL ?? defaultHostRehearsalModel
+const tableModel = process.env.AI_GATEWAY_REHEARSAL_TABLE_MODEL ?? defaultTableRehearsalModel
 const judgeModel = process.env.AI_GATEWAY_REHEARSAL_JUDGE_MODEL ?? defaultRehearsalJudgeModel
 
 async function defaultPaths() {
@@ -39,8 +41,9 @@ async function certify(path: string) {
     rehearsal: {
       roleModel,
       hostModel,
+      tableModel,
       judgeModel,
-      run: candidate => rehearseStoryline(candidate, { roleModel, hostModel, judgeModel }),
+      run: candidate => rehearseStoryline(candidate, { roleModel, hostModel, tableModel, judgeModel }),
     },
   })
 

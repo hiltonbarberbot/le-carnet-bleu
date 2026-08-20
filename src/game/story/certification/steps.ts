@@ -26,15 +26,21 @@ import {
   rehearseHostWithGateway,
   rehearseRoleWithGateway,
 } from '../rehearsal/gateway'
+import {
+  rehearseRoundTableWithGateway,
+  type TableRehearsalReport,
+} from '../rehearsal/table'
 import { rehearseStoryline } from '../rehearsal/rehearse'
 import type { CertificationJobFailure } from './jobs'
 import { getCertificationJobRepository } from './postgres'
+import type { StorylineRepairBrief } from './feedback'
 
 export type CertificationModels = {
   author: string
   review: string
   roleRehearsal: string
   hostRehearsal: string
+  tableRehearsal: string
   rehearsalJudge: string
 }
 
@@ -46,10 +52,10 @@ export async function markCertificationRunning(scope: LibraryScope, jobId: strin
 export async function draftStorylineStep(
   setting: SettingBrief,
   attempt: number,
-  priorFailure?: string,
+  repairBrief?: StorylineRepairBrief,
 ): Promise<StorylineAuthoringAttempt> {
   'use step'
-  const authored = await authorStorylineAttempt(setting, attempt, priorFailure)
+  const authored = await authorStorylineAttempt(setting, attempt, repairBrief)
   if (authored.status === 'rejected' && authored.kind === 'malformed') {
     throw new RetryableError(`The author model returned malformed output: ${authored.reason}`)
   }
@@ -80,14 +86,21 @@ export async function rehearseHostStep(definition: StorylineDefinition, model: s
 }
 rehearseHostStep.maxRetries = 2
 
+export async function rehearseTableStep(definition: StorylineDefinition, model: string) {
+  'use step'
+  return rehearseRoundTableWithGateway(definition, { model })
+}
+rehearseTableStep.maxRetries = 2
+
 export async function judgeRehearsalStep(
   definition: StorylineDefinition,
   roleReports: RoleRehearsalReport[],
   hostReport: HostRehearsalReport,
+  tableReport: TableRehearsalReport,
   model: string,
 ) {
   'use step'
-  return judgeRehearsalWithGateway(definition, roleReports, hostReport, { model })
+  return judgeRehearsalWithGateway(definition, roleReports, hostReport, tableReport, { model })
 }
 judgeRehearsalStep.maxRetries = 2
 
@@ -96,15 +109,18 @@ export async function assembleRehearsalStep(
   models: CertificationModels,
   roleReports: RoleRehearsalReport[],
   hostReport: HostRehearsalReport,
+  tableReport: TableRehearsalReport,
   judgeReview: RehearsalJudgeReview,
 ): Promise<StorylineRehearsalReport> {
   'use step'
   return rehearseStoryline(definition, {
     roleModel: models.roleRehearsal,
     hostModel: models.hostRehearsal,
+    tableModel: models.tableRehearsal,
     judgeModel: models.rehearsalJudge,
     rehearseRole: async (_candidate, roleIndex) => roleReports[roleIndex],
     rehearseHost: async () => hostReport,
+    rehearseTable: async () => tableReport,
     judge: async () => judgeReview,
   })
 }
@@ -125,6 +141,7 @@ export async function assembleReadinessStep(
     rehearsal: {
       roleModel: models.roleRehearsal,
       hostModel: models.hostRehearsal,
+      tableModel: models.tableRehearsal,
       judgeModel: models.rehearsalJudge,
       run: async () => {
         if (!rehearsal) throw new Error('The rehearsal was not supplied to the readiness assembler.')

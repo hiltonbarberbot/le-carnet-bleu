@@ -1,4 +1,5 @@
 import { AiRequestError, type AiProblemCode } from '../../game/ai/problem'
+import type { CertificationBlockingReason } from '../../game/story/certification/feedback'
 
 export type DraftingStage = 'setting' | 'story'
 
@@ -9,6 +10,8 @@ export type DraftFailure = {
   stage: DraftingStage
   retryable: boolean
   reference?: string
+  blockingReasons?: CertificationBlockingReason[]
+  attemptCount?: number
 }
 
 const titles: Partial<Record<AiProblemCode, string>> = {
@@ -53,6 +56,10 @@ export function describeDraftFailure(error: unknown, stage: DraftingStage): Draf
       stage,
       retryable: true,
       reference: problem?.reference,
+      ...(problem?.details ? {
+        blockingReasons: problem.details.blockingReasons,
+        attemptCount: problem.details.attemptCount,
+      } : {}),
     }
   }
 
@@ -63,5 +70,9 @@ export function describeDraftFailure(error: unknown, stage: DraftingStage): Draf
     stage,
     retryable: problem?.retryable ?? true,
     reference: problem?.reference,
+    ...(problem?.details ? {
+      blockingReasons: problem.details.blockingReasons,
+      attemptCount: problem.details.attemptCount,
+    } : {}),
   }
 }

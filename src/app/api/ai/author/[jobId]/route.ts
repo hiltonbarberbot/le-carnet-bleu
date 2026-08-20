@@ -70,6 +70,7 @@ export async function GET(
         error: job.failure?.message ?? 'Storyline certification failed.',
         code: job.failure?.code ?? 'unknown',
         retryable: job.failure?.retryable ?? true,
+        details: job.failure?.details,
       })
     }
     return json(owner, { jobId, status: job.status })

@@ -43,7 +43,8 @@ export type Character = {
   invitationPretext: string
   invitationPromise: string
   privateIdentity: string
-  privateObjective: string
+  /** Legacy field accepted when importing older stories; new stories use scored objectives only. */
+  privateObjective?: string
   privateSecret: string
   traits: string[]
   objectives: CharacterObjective[]

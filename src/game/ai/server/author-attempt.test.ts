@@ -30,4 +30,25 @@ describe('storyline authoring attempt classification', () => {
       kind: 'invalid_definition',
     }))
   })
+
+  it('gives a repair attempt structured findings instead of flattened review prose', async () => {
+    vi.mocked(streamText).mockReturnValue({ text: Promise.resolve('{}') } as never)
+
+    await authorStorylineAttempt(setting, 1, {
+      schemaVersion: 1,
+      findings: [{
+        stage: 'independent_review',
+        code: 'culprit_only_proof',
+        message: 'The fatal act is known only by the culprit.',
+        relatedIds: ['fatal-act', 'culprit-role'],
+      }],
+    })
+
+    expect(streamText).toHaveBeenCalledWith(expect.objectContaining({
+      prompt: expect.stringContaining('"code": "culprit_only_proof"'),
+    }))
+    expect(streamText).toHaveBeenCalledWith(expect.objectContaining({
+      prompt: expect.stringContaining('"relatedIds"'),
+    }))
+  })
 })

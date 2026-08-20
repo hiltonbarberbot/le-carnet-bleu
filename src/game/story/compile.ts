@@ -41,9 +41,8 @@ export function validateStory(story: Story, purchasableEvidenceIds: ReadonlySet<
     if (!character.invitationPretext?.trim()) errors.push(`character ${character.id} has no invitation pretext`)
     if (!character.invitationPromise?.trim()) errors.push(`character ${character.id} has no private invitation promise`)
     if (!character.privateIdentity?.trim()) errors.push(`character ${character.id} has no private identity`)
-    if (!character.privateObjective?.trim()) errors.push(`character ${character.id} has no private objective`)
     if ((character.traits ?? []).length < 2 || character.traits.some(trait => !trait.trim())) errors.push(`character ${character.id} needs at least two playable traits`)
-    if (character.objectives?.length !== 3) errors.push(`character ${character.id} needs exactly three scored objectives`)
+    if (![2, 3].includes(character.objectives?.length ?? 0)) errors.push(`character ${character.id} needs two or three scored objectives`)
     if (!(character.relationships?.length > 0)) errors.push(`character ${character.id} needs at least one relationship`)
     if (!(character.secrets?.length > 0)) errors.push(`character ${character.id} needs secrets or evidence`)
 

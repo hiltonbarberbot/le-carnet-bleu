@@ -57,6 +57,7 @@ export type StorylineReadinessVerdict = {
       kind: 'spoiler_isolated_llm'
       roleModel: string
       hostModel: string
+      tableModel: string
       judgeModel: string
       report: StorylineRehearsalReport
     }
@@ -65,6 +66,7 @@ export type StorylineReadinessVerdict = {
       kind: 'spoiler_isolated_llm'
       roleModel: string
       hostModel: string
+      tableModel: string
       judgeModel: string
       failure: {
         code: 'rehearsal_failed' | 'invalid_rehearsal'
@@ -76,6 +78,7 @@ export type StorylineReadinessVerdict = {
       kind: 'spoiler_isolated_llm'
       roleModel: string
       hostModel: string
+      tableModel: string
       judgeModel: string
       reason: 'deterministic_validation_failed' | 'independent_review_failed'
     }
@@ -96,6 +99,7 @@ export type StorylineReadinessGateOptions = {
   rehearsal: {
     roleModel: string
     hostModel: string
+    tableModel: string
     judgeModel: string
     run: (definition: StorylineDefinition) => Promise<StorylineRehearsalReport>
   }
@@ -155,6 +159,7 @@ export async function evaluateStorylineReadiness(
           kind: 'spoiler_isolated_llm',
           roleModel: options.rehearsal.roleModel,
           hostModel: options.rehearsal.hostModel,
+          tableModel: options.rehearsal.tableModel,
           judgeModel: options.rehearsal.judgeModel,
           reason: 'deterministic_validation_failed',
         },
@@ -185,6 +190,7 @@ export async function evaluateStorylineReadiness(
           kind: 'spoiler_isolated_llm',
           roleModel: options.rehearsal.roleModel,
           hostModel: options.rehearsal.hostModel,
+          tableModel: options.rehearsal.tableModel,
           judgeModel: options.rehearsal.judgeModel,
           reason: 'independent_review_failed',
         },
@@ -214,6 +220,7 @@ export async function evaluateStorylineReadiness(
           kind: 'spoiler_isolated_llm',
           roleModel: options.rehearsal.roleModel,
           hostModel: options.rehearsal.hostModel,
+          tableModel: options.rehearsal.tableModel,
           judgeModel: options.rehearsal.judgeModel,
           reason: 'independent_review_failed',
         },
@@ -237,6 +244,7 @@ export async function evaluateStorylineReadiness(
           kind: 'spoiler_isolated_llm',
           roleModel: options.rehearsal.roleModel,
           hostModel: options.rehearsal.hostModel,
+          tableModel: options.rehearsal.tableModel,
           judgeModel: options.rehearsal.judgeModel,
           reason: 'independent_review_failed',
         },
@@ -262,6 +270,7 @@ export async function evaluateStorylineReadiness(
           kind: 'spoiler_isolated_llm',
           roleModel: options.rehearsal.roleModel,
           hostModel: options.rehearsal.hostModel,
+          tableModel: options.rehearsal.tableModel,
           judgeModel: options.rehearsal.judgeModel,
           failure: { code: 'rehearsal_failed', message: 'The spoiler-isolated play rehearsal could not be completed.' },
         },
@@ -275,6 +284,7 @@ export async function evaluateStorylineReadiness(
   if (rehearsalErrors.length
     || rehearsal.roleModel !== options.rehearsal.roleModel
     || rehearsal.hostModel !== options.rehearsal.hostModel
+    || rehearsal.tableModel !== options.rehearsal.tableModel
     || rehearsal.judgeModel !== options.rehearsal.judgeModel) {
     return {
       verdict: {
@@ -289,6 +299,7 @@ export async function evaluateStorylineReadiness(
           kind: 'spoiler_isolated_llm',
           roleModel: options.rehearsal.roleModel,
           hostModel: options.rehearsal.hostModel,
+          tableModel: options.rehearsal.tableModel,
           judgeModel: options.rehearsal.judgeModel,
           failure: { code: 'invalid_rehearsal', message: 'The spoiler-isolated play rehearsal returned an invalid report.' },
         },
@@ -314,6 +325,7 @@ export async function evaluateStorylineReadiness(
           kind: 'spoiler_isolated_llm',
           roleModel: options.rehearsal.roleModel,
           hostModel: options.rehearsal.hostModel,
+          tableModel: options.rehearsal.tableModel,
           judgeModel: options.rehearsal.judgeModel,
           report: rehearsal,
         },
@@ -335,6 +347,7 @@ export async function evaluateStorylineReadiness(
         kind: 'spoiler_isolated_llm',
         roleModel: options.rehearsal.roleModel,
         hostModel: options.rehearsal.hostModel,
+        tableModel: options.rehearsal.tableModel,
         judgeModel: options.rehearsal.judgeModel,
         report: rehearsal,
       },
@@ -357,6 +370,7 @@ export type PlayableStorylineReadinessVerdict = StorylineReadinessVerdict & {
     kind: 'spoiler_isolated_llm'
     roleModel: string
     hostModel: string
+    tableModel: string
     judgeModel: string
     report: StorylineRehearsalReport
   }
@@ -377,6 +391,7 @@ export function storylineReadinessPassed(
     && verdict.playabilityRehearsal.report.definitionFingerprint === verdict.definitionFingerprint
     && verdict.playabilityRehearsal.report.roleModel === verdict.playabilityRehearsal.roleModel
     && verdict.playabilityRehearsal.report.hostModel === verdict.playabilityRehearsal.hostModel
+    && verdict.playabilityRehearsal.report.tableModel === verdict.playabilityRehearsal.tableModel
     && verdict.playabilityRehearsal.report.judgeModel === verdict.playabilityRehearsal.judgeModel
     && storylineRehearsalPassed(verdict.playabilityRehearsal.report)
     && verdict.blockingReasons.length === 0
@@ -441,6 +456,8 @@ export function validateStorylineReadinessVerdict(
     || !rehearsal.roleModel.trim()
     || typeof rehearsal.hostModel !== 'string'
     || !rehearsal.hostModel.trim()
+    || typeof rehearsal.tableModel !== 'string'
+    || !rehearsal.tableModel.trim()
     || typeof rehearsal.judgeModel !== 'string'
     || !rehearsal.judgeModel.trim()) {
     errors.push('readiness verdict has no valid playability rehearsal identity')
@@ -454,7 +471,7 @@ export function validateStorylineReadinessVerdict(
     const report = rehearsal.report && typeof rehearsal.report === 'object' && !Array.isArray(rehearsal.report)
       ? rehearsal.report as Record<string, unknown>
       : undefined
-    if (report?.roleModel !== rehearsal.roleModel || report?.hostModel !== rehearsal.hostModel || report?.judgeModel !== rehearsal.judgeModel) {
+    if (report?.roleModel !== rehearsal.roleModel || report?.hostModel !== rehearsal.hostModel || report?.tableModel !== rehearsal.tableModel || report?.judgeModel !== rehearsal.judgeModel) {
       errors.push('readiness playability rehearsal model identity does not match its report')
     }
     if (reportErrors.length === 0) {
@@ -495,6 +512,7 @@ export function validateStorylineReadinessVerdict(
     && storylineRehearsalPassed(rehearsal.report as StorylineRehearsalReport)
     && (rehearsal.report as StorylineRehearsalReport).roleModel === rehearsal.roleModel
     && (rehearsal.report as StorylineRehearsalReport).hostModel === rehearsal.hostModel
+    && (rehearsal.report as StorylineRehearsalReport).tableModel === rehearsal.tableModel
     && (rehearsal.report as StorylineRehearsalReport).judgeModel === rehearsal.judgeModel
   const passes = deterministic?.status === 'passed'
     && Array.isArray(deterministic.findings)

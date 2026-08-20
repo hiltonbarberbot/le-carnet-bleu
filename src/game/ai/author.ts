@@ -2,11 +2,12 @@ import { createStorylineDefinition } from '../definition/create'
 import type { StorylineDefinition, StorylineDefinitionInput } from '../definition/contract'
 import type { SettingBrief } from '../setting/contract'
 import { AiRequestError, requestAiJson, type AiProblemCode } from './problem'
+import type { CertificationFailureDetails } from '../story/certification/feedback'
 
 export type StorylineCertificationStatus =
   | { jobId: string; status: 'pending' | 'running' }
   | { jobId: string; status: 'succeeded'; definition: StorylineDefinitionInput }
-  | { jobId: string; status: 'failed'; error: string; code: AiProblemCode; retryable: boolean }
+  | { jobId: string; status: 'failed'; error: string; code: AiProblemCode; retryable: boolean; details?: CertificationFailureDetails }
 
 type CertificationRequestOptions = {
   signal?: AbortSignal
@@ -71,6 +72,7 @@ export async function resumeStorylineCertification(
         error: payload.error,
         code: payload.code,
         retryable: payload.retryable,
+        details: payload.details,
       })
     }
     if (payload.status === 'succeeded') {

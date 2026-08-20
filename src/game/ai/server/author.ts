@@ -11,15 +11,20 @@ import {
   defaultHostRehearsalModel,
   defaultRoleRehearsalModel,
 } from '../../story/rehearsal/gateway'
+import { defaultTableRehearsalModel } from '../../story/rehearsal/table'
 import { rehearseStoryline } from '../../story/rehearsal/rehearse'
 import {
   evaluateStorylineReadiness,
-  formatStorylineReadinessFailure,
   storylineReadinessPassed,
   type StorylineReadinessVerdict,
 } from '../../story/review/readiness'
 import { classifyAiProviderError, createProblemReference, problemResponse } from './problem'
 import { createAiCallOptions } from './deadline'
+import {
+  createAuthoringRepairBrief,
+  createReadinessRepairBrief,
+  type StorylineRepairBrief,
+} from '../../story/certification/feedback'
 
 const model = process.env.AI_GATEWAY_AUTHOR_MODEL || 'openai/gpt-5.6-sol-fast'
 export const maxDuration = 800
@@ -94,7 +99,6 @@ const characterDetailKeys = [
   'invitationPretext',
   'invitationPromise',
   'privateIdentity',
-  'privateObjective',
   'privateSecret',
   'traits',
   'objectives',
@@ -131,7 +135,7 @@ async function enrichDraftCharacters(
     const result = streamText({
       model,
       system: 'You are writing one private player dossier for a live fair-play mystery. Return only one complete JSON object with no markdown fences. Preserve the supplied mystery truth and never invent new evidence IDs.',
-      prompt: `${authoringBrief}\n\nAuthored mystery core:\n${JSON.stringify(storyContext)}\n\nWrite the dossier fields for role ${roleIndex + 1}:\n${JSON.stringify(character)}\n\nReturn exactly this shape:\n{"costume":"","publicFace":"","invitationPretext":"","invitationPromise":"","privateIdentity":"","privateObjective":"","privateSecret":"","traits":["", ""],"objectives":[{"id":"unique-id","title":"","text":"","phase":"investigation|any","points":1}],"relationships":[{"roleId":"another-character-id","text":""}]}\n\nRules: make the role active and socially playable; exactly three distinct 1-3 point objectives; at least two traits; write a useful relationship to every other suspect; objectives must be feasible through voluntary conversation, bargaining, clue purchase, evidence sharing, or the public accusation system; do not require contact, coercion, private rooms, absent props, scripted investigation events, or knowledge outside this role's supplied starting secrets and public context.`,
+      prompt: `${authoringBrief}\n\nAuthored mystery core:\n${JSON.stringify(storyContext)}\n\nWrite the dossier fields for role ${roleIndex + 1}:\n${JSON.stringify(character)}\n\nReturn exactly this shape:\n{"costume":"","publicFace":"","invitationPretext":"","invitationPromise":"","privateIdentity":"","privateSecret":"","traits":["", ""],"objectives":[{"id":"unique-id","title":"","text":"","phase":"investigation|any","points":1}],"relationships":[{"roleId":"another-character-id","text":""}]}\n\nRules: make the role active and socially playable in under 450 words total; exactly two distinct 1-3 point objectives, exactly two traits, and exactly two useful relationships; the scored objectives are the only task system; objectives must be feasible through voluntary conversation, bargaining, clue purchase, evidence sharing, or the public accusation system; do not require contact, coercion, private rooms, absent props, scripted investigation events, or knowledge outside this role's supplied starting secrets and public context.`,
       maxOutputTokens: 5000,
       ...createAiCallOptions(),
       providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'character-authoring'] } },
@@ -184,6 +188,7 @@ export function storyCertificationModels() {
     review: process.env.AI_GATEWAY_REVIEW_MODEL ?? defaultLogicReviewModel,
     roleRehearsal: process.env.AI_GATEWAY_REHEARSAL_ROLE_MODEL ?? defaultRoleRehearsalModel,
     hostRehearsal: process.env.AI_GATEWAY_REHEARSAL_HOST_MODEL ?? defaultHostRehearsalModel,
+    tableRehearsal: process.env.AI_GATEWAY_REHEARSAL_TABLE_MODEL ?? defaultTableRehearsalModel,
     rehearsalJudge: process.env.AI_GATEWAY_REHEARSAL_JUDGE_MODEL ?? defaultRehearsalJudgeModel,
   }
 }
@@ -192,7 +197,7 @@ export function storyCertificationModels() {
 export async function authorStorylineAttempt(
   setting: SettingBrief,
   attempt: number,
-  priorFailure?: string,
+  repairBrief?: StorylineRepairBrief,
 ): Promise<StorylineAuthoringAttempt> {
   const authoringBrief = createStoryAuthoringBrief(setting)
   let output: unknown
@@ -200,7 +205,13 @@ export async function authorStorylineAttempt(
     const result = streamText({
       model,
       system: 'You are a meticulous live-mystery designer. Return only the requested JSON object with no markdown fences. Build a playable, fair mystery from the verified setting; never reuse Maison Bleue demo canon.',
-      prompt: [authoringBrief, shape, attempt ? `A prior draft failed validation. Correct these issues in a fresh complete draft:\n${priorFailure ?? 'The prior draft did not pass.'}` : 'Draft the complete game now.'].join('\n\n'),
+      prompt: [
+        authoringBrief,
+        shape,
+        attempt
+          ? `A prior draft failed certification. Build a fresh complete draft that directly repairs every structured finding below. Do not copy obsolete IDs from the rejected draft; repair the underlying evidence, information-flow, objective, staging, or endgame defect.\n${JSON.stringify(repairBrief ?? createAuthoringRepairBrief('The prior draft did not pass certification.'), null, 2)}`
+          : 'Draft the complete game now.',
+      ].join('\n\n'),
       maxOutputTokens: 24000,
       ...createAiCallOptions(),
       providerOptions: { gateway: { tags: [productNaming.telemetryTag, 'story-authoring'] } },
@@ -254,21 +265,22 @@ export async function POST(request: Request) {
   }
 
   const reference = createProblemReference()
-  let lastError = 'The generated story was invalid.'
+  let repairBrief = createAuthoringRepairBrief('The generated story was invalid.')
   let lastReadiness: StorylineReadinessVerdict | undefined
   const models = storyCertificationModels()
   const reviewModel = models.review
   const roleRehearsalModel = models.roleRehearsal
   const hostRehearsalModel = models.hostRehearsal
+  const tableRehearsalModel = models.tableRehearsal
   const rehearsalJudgeModel = models.rehearsalJudge
   for (let attempt = 0; attempt < 2; attempt += 1) {
     let authored: StorylineAuthoringAttempt
     try {
-      authored = await authorStorylineAttempt(setting, attempt, lastError)
+      authored = await authorStorylineAttempt(setting, attempt, repairBrief)
     } catch (error) {
       const code = classifyAiProviderError(error)
       if (code === 'invalid_output' && attempt === 0) {
-        lastError = 'The model did not return the requested story shape.'
+        repairBrief = createAuthoringRepairBrief('The model did not return the requested story shape.', 'malformed_output')
         continue
       }
       console.error('AI story provider request failed', { reference, code, error })
@@ -276,7 +288,10 @@ export async function POST(request: Request) {
     }
 
     if (authored.status === 'rejected') {
-      lastError = authored.reason
+      repairBrief = createAuthoringRepairBrief(
+        authored.reason,
+        authored.kind === 'malformed' ? 'malformed_output' : 'invalid_definition',
+      )
       continue
     }
     const definition = authored.definition
@@ -288,10 +303,12 @@ export async function POST(request: Request) {
         rehearsal: {
           roleModel: roleRehearsalModel,
           hostModel: hostRehearsalModel,
+          tableModel: tableRehearsalModel,
           judgeModel: rehearsalJudgeModel,
           run: candidate => rehearseStoryline(candidate, {
             roleModel: roleRehearsalModel,
             hostModel: hostRehearsalModel,
+            tableModel: tableRehearsalModel,
             judgeModel: rehearsalJudgeModel,
           }),
         },
@@ -308,7 +325,7 @@ export async function POST(request: Request) {
         return problemResponse(code, { reference, details: { readiness: evaluation.verdict } })
       }
       if (!storylineReadinessPassed(evaluation.verdict)) {
-        lastError = formatStorylineReadinessFailure(evaluation.verdict)
+        repairBrief = createReadinessRepairBrief(evaluation.verdict)
         continue
       }
       return json({
@@ -324,7 +341,7 @@ export async function POST(request: Request) {
     }
   }
 
-  console.error('AI story authoring failed validation', { reference, error: lastError })
+  console.error('AI story authoring failed validation', { reference, repairBrief })
   return problemResponse('invalid_output', {
     message: 'The AI story did not pass the fairness and playability checks.',
     reference,

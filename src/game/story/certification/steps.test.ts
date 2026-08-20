@@ -8,6 +8,7 @@ import {
   judgeRehearsalStep,
   rehearseHostStep,
   rehearseRoleStep,
+  rehearseTableStep,
   reviewStorylineStep,
 } from './steps'
 
@@ -21,6 +22,7 @@ describe('durable authoring step', () => {
     expect(reviewStorylineStep.maxRetries).toBe(2)
     expect(rehearseRoleStep.maxRetries).toBe(2)
     expect(rehearseHostStep.maxRetries).toBe(2)
+    expect(rehearseTableStep.maxRetries).toBe(2)
     expect(judgeRehearsalStep.maxRetries).toBe(2)
   })
 
@@ -31,7 +33,15 @@ describe('durable authoring step', () => {
       reason: 'Unexpected end of JSON input',
     })
 
-    await expect(draftStorylineStep(setting, 1, 'Repair the evidence graph.')).rejects.toSatisfy(error => (
+    await expect(draftStorylineStep(setting, 1, {
+      schemaVersion: 1,
+      findings: [{
+        stage: 'deterministic_review',
+        code: 'deterministic_validation',
+        message: 'Repair the evidence graph.',
+        relatedIds: [],
+      }],
+    })).rejects.toSatisfy(error => (
       RetryableError.is(error)
     ))
     expect(draftStorylineStep.maxRetries).toBe(2)
