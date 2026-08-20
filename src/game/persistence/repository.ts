@@ -1,6 +1,6 @@
 import type { StorylineDefinition } from '../definition/contract'
 import type { ExistingGameState } from '../types'
-import type { StorylinePlayabilityPassport } from '../story/grambois/passport'
+import type { StorylineReadinessVerdict } from '../story/review/readiness'
 
 export type LibraryScope = {
   ownerId: string
@@ -31,9 +31,9 @@ export type LibraryImportResult = {
 export type GameLibraryRepository = {
   listStorylines(scope: LibraryScope): Promise<StorylineDefinition[]>
   findStoryline(scope: LibraryScope, fingerprint: string): Promise<StorylineDefinition | undefined>
-  findStorylineReadiness(scope: LibraryScope, fingerprint: string): Promise<StorylinePlayabilityPassport | undefined>
+  findStorylineReadiness(scope: LibraryScope, fingerprint: string): Promise<StorylineReadinessVerdict | undefined>
   saveStoryline(scope: LibraryScope, storyline: StorylineDefinition): Promise<void>
-  certifyStoryline(scope: LibraryScope, storyline: StorylineDefinition, readiness: StorylinePlayabilityPassport): Promise<void>
+  certifyStoryline(scope: LibraryScope, storyline: StorylineDefinition, readiness: StorylineReadinessVerdict): Promise<void>
   listGames(scope: LibraryScope): Promise<PersistedGame[]>
   findGame(scope: LibraryScope, id: string): Promise<PersistedGame | undefined>
   createGame(scope: LibraryScope, game: NewPersistedGame): Promise<PersistedGame>
