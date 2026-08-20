@@ -9,7 +9,7 @@
     "hostRequired": true
   },
   "requiredHostCapabilities": ["state_persistence"],
-  "optionalHostCapabilities": ["ai_controllers"],
+  "optionalHostCapabilities": [],
   "authoring": {
     "mode": "setting_first",
     "requiredBeforeStory": true,
@@ -38,11 +38,14 @@
   },
   "lifecycle": ["idle", "enrolling", "prepared", "active", "completed", "aborted"],
   "commands": [
+    { "name": "create", "description": "Create an editable game session from an idle storyline.", "allowedPhases": ["idle"], "payload": {} },
     { "name": "replace_enrolment", "description": "Replace the editable host, seats and venue proof.", "allowedPhases": ["enrolling"], "payload": { "setup": "SetupDraft" } },
     { "name": "prepare", "description": "Lock the role labels and expose the dossier links.", "allowedPhases": ["enrolling"], "payload": {} },
     { "name": "start", "description": "Start play when the host is ready.", "allowedPhases": ["prepared"], "payload": {} },
     { "name": "complete_opening_step", "description": "Complete the next authored opening step.", "allowedPhases": ["active"], "payload": { "stepId": "string" } },
-    { "name": "advance_act", "description": "Finish the single authored cold open and release the room into continuous investigation.", "allowedPhases": ["active"], "payload": {} },
+    { "name": "undo_opening_step", "description": "Undo the most recently completed opening step.", "allowedPhases": ["active"], "payload": { "stepId": "string" } },
+    { "name": "advance_act", "description": "Finish the authored cold open and release the room into continuous investigation.", "allowedPhases": ["active"], "payload": {} },
+    { "name": "toggle_evidence", "description": "Toggle whether a piece of evidence has been revealed.", "allowedPhases": ["active"], "payload": { "evidenceId": "string" } },
     { "name": "buy_clue", "description": "Spend the current clue price for one private random clue from a chosen deck.", "allowedPhases": ["active"], "payload": { "roleId": "string", "deckId": "string" } },
     { "name": "transfer_tokens", "description": "Move tradable tokens between two suspect roles.", "allowedPhases": ["active"], "payload": { "fromRoleId": "string", "toRoleId": "string", "amount": "number" } },
     { "name": "lower_clue_price", "description": "Lower the host-controlled clue price.", "allowedPhases": ["active"], "payload": { "price": "number" } },
@@ -53,6 +56,9 @@
     { "name": "end_investigation", "description": "End investigation when the time limit expires and begin the reveal.", "allowedPhases": ["active"], "payload": {} },
     { "name": "set_objective_completed", "description": "Record whether one scored character objective was completed.", "allowedPhases": ["active"], "payload": { "roleId": "string", "objectiveId": "string", "completed": "boolean" } },
     { "name": "record_award", "description": "Record the table-voted performance or costume award.", "allowedPhases": ["active"], "payload": { "award": "performance|costume", "roleId": "string" } },
-    { "name": "complete", "description": "Complete the revealed game.", "allowedPhases": ["active"], "payload": {} }
+    { "name": "toggle_pause", "description": "Pause or resume active play.", "allowedPhases": ["active"], "payload": {} },
+    { "name": "complete", "description": "Complete the revealed game.", "allowedPhases": ["active"], "payload": {} },
+    { "name": "abort", "description": "Abort an unfinished game session.", "allowedPhases": ["enrolling", "prepared", "active", "aborted"], "payload": {} },
+    { "name": "reset", "description": "Discard an existing game and return its storyline to idle.", "allowedPhases": ["enrolling", "prepared", "active", "completed", "aborted"], "payload": { "confirmed": "boolean" } }
   ]
 }

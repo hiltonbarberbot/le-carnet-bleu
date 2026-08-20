@@ -1,4 +1,4 @@
-import type { Character } from '../types.js'
+import type { Character } from '../types'
 
 export function getKnownSecrets(character: Character) {
   return character.secrets

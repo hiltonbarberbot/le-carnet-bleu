@@ -5,6 +5,7 @@ import { gameManifest } from '../../product/naming'
 import { discoverGames, findMatchingGames, resolveGame } from './registry'
 import { createDemoGame } from '../demo'
 import { createGameDefinition } from '../definition/create'
+import type { GameCommand } from '../application/commands'
 
 describe('portable game runtime', () => {
   it('declares discoverable identity, player constraints, capabilities, and lifecycle commands', () => {
@@ -84,6 +85,6 @@ describe('portable game runtime', () => {
         { displayName: 'Bob' },
       ],
     }, context).state
-    expect(() => runtime.handleInput(state, { name: 'made_up' }, context)).toThrow(/Unknown game command/)
+    expect(() => runtime.handleInput(state, { name: 'made_up' } as unknown as GameCommand, context)).toThrow(/Unknown game command/)
   })
 })

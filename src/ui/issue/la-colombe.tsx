@@ -1,7 +1,9 @@
+'use client'
+
 import { useLayoutEffect, useRef } from 'react'
 import characters from './characters.json'
-import interfaceMarkup from './interface.html?raw'
-import interfaceStyles from './interface.css?inline'
+import './interface.css'
+import { interfaceMarkup } from './markup'
 
 type DesignerCharacter = {
   code: string
@@ -35,11 +37,6 @@ export function LaColombeIssue() {
     const interfaceRoot: HTMLDivElement = mount
 
     const previousTitle = document.title
-    const stylesheet = document.createElement('style')
-    stylesheet.dataset.laColombeInterface = 'true'
-    stylesheet.textContent = interfaceStyles
-    document.head.appendChild(stylesheet)
-
     document.title = 'La Colombe'
     document.body.classList.remove('state-file', 'state-spin', 'story-open', 'host')
     document.body.classList.add('la-colombe-interface', 'state-main')
@@ -315,7 +312,6 @@ export function LaColombeIssue() {
       storyTab.removeEventListener('click', handleStoryFold)
       rerunButton.removeEventListener('click', handleRerun)
       strip.remove()
-      stylesheet.remove()
       document.body.classList.remove('la-colombe-interface', 'state-main', 'state-file', 'state-spin', 'story-open', 'host')
       document.title = previousTitle
     }

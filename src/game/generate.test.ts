@@ -133,15 +133,13 @@ describe('truthful game lifecycle', () => {
     expect(startGame(definition, prepared).phase).toBe('active')
   })
 
-  it('allows repeated names and leaves blank roles explicitly unassigned', () => {
+  it('allows repeated names but refuses to prepare a role without a player or AI controller', () => {
     const { definition, state } = enrolledGame('labels')
     state.setup.seats[0].humanName = 'Alex'
     state.setup.seats[1].humanName = 'Alex'
     state.setup.seats[2].humanName = ''
-    const prepared = prepareGame(definition, state, noAi)
-    expect(prepared.roster[state.setup.seats[0].roleId].displayName).toBe('Alex')
-    expect(prepared.roster[state.setup.seats[1].roleId].displayName).toBe('Alex')
-    expect(prepared.roster[state.setup.seats[2].roleId]).toEqual({ kind: 'unassigned', displayName: 'Unassigned' })
+    expect(getSetupBlockers(definition, state.setup, noAi)).toContain(`${definition.story.characters[2].name} needs a player or an AI controller.`)
+    expect(() => prepareGame(definition, state, noAi)).toThrow(/needs a player or an AI controller/)
   })
 
   it('runs a complete playthrough from role labels', () => {

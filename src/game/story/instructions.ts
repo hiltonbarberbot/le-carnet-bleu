@@ -1,4 +1,4 @@
-import type { OpeningInstruction, OpeningStep, Story } from '../types.js'
+import type { OpeningInstruction, OpeningStep, Story } from '../types'
 
 export function openingInstructionForRole(step: OpeningStep, roleId: string): OpeningInstruction | undefined {
   return step.instructions.find(instruction => instruction.recipientRoleId === roleId)

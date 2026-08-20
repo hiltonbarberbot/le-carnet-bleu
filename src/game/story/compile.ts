@@ -1,4 +1,4 @@
-import type { Story } from '../types.js'
+import type { Story } from '../types'
 import {
   eveningStageSchema,
   evidenceSchema,
@@ -7,7 +7,7 @@ import {
   provenanceSchema,
   relationshipSchema,
   solutionStepSchema,
-} from './schema/authored.js'
+} from './schema/authored'
 
 export function validateStory(story: Story, purchasableEvidenceIds: ReadonlySet<string> = new Set()): string[] {
   const errors: string[] = []

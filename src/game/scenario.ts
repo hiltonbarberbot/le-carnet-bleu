@@ -1,5 +1,5 @@
-import type { Character, PublicEvidence, OpeningStep, SolutionStep } from './types.js'
-import type { ClueDeck } from './definition/contract.js'
+import type { Character, PublicEvidence, OpeningStep, SolutionStep } from './types'
+import type { ClueDeck } from './definition/contract'
 
 export const solutionSteps: SolutionStep[] = [
   {
@@ -28,8 +28,8 @@ export const solutionSteps: SolutionStep[] = [
   },
   {
     id: 'sixth-envelope',
-    title: 'The sixth envelope',
-    truth: 'Rémy counted five sealed restitution packets before any were opened. While the room listened, Solange placed a sixth envelope addressed privately to Armand on top of his notebook.',
+    title: 'The unguarded notebook',
+    truth: 'Rémy counted five sealed restitution packets and placed them away from Armand’s notebook. During the recording, Solange alone approached and leaned over the notebook in the window before the extra envelope appeared.',
     evidence: ['remy-count', 'gabriel-stack'],
   },
   {
@@ -43,6 +43,12 @@ export const solutionSteps: SolutionStep[] = [
     title: 'A deliberate murder',
     truth: 'The extra envelope fictionally concealed a poisoned glass sliver beneath its inner fold. The carbon copy of Mathilde’s handwriting was attached to frame her.',
     evidence: ['scene-envelope', 'mathilde-label', 'gabriel-trap'],
+  },
+  {
+    id: 'fatal-delivery',
+    title: 'The fatal delivery',
+    truth: 'Solange placed the prepared sixth envelope on Armand’s notebook so he would open it during the recording; its fictional poisoned sliver caused his immediate collapse.',
+    evidence: ['gabriel-stack', 'scene-envelope', 'colette-fall'],
   },
   {
     id: 'carbon-fragment',

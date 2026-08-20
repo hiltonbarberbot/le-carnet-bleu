@@ -3,29 +3,51 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "exports": {
     "./game": "./src/game/index.ts",
     "./manifest": "./game.manifest.json",
     "./openclaw": "./src/integrations/openclaw/adapter.ts"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "next dev",
+    "build": "next build",
+    "db:migrate": "node --env-file-if-exists=.env.local scripts/database/migrate.mjs",
+    "vercel-build": "node scripts/database/vercel-build.mjs",
+    "workflow:bootstrap": "node --env-file-if-exists=.env.local node_modules/@workflow/world-postgres/bin/setup.js",
+    "start": "next start",
     "test": "vitest run",
-    "preview": "vite preview"
+    "typecheck": "tsc --noEmit",
+    "review:stories": "tsx scripts/review-storylines.ts"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "latest",
-    "ai": "^7.0.66",
+    "@workflow/world-postgres": "^4.3.4",
+    "ai": "^7.0.70",
+    "next": "^16.3.1",
+    "postgres": "^3.4.9",
     "react": "latest",
     "react-dom": "latest",
     "typescript": "5.9.3",
-    "vite": "latest"
+    "workflow": "^4.8.4"
+  },
+  "overrides": {
+    "@workflow/core": {
+      "nanoid": "5.1.16"
+    },
+    "@workflow/world-local": {
+      "undici": "7.29.0"
+    },
+    "@workflow/world-vercel": {
+      "undici": "7.29.0"
+    }
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "tsx": "^4.23.12",
     "vitest": "latest"
   }
 }

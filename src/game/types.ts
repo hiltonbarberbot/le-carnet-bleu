@@ -1,4 +1,4 @@
-import type { SettingReference } from './definition/contract.js'
+import type { SettingReference } from './definition/contract'
 
 export type OpeningPhase = 'opening'
 export type PlayPhase = OpeningPhase | 'investigation' | 'reveal'
@@ -64,6 +64,14 @@ export type SolutionStep = {
   evidence: string[]
 }
 
+export type CaseTheory = {
+  motiveStepId: string
+  meansStepId: string
+  opportunityStepId: string
+  actStepId: string
+  coverUpStepId?: string
+}
+
 export type OpeningInstruction = {
   recipientRoleId: string
   text: string
@@ -102,6 +110,7 @@ export type Story = {
   publicEvidence: PublicEvidence[]
   evening: EveningStage[]
   solutionSteps: SolutionStep[]
+  caseTheory?: CaseTheory
   openingSteps: OpeningStep[]
   solutionSummary: string
 }

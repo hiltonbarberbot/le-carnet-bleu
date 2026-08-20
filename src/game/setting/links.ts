@@ -1,4 +1,4 @@
-import type { SettingReference, SettingResourceKind, StorylineDefinition } from '../definition/contract.js'
+import type { SettingReference, SettingResourceKind, StorylineDefinition } from '../definition/contract'
 
 export type SettingBacklinks = {
   reference: SettingReference

@@ -1,7 +1,7 @@
-import type { StorylineDefinition } from '../definition/contract.js'
-import type { OpeningStep } from '../types.js'
-import type { SettingProp } from '../setting/contract.js'
-import { getSettingBacklinks } from '../setting/links.js'
+import type { StorylineDefinition } from '../definition/contract'
+import type { OpeningStep } from '../types'
+import type { SettingProp } from '../setting/contract'
+import { getSettingBacklinks } from '../setting/links'
 
 export type PropBacklinks = {
   prop: SettingProp

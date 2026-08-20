@@ -1,5 +1,5 @@
-import type { StorylineDefinitionInput } from '../../definition/contract.js'
-import { createStorylineDefinition } from '../../definition/create.js'
+import type { StorylineDefinitionInput } from '../../definition/contract'
+import { createStorylineDefinition } from '../../definition/create'
 import laColombe from '../../../../story/runs/grief-of-the-dove/story.json'
 
 export function createLaColombeStoryline() {

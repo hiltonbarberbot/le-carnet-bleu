@@ -1,9 +1,10 @@
-import type { AiProblemCode, AiProblemPayload } from '../../src/game/ai/problem.js'
+import type { AiProblemCode, AiProblemPayload } from '../../src/game/ai/problem'
 
 type ProblemOptions = {
   message?: string
   reference?: string
   status?: number
+  details?: Record<string, unknown>
 }
 
 const defaults: Record<AiProblemCode, { message: string; retryable: boolean; status: number }> = {
@@ -69,11 +70,12 @@ export function classifyAiProviderError(error: unknown): AiProblemCode {
 
 export function problemResponse(code: AiProblemCode, options: ProblemOptions = {}) {
   const fallback = defaults[code]
-  const body: AiProblemPayload = {
+  const body: AiProblemPayload & Record<string, unknown> = {
     error: options.message ?? fallback.message,
     code,
     retryable: fallback.retryable,
     ...(options.reference ? { reference: options.reference } : {}),
+    ...options.details,
   }
   return Response.json(body, {
     status: options.status ?? fallback.status,

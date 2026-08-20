@@ -1,5 +1,5 @@
-import type { StorylineDefinitionInput } from '../../definition/contract.js'
-import { createStorylineDefinition } from '../../definition/create.js'
+import type { StorylineDefinitionInput } from '../../definition/contract'
+import { createStorylineDefinition } from '../../definition/create'
 import blueCicada from '../../../../story/runs/blue-cicada/story.json'
 import cottageAtMidnight from '../../../../story/runs/cottage-at-midnight/story.json'
 import glassEmbassy from '../../../../story/runs/glass-embassy/story.json'

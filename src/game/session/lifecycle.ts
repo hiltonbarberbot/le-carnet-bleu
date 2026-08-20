@@ -74,6 +74,9 @@ export function getSetupBlockers(definition: GameDefinition, setup: SetupDraft, 
       continue
     }
 
+    if (!seat.humanName.trim() && !seat.allowAiFallback) {
+      blockers.push(`${character.name} needs a player or an AI controller.`)
+    }
     if (seat.allowAiFallback && !capabilities.aiControllers) {
       blockers.push(`${character.name} would require AI fallback, but this host has no AI controller runtime.`)
     }
@@ -109,10 +112,7 @@ export function prepareGame(
           kind: 'human',
           displayName: seat.humanName.trim(),
         }
-      : {
-          kind: 'unassigned',
-          displayName: 'Unassigned',
-        }
+      : (() => { throw new Error(`${character.name} needs a player or an AI controller.`) })()
     return [character.id, controller]
   }))
 

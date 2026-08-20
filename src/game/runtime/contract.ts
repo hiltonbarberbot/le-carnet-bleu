@@ -1,15 +1,20 @@
-import type { GameState, RuntimeCapabilities } from '../types'
+import type { GameState } from '../types'
 import type { SettingBrief } from '../setting/contract'
+import type {
+  GameCommand,
+  GameCommandContext,
+  GameCommandDescriptor,
+  GameEvent,
+} from '../application/commands'
+
+export type { GameCommand, GameCommandDescriptor } from '../application/commands'
+export type { RuntimeCapabilities } from '../types'
 
 export type GameParticipant = {
   displayName: string
 }
 
-export type RuntimeContext = {
-  capabilities: RuntimeCapabilities
-  now?: Date
-  createId?: () => string
-}
+export type RuntimeContext = GameCommandContext
 
 export type CreateSessionRequest = {
   host: GameParticipant
@@ -17,26 +22,11 @@ export type CreateSessionRequest = {
   allowAiFallback?: boolean
 }
 
-export type GameCommand = {
-  name: string
-  payload?: Record<string, unknown>
-}
-
-export type RuntimeEvent = {
-  type: 'session_created' | 'state_changed' | 'error'
-  message: string
-}
+export type RuntimeEvent = GameEvent
 
 export type RuntimeResult<State> = {
   state: State
   events: RuntimeEvent[]
-}
-
-export type GameCommandDescriptor = {
-  name: string
-  description: string
-  allowedPhases: string[]
-  payload: Record<string, string>
 }
 
 export type GameManifest = {

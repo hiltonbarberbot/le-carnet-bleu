@@ -1,4 +1,4 @@
-import type { SettingReference } from '../../definition/contract.js'
+import type { SettingReference } from '../../definition/contract'
 import type {
   CharacterObjective,
   CharacterRelationship,
@@ -9,8 +9,8 @@ import type {
   OpeningStep,
   PublicEvidence,
   SolutionStep,
-} from '../../types.js'
-import { defineSchema, isRecord, requireOneOf, requireRecord, requireStringList, requireText } from './validator.js'
+} from '../../types'
+import { defineSchema, isRecord, requireOneOf, requireRecord, requireStringList, requireText } from './validator'
 
 const settingResourceKinds = [
   'playableSpaces',
@@ -32,7 +32,7 @@ function validateSettingReference(value: unknown, path: string): string[] {
   ]
 }
 
-/** 1/8: a scored, phase-aware player goal. */
+/** A scored, phase-aware player goal. */
 export const objectiveSchema = defineSchema<CharacterObjective>('character objective', (value, path) => {
   const errors = requireRecord(value, path)
   if (!isRecord(value)) return errors
@@ -48,7 +48,7 @@ export const objectiveSchema = defineSchema<CharacterObjective>('character objec
   ]
 })
 
-/** 2/8: a directed social link to another role. */
+/** A directed social link to another role. */
 export const relationshipSchema = defineSchema<CharacterRelationship>('character relationship', (value, path) => {
   const errors = requireRecord(value, path)
   if (!isRecord(value)) return errors
@@ -59,7 +59,7 @@ export const relationshipSchema = defineSchema<CharacterRelationship>('character
   ]
 })
 
-/** 3/8: the independently checkable origin of a fact. */
+/** The independently checkable origin of a fact. */
 export const provenanceSchema = defineSchema<EvidenceProvenance>('evidence provenance', (value, path) => {
   const errors = requireRecord(value, path)
   if (!isRecord(value)) return errors
@@ -74,7 +74,7 @@ export const provenanceSchema = defineSchema<EvidenceProvenance>('evidence prove
   return errors
 })
 
-/** 4/8: a public or role-held fact, optionally linked to roles and provenance. */
+/** A public or role-held fact, optionally linked to roles and provenance. */
 export const evidenceSchema = defineSchema<CharacterSecret | PublicEvidence>('authored evidence', (value, path) => {
   const errors = requireRecord(value, path)
   if (!isRecord(value)) return errors
@@ -86,7 +86,7 @@ export const evidenceSchema = defineSchema<CharacterSecret | PublicEvidence>('au
   return errors
 })
 
-/** 5/8: one ordered truth claim and the evidence that proves it. */
+/** One ordered truth claim and the evidence that proves it. */
 export const solutionStepSchema = defineSchema<SolutionStep>('solution step', (value, path) => {
   const errors = requireRecord(value, path)
   if (!isRecord(value)) return errors
@@ -99,7 +99,7 @@ export const solutionStepSchema = defineSchema<SolutionStep>('solution step', (v
   ]
 })
 
-/** 6/8: a safe spoken or physical instruction contract. */
+/** A safe spoken or physical instruction contract. */
 export const openingExecutionSchema = defineSchema<OpeningExecution>('opening execution', (value, path) => {
   const errors = requireRecord(value, path)
   if (!isRecord(value)) return errors
@@ -113,7 +113,7 @@ export const openingExecutionSchema = defineSchema<OpeningExecution>('opening ex
   return errors
 })
 
-/** 7/8: one host-run beat with explicit physical and setting dependencies. */
+/** One host-run beat with explicit physical and setting dependencies. */
 export const openingStepSchema = defineSchema<OpeningStep>('opening step', (value, path) => {
   const errors = requireRecord(value, path)
   if (!isRecord(value)) return errors
@@ -150,7 +150,7 @@ export const openingStepSchema = defineSchema<OpeningStep>('opening step', (valu
   return errors
 })
 
-/** 8/8: a timed, explicitly phased segment of the evening. */
+/** A timed, explicitly phased segment of the evening. */
 export const eveningStageSchema = defineSchema<EveningStage>('evening stage', (value, path) => {
   const errors = requireRecord(value, path)
   if (!isRecord(value)) return errors
@@ -166,7 +166,7 @@ export const eveningStageSchema = defineSchema<EveningStage>('evening stage', (v
   ]
 })
 
-export const authoredStorySchemas = {
+export const authoredStoryLeafSchemas = {
   objective: objectiveSchema,
   relationship: relationshipSchema,
   provenance: provenanceSchema,
@@ -176,3 +176,6 @@ export const authoredStorySchemas = {
   openingStep: openingStepSchema,
   eveningStage: eveningStageSchema,
 } as const
+
+/** @deprecated Prefer the explicitly named authoredStoryLeafSchemas. */
+export const authoredStorySchemas = authoredStoryLeafSchemas

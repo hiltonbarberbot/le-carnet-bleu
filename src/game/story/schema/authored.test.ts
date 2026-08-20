@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { createDemoGame } from '../../demo.js'
-import { validateStory } from '../compile.js'
+import { createDemoGame } from '../../demo'
+import { validateStory } from '../compile'
 import {
-  authoredStorySchemas,
+  authoredStoryLeafSchemas,
   eveningStageSchema,
   evidenceSchema,
   objectiveSchema,
@@ -11,11 +11,11 @@ import {
   provenanceSchema,
   relationshipSchema,
   solutionStepSchema,
-} from './authored.js'
+} from './authored'
 
 describe('authored story data schemas', () => {
-  it('formalises exactly eight reusable authored concepts', () => {
-    expect(Object.keys(authoredStorySchemas)).toEqual([
+  it('exposes the reusable leaf validators without treating their partition as the domain model', () => {
+    expect(Object.keys(authoredStoryLeafSchemas)).toEqual([
       'objective',
       'relationship',
       'provenance',

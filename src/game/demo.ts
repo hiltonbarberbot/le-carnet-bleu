@@ -1,6 +1,6 @@
-import { generateGame } from './generate.js'
-import { createAuthoredStoryline } from './story/authoring.js'
-import { clueDecks } from './scenario.js'
+import { generateGame } from './generate'
+import { createAuthoredStoryline } from './story/authoring'
+import { clueDecks } from './scenario'
 
 export const demoSetting = {
   venueName: 'Maison Bleue demo house',

@@ -1,4 +1,4 @@
-import type { SettingBrief, SettingBriefInput, SettingQuestion, SettingResourceInput } from './contract.js'
+import type { SettingBrief, SettingBriefInput, SettingQuestion, SettingResourceInput } from './contract'
 
 export const settingQuestions: SettingQuestion[] = [
   {

@@ -1,58 +1,13 @@
-import { gameManifest } from '../../product/naming.js'
-import {
-  advanceAct,
-  advanceHearing,
-  buyClue,
-  callAccusation,
-  castVote,
-  completeGame,
-  completeOpeningStep,
-  createGame,
-  enableDuplicateClues,
-  endInvestigation,
-  lowerCluePrice,
-  prepareGame,
-  recordAward,
-  setObjectiveCompleted,
-  startGame,
-  toggleEvidence,
-  transferTokens,
-  updateEnrolment,
-} from '../session/lifecycle'
+import { gameManifest } from '../../product/naming'
+import { executeGameCommand } from '../application/execute-command'
+import { createIdleState } from '../session/lifecycle'
 import { restoreGameState, serializeGameState } from '../session/storage'
-import type { ActiveGameState, EnrollingGameState, GameState, PreparedGameState, SetupDraft } from '../types'
+import type { EnrollingGameState, SetupDraft } from '../types'
 import type { AuthoredStoryline } from '../story/authoring'
 import { createGameDefinition } from '../definition/create'
-import type { GameCommand, PortableGameRuntime, RuntimeContext, RuntimeEvent } from './contract'
+import type { PortableGameRuntime } from './contract'
 
-function payloadString(command: GameCommand, key: string) {
-  const value = command.payload?.[key]
-  if (typeof value !== 'string' || !value.trim()) throw new Error(`${command.name} requires ${key}.`)
-  return value.trim()
-}
-
-function payloadNumber(command: GameCommand, key: string) {
-  const value = command.payload?.[key]
-  if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error(`${command.name} requires numeric ${key}.`)
-  return value
-}
-
-function payloadBoolean(command: GameCommand, key: string) {
-  const value = command.payload?.[key]
-  if (typeof value !== 'boolean') throw new Error(`${command.name} requires boolean ${key}.`)
-  return value
-}
-
-function expectPhase<T extends GameState['phase']>(state: GameState, phase: T): Extract<GameState, { phase: T }> {
-  if (state.phase !== phase) throw new Error(`${state.phase} cannot handle a command that requires ${phase}.`)
-  return state as Extract<GameState, { phase: T }>
-}
-
-function changed(state: GameState, message: string, event?: RuntimeEvent): { state: GameState; events: RuntimeEvent[] } {
-  return { state, events: [event ?? { type: 'state_changed', message }] }
-}
-
-function enrolParticipants(state: EnrollingGameState, participants: { displayName: string }[], allowAiFallback: boolean) {
+function enrolParticipants(state: EnrollingGameState, participants: { displayName: string }[], allowAiFallback: boolean): SetupDraft {
   for (const participant of participants) {
     if (!participant.displayName.trim()) throw new Error('Every assigned participant requires a display name.')
   }
@@ -66,7 +21,7 @@ function enrolParticipants(state: EnrollingGameState, participants: { displayNam
         }
       : { ...seat, allowAiFallback }
   })
-  return updateEnrolment(state, { ...state.setup, seats })
+  return { ...state.setup, seats }
 }
 
 export function createGameRuntime(authoredGame: AuthoredStoryline): PortableGameRuntime {
@@ -81,68 +36,19 @@ export function createGameRuntime(authoredGame: AuthoredStoryline): PortableGame
       storyTitle: definition.story.title,
     },
     createSession(request, context) {
-      let state = createGame(definition, context.now, context.createId?.())
-      state = updateEnrolment(state, { ...state.setup, hostName: request.host.displayName.trim() })
-      state = enrolParticipants(state, request.participants, Boolean(request.allowAiFallback))
+      const created = executeGameCommand({ storyline: definition, state: createIdleState(definition), command: { name: 'create' }, context })
+      if (created.state.phase !== 'enrolling') throw new Error('Creating a session did not produce enrolling state.')
+      const setup = enrolParticipants(
+        { ...created.state, setup: { ...created.state.setup, hostName: request.host.displayName.trim() } },
+        request.participants,
+        Boolean(request.allowAiFallback),
+      )
+      const { state } = executeGameCommand({ storyline: definition, state: created.state, command: { name: 'replace_enrolment', payload: { setup } }, context })
+      if (state.phase !== 'enrolling') throw new Error('Enrolling a session produced an unexpected state.')
       return { state, events: [{ type: 'session_created', message: `Created ${state.id} with ${request.participants.length} supplied role labels.` }] }
     },
     handleInput(state, command, context) {
-      switch (command.name) {
-        case 'replace_enrolment': {
-          const setup = command.payload?.setup
-          if (!setup || typeof setup !== 'object') throw new Error('replace_enrolment requires setup.')
-          return changed(updateEnrolment(expectPhase(state, 'enrolling'), setup as SetupDraft), 'Enrolment updated.')
-        }
-        case 'prepare':
-          return changed(prepareGame(definition, expectPhase(state, 'enrolling'), context.capabilities, context.now), 'Role assignments prepared.')
-        case 'start':
-          return changed(startGame(definition, expectPhase(state, 'prepared'), context.now), 'Game started.')
-        case 'complete_opening_step':
-          return changed(completeOpeningStep(definition, expectPhase(state, 'active'), payloadString(command, 'stepId')), 'Opening step completed.')
-        case 'advance_act': {
-          const next = advanceAct(definition, expectPhase(state, 'active'))
-          return changed(next, next.playPhase === 'investigation' ? 'Investigation started.' : `Advanced to ${next.playPhase}.`)
-        }
-        case 'toggle_evidence':
-          return changed(toggleEvidence(definition, expectPhase(state, 'active'), payloadString(command, 'evidenceId')), 'Evidence tracking updated.')
-        case 'buy_clue': {
-          const active = expectPhase(state, 'active')
-          const roleId = payloadString(command, 'roleId')
-          const next = buyClue(definition, active, roleId, payloadString(command, 'deckId'))
-          const clueId = next.ownedClueIds[roleId].at(-1)!
-          const clue = definition.clueDecks.flatMap(deck => deck.clues).find(item => item.id === clueId)!
-          return changed(next, `Clue purchased for ${roleId}.`, { type: 'state_changed', message: clue.text })
-        }
-        case 'transfer_tokens':
-          return changed(transferTokens(expectPhase(state, 'active'), payloadString(command, 'fromRoleId'), payloadString(command, 'toRoleId'), payloadNumber(command, 'amount')), 'Tokens transferred.')
-        case 'lower_clue_price':
-          return changed(lowerCluePrice(expectPhase(state, 'active'), payloadNumber(command, 'price')), 'Clue price lowered.')
-        case 'enable_duplicate_clues':
-          return changed(enableDuplicateClues(expectPhase(state, 'active')), 'Duplicate clues enabled.')
-        case 'call_accusation':
-          return changed(callAccusation(expectPhase(state, 'active'), payloadString(command, 'accuserRoleId'), payloadString(command, 'accusedRoleId'), payloadString(command, 'caseText')), 'Accusation hearing started.')
-        case 'advance_hearing':
-          return changed(advanceHearing(expectPhase(state, 'active')), 'Accusation hearing advanced.')
-        case 'cast_vote': {
-          const vote = payloadString(command, 'vote')
-          if (vote !== 'convict' && vote !== 'acquit') throw new Error('cast_vote requires vote to be convict or acquit.')
-          const next = castVote(definition, expectPhase(state, 'active'), payloadString(command, 'roleId'), vote)
-          return changed(next, next.playPhase === 'reveal' ? 'The vote convicted a suspect; reveal started.' : 'Vote recorded.')
-        }
-        case 'end_investigation':
-          return changed(endInvestigation(expectPhase(state, 'active')), 'Time expired; canonical reveal started.')
-        case 'set_objective_completed':
-          return changed(setObjectiveCompleted(definition, expectPhase(state, 'active'), payloadString(command, 'roleId'), payloadString(command, 'objectiveId'), payloadBoolean(command, 'completed')), 'Objective score updated.')
-        case 'record_award': {
-          const award = payloadString(command, 'award')
-          if (award !== 'performance' && award !== 'costume') throw new Error('record_award requires performance or costume.')
-          return changed(recordAward(definition, expectPhase(state, 'active'), award, payloadString(command, 'roleId')), 'Table award recorded.')
-        }
-        case 'complete':
-          return changed(completeGame(definition, expectPhase(state, 'active'), context.now), 'Game completed.')
-        default:
-          throw new Error(`Unknown game command ${command.name}.`)
-      }
+      return executeGameCommand({ storyline: definition, state, command, context })
     },
     serializeState(state) {
       return serializeGameState(definition, state)

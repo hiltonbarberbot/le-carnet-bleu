@@ -1,0 +1,129 @@
+.setting-confirmation h1 {
+  font-size: clamp(42px, 7vw, 68px);
+}
+
+.setting-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin: 32px 0;
+  border: 1px solid #385573;
+  background: #385573;
+}
+
+.setting-facts div {
+  padding: 18px;
+  background: #0b223d;
+}
+
+.setting-facts dt {
+  margin-bottom: 7px;
+  color: #7897b9;
+  font: 9px 'DM Mono';
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.setting-facts dd {
+  margin: 0;
+  color: #eef2f7;
+  line-height: 1.45;
+}
+
+.setting-confirmation > .author-shape {
+  margin-top: 24px;
+}
+
+.setting-questionnaire > .author-back {
+  margin-bottom: 28px;
+}
+
+.setting-question-card {
+  padding: 42px;
+  border: 1px solid #4d6a8c;
+  background: #0b223d;
+}
+
+.setting-question-card h1 {
+  margin: 14px 0;
+  font: 600 clamp(42px, 7vw, 64px)/1 'Playfair Display';
+}
+
+.setting-question-card > p {
+  max-width: 720px;
+  color: #b7c5d5;
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.setting-question-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin: 34px 0;
+}
+
+.setting-question-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting-question-grid label.wide {
+  grid-column: 1 / -1;
+}
+
+.setting-question-grid label > span {
+  color: #edf2f8;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.setting-question-grid label > span b {
+  color: #79a4ff;
+  font: 8px 'DM Mono';
+  letter-spacing: .07em;
+}
+
+.setting-question-grid input,
+.setting-question-grid textarea {
+  width: 100%;
+  padding: 12px 14px;
+  resize: vertical;
+  border: 1px solid #496886;
+  border-radius: 1px;
+  outline: none;
+  background: #071a2f;
+  color: #f7f3e9;
+  font: 14px/1.45 inherit;
+}
+
+.setting-question-grid input:focus,
+.setting-question-grid textarea:focus {
+  border-color: #8aafff;
+  box-shadow: 0 0 0 3px rgba(104, 153, 246, .13);
+}
+
+.setting-question-grid small {
+  color: #7890aa;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+@media (max-width: 720px) {
+  .setting-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .setting-question-card {
+    padding: 26px;
+  }
+
+  .setting-question-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .setting-question-grid label.wide {
+    grid-column: auto;
+  }
+}

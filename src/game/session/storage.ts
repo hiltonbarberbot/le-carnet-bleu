@@ -1,6 +1,6 @@
-import { createGameDefinition } from '../definition/create.js'
-import type { GameDefinition, GameDefinitionInput } from '../definition/contract.js'
-import type { GameState } from '../types.js'
+import { createGameDefinition } from '../definition/create'
+import type { GameDefinition, GameDefinitionInput } from '../definition/contract'
+import type { GameState } from '../types'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -67,6 +67,11 @@ function restoreStateObject(definition: GameDefinition, value: unknown): GameSta
     const seats = setup.seats as unknown[]
     if (seats.length !== roleIds.size || new Set(seats.map(seat => isRecord(seat) ? String(seat.roleId) : '')).size !== roleIds.size || seats.some(seat => !isRecord(seat) || !roleIds.has(String(seat.roleId)))) {
       throw new Error('Stored enrolment does not contain exactly the story roles.')
+    }
+    for (const [index, seat] of seats.entries()) {
+      const record = seat as Record<string, unknown>
+      if (typeof record.humanName !== 'string') throw new Error(`Stored enrolment seat ${index} has an invalid humanName.`)
+      if (record.allowAiFallback !== undefined && typeof record.allowAiFallback !== 'boolean') throw new Error(`Stored enrolment seat ${index} has an invalid allowAiFallback.`)
     }
     requireExactKeys(setup.venue as Record<string, unknown>, new Set(definition.setupRequirements.map(item => item.id)), 'venue checks')
     if (Object.values(setup.venue as Record<string, unknown>).some(checked => typeof checked !== 'boolean')) throw new Error('Stored venue checks must be boolean.')

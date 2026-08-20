@@ -1,9 +1,9 @@
-import { createSettingBrief } from '../setting/brief.js'
-import type { SettingBrief, SettingBriefInput } from '../setting/contract.js'
-import type { Story } from '../types.js'
-import type { ActDefinition, ClueDeck, SetupRequirement, StorylineDefinition } from '../definition/contract.js'
-import { createStorylineDefinition } from '../definition/create.js'
-import { productNaming } from '../../product/naming.js'
+import { createSettingBrief } from '../setting/brief'
+import type { SettingBrief, SettingBriefInput } from '../setting/contract'
+import type { Story } from '../types'
+import type { ActDefinition, ClueDeck, SetupRequirement, StorylineDefinition } from '../definition/contract'
+import { createStorylineDefinition } from '../definition/create'
+import { productNaming } from '../../product/naming'
 
 export type AuthoredStoryline = StorylineDefinition
 
@@ -59,7 +59,7 @@ ${list(setting.contentBoundaries)}
 1. Invent a compelling fictional gathering that fits the verified venue, location, era, and tone. Create one host role who credibly convenes it, becomes Game Master after the staged murder, and exactly five suspect roles.
 2. Begin with a human wound or consequential shared history, then derive culprit, motive, method, and cover-up from it.
 3. Give every suspect a respectable invitation pretext grounded in the invented gathering, a different private promise from the host, playable traits, exactly three scored objectives, a dense relationship web, truthful secrets about other suspects, a credible motive, and a reason to conceal evidence. Do not add universal powers, mandatory personal props, or private-ballot mechanics.
-4. Make the canonical solution fair: every ordered solution step needs at least two independent evidence routes.
+4. Make the canonical solution fair: write motive, concrete means, opportunity, and fatal act as four distinct atomic solution steps, crosslink them through caseTheory, and give every ordered solution step at least two independent non-culprit evidence routes.
 5. Keep dossier secrets as facts the role knows from the start. The three scored objectives are the only player task system.
 6. Define exactly one short authored opening, lasting no more than fifteen minutes. It introduces the cast, stages the incident, and ends with the body discovered. After that, the host becomes Game Master and the room enters continuous free play; do not add later scripted acts.
 7. Derive setup requirements from exact resource IDs in the verified setting. Every opening step must carry direct { kind, id } settingRefs, setupRequirementIds, and mirrored propIds for prop links.

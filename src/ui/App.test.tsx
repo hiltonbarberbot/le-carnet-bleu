@@ -35,7 +35,7 @@ function render(state: GameState, capabilities = noAi) {
   return renderToStaticMarkup(<HostWorkspace
     definition={definition}
     state={state}
-    setState={() => undefined}
+    onCommands={() => undefined}
     capabilities={capabilities}
     gateway={capabilities.aiControllers ? { state: 'available', model: 'anthropic/claude-sonnet-4.6' } : { state: 'unavailable' }}
     onPreview={() => undefined}
@@ -51,10 +51,10 @@ describe('host lifecycle projection', () => {
     expect(html).not.toContain('Reset game')
   })
 
-  it('asks only for optional assignment labels before showing dossier links', () => {
+  it('requires a player behind every dossier before showing dossier links', () => {
     const html = render(createGame(definition, new Date('2026-08-18T10:00:00Z'), 'partial'))
     expect(html).toContain('ROLE ASSIGNMENTS')
-    expect(html).toContain('Assigned name (optional)')
+    expect(html).toContain('Assigned player')
     expect(html).toContain('Open dossier / PDF')
     expect(html).not.toContain('Private handoff')
     expect(html).not.toContain('How many people')

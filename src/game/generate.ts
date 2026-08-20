@@ -1,7 +1,7 @@
-import { cast, clueDecks, openingSteps, publicEvidence, solutionSteps } from './scenario.js'
-import { compileStory } from './story/compile.js'
-import type { Character, Story } from './types.js'
-import { hashString } from './random/hash.js'
+import { cast, clueDecks, openingSteps, publicEvidence, solutionSteps } from './scenario'
+import { compileStory } from './story/compile'
+import type { Character, Story } from './types'
+import { hashString } from './random/hash'
 
 export const hashSeed = hashString
 
@@ -56,7 +56,14 @@ export function generateGame(seed: string): Story {
       { id: 'reveal', title: 'Reveal, scoring, and awards', description: 'Read the solution, score objectives and remaining tokens, then award best player, performance, and costume.', durationMinutes: 15, phase: 'reveal' },
     ],
     solutionSteps,
+    caseTheory: {
+      motiveStepId: 'hidden-publisher',
+      meansStepId: 'deliberate-murder',
+      opportunityStepId: 'sixth-envelope',
+      actStepId: 'fatal-delivery',
+      coverUpStepId: 'carbon-fragment',
+    },
     openingSteps,
-    solutionSummary: 'Anaïs Loret composed La Dernière Marée. Henri Valois disguised the purchase of her working score, registered the waltz in his own name, and became famous; Armand Delatour witnessed the bargain and suppressed questions about it. The largest royalty share still flowed to Éditions du Méridien, secretly owned by Solange Béraud. Armand’s restitution would have transferred the publisher and its royalties to Anaïs’s estate. Before dinner, Solange had Mathilde address an archive label over blue carbon, then kept the duplicate. She trimmed that duplicate into a label for a safe prop envelope fictionally rigged with a poisoned glass sliver and slipped it onto Armand’s notebook while Colette played Anaïs’s test recording. Armand opened the sixth envelope and collapsed. The transfer inventory had told Solange that Mathilde expected the original score in the west drawer, so she counted on Mathilde’s threat and immediate retrieval to complete the frame. But Rémy had counted only five packets, Gabriel saw Solange at the notebook, and the torn blue corner in her folio fit the address label.',
+    solutionSummary: 'Anaïs Loret composed La Dernière Marée. Henri Valois disguised the purchase of her working score, registered the waltz in his own name, and became famous; Armand Delatour witnessed the bargain and suppressed questions about it. The largest royalty share still flowed to Éditions du Méridien, secretly owned by Solange Béraud. Armand’s restitution would have transferred the publisher and its royalties to Anaïs’s estate. Before dinner, Solange had Mathilde address an archive label over blue carbon, then kept the duplicate. She trimmed that duplicate into a label for a safe prop envelope fictionally rigged with a poisoned glass sliver and slipped it onto Armand’s notebook while Colette played Anaïs’s test recording. Armand opened the sixth envelope and collapsed. The copied handwriting pointed suspicion at Mathilde, whose separate retrieval of Anaïs’s score occurred only after the collapse. But Rémy had counted only five packets, Gabriel saw Solange at the notebook, and the torn blue corner in her folio fit the address label.',
   }, cleanSeed, new Set(clueDecks.flatMap(deck => deck.clues.map(clue => clue.id))))
 }

@@ -1,9 +1,9 @@
-import { hashString } from '../random/hash.js'
-import { createSettingBrief } from '../setting/brief.js'
-import { compileStory, validateStory } from '../story/compile.js'
-import type { Story } from '../types.js'
-import type { SettingBrief } from '../setting/contract.js'
-import type { SettingReference, StorylineDefinition, StorylineDefinitionInput } from './contract.js'
+import { hashString } from '../random/hash'
+import { createSettingBrief } from '../setting/brief'
+import { compileStory, validateStory } from '../story/compile'
+import type { Story } from '../types'
+import type { SettingBrief } from '../setting/contract'
+import type { SettingReference, StorylineDefinition, StorylineDefinitionInput } from './contract'
 
 function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`

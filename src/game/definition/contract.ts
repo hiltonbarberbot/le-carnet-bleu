@@ -1,5 +1,5 @@
-import type { SettingBrief } from '../setting/contract.js'
-import type { Story } from '../types.js'
+import type { SettingBrief } from '../setting/contract'
+import type { Story } from '../types'
 
 export type ActDefinition = {
   id: 'opening'
