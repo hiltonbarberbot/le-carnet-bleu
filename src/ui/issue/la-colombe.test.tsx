@@ -4,14 +4,17 @@ import characters from './characters.json'
 import { LaColombeIssue } from './la-colombe'
 
 describe('designer issue interface', () => {
-  it('keeps the exact seven-party public gate and private-file controls', () => {
+  it('keeps the dossier mould while requiring a central game and named player ID', () => {
     const html = renderToStaticMarkup(<LaColombeIssue />)
 
     expect(characters).toHaveLength(7)
     expect(html).toContain('ISSUE MY DOSSIER')
     expect(html).toContain('The seven guests, identities withheld')
     expect(html).toContain('THE CASE — WHAT EVERY GUEST AT THIS TABLE KNOWS')
-    expect(html).toContain("START OVER — CLEAR THIS BROWSER'S PART")
+    expect(html).toContain('GAME ISSUE CODE')
+    expect(html).toContain('YOUR NAME OR HANDLE')
+    expect(html).toContain('FORGET THIS BROWSER')
+    expect(html).not.toContain('drawn at random')
   })
 
   it('ships every supplied portrait in the same reel order as the cast', () => {

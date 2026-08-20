@@ -8,8 +8,8 @@ import { readAiGatewayStatus } from '../game/ai/gateway'
 import type { GameCommand } from '../game/application/commands'
 import { createStorylineDefinition } from '../game/definition/create'
 import type { StorylineDefinition, StorylineDefinitionInput } from '../game/definition/contract'
-import { getKnownSecrets } from '../game/dossier/knowledge'
-import { openingInstructionForRole, openingInstructionsForRole } from '../game/story/instructions'
+import { openingInstructionForRole } from '../game/story/instructions'
+import { createPlayerVisiblePacket } from '../game/player/packet'
 import { getSettingResource } from '../game/setting/links'
 import {
   calculateScores,
@@ -23,7 +23,9 @@ import {
   createRemoteGame,
   importRemoteLibrary,
   LibraryApiError,
+  readRemoteGame,
   readRemoteGames,
+  readRemoteIssueCode,
   readRemoteStorylines,
   runRemoteGameCommand,
   certifyRemoteStoryline,
@@ -120,18 +122,20 @@ function Rules({ definition, onExit }: { definition: StorylineDefinition; onExit
     <header><span className="kicker">HOW TO PLAY</span><h1>A murder mystery authored for the place where it happens.</h1><p>At setup, assign names only where useful, then open the private dossier for each role. The app does not infer how many real people are present.</p></header>
     <section className="rules-summary"><article><b>ROLES</b><strong>1 host role + {definition.story.characters.length} suspect roles</strong></article><article><b>TIME</b><strong>1–3 hours</strong></article><article><b>YOU NEED</b><strong>Your private card and a willingness to ask questions</strong></article></section>
     <EveningTimeline definition={definition} />
-    <section className="rules-block"><span>THREE RULES</span><h2>Everything players need to remember</h2><ol><li>Once the body is discovered, pursue your three objectives in any order.</li><li>Bargain, bluff, and withhold—but never invent evidence or pressure the real person.</li><li>Any player may accuse. A strict majority ends the investigation.</li></ol></section>
+    <section className="rules-block"><span>THREE RULES</span><h2>Everything players need to remember</h2><ol><li>Once the body is discovered, pursue the objectives in your dossier in any order.</li><li>Bargain, bluff, and withhold—but never invent evidence or pressure the real person.</li><li>Any player may accuse. A strict majority ends the investigation.</li></ol></section>
     <section className="rules-block"><span>THE SOCIAL LOOP</span><h2>Talk → trade → accuse → vote</h2><p>After the short cold open, the room belongs to the players. Each suspect starts with 10 tokens and a private clue costs 5. Trade tokens, clues, and truthful information freely; when someone is ready, they call a public accusation hearing. Set an early time limit and extend it if the room is still alive.</p></section>
     <button className="rules-start" onClick={onExit}>Understood — return →</button>
   </main>
 }
 
-export function PlayerProfile({ character, openingCues = [], assignee, formatText = text => text, onExit }: { character: Character; openingCues?: ReturnType<typeof openingInstructionsForRole>; assignee?: string; formatText?: (text: string) => string; onExit?: () => void }) {
-  const secrets = getKnownSecrets(character)
-  const fileNumber = String(1200 + [...character.id].reduce((total, letter) => total + letter.charCodeAt(0), 0)).padStart(4, '0')
-  const surname = character.name.trim().split(/\s+/).at(-1) ?? character.name
-  const initial = character.name.trim().charAt(0)
-  const playerName = assignee ? `${character.name} (${assignee})` : character.name
+export function PlayerProfile({ story, character, visiblePublicEvidenceIds = [], clueSources = [], assignee, formatText = text => text, onExit }: { story: Story; character: Character; visiblePublicEvidenceIds?: readonly string[]; clueSources?: Array<{ label: string; clueCount: number }>; assignee?: string; formatText?: (text: string) => string; onExit?: () => void }) {
+  const packet = createPlayerVisiblePacket(story, character.id, { visiblePublicEvidenceIds, clueSources })
+  const dossier = packet.yourDossier
+  const { publicContext } = packet
+  const fileNumber = String(1200 + [...dossier.id].reduce((total, letter) => total + letter.charCodeAt(0), 0)).padStart(4, '0')
+  const surname = dossier.name.trim().split(/\s+/).at(-1) ?? dossier.name
+  const initial = dossier.name.trim().charAt(0)
+  const playerName = assignee ? `${dossier.name} (${assignee})` : dossier.name
   return <>
     <div className="mode-bar player-mode"><div><span>PLAYER DOSSIER · ADDRESSEE ONLY</span><b>You are viewing only {playerName}’s classified information</b></div><div className="mode-actions"><button onClick={() => window.print()}>Print / save PDF</button>{onExit && <button className="quiet" onClick={onExit}>Exit dossier</button>}</div></div>
     <article className="profile classified-dossier">
@@ -156,43 +160,61 @@ export function PlayerProfile({ character, openingCues = [], assignee, formatTex
 
         <section className="dossier-section">
           <h2>SECTION I -- DESCRIPTION</h2>
-          <p>You are <b>{playerName.toUpperCase()}</b>, {formatText(character.title)}. {formatText(character.publicFace)} Your recommended dress is {formatText(character.costume)}.</p>
-          <p className="dossier-hang">You were invited under this respectable pretext: {formatText(character.invitationPretext)} The host privately promised you: {formatText(character.invitationPromise)}</p>
-          <p className="dossier-hang"><b>DISPOSITION:</b> {character.traits.map(formatText).join('; ')}.</p>
+          <p>You are <b>{playerName.toUpperCase()}</b>, {formatText(dossier.title)}. {formatText(dossier.publicFace)} Your recommended dress is {formatText(dossier.costume)}.</p>
+          <p className="dossier-hang">You were invited under this respectable pretext: {formatText(dossier.invitationPretext)} The host privately promised you: {formatText(dossier.invitationPromise)}</p>
+          <p className="dossier-hang"><b>DISPOSITION:</b> {dossier.traits.map(formatText).join('; ')}.</p>
         </section>
 
         <section className="dossier-section">
-          <h2>SECTION II -- SECRETS AND LIES</h2>
-          <div className="dossier-section-note">SELF is true of you. FIELD is true of another -- spend it well.</div>
-          <ol className="dossier-items">
-            <li><span className="dossier-number">01</span><span><b className="dossier-flag">SELF.</b> {formatText(character.privateIdentity)}</span></li>
-            <li><span className="dossier-number">02</span><span><b className="dossier-flag">SELF.</b> {formatText(character.privateSecret)}</span></li>
-            {secrets.map((secret, index) => <li key={secret.id}><span className="dossier-number">{String(index + 3).padStart(2, '0')}</span><span><b className="dossier-flag">{secret.aboutRoleIds?.length ? 'FIELD.' : 'SELF.'}</b> {formatText(secret.text)}</span></li>)}
+          <h2>SECTION II -- PUBLIC BRIEFING</h2>
+          <p><b>{formatText(publicContext.title).toUpperCase()}.</b> {formatText(publicContext.premise)}</p>
+          <p className="dossier-hang"><b>HOST:</b> {formatText(publicContext.host.name)}, {formatText(publicContext.host.title)}.</p>
+          <ol className="dossier-items dossier-ledger">
+            {publicContext.cast.map((member, index) => <li key={member.id}><span className="dossier-number">{String(index + 1).padStart(2, '0')}</span><span><b className="dossier-who">{formatText(member.name).toUpperCase()}</b> -- {formatText(member.title)}. {formatText(member.publicFace)}</span></li>)}
           </ol>
         </section>
 
         <section className="dossier-section">
-          <h2>SECTION III -- RELATIONSHIPS</h2>
+          <h2>SECTION III -- SECRETS AND LIES</h2>
+          <div className="dossier-section-note">SELF is true of you. FIELD is true of another -- spend it well.</div>
+          <ol className="dossier-items">
+            <li><span className="dossier-number">01</span><span><b className="dossier-flag">SELF.</b> {formatText(dossier.privateIdentity)}</span></li>
+            <li><span className="dossier-number">02</span><span><b className="dossier-flag">SELF.</b> {formatText(dossier.privateSecret)}</span></li>
+            {dossier.secrets.map((secret, index) => <li key={secret.id}><span className="dossier-number">{String(index + 3).padStart(2, '0')}</span><span><b className="dossier-flag">{secret.aboutRoleIds?.length ? 'FIELD.' : 'SELF.'}</b> {formatText(secret.text)}</span></li>)}
+          </ol>
+        </section>
+
+        <section className="dossier-section">
+          <h2>SECTION IV -- RELATIONSHIPS</h2>
           <ol className="dossier-items dossier-ledger">
-            {character.relationships.map((relationship, index) => <li key={relationship.roleId}><span className="dossier-number">{String(index + 1).padStart(2, '0')}</span><span><b className="dossier-who">{relationship.roleId.replaceAll('-', ' ').toUpperCase()}</b> -- {formatText(relationship.text)}</span></li>)}
+            {dossier.relationships.map((relationship, index) => <li key={relationship.roleId}><span className="dossier-number">{String(index + 1).padStart(2, '0')}</span><span><b className="dossier-who">{relationship.roleId.replaceAll('-', ' ').toUpperCase()}</b> -- {formatText(relationship.text)}</span></li>)}
           </ol>
         </section>
 
         <section className="dossier-section dossier-objectives">
-          <h2>SECTION IV -- OPENING CUES</h2>
+          <h2>SECTION V -- OPENING CUES</h2>
           <div className="dossier-section-note">Wait until the host calls on you. These directions are for you alone.</div>
-          {openingCues.length ? <ol className="dossier-items">
-            {openingCues.map((cue, index) => <li key={cue.stepId}><span className="dossier-number">{String(index + 1).padStart(2, '0')}</span><span><b>{formatText(cue.stepTitle).toUpperCase()}.</b> {formatText(cue.text)}</span></li>)}
+          {publicContext.opening.length ? <ol className="dossier-items">
+            {publicContext.opening.map((cue, index) => <li key={cue.stepId}><span className="dossier-number">{String(index + 1).padStart(2, '0')}</span><span><b>{formatText(cue.stepTitle).toUpperCase()}.</b> {formatText(cue.text)}</span></li>)}
           </ol> : <p>You have no individual action in the scripted opening. Stay in character and follow the host.</p>}
         </section>
 
         <section className="dossier-section dossier-objectives">
-          <h2>SECTION V -- OBJECTIVES</h2>
-          <div className="dossier-section-note">Your three objectives may be attempted in any order. Mark each completed instruction.</div>
+          <h2>SECTION VI -- OBJECTIVES</h2>
+          <div className="dossier-section-note">Your {dossier.objectives.length} objectives may be attempted in any order. Mark each completed instruction.</div>
           <ol className="dossier-items">
-            {character.objectives.map((objective, index) => <li key={objective.id}><span className="dossier-number">{String(index + 1).padStart(2, '0')}</span><label><input type="checkbox" /><span><b>{formatText(objective.title).toUpperCase()}.</b> {formatText(objective.text)} <b>{objective.points} {objective.points === 1 ? 'POINT' : 'POINTS'}.</b></span></label></li>)}
+            {dossier.objectives.map((objective, index) => <li key={objective.id}><span className="dossier-number">{String(index + 1).padStart(2, '0')}</span><label><input type="checkbox" /><span><b>{formatText(objective.title).toUpperCase()}.</b> {formatText(objective.text)} <b>{objective.points} {objective.points === 1 ? 'POINT' : 'POINTS'}.</b></span></label></li>)}
           </ol>
         </section>
+
+        {(publicContext.publicEvidence.length > 0 || publicContext.clueSources.length > 0) && <section className="dossier-section">
+          <h2>SECTION VII -- INVESTIGATION RESOURCES</h2>
+          {publicContext.publicEvidence.length > 0 && <><div className="dossier-section-note">The host has released these facts to the whole room. They are safe to discuss openly.</div>
+            <ol className="dossier-items">
+              {publicContext.publicEvidence.map((evidence, index) => <li key={evidence.id}><span className="dossier-number">{String(index + 1).padStart(2, '0')}</span><span>{formatText(evidence.text)}</span></li>)}
+            </ol></>}
+          {publicContext.clueSources.length > 0 && <p className="dossier-hang"><b>PRIVATE CLUE DESKS:</b> {publicContext.clueSources.map(source => `${formatText(source.label)} (${source.clueCount})`).join('; ')}.</p>}
+        </section>}
 
       </div>
 
@@ -200,7 +222,7 @@ export function PlayerProfile({ character, openingCues = [], assignee, formatTex
         <div className="dossier-declassified"><div>DECLASSIFIED</div><small>E. O. 11652, Sec. 3(E) and 5(D) or (E)<br />Bureau letter, Nov 3, 1972</small><p>By DBS &nbsp; Date <u /> <b>NOV 14 1972</b></p></div>
         <div className="dossier-journal"><small>SÛR. JOURNAL NO</small>J-{fileNumber.slice(-3)}</div>
         <div className="dossier-date-stamp">NOV 14 1947</div>
-        <div className="dossier-pencil dossier-pencil-copy">{character.objectives.length + secrets.length}</div>
+        <div className="dossier-pencil dossier-pencil-copy">{dossier.objectives.length + dossier.secrets.length}</div>
         <div className="dossier-pencil dossier-pencil-name">{surname}, {initial}.</div>
         <div className="dossier-secret">SECRET</div>
         <div className="dossier-copy-number">COPY No.</div>
@@ -214,13 +236,15 @@ function CanonicalTruth({ story, state }: { story: Story; state: ActiveGameState
   return <section className="canonical-truth"><header><span>THE SOLUTION</span><b>{liveRoleName(story, state, story.culpritRoleId)}</b></header><h3>The premise</h3><p>{liveInstructionText(story, state, story.premise)}</p><h3>What happened</h3><p>{liveInstructionText(story, state, story.solutionSummary)}</p><div className="truth-grid">{story.solutionSteps.map((step, index) => <article key={step.id}><span>{index + 1}</span><div><b>{liveInstructionText(story, state, step.title)}</b><p>{liveInstructionText(story, state, step.truth)}</p></div></article>)}</div></section>
 }
 
-function SetupPanel({ definition, setup, capabilities, onChange, onPrepare, onPreview }: {
+function SetupPanel({ definition, setup, issueCode, capabilities, onChange, onPrepare, onPreview, onRefresh }: {
   definition: StorylineDefinition
   setup: SetupDraft
+  issueCode?: string
   capabilities: RuntimeCapabilities
   onChange: (setup: SetupDraft) => void
   onPrepare: () => void
   onPreview: (roleId: string) => void
+  onRefresh?: () => void
 }) {
   const { story } = definition
   const blockers = getSetupBlockers(definition, setup, capabilities)
@@ -228,7 +252,8 @@ function SetupPanel({ definition, setup, capabilities, onChange, onPrepare, onPr
     onChange({ ...setup, seats: setup.seats.map(seat => seat.roleId === roleId ? { ...seat, ...patch } : seat) })
   }
   return <>
-    <section className="setup-hero"><span className="kicker">ROLE ASSIGNMENTS</span><h1>Put a player behind every dossier.</h1><p>Names may repeat. Every role needs a person before play begins so no clue, objective, or vote disappears from the game.</p></section>
+    <section className="setup-hero"><span className="kicker">ROLE ASSIGNMENTS</span><h1>Put a named player behind every dossier.</h1><p>Each self-issued player receives one central ID and one role. Every role still needs a person before play begins.</p></section>
+    {issueCode && <section className="setup-section issue-link"><div className="setup-heading"><span>↗</span><div><h2>Let players issue their own dossiers</h2><p>Share this link. The central register assigns the next free role in order, never through a local random draw.</p></div></div><a href={`/issue?game=${encodeURIComponent(issueCode)}`} target="_blank" rel="noreferrer">/issue?game={issueCode}</a>{onRefresh && <button type="button" onClick={onRefresh}>Refresh issued names</button>}</section>}
     <section className="setup-section"><div className="setup-heading"><span>1</span><div><h2>Name the host</h2><p>The host begins as {story.host.name}, performs the short cold open, then becomes Game Master for free play.</p></div></div><label className="field"><span>Host name</span><input value={setup.hostName} onChange={event => onChange({ ...setup, hostName: event.target.value })} placeholder="Host" /></label></section>
     <section className="setup-section"><div className="setup-heading"><span>2</span><div><h2>Assign names to roles</h2><p>These are labels for the dossier list—not verified identities or delivery addresses.</p></div></div><div className="seat-grid">{story.characters.map(character => {
       const seat = setup.seats.find(item => item.roleId === character.id)!
@@ -337,13 +362,15 @@ function TableReveal({ definition, state, run }: { definition: StorylineDefiniti
   return <section className="phase-panel reveal-panel"><span className="kicker">10 MINUTES · TABLE REVEAL</span><h2>{accused ? `The room convicted ${accused}.` : 'Time expired without a conviction.'}</h2><p>Now read the real solution, score private objectives, and choose the two table awards.</p><CanonicalTruth story={story} state={state} /><section className="score-room"><div className="social-heading"><div><span className="kicker">FINAL SCORING</span><h3>Tick completed objectives</h3></div><small>Tokens and deduction points are automatic</small></div>{story.characters.map(character => <article key={character.id}><header><div><b>{liveCharacterName(character, state)}</b><small>{state.tokenBalances[character.id]} tokens</small></div><strong>{scores[character.id].total} pts</strong></header><div>{character.objectives.map(objective => <label key={objective.id}><input type="checkbox" checked={state.completedObjectiveIds[character.id].includes(objective.id)} onChange={event => run({ name: 'set_objective_completed', payload: { roleId: character.id, objectiveId: objective.id, completed: event.target.checked } })} /><span>{liveInstructionText(story, state, objective.title)} · {objective.points}</span></label>)}</div><small>Objectives {scores[character.id].objectivePoints} · tokens {scores[character.id].tokenPoints} · deduction {scores[character.id].accuserPoints + scores[character.id].votePoints} · escape {scores[character.id].culpritEscapePoints}</small></article>)}</section><section className="awards"><h3>Two table-voted awards</h3><div className="award-fields"><label className="field"><span>Best performance</span><select value={state.awards.performanceRoleId ?? ''} onChange={event => event.target.value && run({ name: 'record_award', payload: { award: 'performance', roleId: event.target.value } })}><option value="">Choose together</option>{story.characters.map(character => <option key={character.id} value={character.id}>{liveCharacterName(character, state)}</option>)}</select></label><label className="field"><span>Best costume</span><select value={state.awards.costumeRoleId ?? ''} onChange={event => event.target.value && run({ name: 'record_award', payload: { award: 'costume', roleId: event.target.value } })}><option value="">Choose together</option>{story.characters.map(character => <option key={character.id} value={character.id}>{liveCharacterName(character, state)}</option>)}</select></label></div></section><button className="primary-action" disabled={state.paused} onClick={() => run({ name: 'complete' })}>Close the case →</button></section>
 }
 
-export function HostWorkspace({ definition, state, onCommands, capabilities, gateway, onPreview }: {
+export function HostWorkspace({ definition, state, issueCode, onCommands, capabilities, gateway, onPreview, onRefresh }: {
   definition: StorylineDefinition
   state: GameState
+  issueCode?: string
   onCommands: (commands: GameCommand[]) => Promise<void> | void
   capabilities: RuntimeCapabilities
   gateway: GatewayConnection
   onPreview: (roleId: string) => void
+  onRefresh?: () => void
 }) {
   const { story } = definition
   const [commandError, setCommandError] = useState('')
@@ -379,7 +406,7 @@ export function HostWorkspace({ definition, state, onCommands, capabilities, gat
   return <main className="page host-page">
     <section className="session-head"><div><span className="kicker">{active ? 'YOU ARE HOSTING' : `GAME ${state.id.slice(0, 8)}`}</span><h1>{active ? `${active.paused ? 'Paused · ' : ''}${liveInstructionText(story, active, activeAct?.title ?? active.playPhase)}` : state.phase}</h1><p>{state.phase === 'enrolling' ? 'Assignments are still editable.' : `Host: ${hostName} · ${'roster' in state ? Object.keys(state.roster).length : 0} players`}</p></div><div className="session-actions">{active && <button className="pause-button" onClick={() => void run({ name: 'toggle_pause' })}>{active.paused ? 'Resume game' : 'Pause game'}</button>}<details><summary>Game controls</summary><div>{state.phase !== 'completed' && state.phase !== 'aborted' && <button className="danger-button" onClick={() => void run({ name: 'abort' })}>Abort</button>}<button className="danger-button" onClick={reset}>Reset game</button></div></details></div></section>
     {commandError && <section className="hard-errors compact"><span>COMMAND FAILED</span><pre>{commandError}</pre></section>}
-    {state.phase === 'enrolling' && setupDraft && <SetupPanel definition={definition} setup={setupDraft} capabilities={capabilities} onChange={setSetupDraft} onPreview={roleId => void previewSetup(roleId)} onPrepare={() => void run([{ name: 'replace_enrolment', payload: { setup: setupDraft } }, { name: 'prepare' }])} />}
+    {state.phase === 'enrolling' && setupDraft && <SetupPanel definition={definition} setup={setupDraft} issueCode={issueCode} capabilities={capabilities} onChange={setSetupDraft} onPreview={roleId => void previewSetup(roleId)} onRefresh={onRefresh} onPrepare={() => void run([{ name: 'replace_enrolment', payload: { setup: setupDraft } }, { name: 'prepare' }])} />}
     {state.phase === 'prepared' && <><Roster story={story} state={state} onPreview={onPreview} /><DossierDesk definition={definition} state={state} onStart={() => void run({ name: 'start' })} onPreview={onPreview} /></>}
     {active && <>
       <AuthoredAct definition={definition} state={active} onConfirm={stepId => void run({ name: 'complete_opening_step', payload: { stepId } })} onUndo={stepId => void run({ name: 'undo_opening_step', payload: { stepId } })} onAdvance={() => void run({ name: 'advance_act' })} />
@@ -396,6 +423,7 @@ export function App() {
   const [storylines, setStorylines] = useState<StorylineDefinition[]>([])
   const [games, setGames] = useState<GameSessionEntry[]>([])
   const [gameVersions, setGameVersions] = useState<Record<string, number>>({})
+  const [gameIssueCodes, setGameIssueCodes] = useState<Record<string, string>>({})
   const [selectedStorylineFingerprint, setSelectedStorylineFingerprint] = useState<string>()
   const [activeGameId, setActiveGameId] = useState<string>()
   const [mode, setMode] = useState<Mode>('choose')
@@ -462,6 +490,19 @@ export function App() {
       .catch(error => { if (!(error instanceof DOMException && error.name === 'AbortError')) setGateway({ state: 'unavailable' }) })
     return () => controller.abort()
   }, [])
+
+  useEffect(() => {
+    if (mode !== 'host' || !activeGame || activeGame.state.phase !== 'enrolling' || gameIssueCodes[activeGame.state.id]) return
+    let cancelled = false
+    readRemoteIssueCode(activeGame.state.id)
+      .then(issueCode => {
+        if (!cancelled) setGameIssueCodes(current => ({ ...current, [activeGame.state.id]: issueCode }))
+      })
+      .catch(error => {
+        if (!cancelled) setImportError(error instanceof Error ? error.message : String(error))
+      })
+    return () => { cancelled = true }
+  }, [activeGame, gameIssueCodes, mode])
 
   function preview(roleId: string) {
     if (!activeGame) return
@@ -533,6 +574,13 @@ export function App() {
     setActiveGameId(entry.state.id)
     setMode('host')
   }
+  async function refreshActiveGame() {
+    if (!activeGame) return
+    const refreshed = await readRemoteGame(activeGame.state.id)
+    const entry = bindGameToStoryline(activeGame.storyline, refreshed.state)
+    setGames(current => current.map(item => item.state.id === refreshed.id ? entry : item))
+    setGameVersions(current => ({ ...current, [refreshed.id]: refreshed.version }))
+  }
   async function dispatchActiveGame(commands: GameCommand[]) {
     if (!activeGame) return
     let version = gameVersions[activeGame.state.id]
@@ -585,12 +633,15 @@ export function App() {
     const assignee = liveState?.roster[player.id]?.displayName
     const playerName = assignee ? `${player.name} (${assignee})` : player.name
     const formatText = liveState ? (text: string) => liveInstructionText(activeGame.storyline.story, liveState, text) : undefined
-    const openingCues = openingInstructionsForRole(activeGame.storyline.story, player.id)
-    return <main className="page player-page host-preview"><div className="preview-parent"><button onClick={() => setPreviewing(false)}>← Back to host dashboard</button><span>HOST PREVIEW · {playerName}</span></div><PlayerProfile character={player} openingCues={openingCues} assignee={assignee} formatText={formatText} onExit={() => setPreviewing(false)} /></main>
+    const visiblePublicEvidenceIds = liveState?.playPhase === 'investigation' || liveState?.playPhase === 'reveal'
+      ? liveState.revealedEvidenceIds
+      : []
+    const clueSources = activeGame.storyline.clueDecks.map(deck => ({ label: deck.label, clueCount: deck.clues.length }))
+    return <main className="page player-page host-preview"><div className="preview-parent"><button onClick={() => setPreviewing(false)}>← Back to host dashboard</button><span>HOST PREVIEW · {playerName}</span></div><PlayerProfile story={activeGame.storyline.story} character={player} visiblePublicEvidenceIds={visiblePublicEvidenceIds} clueSources={clueSources} assignee={assignee} formatText={formatText} onExit={() => setPreviewing(false)} /></main>
   }
   if (mode === 'host' && activeGame) {
     const { storyline, state } = activeGame
-    return <><ActiveGameBar game={activeGame} onGodView={() => setMode('god')} onExit={() => setMode('choose')} /><HostWorkspace definition={storyline} state={state} onCommands={dispatchActiveGame} capabilities={capabilities} gateway={gateway} onPreview={preview} /></>
+    return <><ActiveGameBar game={activeGame} onGodView={() => setMode('god')} onExit={() => setMode('choose')} /><HostWorkspace definition={storyline} state={state} issueCode={gameIssueCodes[state.id]} onCommands={dispatchActiveGame} capabilities={capabilities} gateway={gateway} onPreview={preview} onRefresh={() => void refreshActiveGame()} /></>
   }
   return <StartScreen storylines={storylines} games={games} importError={importError} libraryWarning={libraryWarning} onCreateStoryline={() => setMode('author')} onCreateGame={storyline => void startGameFromStoryline(storyline)} onContinueGame={continueGame} onRules={storyline => showStoryline(storyline, 'rules')} onImport={importStoryline} onExport={exportStoryline} />
 }

@@ -71,6 +71,7 @@ The game opens with one short authored incident, then gets out of the players’
 - Explicit, confirmed reset back to true idle; constructors and reloads never fabricate assignments, feed entries, or timestamps
 - Five required human controllers at `prepare`; AI authoring credentials are never treated as proof that AI players exist
 - A Next.js App Router shell with owner-scoped storyline and game APIs backed by PostgreSQL
+- A central dossier-issue register: one normalized named player ID per dossier, deterministic seat order, and database uniqueness against duplicate roles
 - A database-enforced playability passport: uncertified drafts are quarantined, hidden, and unable to back a new game row
 - Optimistic game versions: every command supplies its expected version, and stale writers receive the latest server state
 
@@ -139,6 +140,8 @@ The web library is currently scoped by a server-issued, HttpOnly browser-owner c
 - `POST /api/ai/author` starts durable certification and returns `202 { jobId, status: "pending" }`
 - `GET /api/ai/author/:jobId` polls the current owner’s job and returns `pending | running | succeeded | failed`; a successful response includes the already-certified definition
 - `GET|POST /api/games` and `GET /api/games/:gameId`
+- `GET /api/games/:gameId/issue-code` creates or returns the host-owned portable issue code
+- `GET|POST /api/issue` reads the public lobby or idempotently issues one private dossier to a named player ID
 - `POST /api/games/:gameId/commands` for the canonical typed command union
 - `POST /api/library/import` for the one-time browser-library migration
 

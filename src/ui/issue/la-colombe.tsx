@@ -3,7 +3,9 @@
 import { useLayoutEffect, useRef } from 'react'
 import characters from './characters.json'
 import './interface.css'
+import { claimDossier, readIssueLobby } from './api'
 import { interfaceMarkup } from './markup'
+import type { IssuedDossier } from '../../game/issue/claim'
 
 type DesignerCharacter = {
   code: string
@@ -20,7 +22,25 @@ type DesignerCharacter = {
 
 const cast = characters as DesignerCharacter[]
 const plates = cast.map(character => `/la-colombe/${character.photo}`)
-const assignmentKey = 'lacolombe.assignment'
+const identityKey = 'mystery.issue.identities.v1'
+
+function readIdentities() {
+  try { return JSON.parse(localStorage.getItem(identityKey) ?? '{}') as Record<string, string> } catch { return {} }
+}
+
+function saveIdentity(issueCode: string, participantId: string) {
+  localStorage.setItem(identityKey, JSON.stringify({ ...readIdentities(), [issueCode]: participantId }))
+}
+
+function forgetIdentity(issueCode: string) {
+  const identities = readIdentities()
+  delete identities[issueCode]
+  localStorage.setItem(identityKey, JSON.stringify(identities))
+}
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[character]!)
+}
 
 function requireElement<T extends Element>(root: ParentNode, selector: string) {
   const element = root.querySelector<T>(selector)
@@ -37,13 +57,14 @@ export function LaColombeIssue() {
     const interfaceRoot: HTMLDivElement = mount
 
     const previousTitle = document.title
-    document.title = 'La Colombe'
+    document.title = 'Dossier issue'
     document.body.classList.remove('state-file', 'state-spin', 'story-open', 'host')
     document.body.classList.add('la-colombe-interface', 'state-main')
 
     const params = new URLSearchParams(window.location.search)
-    if (params.has('reset')) localStorage.removeItem(assignmentKey)
-    if (params.has('host') || params.has('as')) document.body.classList.add('host')
+    const requestedIssueCode = params.get('game')?.trim() ?? ''
+    if (params.has('reset') && requestedIssueCode) forgetIdentity(requestedIssueCode)
+    if (params.has('host')) document.body.classList.add('host')
 
     const plate = requireElement<HTMLDivElement>(interfaceRoot, '#plate')
     const strip = document.createElement('div')
@@ -69,8 +90,8 @@ export function LaColombeIssue() {
 
     function seat(frame: number, milliseconds: number, easing?: string) {
       cursor = frame
-      const weaveX = (Math.random() - .5) * 1.1
-      const weaveY = (Math.random() - .5) * 1.1
+      const weaveX = ((((frame * 37) + 11) % 23) / 22 - .5) * 1.1
+      const weaveY = ((((frame * 17) + 7) % 19) / 18 - .5) * 1.1
       strip.style.transition = milliseconds ? `transform ${milliseconds}ms ${easing || 'linear'}` : 'none'
       strip.style.transform = `translate3d(${weaveX}px, ${-(frame * pitch) + weaveY}px, 0)`
       if (!milliseconds) void strip.offsetHeight
@@ -156,7 +177,7 @@ export function LaColombeIssue() {
     }
 
     let jitterSeed = 19620815
-    const randomJitter = () => (
+    const nextJitter = () => (
       jitterSeed = (jitterSeed * 1103515245 + 12345) & 0x7fffffff
     ) / 0x7fffffff
 
@@ -168,10 +189,10 @@ export function LaColombeIssue() {
           const glyph = document.createElement('span')
           glyph.className = 'g'
           glyph.textContent = character
-          const y = (randomJitter() - .5) * 1.05
-          const x = (randomJitter() - .5) * .45
-          const rotation = (randomJitter() - .5) * 1.6
-          const ink = .8 + randomJitter() * .2
+          const y = (nextJitter() - .5) * 1.05
+          const x = (nextJitter() - .5) * .45
+          const rotation = (nextJitter() - .5) * 1.6
+          const ink = .8 + nextJitter() * .2
           glyph.style.transform = `translate(${x.toFixed(2)}px,${y.toFixed(2)}px) rotate(${rotation.toFixed(2)}deg)`
           glyph.style.opacity = ink.toFixed(2)
           if (ink > .97) glyph.style.textShadow = '0 0 .9px currentColor'
@@ -208,71 +229,101 @@ export function LaColombeIssue() {
       root.querySelectorAll('.tw').forEach(element => walk(element))
     }
 
-    function assign() {
-      const forced = params.get('as')
-      if (forced !== null && Number(forced) >= 0 && Number(forced) < frameCount) return Number(forced)
-      return Math.floor(Math.random() * frameCount)
+    function visualIndex(issued: IssuedDossier) {
+      const matchingPortrait = cast.findIndex(character => character.name === issued.packet.yourDossier.name)
+      return matchingPortrait >= 0 ? matchingPortrait : issued.roleIndex % frameCount
     }
 
-    function renderFile(index: number) {
+    function renderFile(issued: IssuedDossier) {
       stopIdle()
-      const character = cast[index]
-      requireElement(interfaceRoot, '#myName').textContent = `${character.name}, ${character.age}`
-      requireElement(interfaceRoot, '#myRole').textContent = character.role
-      requireElement(interfaceRoot, '#issuedTo').textContent = character.name
+      const role = issued.packet.yourDossier
+      const names = new Map(issued.packet.publicContext.cast.map(character => [character.id, character.name]))
+      requireElement(interfaceRoot, '#myName').textContent = role.name
+      requireElement(interfaceRoot, '#myRole').textContent = role.title
+      requireElement(interfaceRoot, '#issuedTo').textContent = `${issued.participantName} · ID ${issued.participantId}`
       requireElement(interfaceRoot, '#kind').textContent = 'PERSONAL FILE'
-      document.title = 'La Colombe — Personal File'
+      document.title = `${role.name} — Personal File`
 
       const listItem = (content: string, number: string) => `<li><span class="n">${number}</span>${content}</li>`
       const dossier = requireElement<HTMLElement>(interfaceRoot, '#dossier')
       dossier.innerHTML = `
         <h2>SECTION I — WHO YOU ARE</h2>
-        <p class="desc tw">${character.desc}</p>
+        <p class="desc tw">${escapeHtml(role.privateIdentity || role.publicFace)}</p>
 
         <section>
           <h3>SECTION II — SECRETS AND LIES</h3>
-          <ul class="tw">${character.secrets.map((secret, secretIndex) => listItem(secret, String(secretIndex + 1).padStart(2, '0'))).join('')}</ul>
+          <ul class="tw">${[role.privateSecret, ...role.secrets.map(secret => secret.text)].filter((secret, index, all) => secret && all.indexOf(secret) === index).map((secret, index) => listItem(escapeHtml(secret), String(index + 1).padStart(2, '0'))).join('')}</ul>
         </section>
 
         <section>
           <h3>SECTION III — THE OTHERS AT THE TABLE</h3>
-          <ul class="rel tw">${character.rels.map(([who, text]) => `<li><span class="who">${who}</span><span class="what">${text}</span></li>`).join('')}</ul>
+          <ul class="rel tw">${role.relationships.map(relationship => `<li><span class="who">${escapeHtml(names.get(relationship.roleId) ?? relationship.roleId)}</span><span class="what">${escapeHtml(relationship.text)}</span></li>`).join('')}</ul>
         </section>
 
         <section>
           <h3>SECTION IV — WHAT YOU WANT TONIGHT</h3>
-          <ol class="tw">${character.objectives.map(([tag, text], objectiveIndex) => listItem(`${tag ? `<span class="tagi">${tag}</span>` : ''}${text}`, String(objectiveIndex + 1).padStart(2, '0'))).join('')}</ol>
+          <ol class="tw">${role.objectives.map((objective, index) => listItem(`<span class="tagi">${escapeHtml(objective.title)}</span>${escapeHtml(objective.text)} <b>${objective.points} PT</b>`, String(index + 1).padStart(2, '0'))).join('')}</ol>
         </section>`
 
       const openingLine = requireElement<HTMLElement>(interfaceRoot, '#myline')
-      openingLine.innerHTML = `<span class="lab">YOUR OPENING LINE</span><span class="say tw">&ldquo;${character.line}&rdquo;</span>`
+      openingLine.innerHTML = `<span class="lab">YOUR OPENING CUE</span><span class="say tw">${escapeHtml(issued.packet.publicContext.opening.map(cue => cue.text).join(' ') || role.invitationPromise)}</span>`
       jitter(dossier)
       jitter(openingLine)
       document.body.classList.add('state-file')
-      plate.setAttribute('aria-label', `Identification photograph: ${character.name}`)
-      requireElement(interfaceRoot, '#hostLab').textContent = `HOST CONTROLS — NOT FOR PLAYERS  ·  PART ${index + 1} OF ${frameCount}  (?as=${index})`
+      plate.setAttribute('aria-label', `Identification photograph: ${role.name}`)
+      requireElement(interfaceRoot, '#hostLab').textContent = `CENTRAL ISSUE · ${issued.participantId} · ROLE ${role.id}`
     }
 
-    function issue(index: number, replay = false) {
-      localStorage.setItem(assignmentKey, String(index))
+    let currentDossier: IssuedDossier | undefined
+    function issue(issued: IssuedDossier, replay = false) {
+      currentDossier = issued
+      const index = visualIndex(issued)
       if (still.matches && !replay) {
         seat(index, 0)
-        renderFile(index)
+        renderFile(issued)
         return
       }
-      spinTo(index, () => renderFile(index))
+      spinTo(index, () => renderFile(issued))
     }
 
+    const issueForm = requireElement<HTMLFormElement>(interfaceRoot, '#issue')
     const issueButton = requireElement<HTMLButtonElement>(interfaceRoot, '#issueBtn')
+    const issueError = requireElement<HTMLElement>(interfaceRoot, '#issueError')
+    const gameCodeField = requireElement<HTMLElement>(interfaceRoot, '#gameCodeField')
+    const gameCodeInput = requireElement<HTMLInputElement>(interfaceRoot, '#gameCode')
+    const participantInput = requireElement<HTMLInputElement>(interfaceRoot, '#participantId')
     const startOverButton = requireElement<HTMLButtonElement>(interfaceRoot, '#startOver')
     const storyTab = requireElement<HTMLButtonElement>(interfaceRoot, '#storyTab')
     const storyOperation = requireElement<HTMLElement>(interfaceRoot, '#storyOp')
     const rerunButton = requireElement<HTMLButtonElement>(interfaceRoot, '#rerun')
 
-    const handleIssue = () => issue(assign())
+    if (requestedIssueCode) {
+      gameCodeInput.value = requestedIssueCode
+      gameCodeField.hidden = true
+      participantInput.value = readIdentities()[requestedIssueCode] ?? ''
+    }
+
+    const handleIssue = async (event: SubmitEvent) => {
+      event.preventDefault()
+      const code = gameCodeInput.value.trim()
+      const participantId = participantInput.value.trim()
+      issueButton.disabled = true
+      issueError.textContent = ''
+      try {
+        const claimed = await claimDossier(code, participantId)
+        if (disposed) return
+        saveIdentity(code, participantId)
+        issue(claimed)
+      } catch (error) {
+        if (!disposed) issueError.textContent = error instanceof Error ? error.message : String(error)
+      } finally {
+        if (!disposed) issueButton.disabled = false
+      }
+    }
     const handleStartOver = () => {
-      localStorage.removeItem(assignmentKey)
-      window.location.href = `${window.location.pathname}${params.has('host') ? '?host' : ''}`
+      const code = gameCodeInput.value.trim()
+      if (code) forgetIdentity(code)
+      window.location.href = code ? `${window.location.pathname}?game=${encodeURIComponent(code)}` : window.location.pathname
     }
     const handleStoryFold = () => {
       const open = document.body.classList.toggle('story-open')
@@ -280,26 +331,37 @@ export function LaColombeIssue() {
       storyOperation.innerHTML = open ? '− &nbsp;FOLD AWAY' : '+ &nbsp;UNFOLD'
     }
     const handleRerun = () => {
-      const index = Number(localStorage.getItem(assignmentKey))
+      if (!currentDossier) return
       document.body.classList.remove('state-file', 'story-open')
       storyTab.setAttribute('aria-expanded', 'false')
       storyOperation.innerHTML = '+ &nbsp;UNFOLD'
-      window.setTimeout(() => spinTo(index, () => document.body.classList.add('state-file')), 260)
+      window.setTimeout(() => issue(currentDossier!, true), 260)
     }
 
-    issueButton.addEventListener('click', handleIssue)
+    issueForm.addEventListener('submit', handleIssue)
     startOverButton.addEventListener('click', handleStartOver)
     storyTab.addEventListener('click', handleStoryFold)
     rerunButton.addEventListener('click', handleRerun)
 
     measure()
     jitter(interfaceRoot)
-    const held = localStorage.getItem(assignmentKey)
-    if (held !== null && Number(held) >= 0 && Number(held) < frameCount) {
-      seat(Number(held), 0)
-      renderFile(Number(held))
-    } else {
-      idleReel()
+    idleReel()
+    if (requestedIssueCode) {
+      void readIssueLobby(requestedIssueCode).then(lobby => {
+        if (disposed) return
+        document.title = `${lobby.title} — Dossier issue`
+        requireElement(interfaceRoot, '#kind').textContent = lobby.title
+        requireElement(interfaceRoot, '#publicPremise').textContent = lobby.premise
+        requireElement(interfaceRoot, '#publicMeta').textContent = `${lobby.totalDossiers} PLAYERS · ${lobby.venue} · ${lobby.era}`
+        requireElement(interfaceRoot, '#withheld').innerHTML = `${lobby.totalDossiers} PARTIES PRESENT<br>${lobby.availableDossiers} FILES AVAILABLE<br>NAMES WITHHELD UNTIL ISSUE`
+        requireElement(interfaceRoot, '#synopsisText').textContent = lobby.premise
+        if (participantInput.value) issueForm.requestSubmit()
+      }).catch(error => {
+        if (!disposed) {
+          gameCodeField.hidden = false
+          issueError.textContent = error instanceof Error ? error.message : String(error)
+        }
+      })
     }
 
     return () => {
@@ -307,7 +369,7 @@ export function LaColombeIssue() {
       stopIdle()
       if (smear !== undefined) window.clearTimeout(smear)
       resizeObserver.disconnect()
-      issueButton.removeEventListener('click', handleIssue)
+      issueForm.removeEventListener('submit', handleIssue)
       startOverButton.removeEventListener('click', handleStartOver)
       storyTab.removeEventListener('click', handleStoryFold)
       rerunButton.removeEventListener('click', handleRerun)

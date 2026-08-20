@@ -53,6 +53,11 @@ export async function readRemoteGame(gameId: string) {
   return payload.game
 }
 
+export async function readRemoteIssueCode(gameId: string) {
+  const payload = await apiJson<{ issueCode: string }>(`/api/games/${encodeURIComponent(gameId)}/issue-code`)
+  return payload.issueCode
+}
+
 export async function certifyRemoteStoryline(storyline: StorylineDefinition) {
   const payload = await apiJson<{ jobId: string; status: 'pending' }>('/api/storylines', {
     method: 'POST',

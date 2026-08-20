@@ -17,20 +17,17 @@ export const interfaceMarkup = String.raw`
   <span class="fold fold--a"></span><span class="fold fold--b"></span>
 
   <header class="masthead">
-    <div class="reg tw ink ink--ribbon">PJ-06<br>Filed 2340/15<br>ANT</div>
+    <div class="reg tw ink ink--ribbon">PJ-06<br>CENTRAL ISSUE<br>ONE ROLE EACH</div>
     <div class="plate ink ink--press">
       <div class="classline">CONFIDENTIEL</div>
       <div class="dept">POLICE JUDICIAIRE · NICE<br>DOSSIER D'ENQUÊTE</div>
-      <div class="kind" id="kind">LA COLOMBE</div>
+      <div class="kind" id="kind">DOSSIER ISSUE</div>
     </div>
     <div class="reg reg--r tw ink ink--ribbon">VILLA MIRABELLE<br>Aug 15<br>11:58 P</div>
   </header>
 
-  <p class="dek tw ink ink--ribbon">Seven guests sit down to a very good dinner in a
-    very good house, and every one of them is respectable. Something in this
-    house is badly wrong. What exactly, is for you to find out.</p>
-  <p class="meta tw ink ink--ribbon">7 PLAYERS &nbsp;·&nbsp; 2 H 30 &nbsp;·&nbsp;
-    VILLA MIRABELLE, CAP D'ANTIBES &nbsp;·&nbsp; AUGUST 1962</p>
+  <p class="dek tw ink ink--ribbon" id="publicPremise">Enter the game code and your name. The central desk will issue exactly one unclaimed dossier to that identity.</p>
+  <p class="meta tw ink ink--ribbon" id="publicMeta">CENTRAL REGISTER &nbsp;·&nbsp; ONE PLAYER ID &nbsp;·&nbsp; ONE DOSSIER</p>
 
   <div class="field">
     <span class="rule rule--a"></span><span class="rule rule--b"></span>
@@ -42,7 +39,7 @@ export const interfaceMarkup = String.raw`
       </div>
       <div class="tear"></div>
       <div class="plateline ink ink--press" id="plateline">
-        <div class="withheld tw">SEVEN PARTIES PRESENT<br>NAMES AND PARTICULARS WITHHELD<br>UNTIL A FILE IS ISSUED</div>
+        <div class="withheld tw" id="withheld">PARTIES PRESENT<br>NAMES AND PARTICULARS WITHHELD<br>UNTIL A FILE IS ISSUED</div>
         <div class="nm">
           <div class="name" id="myName"></div>
           <div class="role tw" id="myRole"></div>
@@ -62,25 +59,7 @@ export const interfaceMarkup = String.raw`
       <div class="storyfold" id="storyfold"><div class="inner">
       <div class="synopsis ink ink--ribbon" id="synopsis">
         <h2>THE STORY — EVERYONE AT THE TABLE KNOWS THIS MUCH</h2>
-        <p class="tw">There is a blue diamond called <span class="clue-emphasis">La Colombe</span>
-          — the Dove. It is the size of a thumbnail and it has been in the Vernay
-          family for a hundred and forty years. Every August it comes out of the
-          bank in Nice and sits on the dinner table under a little glass dome,
-          because Sacha de Vernay likes his guests to see what money looks like.</p>
-        <p class="tw">Sacha is sixty-two, immensely rich, and famous for the people
-          he collects. This summer he invited seven of them to the villa. He wrote
-          to each of you privately, and each letter said the same strange thing:
-          <em>come on the fifteenth, I have something to announce that concerns
-          you.</em></p>
-        <p class="tw">You arrived this afternoon. It has rained since five. The
-          coast road is under water and the telephone is dead.</p>
-        <p class="tw">At half past seven the housekeeper went to call Sacha down to
-          dinner and found him on the floor of the study.</p>
-        <p class="tw">The glass dome on the dinner table is empty.</p>
-        <p class="tw">Nobody can leave until the road clears in the morning. So you
-          will have dinner, all seven of you, and by the end of it you will know
-          two things: <span class="clue-emphasis">who killed him, and who took the Dove.</span>
-          They are not the same person.</p>
+        <p class="tw" id="synopsisText">The public case briefing will appear when a valid game code is entered. Private facts remain withheld until this named player receives a central assignment.</p>
       </div>
       </div></div>
 
@@ -88,22 +67,24 @@ export const interfaceMarkup = String.raw`
     </div>
   </div>
 
-  <div class="issue" id="issue">
-    <button type="button" id="issueBtn">ISSUE MY DOSSIER</button>
-    <span class="note tw">One file each, drawn at random. Once it is issued it is
-      yours for the evening — and it names nobody but you.</span>
-  </div>
+  <form class="issue" id="issue">
+    <label class="issue-field tw" id="gameCodeField"><span>GAME ISSUE CODE</span><input id="gameCode" name="gameCode" autocomplete="off" required></label>
+    <label class="issue-field tw"><span>YOUR NAME OR HANDLE</span><input id="participantId" name="participantId" autocomplete="name" maxlength="64" required></label>
+    <button type="submit" id="issueBtn">ISSUE MY DOSSIER</button>
+    <span class="note tw">Your named ID is stored in the central game register. The next free file is issued once; there is no random local draw.</span>
+    <span class="issue-error" id="issueError" role="alert"></span>
+  </form>
 
   <footer class="foot">
     <div class="l ink ink--ribbon">
-      <span class="main-only tw">NINE WERE INVITED. SEVEN SAT DOWN.<br>ONE IS DEAD AND ONE IS A THIEF.</span>
+      <span class="main-only tw">CENTRAL DOSSIER REGISTER<br>NO ROLE MAY BE ISSUED TWICE.</span>
       <span class="file-only">
         <span class="tw">ISSUED TO <span class="strong" id="issuedTo">--</span> &nbsp;--&nbsp; ONE COPY</span><br>
         <button class="rerun tw" type="button" id="rerun">RUN THE REEL AGAIN</button>
       </span>
     </div>
     <div class="r ink ink--ribbon">
-      <span class="main-only tw">THE ROAD CLEARS AT DAWN</span>
+      <span class="main-only tw">IDENTITY REQUIRED BEFORE ISSUE</span>
       <span class="file-only tw">THIS SHEET NAMES ONE PARTY ONLY<br>DO NOT SHOW IT AT THE TABLE</span>
     </div>
     <div class="ink ink--press"><span class="foot-secret">SECRET</span></div>
@@ -114,6 +95,6 @@ export const interfaceMarkup = String.raw`
 
 <div class="hostbar" id="hostbar">
   <span class="lab" id="hostLab">HOST CONTROLS — NOT FOR PLAYERS</span>
-  <button class="hostbtn" type="button" id="startOver">START OVER — CLEAR THIS BROWSER'S PART</button>
+  <button class="hostbtn" type="button" id="startOver">FORGET THIS BROWSER'S ID</button>
 </div>
 `

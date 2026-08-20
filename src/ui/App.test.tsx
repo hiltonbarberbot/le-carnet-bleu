@@ -60,6 +60,23 @@ describe('host lifecycle projection', () => {
     expect(html).not.toContain('How many people')
   })
 
+  it('shares the central issue desk from the enrolling screen', () => {
+    const issueCode = '33333333-3333-4333-8333-333333333333'
+    const html = renderToStaticMarkup(<HostWorkspace
+      definition={definition}
+      state={createGame(definition, new Date('2026-08-18T10:00:00Z'), 'issue-link')}
+      issueCode={issueCode}
+      onCommands={() => undefined}
+      capabilities={noAi}
+      gateway={{ state: 'unavailable' }}
+      onPreview={() => undefined}
+      onRefresh={() => undefined}
+    />)
+    expect(html).toContain(`/issue?game=${issueCode}`)
+    expect(html).toContain('central register assigns the next free role in order')
+    expect(html).toContain('Refresh issued names')
+  })
+
   it('links assignment labels directly to dossiers without delivery claims', () => {
     const prepared = prepareGame(definition, enrolling(), noAi)
     const html = render(prepared)
@@ -141,8 +158,8 @@ describe('private player card', () => {
   it('shows traits, relationships, secrets, and three scored objectives', () => {
     const character = story.characters[0]
     const openingCues = openingInstructionsForRole(story, character.id)
-    const html = renderToStaticMarkup(<PlayerProfile character={character} openingCues={openingCues} />)
-    expect(html).toContain('Your three objectives')
+    const html = renderToStaticMarkup(<PlayerProfile story={story} character={character} />)
+    expect(html).toContain(`Your ${character.objectives.length} objectives`)
     expect(html).toContain(character.traits[0])
     expect(html).toContain(character.relationships[0].text)
     expect(html).toContain(character.secrets[0].text)

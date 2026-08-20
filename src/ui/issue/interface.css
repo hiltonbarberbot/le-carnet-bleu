@@ -356,6 +356,11 @@ body.state-file .dossier{ opacity:1; pointer-events:auto; position:static; }
   flex-wrap:wrap;
   transition:opacity .4s ease;
 }
+.issue-field{display:flex;flex-direction:column;gap:5px;min-width:210px;font-size:9px;letter-spacing:.1em;color:var(--ink-type-2)}
+.issue-field input{width:100%;padding:9px 10px;border:1px solid rgba(87,58,112,.55);border-bottom:2px solid var(--ink-type);background:rgba(255,235,230,.18);color:#2b1c22;font:700 12px "Courier Prime","Courier New",monospace;outline:none}
+.issue-field input:focus{border-color:var(--ink-red-2);box-shadow:0 0 0 1px var(--ink-red-2)}
+.issue-field[hidden]{display:none}
+.issue-error{flex-basis:100%;min-height:15px;color:var(--ink-red-2);font-size:11px;font-weight:700}
 body.state-file .issue,
 body.state-spin .issue{ opacity:0; pointer-events:none; }
 
@@ -371,6 +376,7 @@ body.state-spin .issue{ opacity:0; pointer-events:none; }
 .issue button:hover{ transform:rotate(-1.1deg) skewX(-3deg) scale(1.03); color:#a51b2c; border-color:#a51b2c; }
 .issue button:active{ transform:rotate(-1.1deg) skewX(-3deg) scale(.98); }
 .issue button:focus-visible{ outline:2px dashed var(--ink-red-2); outline-offset:5px; }
+.issue button:disabled{opacity:.45;cursor:wait}
 .issue .note{
   font-size:10.5px; line-height:15px; letter-spacing:.06em; color:var(--ink-type-2);
   max-width:36ch;
