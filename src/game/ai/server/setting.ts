@@ -1,6 +1,6 @@
 import { generateText, NoObjectGeneratedError, Output } from 'ai'
-import type { SettingBriefInput } from '../../setting/contract'
 import { productNaming } from '../../../product/naming'
+import { normalizeSettingDraft } from '../setting/draft'
 import { classifyAiProviderError, createProblemReference, problemResponse } from './problem'
 
 const model = process.env.AI_GATEWAY_MODEL || 'google/gemini-3.7-flash'
@@ -31,49 +31,6 @@ function cleanText(value: unknown) {
   return typeof value === 'string' ? value.trim() : ''
 }
 
-function cleanList(value: unknown) {
-  return Array.isArray(value) ? value.map(cleanText).filter(Boolean) : []
-}
-
-function cleanProps(value: unknown): NonNullable<SettingBriefInput['availableProps']> {
-  if (!Array.isArray(value)) return []
-  const result: NonNullable<SettingBriefInput['availableProps']> = []
-  for (const item of value) {
-    if (typeof item === 'string') {
-      if (item.trim()) result.push(item.trim())
-      continue
-    }
-    if (!item || typeof item !== 'object') continue
-    const prop = item as Record<string, unknown>
-    const label = cleanText(prop.label)
-    if (!label) continue
-    result.push({
-      id: cleanText(prop.id) || undefined,
-      label,
-      description: cleanText(prop.description),
-      quantity: typeof prop.quantity === 'number' ? prop.quantity : 1,
-      safetyNotes: cleanList(prop.safetyNotes),
-    })
-  }
-  return result
-}
-
-function cleanResources(value: unknown): NonNullable<SettingBriefInput['playableSpaces']> {
-  if (!Array.isArray(value)) return []
-  const result: NonNullable<SettingBriefInput['playableSpaces']> = []
-  for (const item of value) {
-    if (typeof item === 'string') {
-      if (item.trim()) result.push(item.trim())
-      continue
-    }
-    if (!item || typeof item !== 'object') continue
-    const resource = item as Record<string, unknown>
-    const label = cleanText(resource.label)
-    if (label) result.push({ id: cleanText(resource.id) || undefined, label, description: cleanText(resource.description) })
-  }
-  return result
-}
-
 function parseJsonObject(value: string) {
   const text = value.trim()
   const fenced = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i)
@@ -88,23 +45,6 @@ function rejectedDraftFrom(error: unknown) {
 function invalidOutputReason(error: unknown) {
   if (NoObjectGeneratedError.isInstance(error) && error.cause instanceof Error) return error.cause.message
   return error instanceof Error ? error.message : String(error)
-}
-
-function cleanSetting(value: unknown): SettingBriefInput {
-  const setting = value && typeof value === 'object' ? value as Record<string, unknown> : {}
-  return {
-    venueName: cleanText(setting.venueName),
-    location: cleanText(setting.location),
-    era: cleanText(setting.era),
-    playableSpaces: cleanResources(setting.playableSpaces),
-    routes: cleanResources(setting.routes),
-    usableFeatures: cleanResources(setting.usableFeatures),
-    availableProps: cleanProps(setting.availableProps),
-    tone: cleanText(setting.tone),
-    safetyConstraints: cleanResources(setting.safetyConstraints),
-    accessibilityNeeds: cleanResources(setting.accessibilityNeeds),
-    contentBoundaries: cleanResources(setting.contentBoundaries),
-  }
 }
 
 const settingShape = `Return exactly one JSON object with this shape:
@@ -175,7 +115,7 @@ Do not invent architecture, functional zones, routes, local history, permissions
       return problemResponse(code, { reference })
     }
 
-    return json({ draft: cleanSetting(output), model })
+    return json({ draft: normalizeSettingDraft(output), model })
   }
 
   console.error('AI setting extraction exhausted repair attempts', {

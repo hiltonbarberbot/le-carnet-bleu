@@ -4,15 +4,16 @@ import { createDemoStoryline } from '../../game/demo'
 import { AuthoringStudio, followCertificationJob } from './studio'
 
 describe('AI authoring studio', () => {
-  it('starts with fact extraction before the required host questionnaire', () => {
+  it('starts with an agent conversation instead of a setting form', () => {
     const html = renderToStaticMarkup(<AuthoringStudio gateway={{ state: 'available', model: 'test/model' }} onExit={() => undefined} onSave={async () => undefined} />)
-    expect(html).toContain('CREATE WITH AI')
-    expect(html).toContain('Start with what you know')
-    expect(html).toContain('extract only the facts')
-    expect(html).toContain('Shape the setting')
+    expect(html).toContain('SETTING AGENT')
+    expect(html).toContain('Let’s talk about the place')
+    expect(html).toContain('No questionnaire')
+    expect(html).toContain('Reply naturally')
     expect(html).not.toContain('SYSTEM VERIFIED')
     expect(html).not.toContain('Playable spaces')
-    expect(html).not.toContain('Comfort &amp; boundaries')
+    expect(html).not.toContain('Validate these setting facts')
+    expect(html).not.toContain('REQUIRED')
   })
 
   it('lets an aborted Strict Mode poll finish without clearing or surfacing stale state', async () => {

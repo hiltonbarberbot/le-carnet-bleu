@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { draftStorylineFromSetting, resumeStorylineCertification } from '../../game/ai/author'
-import { createSettingFromSeed } from '../../game/ai/setting'
+import {
+  continueSettingConversation,
+  settingConversationOpening,
+  type SettingConversationMessage,
+} from '../../game/ai/setting/conversation'
 import type { StorylineDefinition } from '../../game/definition/contract'
-import { createSettingBrief, settingQuestions } from '../../game/setting/brief'
+import { createSettingBrief } from '../../game/setting/brief'
 import type { SettingBrief, SettingBriefInput } from '../../game/setting/contract'
 import { describeDraftFailure, type DraftFailure, type DraftingStage } from './failure'
 import './studio.css'
@@ -19,17 +23,13 @@ type StudioStage = 'idle' | DraftingStage
 
 const certificationJobKey = 'mystery.story-certification.v1'
 
-const textSettingFields = new Set<keyof SettingBriefInput>(['venueName', 'location', 'era', 'tone'])
-
-function settingFieldText(value: SettingBriefInput[keyof SettingBriefInput]) {
-  if (typeof value === 'string') return value
-  return (value ?? []).map(item => typeof item === 'string' ? item : item.label).join('\n')
-}
-
-function settingFieldValue(id: keyof SettingBriefInput, value: string) {
-  return textSettingFields.has(id)
-    ? value
-    : value.split(/\n|,/).map(item => item.trim()).filter(Boolean)
+function FailureReasons({ failure }: { failure: DraftFailure }) {
+  if (!failure.blockingReasons?.length) return null
+  return <ul className="author-error-reasons">
+    {failure.blockingReasons.map(reason => <li key={`${reason.stage}:${reason.code}`}>
+      {reason.message}
+    </li>)}
+  </ul>
 }
 
 type CertificationFollowupEffects = {
@@ -60,12 +60,13 @@ export async function followCertificationJob(
 }
 
 export function AuthoringStudio({ gateway, onExit, onSave, saveError }: AuthoringStudioProps) {
-  const [prompt, setPrompt] = useState('')
+  const [chatInput, setChatInput] = useState('')
+  const [messages, setMessages] = useState<SettingConversationMessage[]>([settingConversationOpening])
   const [failure, setFailure] = useState<DraftFailure>()
   const [draftingStage, setDraftingStage] = useState<StudioStage>('idle')
   const [draft, setDraft] = useState<StorylineDefinition>()
   const [settingDraft, setSettingDraft] = useState<SettingBrief>()
-  const [settingInput, setSettingInput] = useState<SettingBriefInput>()
+  const [settingInput, setSettingInput] = useState<SettingBriefInput>({})
   const [saving, setSaving] = useState(false)
   const certificationAbort = useRef<AbortController | undefined>(undefined)
 
@@ -93,17 +94,10 @@ export function AuthoringStudio({ gateway, onExit, onSave, saveError }: Authorin
     }
   }, [])
 
-  async function shapeSetting() {
-    if (!prompt.trim()) {
-      setFailure({
-        title: 'Give us a seed first',
-        message: 'One line about the place, mood, or premise is enough.',
-        help: 'Your notes can be rough. We’ll shape the rest.',
-        stage: 'setting',
-        retryable: false,
-      })
-      return
-    }
+  async function sendSettingMessage(event?: FormEvent) {
+    event?.preventDefault()
+    const content = chatInput.trim()
+    if (!content || drafting) return
     if (gateway.state !== 'available') {
       setFailure({
         title: 'Drafting isn’t connected',
@@ -115,15 +109,38 @@ export function AuthoringStudio({ gateway, onExit, onSave, saveError }: Authorin
       return
     }
 
+    const nextMessages: SettingConversationMessage[] = [...messages, { role: 'user', content }]
+    setMessages(nextMessages)
+    setChatInput('')
     setFailure(undefined)
     setDraftingStage('setting')
     try {
-      setSettingInput(await createSettingFromSeed(prompt.trim()))
+      const turn = await continueSettingConversation(nextMessages, settingInput)
+      setSettingInput(turn.draft)
+      setMessages(current => [...current, { role: 'assistant', content: turn.message }])
+      if (turn.ready) setSettingDraft(createSettingBrief(turn.draft))
     } catch (error) {
+      setMessages(messages)
+      setChatInput(content)
       setFailure(describeDraftFailure(error, 'setting'))
     } finally {
       setDraftingStage('idle')
     }
+  }
+
+  function resetConversation() {
+    setDraft(undefined)
+    setSettingDraft(undefined)
+    setSettingInput({})
+    setMessages([settingConversationOpening])
+    setChatInput('')
+    setFailure(undefined)
+  }
+
+  function submitOnEnter(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key !== 'Enter' || event.shiftKey) return
+    event.preventDefault()
+    void sendSettingMessage()
   }
 
   async function createDraft() {
@@ -148,22 +165,6 @@ export function AuthoringStudio({ gateway, onExit, onSave, saveError }: Authorin
     }
   }
 
-  function validateSetting() {
-    if (!settingInput) return
-    try {
-      setSettingDraft(createSettingBrief(settingInput))
-      setFailure(undefined)
-    } catch (error) {
-      setFailure({
-        title: 'Setting incomplete',
-        message: error instanceof Error ? error.message : 'The setting facts are incomplete.',
-        help: 'Fill every required field, including at least two playable areas, then validate again.',
-        stage: 'setting',
-        retryable: false,
-      })
-    }
-  }
-
   async function saveDraft() {
     if (!draft || saving) return
     setSaving(true)
@@ -175,7 +176,7 @@ export function AuthoringStudio({ gateway, onExit, onSave, saveError }: Authorin
   }
 
   if (draft) return <main className="author-studio draft-ready">
-    <button className="author-back" onClick={() => { setDraft(undefined); setSettingDraft(undefined); setSettingInput(undefined) }}>← Start over</button>
+    <button className="author-back" onClick={resetConversation}>← Start over</button>
     <section className="draft-card">
       <span className="kicker">SYSTEM VERIFIED · READY TO PLAY</span>
       <h1>{draft.title}</h1>
@@ -197,7 +198,7 @@ export function AuthoringStudio({ gateway, onExit, onSave, saveError }: Authorin
   </main>
 
   if (settingDraft) return <main className="author-studio draft-ready">
-    <button className="author-back" onClick={() => { setSettingDraft(undefined); setFailure(undefined) }}>← Edit setting facts</button>
+    <button className="author-back" onClick={() => { setSettingDraft(undefined); setFailure(undefined) }}>← Continue the conversation</button>
     <section className="draft-card setting-confirmation">
       <span className="kicker">REAL-WORLD SAFETY CHECK</span>
       <h1>Confirm the setting first.</h1>
@@ -212,55 +213,40 @@ export function AuthoringStudio({ gateway, onExit, onSave, saveError }: Authorin
         <div><dt>Accessibility</dt><dd>{settingDraft.accessibilityNeeds.map(item => item.label).join(', ') || 'No specific needs recorded'}</dd></div>
         <div><dt>Content boundaries</dt><dd>{settingDraft.contentBoundaries.map(item => item.label).join(', ')}</dd></div>
       </dl>
-      {failure && <section className="author-errors compact" role="alert"><b>GENERATION FAILED</b><p>{failure.message}</p><p className="author-error-help">{failure.help}</p></section>}
+      {failure && <section className="author-errors compact" role="alert"><b>GENERATION FAILED</b><p>{failure.message}</p><FailureReasons failure={failure} /><p className="author-error-help">{failure.help}</p></section>}
       <button className="author-shape" disabled={drafting} onClick={() => void createDraft()}>{drafting ? 'Writing and validating the mystery…' : 'This is accurate — generate and validate →'}</button>
     </section>
   </main>
 
-  if (settingInput) return <main className="author-studio setting-questionnaire">
-    <button className="author-back" onClick={() => { setSettingInput(undefined); setFailure(undefined) }}>← Change the seed</button>
-    <section className="setting-question-card">
-      <span className="kicker">HOST-VERIFIED SETTING</span>
-      <h1>Tell us what’s actually there.</h1>
-      <p>We extracted only facts in your seed. Fill the gaps below; one item per line works well. Nothing here will be invented by the system.</p>
-      <div className="setting-question-grid">{settingQuestions.map(question => {
-        const value = settingFieldText(settingInput[question.id])
-        const multiline = !textSettingFields.has(question.id)
-        return <label key={question.id} className={multiline ? 'wide' : undefined}>
-          <span>{question.prompt}{question.required && <b> REQUIRED</b>}</span>
-          {multiline
-            ? <textarea rows={3} value={value} onChange={event => setSettingInput(current => ({ ...current, [question.id]: settingFieldValue(question.id, event.target.value) }))} placeholder={question.required ? 'One item per line' : 'Optional — leave blank if none'} />
-            : <input value={value} onChange={event => setSettingInput(current => ({ ...current, [question.id]: settingFieldValue(question.id, event.target.value) }))} />}
-          <small>{question.why}</small>
-        </label>
-      })}</div>
-      {failure && <section className="author-errors compact" role="alert"><b>SETTING INCOMPLETE</b><p>{failure.message}</p></section>}
-      <button className="author-shape" onClick={validateSetting}>Validate these setting facts →</button>
-    </section>
-  </main>
-
-  const buttonLabel = draftingStage === 'setting'
-    ? 'Figuring out the setting…'
-    : failure?.retryable ? 'Try again →' : 'Shape the setting →'
-
-  return <main className="author-studio author-seed-studio">
+  return <main className="author-studio setting-conversation-studio">
     <button className="author-back" onClick={onExit}>← Back</button>
-    <section className="author-seed-card">
-      <span className="kicker">CREATE WITH AI</span>
-      <h1>Start with what you know.</h1>
-      <p>Describe the real place, mood, and premise. We’ll extract only the facts you supplied, then ask you to fill the venue and safety gaps before any story is written.</p>
-      <label className="author-prompt">
-        <span className="sr-only">Your mystery seed</span>
-        <textarea autoFocus spellCheck value={prompt} onChange={event => { setPrompt(event.target.value); setFailure(undefined) }} placeholder="A house in Grambois. 1960s spy mystery, elegant and funny." />
-      </label>
-      <div className="author-prompt-meta"><span>Messy is fine. Unknown details stay blank.</span><span>{prompt.trim().length ? `${prompt.trim().length} characters` : 'Start anywhere'}</span></div>
+    <section className="setting-conversation-card">
+      <header className="setting-conversation-head">
+        <div><span className="kicker">SETTING AGENT</span><h1>Let’s talk about the place.</h1></div>
+        <p>No questionnaire. Tell me what you know in your own words, and I’ll ask only for the details the mystery still needs.</p>
+      </header>
+      <div className="setting-messages" aria-live="polite">
+        {messages.map((message, index) => <article key={`${message.role}-${index}`} className={`setting-message ${message.role}`}>
+          <span>{message.role === 'assistant' ? 'SETTING AGENT' : 'YOU'}</span>
+          <p>{message.content}</p>
+        </article>)}
+        {draftingStage === 'setting' && <article className="setting-message assistant thinking"><span>SETTING AGENT</span><p>Working out what I still need…</p></article>}
+      </div>
       {failure && <section className="author-errors compact" role="alert" aria-live="assertive">
-        <div className="author-error-heading"><b>{failure.title}</b><span>{failure.stage === 'setting' ? 'Setting setup' : 'Story writing'}</span></div>
+        <div className="author-error-heading"><b>{failure.title}</b><span>Setting conversation</span></div>
         <p>{failure.message}</p>
+        <FailureReasons failure={failure} />
         <p className="author-error-help">{failure.help}</p>
         {failure.reference && <small>Reference {failure.reference}</small>}
       </section>}
-      <button className="author-shape" disabled={drafting || gateway.state !== 'available'} onClick={() => void shapeSetting()}>{buttonLabel}</button>
+      <form className="setting-composer" onSubmit={event => void sendSettingMessage(event)}>
+        <label>
+          <span className="sr-only">Reply to the setting agent</span>
+          <textarea autoFocus rows={2} spellCheck value={chatInput} onKeyDown={submitOnEnter} onChange={event => { setChatInput(event.target.value); setFailure(undefined) }} placeholder="Reply naturally…" />
+        </label>
+        <button disabled={!chatInput.trim() || drafting || gateway.state !== 'available'} aria-label="Send message">{draftingStage === 'setting' ? '…' : '↑'}</button>
+      </form>
+      <div className="setting-composer-note"><span>Enter to send · Shift + Enter for a new line</span><span>Unknown details stay unknown until you answer.</span></div>
       {gateway.state !== 'available' && <p className={`author-ai-note ${gateway.state}`}>{gateway.state === 'checking' ? 'Checking AI…' : 'AI drafting is not configured on this deployment.'}</p>}
     </section>
   </main>
