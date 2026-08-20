@@ -302,7 +302,7 @@ body.state-file .synopsis h2{ display:none; }   /* the tab already says it */
   margin-bottom:calc(var(--lh) * .8);
 }
 .synopsis p:last-child{ margin-bottom:0; }
-.synopsis .beat{ color:#3d1f55; text-shadow:.4px 0 0 currentColor,-.15px 0 0 currentColor; }
+.synopsis .clue-emphasis{ color:#3d1f55; text-shadow:.4px 0 0 currentColor,-.15px 0 0 currentColor; }
 
 
 .dossier{

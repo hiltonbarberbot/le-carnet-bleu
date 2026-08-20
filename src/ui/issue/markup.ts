@@ -62,7 +62,7 @@ export const interfaceMarkup = String.raw`
       <div class="storyfold" id="storyfold"><div class="inner">
       <div class="synopsis ink ink--ribbon" id="synopsis">
         <h2>THE STORY — EVERYONE AT THE TABLE KNOWS THIS MUCH</h2>
-        <p class="tw">There is a blue diamond called <span class="beat">La Colombe</span>
+        <p class="tw">There is a blue diamond called <span class="clue-emphasis">La Colombe</span>
           — the Dove. It is the size of a thumbnail and it has been in the Vernay
           family for a hundred and forty years. Every August it comes out of the
           bank in Nice and sits on the dinner table under a little glass dome,
@@ -79,7 +79,7 @@ export const interfaceMarkup = String.raw`
         <p class="tw">The glass dome on the dinner table is empty.</p>
         <p class="tw">Nobody can leave until the road clears in the morning. So you
           will have dinner, all seven of you, and by the end of it you will know
-          two things: <span class="beat">who killed him, and who took the Dove.</span>
+          two things: <span class="clue-emphasis">who killed him, and who took the Dove.</span>
           They are not the same person.</p>
       </div>
       </div></div>
