@@ -1,8 +1,8 @@
 # Setting-aware live mystery engine
 
-A setting-aware live dinner-party murder mystery system with one host role and five suspect roles. At setup, the host may add names to any roles, leave roles unassigned, or reuse a name; the app does not infer a real-world headcount.
+A setting-aware live dinner-party murder mystery system with one host role and five suspect roles. At setup, the host assigns a real player to every suspect role. A game cannot be prepared with an empty seat or a claimed AI seat because the web runtime does not yet implement autonomous player controllers.
 
-The repository includes one Maison Bleue demo story and seven validated 1960s Grambois spy mysteries, but none is universal canon. A real run begins by learning the actual venue, usable spaces, safe routes, props, tone, accessibility needs, and content boundaries. The fictional gathering and invitations are generated with the story. Only then should a human or agent draft the mystery.
+The repository includes one Maison Bleue demo story and seven bundled 1960s Grambois spy-mystery drafts, but none is universal canon. Bundled does not mean logically approved: unapproved drafts are not exposed by the server library and cannot create games. A real run begins by learning the actual venue, usable spaces, safe routes, props, tone, accessibility needs, and content boundaries. The AI may extract facts from a rough seed, but missing setting facts remain blank for the host to answer and confirm. The fictional gathering and invitations are generated only after that setting is valid.
 
 ## Setting-first authoring
 
@@ -45,9 +45,9 @@ const runtime = createGameRuntime(storyline)
 
 Storyline creation and game creation are separate lifecycle concepts. A storyline contains the validated mystery and setting; a game contains one evening's host, players, assignments, progress, and outcome. The browser persists a storyline library and can keep several games linked to the same storyline fingerprint.
 
-All setting resources are first-class records with stable IDs: spaces, routes, features, props, safety constraints, accessibility needs, and content boundaries. Routes and features can name the spaces they depend on. Setup checks, clue sources, and opening steps use one `{ kind, id }` reference shape; prop links remain directly backlinkable through `getPropBacklinks(storyline)`. Every physical opening step also proves no contact, reversibility, a host cue, and who performs or proxies it. Imported legacy prose inventories are normalized, and all new exports persist schema v5.
+All setting resources are first-class records with stable IDs: spaces, routes, features, props, safety constraints, accessibility needs, and content boundaries. Routes and features can name the spaces they depend on. Setup checks, clue sources, and opening steps use one `{ kind, id }` reference shape; prop links remain directly backlinkable through `getPropBacklinks(storyline)`. Every physical opening step also proves no contact, reversibility, a host cue, and who performs or proxies it. Imported legacy prose inventories are normalized, and all new exports persist schema v6.
 
-Roles and evidence are equally explicit. The host, victim, and culprit are linked by stable role IDs rather than display names. Each solution step has its own ID, every evidence item records provenance and an independence group, and purchasable clues declare which solution steps they support. Runtime restoration verifies those IDs against the exact definition, including ordered opening progress, clue-deck partitions, objectives, roles, and revealed evidence.
+Roles and evidence are equally explicit. The host, victim, and culprit are linked by stable role IDs rather than display names. Each solution step has its own ID, every evidence item records provenance and an independence group, and purchasable clues declare which solution steps they support. A `caseTheory` must crosslink four distinct atomic steps for motive, concrete means, opportunity, and fatal act. Static review rejects culprit-owned proof and any step without two independent non-culprit sources. A deterministic command-level simulator then proves the runtime can traverse setup, opening, free investigation, clue economy, objectives, failed and successful accusations, reveal, scoring, and completion. An independent LLM review checks actual entailment and contradictions. Five spoiler-isolated player agents each rehearse from only their real dossier and public view; a separate host agent checks staging and operation; then a spoiler-aware judge checks the combined information flow, objectives, deducibility, clue independence, and reveal. The result is stored as a fingerprint-bound playability passport. Runtime restoration verifies IDs against the exact definition, including ordered opening progress, clue-deck partitions, objectives, roles, and revealed evidence.
 
 Spoiler-rich God view and private dossier previews are game-scoped host tools. The storyline library exposes only safe metadata, game creation, rules, import, and export; it cannot open God view without a concrete game bound to that exact storyline fingerprint.
 
@@ -66,13 +66,17 @@ The game opens with one short authored incident, then gets out of the players’
 - One persisted lifecycle: `idle → enrolling → prepared → active → completed | aborted`
 - Direct role-specific dossier/PDF objectives with no fabricated account identity, address, receipt, or delivery claim
 - Hard gates for definition fingerprint, setting-derived setup, fair-play evidence, and accusation outcomes
+- A durable, fail-closed Workflow pipeline with bounded author/repair steps, static and executable checks, an independent logic review, and spoiler-isolated rehearsals
 - A structured setting-resource and physical-prop ledger with validated forward links and derived preparation/opening-step backlinks
 - Explicit, confirmed reset back to true idle; constructors and reloads never fabricate assignments, feed entries, or timestamps
-- Optional, fail-closed Vercel AI Gateway controllers assigned only at `prepare`, after humans have had the entire enrolment window
+- Five required human controllers at `prepare`; AI authoring credentials are never treated as proof that AI players exist
+- A Next.js App Router shell with owner-scoped storyline and game APIs backed by PostgreSQL
+- A database-enforced playability passport: uncertified drafts are quarantined, hidden, and unable to back a new game row
+- Optimistic game versions: every command supplies its expected version, and stale writers receive the latest server state
 
 The intended table rhythm follows the durable party-game architecture: private packets first, a brief murder setup, then one to three hours of player-led conversation. There are no guided acts after the body is discovered. The host keeps time, sells clues, arbitrates subjective objectives, and runs a hearing only when a player calls one.
 
-AI-controlled roles use the same objectives, relationships, and secrets as human-controlled roles. The host owns the short opening checklist and any physical staging.
+The host owns the short opening checklist and any physical staging. Autonomous player roles remain disabled until a real controller loop can execute the same objectives, relationships, secrets, and votes as a human.
 
 ## Portable game contract
 
@@ -115,17 +119,45 @@ The `./openclaw` export is a generic adapter over any `PortableGameRuntime`; it 
 
 ```bash
 npm install
+brew services start postgresql@17
+createdb le_carnet_bleu_dev
+cp .env.example .env.local
+npm run db:migrate
+npm run workflow:bootstrap
 npm run dev
 ```
 
-For local AI players, copy `.env.example` to `.env.local`, set `AI_GATEWAY_API_KEY`, and run `vercel dev` so Vite and `/api/ai/perform` are served together. Vercel deployments can authenticate to AI Gateway with OIDC. `AI_GATEWAY_MODEL` is optional.
+The default `DATABASE_URL` in `.env.example` targets a standard local PostgreSQL database. `workflow:bootstrap` idempotently adds Workflow DevKit and Graphile Worker tables to that database, and the Next instrumentation worker drains the durable local queue. In production, set `DATABASE_URL` to the pooled Neon connection string and omit the three local `WORKFLOW_*` variables so Vercel selects Vercel World automatically. Run `npm run db:migrate` against each application database before starting it.
+
+Vercel production builds run the same idempotent migrations before compiling Next.js. Preview builds skip database migration, so an immutable production-target deployment can be verified before its domains are promoted without exposing Neon credentials locally.
+
+For local setting extraction, story generation, independent review, and isolated player/host rehearsal, set `AI_GATEWAY_API_KEY` in `.env.local`. Vercel deployments can authenticate to AI Gateway with OIDC. The `AI_GATEWAY_*_MODEL` variables in `.env.example` are optional model overrides.
+
+The web library is currently scoped by a server-issued, HttpOnly browser-owner cookie. It is suitable for the host-only product and local development, but it is not a user login. Neon Auth can replace that owner boundary when multi-device accounts or player-specific server views are introduced.
+
+## HTTP API
+
+- `GET|POST /api/storylines` and `GET /api/storylines/:fingerprint` (`POST` imports a quarantined draft; `GET` lists certified storylines only)
+- `POST /api/ai/author` starts durable certification and returns `202 { jobId, status: "pending" }`
+- `GET /api/ai/author/:jobId` polls the current owner’s job and returns `pending | running | succeeded | failed`; a successful response includes the already-certified definition
+- `GET|POST /api/games` and `GET /api/games/:gameId`
+- `POST /api/games/:gameId/commands` for the canonical typed command union
+- `POST /api/library/import` for the one-time browser-library migration
+
+Storylines are immutable, fingerprinted definitions. Games are separate, mutable sessions linked by `storylineFingerprint`. Game creation and every subsequent command require a current passing passport; PostgreSQL also prevents a new game row from referencing an uncertified fingerprint. The command endpoint uses optimistic versions and is the only HTTP path that advances a game.
+
+Certification runs through Vercel Workflow DevKit. Each expensive model boundary is a durable retryable step, while the workflow itself only orchestrates serializable results. The browser stores its opaque owner-scoped job ID and resumes polling after a reload. Failed and inconclusive drafts record only a job failure; they are never inserted into the playable library.
 
 ## Verify
 
 ```bash
 npm test
+npm run typecheck
 npm run build
+AI_GATEWAY_API_KEY=... npm run review:stories
 ```
+
+`review:stories` accepts one or more `story.json` paths plus optional `--model` and `--json` flags. It exits immediately on deterministic failures and invokes the Gateway only for drafts that reach the final semantic backstop.
 
 Coverage includes story and social-graph compilation, setting-backed clue and physical-staging checks, deterministic private clue draws, token trading, hearing outcomes, exact scoring, dossier privacy, a complete non-blackout gallery scenario, illegal lifecycle transitions, exact definition persistence, the portable runtime, OpenClaw routing, and fail-closed AI endpoints.
 
@@ -136,9 +168,15 @@ Coverage includes story and social-graph compilation, setting-backed clue and ph
 - `src/game/props/` — physical-prop crosslinks and derived reverse indexes
 - `src/game/scenario.ts` — Maison Bleue demo characters, objectives, evidence, solution steps, and ordered opening
 - `src/game/story/` — agent authoring handoff and story graph validation
+- `src/game/story/review/` — deterministic case-theory audit and Gateway-backed final logic review
+- `src/game/story/certification/` — durable author, review, rehearsal, owner-job, and atomic certification workflow
 - `story/runs/` — validated setting, storyline, host guide, and dossier artifacts for authored runs
 - `src/game/session/` — lifecycle transitions and exact persisted-state validation
 - `src/game/runtime/` — host-agnostic contract, registry, and functional runtime implementation
+- `src/game/application/` — typed game commands and the single state-changing command executor
+- `src/game/persistence/` — PostgreSQL repository port and server-backed library service
+- `src/app/api/` — Next.js route handlers at the HTTP boundary
+- `db/migrations/` — portable PostgreSQL schema migrations for local Postgres and Neon
 - `src/product/` — product naming derived from the portable manifest
 - `src/integrations/openclaw/` — generic chat discovery, routing, persistence, and output adapter
 - `src/game/ai/` and `api/ai/` — bounded Vercel AI Gateway client/server integration
